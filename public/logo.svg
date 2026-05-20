@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 96" fill="none">
+  
+  <g transform="translate(8, 12)">
+    
+    <path d="M 36 60 Q 36 16 72 16 Q 36 16 36 60 Z" fill="#FFD600" stroke="#1F1410" stroke-width="3" stroke-linejoin="round"></path>
+    <path d="M 36 60 L 72 16 Q 72 60 36 60 Z" fill="#FFC400" stroke="#1F1410" stroke-width="3" stroke-linejoin="round"></path>
+    
+    <circle cx="40" cy="58" r="2.2" fill="#1F1410"></circle>
+    <circle cx="46" cy="51" r="2.2" fill="#1F1410"></circle>
+    <circle cx="52" cy="44" r="2.2" fill="#1F1410"></circle>
+    <circle cx="58" cy="37" r="2.2" fill="#1F1410"></circle>
+    <circle cx="64" cy="30" r="2.2" fill="#1F1410"></circle>
+    <circle cx="70" cy="22" r="2.2" fill="#1F1410"></circle>
+    
+    <path d="M 50 8 Q 52 4 50 0" stroke="#FF6B00" stroke-width="2.5" stroke-linecap="round" fill="none"></path>
+    <path d="M 60 10 Q 62 6 60 2" stroke="#FF6B00" stroke-width="2.5" stroke-linecap="round" fill="none"></path>
+  </g>
+  
+  <g transform="translate(100, 0)" font-family="Plus Jakarta Sans, sans-serif">
+    <text x="0" y="42" font-size="28" font-weight="800" fill="#1F1410" letter-spacing="-0.5">Pastel</text>
+    <text x="0" y="74" font-size="28" font-weight="800" fill="#FF6B00" letter-spacing="-0.5">da Gil</text>
+  </g>
+</svg>

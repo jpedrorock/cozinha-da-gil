@@ -1,0 +1,271 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Order {
+  id           Int         @id @default(autoincrement())
+  clientName   String
+  clientPhone  String?
+  status       OrderStatus @default(PEDIDO_FEITO)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  createdBy    String      @default("—")
+  preparedBy   String?
+  preparedAt   DateTime?
+  readyBy      String?
+  readyAt      DateTime?
+  deliveredBy  String?
+  deliveredAt  DateTime?
+  cancelledBy   String?
+  cancelledAt   DateTime?
+  cancelReason  String?
+  // CRM — Fase 7: pedidos com telefone linkam a um Customer.
+  customerId      String?
+  customer        Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  // Tracking de notificação "pronto" via WhatsApp (atendente clicou "Avisar").
+  notifiedReadyAt DateTime?
+  notifiedReadyBy String?
+
+  // Fase 6: pedido pertence a uma sessão de caixa (substitui DayClose).
+  // Nullable durante transição — pedidos antigos ficam sem session até backfill.
+  eventSessionId String?
+  eventSession   EventSession? @relation(fields: [eventSessionId], references: [id])
+
+  // Fase 6: promoção aplicada (snapshot pra resilir delete do Promotion)
+  promotionId     String?
+  promotion       Promotion? @relation(fields: [promotionId], references: [id], onDelete: SetNull)
+  promotionName   String?    // snapshot do nome no momento da aplicação
+  discountCents   Int        @default(0)
+
+  items        OrderItem[]
+
+  @@index([status])
+  @@index([createdAt])
+  @@index([eventSessionId])
+  @@index([promotionId])
+  @@index([customerId])
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   Int
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  // === Campos legacy (mantidos pra back-compat com código existente) ===
+  // kind aceita: 'salgado' | 'doce' | 'bebida' | 'macarrao' | 'combo'
+  kind      String
+  // size pode ser "" pra produtos sem variação (ex: macarrão preço fixo, combo)
+  size      String  @default("")
+  toppings  String  @default("[]") // JSON array — toppings (pastel/macarrão) ou sabores (combo)
+  flavor    String?                 // sabor único (pastel doce)
+  sauces    String  @default("[]") // JSON array — molhos
+  notes     String?
+  unitPrice Int
+  quantity  Int     @default(1)
+
+  // === Fase 6: refs pro produto cadastrado + snapshot ===
+  productId     String?
+  product       Product?     @relation(fields: [productId], references: [id], onDelete: SetNull)
+  productSizeId String?
+  productSize   ProductSize? @relation(fields: [productSizeId], references: [id], onDelete: SetNull)
+  productName   String       @default("")
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String   @unique
+  role         String   // 'atendente' | 'cozinha' | 'admin'
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([role])
+}
+
+model Ingredient {
+  id                 String   @id @default(cuid())
+  name               String
+  // Categorias: 'topping' | 'doce' | 'molho' | 'macarrao_topping' | 'macarrao_molho' | 'bebida_extra'
+  category           String
+  available          Boolean  @default(true)
+  position           Int      @default(0)
+  stock              Int?
+  lowStockThreshold  Int?
+  // Iconify ID — formato "prefix:name" (ex: "mdi:food-drumstick", "twemoji:bacon").
+  // Escolhido pelo admin via picker no Cardápio. Null = sem ícone.
+  icon               String?
+  createdAt          DateTime @default(now())
+
+  @@unique([category, name])
+  @@index([category])
+}
+
+// === Fase 6 ===
+
+model Product {
+  id                 String        @id @default(cuid())
+  name               String
+  // 'salgado' | 'doce' | 'bebida' | 'macarrao' | 'combo'
+  type               String
+  // 'fixed' (basePriceCents) | 'by_size' (preço sai dos ProductSize)
+  pricingMode        String        @default("fixed")
+  basePriceCents     Int?
+  available          Boolean       @default(true)
+  position           Int           @default(0)
+
+  // Configuração de ingredientes
+  allowsIngredients  Boolean       @default(false)
+  ingredientCategory String?       // qual categoria de Ingredient ele aceita
+  maxIngredients     Int?          // null = ilimitado; 2 = pastel pequeno; 4 = combo
+  minIngredients     Int?          // null/0 = opcional; 4 = combo exige 4
+  allowsSauces       Boolean       @default(false)
+  sauceCategory      String?       // null = usa 'molho' default
+
+  // Estoque opcional pra produtos prontos (bebida etc)
+  stock              Int?
+  lowStockThreshold  Int?
+
+  // Imagem opcional — data URI base64 (SVG/PNG). Substitui ícone Lucide
+  // quando presente. Útil pra bebidas com marca (Coca, Sprite, Guaraná).
+  // Limite suave 200KB. Null = usa ícone default por tipo.
+  imageDataUrl       String?
+
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  sizes              ProductSize[]
+  orderItems         OrderItem[]
+
+  @@unique([name, type])
+  @@index([type])
+  @@index([position])
+}
+
+model ProductSize {
+  id           String  @id @default(cuid())
+  productId    String
+  product      Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  name         String  // "Pequeno" / "Lata 350ml"
+  description  String? // "2 ingredientes"
+  priceCents   Int
+  position     Int     @default(0)
+
+  orderItems   OrderItem[]
+
+  @@unique([productId, name])
+  @@index([productId])
+}
+
+model Promotion {
+  id                  String   @id @default(cuid())
+  name                String
+  description         String?
+  // 'percent' | 'fixed_cents' | 'free_item'
+  discountType        String
+  discountValue       Int      // 10 (= 10% / 500 = R$5 / produto-id como free_item)
+  active              Boolean  @default(true)
+  validFromDate       DateTime?
+  validUntilDate      DateTime?
+  // JSON array de productIds; vazio = aplica a todos
+  appliesToProductIds String   @default("[]")
+  minItems            Int?
+  minTotalCents       Int?
+  // Cupom — quando setado, promoção exige código digitado pelo atendente
+  // (não é auto-detectada). Único por promoção. Case-insensitive na validação.
+  couponCode          String?  @unique
+  createdBy           String
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  orders              Order[]
+
+  @@index([active])
+}
+
+model EventSession {
+  id          String    @id @default(cuid())
+  name        String?   // opcional — "Festa Junina", "Sexta normal"
+  // Data do evento — opcional. Quando vendido em festa/data específica
+  // (não num dia "normal"), Gil registra a data do evento aqui pra
+  // agrupar no histórico. Default null = usa openedAt como referência.
+  eventDate   DateTime?
+  openedAt    DateTime  @default(now())
+  openedBy    String
+  closedAt    DateTime?
+  closedBy    String?
+  totalCents  Int?      // snapshot no fechamento
+
+  orders      Order[]
+
+  @@index([closedAt])
+  @@index([openedAt])
+  @@index([eventDate])
+}
+
+enum OrderStatus {
+  PEDIDO_FEITO
+  EM_PREPARO
+  PRONTO
+  ENTREGUE
+  CANCELADO
+}
+
+// === Fase 7: CRM ===
+
+// Cliente recorrente. Criado automaticamente quando pedido tem telefone.
+// Phone normalizado (+55XXXXXXXXXXX) é unique — dedup por número.
+model Customer {
+  id              String   @id @default(cuid())
+  phone           String   @unique
+  name            String
+  notes           String?  // campo livre pra Gil ("aniversário 12/05", "vegetariano")
+
+  // Opt-in: recibo + aviso de pronto = "notifications".
+  // Promoções = "marketing" (consentimento explícito separado).
+  optInNotifications Boolean @default(true)
+  optInMarketing     Boolean @default(false)
+
+  // Agregados pré-calculados — atualizados no app code no upsert.
+  // Evita query SUM toda vez que abre tela Clientes.
+  totalOrders     Int       @default(0)
+  totalSpentCents Int       @default(0)
+  lastOrderAt     DateTime?
+  firstOrderAt    DateTime  @default(now())
+
+  // Soft delete pra LGPD — Orders mantêm FK pra histórico.
+  deletedAt       DateTime?
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  orders          Order[]
+  broadcastLogs   BroadcastLog[]
+
+  @@index([deletedAt])
+  @@index([lastOrderAt])
+  @@index([optInMarketing])
+}
+
+// Log de envios em massa (Fase D). Cada vez que Gil clica "abrir wa.me"
+// pra um cliente no fluxo de broadcast, registra aqui. Não confirma entrega.
+model BroadcastLog {
+  id          String   @id @default(cuid())
+  customerId  String
+  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  message     String
+  sentAt      DateTime @default(now())
+  sentBy      String
+  campaignId  String?  // futuro: agrupar broadcasts ("Promo julho")
+
+  @@index([customerId])
+  @@index([sentAt])
+  @@index([campaignId])
+}

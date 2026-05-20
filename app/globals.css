@@ -1,0 +1,208 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Force light scheme — block browser auto-dark heuristics */
+html { color-scheme: only light; }
+:root { color-scheme: only light; }
+
+@layer base {
+  html, body {
+    background: theme('colors.surface.DEFAULT');
+    color: theme('colors.ink.DEFAULT');
+    font-family: theme('fontFamily.sans');
+    font-size: 16px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: 'cv11', 'ss01';
+  }
+  * { box-sizing: border-box; }
+  button { -webkit-tap-highlight-color: transparent; }
+
+  /* Bloqueia pull-to-refresh acidental do iOS/Android quando atendente
+     puxa de leve no topo da fila durante stepper aberto. Sem isso, a
+     página recarrega no meio do pedido e perde o state inteiro. */
+  html, body { overscroll-behavior-y: contain; }
+
+  /* iOS Safari faz auto-zoom em qualquer input com font-size < 16px.
+     Atendente toca no campo e a tela inteira dá zoom — quebra fluxo.
+     Forçamos 16px em mobile pra evitar (desktop mantém escala visual). */
+  @media (max-width: 767px) {
+    input,
+    select,
+    textarea {
+      font-size: 16px !important;
+    }
+  }
+
+  /* Respeitar usuários com prefers-reduced-motion: desliga animações
+     mas mantém estados focus/active visíveis. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* === TYPE SCALE — sistema único, sóbrio, hierárquico ===
+     Pesos limitados: 400 (regular) / 600 (semibold) / 700 (bold).
+     Sem extrabold — peso vem de cor + tamanho, não da fonte.
+     Tamanhos arbitrários só pra valores entre defaults do Tailwind. */
+  .t-display { @apply text-[28px] md:text-[32px] font-bold -tracking-[0.015em] leading-[1.1]  text-ink; }
+  .t-h1      { @apply text-[22px]               font-bold -tracking-[0.01em]  leading-[1.2]  text-ink; }
+  .t-h2      { @apply text-[17px]               font-semibold                 leading-[1.3]  text-ink; }
+  .t-h3      { @apply text-sm                   font-semibold                 leading-[1.35] text-ink; }
+  .t-body-lg { @apply text-[17px]               font-normal                   leading-[1.5]  text-ink; }
+  .t-body    { @apply text-[15px]               font-normal                   leading-[1.5]  text-ink; }
+  .t-body-sm { @apply text-[13px]               font-normal                   leading-[1.5]  text-ink-2; }
+  .t-label   { @apply text-[11px]               font-bold uppercase tracking-[0.08em] leading-none text-ink-3; }
+  .t-caption { @apply text-xs                   font-medium                   leading-tight  text-ink-3; }
+  .t-num     { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum'; }
+
+  /* DEPRECATED — alias temporário enquanto telas não foram migradas.
+     t-h4 → t-h3, t-badge → t-label. Remover quando refator completo. */
+  .t-h4    { @apply text-sm  font-semibold leading-[1.35] text-ink; }
+  .t-badge { @apply text-[11px] font-bold leading-none uppercase tracking-[0.08em]; }
+
+  /* === BUTTONS — 3 tamanhos por contexto ===
+     Default base (44px) cobre toque mobile sem dominar a tela.
+     .btn-lg pra ações primárias (FAB, "Entrar", "Confirmar pedido").
+     .btn-sm pra inline/secundário. */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 h-11 px-5 rounded-md
+           font-semibold text-[15px] leading-none border-0 cursor-pointer relative overflow-hidden
+           transition-[background,transform,box-shadow] duration-150 ease-out;
+  }
+  .btn:focus-visible { @apply outline-none shadow-focus; }
+  .btn:active        { @apply scale-[.96]; }
+  .btn:disabled      { @apply opacity-40 cursor-not-allowed scale-100; }
+
+  .btn-primary {
+    @apply bg-brand-yellow text-ink shadow-sm;
+  }
+  .btn-primary:hover { @apply bg-brand-yellow-hover shadow-md; }
+  .btn-primary:active{ @apply bg-brand-yellow-press; }
+
+  .btn-secondary {
+    @apply bg-surface-elevated text-ink border border-line;
+  }
+  .btn-secondary:hover { @apply bg-surface-sunken; }
+
+  .btn-ghost {
+    @apply bg-transparent text-ink;
+  }
+  .btn-ghost:hover { @apply bg-surface-sunken; }
+
+  .btn-danger { @apply bg-danger text-white; }
+
+  .btn-lg { @apply h-14 text-[15px] px-6; }
+  .btn-sm { @apply h-9 text-[13px] px-3; }
+
+  /* Press-flash: feedback de "toque" usando pseudo-elemento.
+     Mais sutil que ripple completo, performático, sem JS. */
+  .btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.35);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 150ms ease-out;
+  }
+  .btn:active::after { opacity: 1; transition-duration: 0ms; }
+  .btn-danger::after { background: rgba(255, 255, 255, 0.25); }
+  .btn-ghost::after  { background: rgba(31, 20, 16, 0.06); }
+
+  /* --- Status badges --- */
+  .badge {
+    @apply inline-flex items-center gap-2 px-3 py-1.5 rounded-full
+           text-xs font-bold uppercase tracking-[0.08em] leading-none;
+  }
+  .badge::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+  .badge-new       { @apply bg-status-incoming-bg  text-status-incoming-ink; }
+  .badge-preparing { @apply bg-status-preparing-bg text-status-preparing-ink; }
+  .badge-ready     { @apply bg-status-ready-bg     text-status-ready-ink; }
+  .badge-delivered { @apply bg-status-delivered-bg text-status-delivered-ink; }
+  .badge-cancelled { @apply bg-danger-bg text-danger; }
+
+  /* --- Cards --- */
+  .card {
+    @apply bg-surface-elevated border border-line rounded-md shadow-sm;
+  }
+  .card-lg {
+    @apply bg-surface-elevated rounded-lg shadow-md p-6;
+  }
+
+  /* === INPUTS — 3 tamanhos. base=h-11 alinha com btn default. */
+  .input {
+    @apply h-11 px-3 w-full rounded-md border border-line-strong
+           bg-surface-elevated text-ink text-[15px]
+           transition-[border-color,box-shadow] duration-150 ease-out;
+  }
+  .input::placeholder { @apply text-ink-3; }
+  .input:focus { @apply outline-none border-brand-yellow shadow-focus; }
+  .input-sm { @apply h-9 px-3 text-[13px]; }
+  .input-lg { @apply h-14 px-4 text-base; }
+
+  .textarea {
+    @apply w-full p-4 rounded-md border border-line-strong
+           bg-surface-elevated text-ink text-base font-sans resize-none
+           transition-[border-color,box-shadow] duration-150 ease-out;
+  }
+  .textarea:focus { @apply outline-none border-brand-yellow shadow-focus; }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* Foco visível só pra navegação por teclado — não pra tap em mobile.
+     Em iOS Safari, tap deixa foco "preso" no botão e confunde visualmente.
+     Use em botões custom que não herdam o .btn (chips de ingredient,
+     ícones round, links de ação). */
+  .tap-focus {
+    outline: none;
+  }
+  .tap-focus:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 214, 0, 0.4);
+  }
+
+  /* Skeleton pulse soft — substitui o shimmer brilhante anterior.
+     Pulse calmo (opacity 1 ↔ 0.62) é mais brand-aligned (Linear/Notion
+     style) e menos "loading do site da loja". */
+  .skeleton {
+    @apply rounded-md bg-surface-sunken;
+    animation: skeleton-pulse-soft 1.4s ease-in-out infinite;
+  }
+  @keyframes skeleton-pulse-soft {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.62; }
+  }
+
+  /* Spinner inline pequeno (usado no botão "Entrando..." etc) */
+  .spinner-inline {
+    @apply inline-block w-4 h-4 rounded-full border-2 border-current border-r-transparent;
+    animation: spin-slow 700ms linear infinite;
+  }
+
+  /* Glow pulsante quando passa de meta — pra cards EM_PREPARO atrasados. */
+  .animate-prep-glow { animation: prep-glow 1.6s ease-in-out infinite; }
+
+  /* Stepper transitions: enter from right (forward), enter from left (backward). */
+  .animate-step-in  { animation: slide-in-right 220ms cubic-bezier(.2,.8,.2,1); }
+  .animate-step-back{ animation: slide-in-left  220ms cubic-bezier(.2,.8,.2,1); }
+}
