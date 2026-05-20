@@ -26,7 +26,11 @@ RUN apk add --no-cache libc6-compat openssl
 
 COPY package.json package-lock.json ./
 # `npm ci` é determinístico (respeita lockfile) e mais rápido que `npm install`.
-RUN npm ci
+# `--ignore-scripts` pula o `postinstall: prisma generate` do package.json —
+# nesse stage o schema do Prisma ainda não foi copiado (otimização de cache:
+# só `package*.json` aqui). O `prisma generate` é chamado explicitamente
+# no stage builder depois do `COPY . .` (vide abaixo).
+RUN npm ci --ignore-scripts
 
 # === STAGE 2: builder ===
 FROM node:20-alpine AS builder
