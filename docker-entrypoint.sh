@@ -25,8 +25,11 @@ DATABASE_URL="file:$DB_PATH" npx prisma db push --skip-generate --accept-data-lo
 
 # Seed só se SEED_ON_BOOT=true E o DB acabou de ser criado (sem users).
 # Evita re-seedar a cada redeploy (que apagaria customers/orders reais).
+#
+# Nota POSIX-sh: NÃO usar here-string (`<<<`) — busybox sh do Alpine não
+# suporta. Pipe via `echo |` funciona em qualquer shell. Aprendi na unha. :)
 if [ "${SEED_ON_BOOT}" = "true" ]; then
-  USER_COUNT=$(DATABASE_URL="file:$DB_PATH" npx prisma db execute --stdin <<< "SELECT COUNT(*) as c FROM User;" 2>/dev/null | grep -oE '[0-9]+' | head -1 || echo "0")
+  USER_COUNT=$(echo "SELECT COUNT(*) as c FROM User;" | DATABASE_URL="file:$DB_PATH" npx prisma db execute --stdin 2>/dev/null | grep -oE '[0-9]+' | head -1 || echo "0")
   if [ "${USER_COUNT:-0}" = "0" ]; then
     echo "🌱 DB vazio — rodando seed inicial..."
     DATABASE_URL="file:$DB_PATH" npx tsx prisma/seed.ts || echo "⚠️ seed falhou."
