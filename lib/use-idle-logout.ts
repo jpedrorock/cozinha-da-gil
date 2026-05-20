@@ -15,13 +15,28 @@ import { useEffect, useRef } from "react";
  * - Tablet emprestado pra outra pessoa sem fazer logout
  *
  * Não dispara enquanto a aba estiver hidden (visibility API).
+ *
+ * **`disabled` (audit P0 #01):** quando true, suspende o timer. Use em fluxos
+ * onde o usuário está fisicamente engajado mas não toca a tela (atendente
+ * conversando com cliente em pé com stepper aberto). Sem isso, draft do
+ * pedido morria depois de 30min de conversa.
  */
-export function useIdleLogout(onTimeout: () => void, timeoutMs = 30 * 60 * 1000) {
+export function useIdleLogout(
+  onTimeout: () => void,
+  timeoutMs = 30 * 60 * 1000,
+  disabled = false,
+) {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onTimeoutRef = useRef(onTimeout);
   onTimeoutRef.current = onTimeout;
 
   useEffect(() => {
+    if (disabled) {
+      // Limpa qualquer timer pendente quando entra em modo disabled
+      if (timerRef.current) clearTimeout(timerRef.current);
+      return;
+    }
+
     function reset() {
       if (timerRef.current) clearTimeout(timerRef.current);
       timerRef.current = setTimeout(() => {
@@ -51,5 +66,5 @@ export function useIdleLogout(onTimeout: () => void, timeoutMs = 30 * 60 * 1000)
       if (timerRef.current) clearTimeout(timerRef.current);
       events.forEach((e) => window.removeEventListener(e, reset));
     };
-  }, [timeoutMs]);
+  }, [timeoutMs, disabled]);
 }

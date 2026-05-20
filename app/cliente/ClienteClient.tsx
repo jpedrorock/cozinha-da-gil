@@ -1,11 +1,51 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, WifiOff } from "lucide-react";
 import { useSSE } from "@/lib/use-sse";
 import { BrandIcon, PastelIcon } from "@/components/icons";
 import type { OrderView } from "@/lib/orders";
+
+/** Card de nome com escala adaptativa: nomes curtos (≤8 chars) ganham
+ *  tamanho máximo, longos descem em degraus pra evitar quebra feia em TV
+ *  e truncamento silencioso. Audit P1 #04 ("Maria Aparecida da Silva"
+ *  cortava no `text-8xl`). Brasileiro tem ~30% de nomes 3+ palavras. */
+function NameCard({
+  order,
+  pulse,
+  textAccent,
+}: {
+  order: OrderView;
+  pulse?: boolean;
+  textAccent: string;
+}) {
+  const sizeClass = useMemo(() => {
+    const len = order.clientName.length;
+    if (len <= 8) return "text-2xl md:text-5xl xl:text-7xl 2xl:text-8xl";
+    if (len <= 16) return "text-2xl md:text-5xl xl:text-6xl 2xl:text-7xl";
+    if (len <= 25) return "text-xl md:text-4xl xl:text-5xl 2xl:text-6xl";
+    return "text-lg md:text-3xl xl:text-4xl 2xl:text-5xl";
+  }, [order.clientName]);
+
+  return (
+    <li
+      className={`card-lg p-5 md:p-6 animate-tv-card-in ${
+        pulse ? "ring-2 ring-status-ready ring-offset-2 ring-offset-surface animate-flash-ring-once" : ""
+      }`}
+    >
+      <div className={`font-mono text-sm md:text-base t-num ${textAccent}`}>
+        #{String(order.id).padStart(3, "0")}
+      </div>
+      <div
+        className={`${sizeClass} font-bold -tracking-[0.015em] leading-[0.95] mt-1 break-words text-balance line-clamp-2 min-h-[1.1em]`}
+        style={{ overflowWrap: "anywhere" }}
+      >
+        {order.clientName}
+      </div>
+    </li>
+  );
+}
 
 export function ClienteClient({ initialOrders }: { initialOrders: OrderView[] }) {
   const [orders, setOrders] = useState<OrderView[]>(initialOrders);
@@ -153,27 +193,7 @@ function Column({
             : {})}
         >
           {orders.map((o) => (
-            <li
-              key={o.id}
-              className={`card-lg p-5 md:p-6 animate-tv-card-in ${
-                pulse ? "ring-2 ring-status-ready ring-offset-2 ring-offset-surface animate-flash-ring-once" : ""
-              }`}
-            >
-              <div className={`font-mono text-sm md:text-base t-num ${textAccent}`}>
-                #{String(o.id).padStart(3, "0")}
-              </div>
-              {/* Nome em 2 linhas (line-clamp-2) com break-words pra
-                  evitar truncamento silencioso de "Marina Aparecida".
-                  text-balance distribui o quebra equilibrado.
-                  Escala em xl/2xl pra TV 4K (cliente lê de 4-5m de distância
-                  no painel da barraca — em md tava muito pequeno em 65"). */}
-              <div
-                className="text-2xl md:text-5xl xl:text-7xl 2xl:text-8xl font-bold -tracking-[0.015em] leading-[0.95] mt-1 break-words text-balance line-clamp-2 min-h-[1.1em]"
-                style={{ overflowWrap: "anywhere" }}
-              >
-                {o.clientName}
-              </div>
-            </li>
+            <NameCard key={o.id} order={o} pulse={pulse} textAccent={textAccent} />
           ))}
         </ul>
       )}

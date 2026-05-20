@@ -207,9 +207,19 @@ export function OrderCard({
             </button>
           )}
           {order.notifiedReadyAt && order.status === "PRONTO" && (
-            <span className="inline-flex items-center gap-1 t-caption text-status-ready font-semibold">
+            <span
+              className="inline-flex items-center gap-1 t-caption text-status-ready font-semibold"
+              title={new Date(order.notifiedReadyAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+            >
               <Check size={12} strokeWidth={3} />
-              Avisado
+              {(() => {
+                // Tempo relativo no badge — atendente decide reavisar ou esperar.
+                // Em festa, cliente demora 5-15min mesmo notificado. Audit P1 #12.
+                if (now === null) return "Avisado";
+                const mins = Math.max(0, Math.floor((now - new Date(order.notifiedReadyAt).getTime()) / 60000));
+                if (mins < 1) return "Avisado · agora";
+                return `Avisado · há ${mins} min`;
+              })()}
             </span>
           )}
           {onAdvance && order.status === "PRONTO" && (

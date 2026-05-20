@@ -18,6 +18,7 @@ export function PinInput({
   length = 4,
   autoFocus = false,
   onComplete,
+  submitOnComplete = true,
   size = "lg",
   keypad = false,
 }: {
@@ -26,6 +27,12 @@ export function PinInput({
   length?: number;
   autoFocus?: boolean;
   onComplete?: (value: string) => void;
+  /** Se true (default), `onComplete` dispara assim que o último dígito é
+   *  inserido — comportamento de "auto-submit". Se false, `onComplete` NÃO
+   *  é chamado: o caller é responsável por confirmar manualmente (botão
+   *  "Entrar"). Use false em logins onde queremos dar 1 segundo de respiro
+   *  pra usuário revisar antes de mandar (PIN compartilhado em barraca). */
+  submitOnComplete?: boolean;
   size?: "md" | "lg";
   keypad?: boolean;
 }) {
@@ -34,15 +41,17 @@ export function PinInput({
 
   // Mantém referência mais recente do value/onComplete pro listener global do keypad
   // não capturar stale closures (re-bind toda vez seria muito caro com 1 char por dispatch).
-  const stateRef = useRef({ value, length, onChange, onComplete });
-  stateRef.current = { value, length, onChange, onComplete };
+  const stateRef = useRef({ value, length, onChange, onComplete, submitOnComplete });
+  stateRef.current = { value, length, onChange, onComplete, submitOnComplete };
 
   const appendDigit = useCallback((d: string) => {
     const s = stateRef.current;
     if (s.value.length >= s.length) return;
     const next = (s.value + d).slice(0, s.length);
     s.onChange(next);
-    if (next.length === s.length && s.onComplete) s.onComplete(next);
+    if (next.length === s.length && s.submitOnComplete && s.onComplete) {
+      s.onComplete(next);
+    }
   }, []);
 
   const backspace = useCallback(() => {
@@ -87,7 +96,7 @@ export function PinInput({
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const digits = e.target.value.replace(/\D/g, "").slice(0, length);
     onChange(digits);
-    if (digits.length === length && onComplete) {
+    if (digits.length === length && submitOnComplete && onComplete) {
       onComplete(digits);
     }
   }

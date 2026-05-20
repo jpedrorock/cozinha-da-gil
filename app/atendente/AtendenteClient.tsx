@@ -3,13 +3,13 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSwipeable } from "react-swipeable";
-import { AlertTriangle, Check, Lock, Minus, Pencil, Plus, X } from "lucide-react";
+import { AlertTriangle, Check, Lock, Minus, Pencil, Plus, Tag, X } from "lucide-react";
 import type { Ingredient, OrderStatus } from "@prisma/client";
 import { AppHeader } from "@/components/AppHeader";
 import { OrderCard } from "@/components/OrderCard";
 import { CancelDialog } from "@/components/CancelDialog";
 import { SwipeableCartItem } from "@/components/SwipeableCartItem";
-import { buildWaUrl, templateOrderReady } from "@/lib/whatsapp-templates";
+import { buildWaNativeUrl, buildWaUrl, templateOrderReady } from "@/lib/whatsapp-templates";
 import { useBodyScrollLock } from "@/lib/use-body-scroll-lock";
 import {
   BebidaIcon,
@@ -169,10 +169,8 @@ export function AtendenteClient({
   }, [ready, operator, router]);
 
   // Auto-logout por inatividade (30min). Tablet esquecido em festa.
-  useIdleLogout(() => {
-    clear();
-    router.replace("/");
-  });
+  // Pausado durante creating=true: atendente conversa com cliente em pé,
+  // não toca a tela por 5min e o draft sumia. Audit P0 #01.
 
   const allToppings = ingredients.topping ?? [];
   const allDoces = ingredients.doce ?? [];
@@ -222,6 +220,87 @@ export function AtendenteClient({
   const [cancelTarget, setCancelTarget] = useState<OrderView | null>(null);
   const [eventStatus, setEventStatus] = useState<EventSessionStatus>(initialEventStatus);
   const caixaFechado = !eventStatus.open;
+
+  // Auto-logout por inatividade (30min). Pausado durante `creating`: atendente
+  // conversa com cliente em pé, fica 5min sem tocar a tela e o draft sumia
+  // com o logout. Audit P0 #01.
+  useIdleLogout(
+    () => {
+      clear();
+      router.replace("/");
+    },
+    30 * 60 * 1000,
+    creating,
+  );
+
+  // === Draft persistido em sessionStorage (audit P0 #01) ===========
+  // Cobertura: idle logout, refresh acidental do navegador, navegar pra
+  // outra aba e voltar. NÃO cobre fechar a aba (sessionStorage some no
+  // close). Pra isso seria localStorage — mas aí dois atendentes no mesmo
+  // browser veriam o draft um do outro. Trade-off OK pra single-device.
+  const DRAFT_KEY = "pdg:atendente-draft-v1";
+  type Draft = {
+    creating: boolean;
+    phase: Phase;
+    clientName: string;
+    clientPhone: string;
+    clientOptInMarketing: boolean;
+    built: Built[];
+    current: Building;
+    editingOrderId: number | null;
+    selectedPromoId: string | null;
+  };
+  // Restore no mount — se houver draft + estava em creating, restaura.
+  // Refs pra evitar dependências que disparariam o save logo após restore.
+  const draftRestoredRef = useRef(false);
+  useEffect(() => {
+    if (draftRestoredRef.current) return;
+    draftRestoredRef.current = true;
+    try {
+      const raw = sessionStorage.getItem(DRAFT_KEY);
+      if (!raw) return;
+      const d: Draft = JSON.parse(raw);
+      if (!d.creating) return; // só restaura se estava no meio de um pedido
+      setCreating(true);
+      setPhase(d.phase);
+      setClientName(d.clientName);
+      setClientPhone(d.clientPhone);
+      setClientOptInMarketing(d.clientOptInMarketing);
+      setBuilt(d.built);
+      setCurrent(d.current);
+      setEditingOrderId(d.editingOrderId);
+      setSelectedPromoId(d.selectedPromoId);
+    } catch {
+      // Draft corrompido — descarta silencioso, não vale travar UI por isso
+      sessionStorage.removeItem(DRAFT_KEY);
+    }
+  }, []);
+
+  // Salva a cada mudança relevante. Roda DEPOIS do restore (ref guard).
+  useEffect(() => {
+    if (!draftRestoredRef.current) return;
+    // Só persiste enquanto está criando. Fora disso, limpa pra não sujar.
+    if (!creating) {
+      sessionStorage.removeItem(DRAFT_KEY);
+      return;
+    }
+    const draft: Draft = {
+      creating,
+      phase,
+      clientName,
+      clientPhone,
+      clientOptInMarketing,
+      built,
+      current,
+      editingOrderId,
+      selectedPromoId,
+    };
+    try {
+      sessionStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+    } catch {
+      // QuotaExceeded ou modo privado — não dá pra fazer nada, segue UI
+    }
+  }, [creating, phase, clientName, clientPhone, clientOptInMarketing, built, current, editingOrderId, selectedPromoId]);
 
   // Idempotency-key: gerado uma vez por "intent" (uma submissão de pedido).
   // Reusado em retries dentro da mesma submitOrder (double-tap, network blip)
@@ -551,12 +630,38 @@ export function AtendenteClient({
   }
 
   /** Avisar cliente via WhatsApp que pedido tá pronto.
-   *  Abre wa.me sincronamente (antes do await — popup blocker)
-   *  e em paralelo marca no banco (sem bloquear UI). */
+   *  Tenta deep-link nativo `whatsapp://` (abre o app instalado em iOS/Android
+   *  sem cair no Safari embutido — audit P1 #07). Cria <a> dinâmico em vez
+   *  de window.open() porque anchor é o que iOS reconhece pro deep-link.
+   *  Fallback pra wa.me em 600ms se o nativo falhar (app não instalado etc). */
   function notifyReady(order: OrderView) {
     const text = templateOrderReady(order);
-    const url = buildWaUrl(order.clientPhone, text);
-    window.open(url, "_blank");
+    const nativeUrl = buildWaNativeUrl(order.clientPhone, text);
+    const webUrl = buildWaUrl(order.clientPhone, text);
+
+    // Tenta nativo via anchor click sintético (iOS-friendly)
+    const a = document.createElement("a");
+    a.href = nativeUrl;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    a.style.display = "none";
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => a.remove(), 100);
+
+    // Fallback web se nada aconteceu em 600ms (app não instalado, browser desktop)
+    const fallbackTimer = setTimeout(() => {
+      if (document.visibilityState === "visible") {
+        window.open(webUrl, "_blank", "noopener,noreferrer");
+      }
+    }, 600);
+    // Se a aba perdeu foco antes do timer (app abriu), cancela fallback
+    const onBlur = () => {
+      clearTimeout(fallbackTimer);
+      window.removeEventListener("blur", onBlur);
+    };
+    window.addEventListener("blur", onBlur);
+
     // Fire-and-forget: erro silencioso pq Gil já mandou. SSE atualiza UI.
     fetch(`/api/orders/${order.id}/notify-ready`, {
       method: "POST",
@@ -664,7 +769,12 @@ export function AtendenteClient({
               className={`pointer-events-auto inline-flex items-center gap-2 h-14 min-w-[200px] px-6 rounded-full font-bold text-[15px] shadow-lg active:scale-[0.96] transition-colors whitespace-nowrap justify-center ${
                 caixaFechado
                   ? "bg-surface-sunken text-ink-3 cursor-not-allowed"
-                  : "bg-brand-yellow text-ink animate-fab-pulse hover:bg-brand-yellow-hover hover:animate-none active:animate-none"
+                  : // Pulse só quando fila tá vazia (chama atenção pra "comece um novo").
+                    // Quando há pedidos visíveis, atendente já tá engajado — pulse vira
+                    // motion fatigue periférica em jornada de 6h. Audit P1 #14.
+                    orders.length === 0
+                    ? "bg-brand-yellow text-ink animate-fab-pulse hover:bg-brand-yellow-hover hover:animate-none active:animate-none"
+                    : "bg-brand-yellow text-ink hover:bg-brand-yellow-hover"
               }`}
               aria-label="Novo pedido"
               title={caixaFechado ? "Caixa fechado" : "Novo pedido"}
@@ -944,7 +1054,37 @@ function NovoPedido({
         <div className="flex-1 overflow-y-auto px-4 md:px-8 pt-6 max-w-2xl w-full mx-auto">
           <div className="flex items-baseline justify-between mb-1">
             <h1 className="t-h1">{editing ? "Editar pedido" : "Resumo"}</h1>
-            <span className="t-body-sm">{clientName}</span>
+            <div className="flex flex-col items-end gap-0.5">
+              <span className="t-body-sm">{clientName}</span>
+              {/* Audit P1 #10: quick start Balcão pula tela de cliente.
+                  Se o cliente pediu pra avisar no WhatsApp depois, atendente
+                  precisa adicionar phone aqui sem refazer pedido. */}
+              {!clientPhone && !editing && (
+                <button
+                  onClick={() => {
+                    const input = window.prompt(
+                      "Telefone do cliente (opcional)\nFormato: (11) 99999-9999",
+                      "",
+                    );
+                    if (input === null) return;
+                    const digits = input.replace(/\D/g, "");
+                    if (digits.length >= 10 && digits.length <= 11) {
+                      setClientPhone(digits);
+                    } else if (digits.length > 0) {
+                      window.alert("Telefone precisa ter 10 ou 11 dígitos com DDD.");
+                    }
+                  }}
+                  className="t-caption text-ink-2 hover:text-ink underline decoration-dotted"
+                >
+                  + Adicionar telefone
+                </button>
+              )}
+              {clientPhone && !editing && (
+                <span className="t-caption t-num text-ink-3">
+                  {formatPhoneMask(clientPhone)}
+                </span>
+              )}
+            </div>
           </div>
           <p className="t-body-sm mb-3">
             {totalUnits} {totalUnits === 1 ? "item" : "itens"} ·{" "}
@@ -2655,19 +2795,30 @@ function CouponInput({
   return (
     <div className="mb-4 flex flex-col gap-1">
       <div className="flex gap-2">
-        <input
-          type="text"
-          className="input h-11 text-sm uppercase t-num flex-1"
-          placeholder="Tem cupom?"
-          value={code}
-          onChange={(e) => {
-            setCode(e.target.value.toUpperCase().replace(/\s/g, ""));
-            setError(null);
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") tryApply();
-          }}
-        />
+        {/* Ícone Tag à esquerda + placeholder explícito (audit P2 #19):
+            sem affordance forte o input passava batido como label de fase
+            do stepper, cupons ficavam não-descobertos. */}
+        <div className="relative flex-1">
+          <Tag
+            size={16}
+            strokeWidth={2.25}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-3 pointer-events-none"
+            aria-hidden
+          />
+          <input
+            type="text"
+            className="input h-11 text-sm uppercase t-num w-full pl-9"
+            placeholder="Código do cupom (opcional)"
+            value={code}
+            onChange={(e) => {
+              setCode(e.target.value.toUpperCase().replace(/\s/g, ""));
+              setError(null);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") tryApply();
+            }}
+          />
+        </div>
         <button
           onClick={tryApply}
           disabled={!code.trim()}
@@ -2815,10 +2966,44 @@ function Fila({
               <div className="flex justify-center mb-2 opacity-50">
                 <PastelSalgadoIcon size={64} />
               </div>
-              <div className="t-h4 text-ink-2">Nada por aqui.</div>
-              <div className="t-body-sm mt-1">
-                Quando tiver pedido nesse estado, ele aparece aqui.
-              </div>
+              {(() => {
+                // Audit P1 #09: cada filtro tem voz própria no empty.
+                // Genérico ("ele aparece aqui") era ruim — em "Cancelado" parece
+                // que tá esperando coisa que não devia aparecer.
+                const messages: Record<OrderStatus | "todos", { title: string; body: string }> = {
+                  PEDIDO_FEITO: {
+                    title: "Nenhum pedido novo.",
+                    body: "Próximo cliente, próxima entrada.",
+                  },
+                  EM_PREPARO: {
+                    title: "Nada em preparo agora.",
+                    body: "Cozinha tá esperando o próximo.",
+                  },
+                  PRONTO: {
+                    title: "Nenhum pedido pronto agora.",
+                    body: "Cozinha tá no fluxo.",
+                  },
+                  ENTREGUE: {
+                    title: "Nenhum pedido entregue ainda hoje.",
+                    body: "O dia tá começando.",
+                  },
+                  CANCELADO: {
+                    title: "Sem cancelamentos hoje.",
+                    body: "Tudo certinho até agora.",
+                  },
+                  todos: {
+                    title: "Nada por aqui.",
+                    body: "Filtra por outro status pra ver os pedidos.",
+                  },
+                };
+                const m = messages[effectiveFilter] ?? messages.todos;
+                return (
+                  <>
+                    <div className="t-h4 text-ink-2">{m.title}</div>
+                    <div className="t-body-sm mt-1">{m.body}</div>
+                  </>
+                );
+              })()}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">

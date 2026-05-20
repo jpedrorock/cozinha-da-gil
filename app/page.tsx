@@ -83,7 +83,7 @@ export default function LoginPage() {
 
   return (
     <main className="min-h-dvh flex flex-col items-center justify-center p-4 bg-gradient-to-b from-brand-yellow to-brand-orange">
-      <div className="w-full max-w-md bg-surface-elevated rounded-xl shadow-xl p-6 md:p-7 relative">
+      <div className="w-full max-w-md bg-surface-elevated rounded-xl shadow-lg p-6 md:p-7 relative">
         {/* Admin no canto superior direito do card */}
         <button
           onClick={() => setRole("admin")}
@@ -187,19 +187,26 @@ export default function LoginPage() {
             }}
             length={PIN_LENGTH}
             autoFocus={!!name}
-            onComplete={(pin) => attemptLogin(pin)}
+            // submitOnComplete=false: ao digitar o 4º dígito, NÃO loga
+            // automaticamente. Atendente vê os 4 dots preenchidos, confirma
+            // mentalmente, aperta "Entrar". Evita queimar tentativas do
+            // rate-limit (5/60s) em erros de pressa.
+            submitOnComplete={false}
             keypad
           />
         </div>
 
-        <label className="flex items-center justify-center gap-2 mb-4 cursor-pointer select-none">
+        <label className="flex items-start justify-center gap-2 mb-4 cursor-pointer select-none">
           <input
             type="checkbox"
             checked={remember}
             onChange={(e) => setRemember(e.target.checked)}
-            className="h-4 w-4 accent-brand-yellow"
+            className="h-4 w-4 mt-0.5 shrink-0 accent-brand-yellow"
           />
-          <span className="t-body-sm">Lembrar nesse aparelho</span>
+          <div className="flex flex-col items-start">
+            <span className="t-body-sm">Manter conectado nesse aparelho</span>
+            <span className="t-caption">Não vai pedir senha nos próximos acessos.</span>
+          </div>
         </label>
 
         {error && (

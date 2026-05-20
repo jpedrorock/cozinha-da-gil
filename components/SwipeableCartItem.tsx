@@ -42,8 +42,14 @@ export function SwipeableCartItem({
         // Confirma remoção — anima até off-screen e dispara
         setRemoving(true);
         setTimeout(onRemove, 200);
+      } else if (e.deltaX < -10) {
+        // Snap-back abaixo do threshold — vibra 10ms pra confirmar "não fez nada".
+        // Sem isso, atendente fica em dúvida ("será que removeu?"). Audit P2 #17.
+        if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+          navigator.vibrate(10);
+        }
+        setDeltaX(0);
       } else {
-        // Volta ao zero
         setDeltaX(0);
       }
     },

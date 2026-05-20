@@ -21,6 +21,25 @@ export function buildWaUrl(phone: string | null | undefined, text: string): stri
 }
 
 /**
+ * URL deep-link nativa `whatsapp://send` — preferida em iOS/Android quando
+ * o app WhatsApp está instalado, abre a conversa diretamente no app sem
+ * passar pelo Safari embutido. Em PWA instalado isso fazia o atendente
+ * cair no navegador e ter que clicar "Abrir no WhatsApp". Audit P1 #07.
+ *
+ * Uso recomendado: passa esse valor pra <a href="..." target="_blank"> —
+ * anchor é melhor que window.open() pra iOS resolver o deep-link nativo.
+ * Se phone vazio, cai pro `wa.me` web (sem destino válido pro app nativo).
+ */
+export function buildWaNativeUrl(phone: string | null | undefined, text: string): string {
+  const encoded = encodeURIComponent(text);
+  const digits = phone?.replace(/\D/g, "") ?? "";
+  if (!digits) {
+    return `https://wa.me/?text=${encoded}`;
+  }
+  return `whatsapp://send?phone=${digits}&text=${encoded}`;
+}
+
+/**
  * Recibo do pedido (mesma lógica visual: repete linhas por quantidade,
  * sem "×N" inline pra reduzir ambiguidade no celular).
  */

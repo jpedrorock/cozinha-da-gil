@@ -62,10 +62,17 @@ export function CozinhaClient({
     }
   }, [ready, operator, router]);
 
-  useIdleLogout(() => {
-    clear();
-    router.replace("/");
-  });
+  // Cozinha NÃO desloga por inatividade (audit P2 #18) — tablet fixo na
+  // barraca, sem risco de outra pessoa abrir. Logout interromperia a
+  // cozinheira ocupada com mão na massa. Outras roles mantêm timeout.
+  useIdleLogout(
+    () => {
+      clear();
+      router.replace("/");
+    },
+    30 * 60 * 1000,
+    true, // disabled = true → não dispara nunca
+  );
 
   const [orders, setOrders] = useState<OrderView[]>(initialOrders);
   const [clock, setClock] = useState<Date | null>(null);
@@ -242,13 +249,14 @@ export function CozinhaClient({
               {soundOn ? <Volume2 size={18} strokeWidth={2} /> : <VolumeX size={18} strokeWidth={2} />}
             </button>
             {/* Hierarquia visual: "novos" dominante (sinal de ação),
-                total é informação secundária em texto puro */}
+                "na fila" é contexto periférico. Audit P1 #05 — pesos
+                competindo dificulta varredura em 200ms da cozinheira. */}
             {novosCount > 0 && (
               <span className="bg-status-incoming text-white font-bold text-[15px] px-3 py-1.5 rounded-full t-num animate-badge-pop">
                 {novosCount} novo{novosCount === 1 ? "" : "s"}
               </span>
             )}
-            <span className="t-body-sm text-ink-3 t-num hidden sm:inline">
+            <span className="t-caption text-ink-3 t-num bg-surface-sunken px-2 py-1 rounded-full hidden sm:inline">
               {queue.length} na fila
             </span>
             <span className="font-mono font-bold text-[17px] t-num text-ink hidden sm:block">
@@ -418,8 +426,14 @@ function Ticket({
       <header className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+            {/* Número do pedido em destaque (audit P3 #26): atendente grita
+                "número 42!" — fica primário. Antes era text-xs no meio do
+                horário; agora text-lg + tracking pra leitura à distância. */}
+            <div className="font-mono text-lg font-bold t-num text-ink leading-none">
+              #{String(order.id).padStart(3, "0")}
+            </div>
             <div className="font-mono text-xs t-num text-ink-3 tracking-[0.04em]">
-              #{String(order.id).padStart(3, "0")} · {createdTime}
+              {createdTime}
             </div>
             <span
               key={stage}
@@ -607,7 +621,10 @@ function PrepTimerRing({
           strokeDasharray={c}
           strokeDashoffset={offset}
           style={{
-            transition: "stroke-dashoffset 600ms cubic-bezier(.2,.8,.2,1), stroke 220ms ease-out",
+            // Sem transition no offset — anel TICA a cada segundo (relógio),
+            // não desliza. A transição de 600ms anterior parecia "lerda"
+            // contra o tick de 1s do `now`. Cor continua animando suave.
+            transition: "stroke 220ms ease-out",
           }}
         />
         {/* dot de "overflow" — pequeno indicador girando quando passou 100% */}
@@ -762,12 +779,15 @@ function Checklist({
     );
   }
 
+  // Layout responsivo: 1 coluna em tablet portrait (sm e abaixo), 2 colunas
+  // em landscape/TV (md+). Em portrait, nomes longos não quebram em 2 linhas
+  // — altura previsível por linha. Audit P2 #16.
   const rows = Math.ceil(all.length / 2);
   const left = all.slice(0, rows);
   const right = all.slice(rows);
 
   return (
-    <div className={`grid grid-cols-2 gap-x-3 ${compact ? "gap-y-0.5" : "gap-y-1"}`}>
+    <div className={`grid grid-cols-1 md:grid-cols-2 gap-x-3 ${compact ? "gap-y-0.5" : "gap-y-1"}`}>
       {[left, right].map((col, i) => (
         <ul key={i} className="flex flex-col gap-1">
           {col.map((name) => {

@@ -302,12 +302,15 @@ function AdminShell({
   children: React.ReactNode;
 }) {
   const [moreOpen, setMoreOpen] = useState(false);
-  // Sidebar inicia colapsada (só ícones) — usuário expande quando quiser.
-  // Estado persiste em localStorage pra não chatear quem prefere expandido.
-  const [sidebarExpanded, setSidebarExpanded] = useState(false);
+  // Sidebar default EXPANDIDA quando localStorage está vazio (primeiro
+  // acesso) — atalho pra power user existe, mas discoverability dos labels
+  // no primeiro contato é mais valiosa que economia de pixels. Audit P2 #15.
+  // Quem prefere colapsada toggla e a preferência persiste.
+  const [sidebarExpanded, setSidebarExpanded] = useState(true);
   useEffect(() => {
     const stored = localStorage.getItem("pdg:admin-sidebar");
-    if (stored === "expanded") setSidebarExpanded(true);
+    if (stored === "collapsed") setSidebarExpanded(false);
+    // "expanded" ou ausente → mantém default true
   }, []);
   function toggleSidebar() {
     const next = !sidebarExpanded;
@@ -698,7 +701,7 @@ function Vendas({
         <VendasSkeleton />
       ) : !report ? null : (
         <>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-3">
             <KPI label="Faturamento" value={formatBRL(report.revenueCents)} accent="brand" />
             <KPI
               label="Pedidos"
@@ -743,7 +746,7 @@ function Vendas({
           </div>
 
           <Section title={isToday ? "Mistos do dia" : "Mistos do período"}>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-3">
               <MiniStat label="Salgados" value={report.counts.salgados} />
               <MiniStat label="Doces" value={report.counts.doces} />
               <MiniStat label="2 ingredientes" value={report.counts.pequenos} />
@@ -961,7 +964,7 @@ function VendasSkeleton() {
   return (
     <div className="flex flex-col gap-6 animate-fade-in">
       {/* KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-3">
         {[0, 1, 2, 3].map((i) => (
           <div key={i} className="rounded-lg p-4 border border-line bg-surface-elevated">
             <div className="skeleton h-3 w-20" />
@@ -1203,14 +1206,18 @@ function Historico({ orders: initialOrders, events }: { orders: OrderView[]; eve
   const [eventId, setEventId] = useState<string>("");
   const [orders, setOrders] = useState<OrderView[]>(initialOrders);
   const [loading, setLoading] = useState(false);
+  // Busca por nome/telefone/número (audit P3 #27): CRM tinha busca, Histórico
+  // não — Gil queria "qual foi o pedido da Maria semana passada?". Filtra
+  // em cima do range/evento — não vai pro servidor.
+  const [query, setQuery] = useState("");
   // Paginação client-side: histórico pode ter 600+ pedidos em "Tudo".
   // Carregar tudo no DOM trava tablet. Mostra 50 por vez + botão "Ver mais".
-  // Reset quando muda range/evento.
+  // Reset quando muda range/evento/query.
   const PAGE_SIZE = 50;
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
-  }, [range, eventId]);
+  }, [range, eventId, query]);
 
   // Quando seleciona um evento, refetch orders desse evento
   useEffect(() => {
@@ -1226,36 +1233,78 @@ function Historico({ orders: initialOrders, events }: { orders: OrderView[]; eve
   }, [eventId, initialOrders]);
 
   const filtered = useMemo(() => {
+    let result: OrderView[];
     // Quando filtro por evento ativo, mostra todos do evento — ignora range
-    if (eventId) return orders;
-    const now = new Date();
-    if (range === "today") {
-      const start = new Date(now);
-      start.setHours(0, 0, 0, 0);
-      return orders.filter((o) => new Date(o.createdAt) >= start);
+    if (eventId) {
+      result = orders;
+    } else {
+      const now = new Date();
+      if (range === "today") {
+        const start = new Date(now);
+        start.setHours(0, 0, 0, 0);
+        result = orders.filter((o) => new Date(o.createdAt) >= start);
+      } else if (range === "yesterday") {
+        const end = new Date(now);
+        end.setHours(0, 0, 0, 0);
+        const start = new Date(end);
+        start.setDate(start.getDate() - 1);
+        result = orders.filter((o) => {
+          const t = new Date(o.createdAt);
+          return t >= start && t < end;
+        });
+      } else if (range === "7d") {
+        const start = new Date(now);
+        start.setDate(start.getDate() - 7);
+        result = orders.filter((o) => new Date(o.createdAt) >= start);
+      } else {
+        result = orders;
+      }
     }
-    if (range === "yesterday") {
-      const end = new Date(now);
-      end.setHours(0, 0, 0, 0);
-      const start = new Date(end);
-      start.setDate(start.getDate() - 1);
-      return orders.filter((o) => {
-        const t = new Date(o.createdAt);
-        return t >= start && t < end;
-      });
-    }
-    if (range === "7d") {
-      const start = new Date(now);
-      start.setDate(start.getDate() - 7);
-      return orders.filter((o) => new Date(o.createdAt) >= start);
-    }
-    return orders;
-  }, [orders, range, eventId]);
+    // Aplica busca sobre o range filtrado — case-insensitive, casa em nome,
+    // telefone (dígitos puros) e número do pedido (#042 ou 42).
+    const q = query.trim().toLowerCase();
+    if (!q) return result;
+    const qDigits = q.replace(/\D/g, "");
+    return result.filter((o) => {
+      if (o.clientName.toLowerCase().includes(q)) return true;
+      if (qDigits) {
+        if (String(o.id).padStart(3, "0").includes(qDigits)) return true;
+        if (o.clientPhone && o.clientPhone.replace(/\D/g, "").includes(qDigits)) return true;
+      }
+      return false;
+    });
+  }, [orders, range, eventId, query]);
 
   return (
     <div className="flex flex-col gap-5">
       <header>
         <h1 className="t-h1 mb-3">Histórico</h1>
+
+        {/* Busca por nome / telefone / #pedido (audit P3 #27) */}
+        <div className="mb-3 relative">
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Buscar por nome, telefone ou #pedido…"
+            className="input pl-10"
+          />
+          <svg
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-3 pointer-events-none"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.25"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden
+          >
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+        </div>
 
         {events.length > 0 && (
           <div className="mb-3">
@@ -2920,7 +2969,14 @@ function Operacao({
           colorido sólido, fundo cinza suave, cards "post-it" individuais. */}
       <div className="flex gap-3 overflow-x-auto pb-3 -mx-4 px-4 md:mx-0 md:px-0 md:grid md:grid-cols-2 xl:grid-cols-4">
         {columns.map((col) => {
-          const items = byStatus[col.key] ?? [];
+          const allItems = byStatus[col.key] ?? [];
+          // Audit P1 #11: ENTREGUE acumula infinito em evento de 200 pedidos.
+          // Mostra só os últimos 10 + counter com "Ver todos" futuro. Foco
+          // de "Operação" é o que tá acontecendo agora, não histórico.
+          const ENTREGUE_LIMIT = 10;
+          const isEntregue = col.key === "ENTREGUE";
+          const items = isEntregue ? allItems.slice(0, ENTREGUE_LIMIT) : allItems;
+          const hiddenCount = isEntregue ? Math.max(0, allItems.length - ENTREGUE_LIMIT) : 0;
           return (
             <section
               key={col.key}
@@ -2933,7 +2989,7 @@ function Operacao({
                   {col.label}
                 </span>
                 <span className="text-[15px] font-bold t-num h-7 min-w-7 px-2 inline-flex items-center justify-center rounded-full bg-white/25">
-                  {items.length}
+                  {allItems.length}
                 </span>
               </header>
               {items.length === 0 ? (
@@ -2945,6 +3001,11 @@ function Operacao({
                   {items.map((o) => (
                     <OperacaoCard key={o.id} order={o} now={now} dotColor={col.dotColor} />
                   ))}
+                  {hiddenCount > 0 && (
+                    <li className="text-center py-2 t-caption text-ink-3 italic">
+                      + {hiddenCount} mais entregue{hiddenCount === 1 ? "" : "s"} no Histórico
+                    </li>
+                  )}
                 </ul>
               )}
             </section>

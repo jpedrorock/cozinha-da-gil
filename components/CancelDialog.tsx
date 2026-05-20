@@ -107,10 +107,12 @@ export function CancelDialog({
           {isCustom && (
             <textarea
               autoFocus
-              placeholder="Descreva o motivo"
+              placeholder="Descreva o motivo (cliente reclamou de atraso, errou o pedido, etc)"
               value={customText}
               onChange={(e) => setCustomText(e.target.value)}
-              className="textarea h-20 text-sm"
+              // Audit P2 #21: 80px era apertado pra contexto real (cancelamento
+              // em stress costuma ter mais detalhes). 112px = 4 linhas confortáveis.
+              className="textarea min-h-[112px] text-sm"
             />
           )}
         </div>
