@@ -1,0 +1,65 @@
+# Cozinha da Gil — docker-compose pra Coolify / docker local.
+#
+# Uso local:
+#   1. Copia .env.example pra .env e ajusta SESSION_SECRET
+#   2. `docker compose up -d --build`
+#   3. Acessa http://localhost:3000
+#   4. Primeiro boot: setta SEED_ON_BOOT=true pra criar Gil/Maria/José
+#
+# Uso Coolify:
+#   - Cria Application → Docker Compose → aponta pro repo
+#   - Define env vars no painel (SESSION_SECRET é obrigatória)
+#   - Coolify gerencia o volume `cozinha-da-gil-data` automaticamente
+#
+# Migrar de SQLite pra Postgres: trocar DATABASE_URL no .env do Coolify,
+# adicionar serviço `postgres` aqui e remover o volume `cozinha-data`.
+
+services:
+  cozinha:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cozinha-da-gil:latest
+    container_name: cozinha-da-gil
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      NEXT_TELEMETRY_DISABLED: 1
+
+      # SQLite no volume persistente — sobrevive a redeploys.
+      DATABASE_URL: file:/app/data/dev.db
+
+      # SESSION_SECRET é OBRIGATÓRIO. Gera com:
+      #   openssl rand -base64 32
+      # Trocar invalida todas as sessões — usuários precisam logar de novo.
+      # O ":?msg" faz o compose falhar se a var não tá setada (fail-fast).
+      SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET obrigatório — gera com openssl rand -base64 32}
+
+      # Setta como "true" no PRIMEIRO boot pra criar Gil/Maria/José (PIN 1234).
+      # Depois do primeiro boot, volta pra "false" pra não re-seedar.
+      SEED_ON_BOOT: ${SEED_ON_BOOT:-false}
+
+    volumes:
+      # Volume nomeado pro SQLite — Coolify reaproveita entre deploys.
+      # Path interno bate com DATABASE_URL acima.
+      - cozinha-data:/app/data
+
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 30s
+
+    # Logs limitados pra container não estourar disco do servidor.
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  cozinha-data:
+    name: cozinha-da-gil-data

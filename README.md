@@ -60,7 +60,32 @@ O app foi feito pra rodar **localmente na barraca** num laptop ou mini-PC, com t
    ```
 5. **Devices conectam em:** `http://<IP-DO-LAPTOP>:3000` (ver IP com `ifconfig`/`ipconfig`).
 
-### Opção B — Vercel (online)
+### Opção B — Docker / Coolify (PaaS self-hosted)
+
+O repo vem com `Dockerfile` + `docker-compose.yml` prontos pro Coolify (ou Docker direto). O SQLite roda dentro de um volume nomeado que sobrevive a redeploys.
+
+**Local (testa antes de subir):**
+```bash
+# Gera SESSION_SECRET pro .env
+echo "SESSION_SECRET=$(openssl rand -base64 32)" >> .env
+echo "SEED_ON_BOOT=true" >> .env  # cria Gil/Maria/José no 1º boot
+
+docker compose up -d --build
+# Acessa http://localhost:3000 — primeiro boot leva ~1min (build + db push + seed)
+docker compose logs -f cozinha
+```
+
+**Coolify:**
+1. **New Resource → Application → Docker Compose** apontando pro repo `cozinha-da-gil`
+2. **Environment Variables** no painel:
+   - `SESSION_SECRET` = gerar com `openssl rand -base64 32`
+   - `SEED_ON_BOOT` = `true` (apenas no primeiro deploy; depois remover ou trocar pra `false`)
+3. **Storage:** Coolify detecta o volume `cozinha-da-gil-data` automaticamente — mapeia pro disco persistente do servidor
+4. **Deploy.** Healthcheck embutido marca `Healthy` quando responde `:3000`
+
+**Migração SQLite → Postgres** (se um dia precisar): trocar `DATABASE_URL` pra connection string Postgres no Coolify; adicionar serviço `postgres` no `docker-compose.yml`; rodar `npx prisma db push` uma vez. O schema é o mesmo, Prisma cuida da tradução.
+
+### Opção C — Vercel (online)
 
 O app **pode** ser hospedado na Vercel mas tem caveats:
 - **SQLite não funciona** na Vercel (filesystem volátil). Migrar pra Postgres/Turso/PlanetScale.
