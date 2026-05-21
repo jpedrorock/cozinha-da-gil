@@ -8,10 +8,14 @@ const prisma = new PrismaClient();
 // ter o mesmo PIN (validado em app/api/users + create/update routes).
 // Entre roles diferentes pode repetir sem problema (cada role tem seu próprio
 // search space). Conferir comentário do auth/login route pra detalhes.
+//
+// Seed cria APENAS a conta admin (Gil) — atendentes e cozinheiros são criados
+// pelo Admin → Usuários no app, com PINs próprios escolhidos por ela. Evita
+// confusão de "PINs default expostos em código" e dá controle total.
+//
+// PIN do Gil: 1111 — TROCAR no primeiro login via Admin → Usuários.
 const DEFAULT_USERS = [
   { name: "Gil", role: "admin", password: "1111" },
-  { name: "Maria", role: "atendente", password: "2222" },
-  { name: "José", role: "cozinha", password: "3333" },
 ];
 
 type Seed = { name: string; available?: boolean };
