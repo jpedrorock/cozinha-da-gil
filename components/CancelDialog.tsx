@@ -55,14 +55,16 @@ export function CancelDialog({
   return (
     <div
       onClick={handleClose}
-      className="fixed inset-0 z-50 bg-ink/50 backdrop-blur-[3px] flex items-end md:items-center justify-center p-4 animate-fade-in"
+      // z-[100] e items-center: mesmo pattern do ConfirmDialog pra ficar
+      // acima de bottom-nav e centralizado em qualquer viewport.
+      className="fixed inset-0 z-[100] bg-ink/50 backdrop-blur-[3px] flex items-center justify-center p-4 animate-fade-in"
     >
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="cancel-dialog-title"
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-md bg-surface-elevated rounded-lg shadow-xl p-5 md:p-6 animate-sheet-up"
+        className="w-full max-w-md bg-surface-elevated rounded-xl shadow-2xl p-5 md:p-6 animate-sheet-up"
       >
         <div className="flex items-start justify-between mb-1">
           <div>

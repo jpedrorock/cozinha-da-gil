@@ -49,7 +49,12 @@ export function ConfirmDialog({
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-ink/50 backdrop-blur-[3px] flex items-end md:items-center justify-center md:p-4 animate-fade-in"
+      // z-[100]: acima do bottom-nav admin (z-30), MoreSheet (z-40), header
+      // sticky (z-30), banners (z-40). Reserva 100+ pra modais críticos
+      // (confirmação de ações destrutivas) — não pode ser coberto por nada.
+      // items-center sempre: vira modal centralizado em mobile também (em
+      // vez de bottom-sheet, que batia visualmente com bottom-nav).
+      className="fixed inset-0 z-[100] bg-ink/50 backdrop-blur-[3px] flex items-center justify-center p-4 animate-fade-in"
       onClick={onClose}
     >
       <div
@@ -57,7 +62,7 @@ export function ConfirmDialog({
         aria-modal="true"
         aria-labelledby="confirm-title"
         onClick={(e) => e.stopPropagation()}
-        className="w-full md:max-w-md bg-surface-elevated rounded-t-xl md:rounded-xl p-5 animate-sheet-up flex flex-col gap-4"
+        className="w-full max-w-md bg-surface-elevated rounded-xl shadow-2xl p-5 animate-sheet-up flex flex-col gap-4"
       >
         <header className="flex items-start gap-3">
           {destructive && (
