@@ -117,20 +117,26 @@ export default function LoginPage() {
     >
       <PWAInstallBanner />
 
-      {/* Card centralizado verticalmente — flex-1 + justify-center pega
-          espaço sobrando e centraliza, mas sem permitir scroll. Em iPhone SE
-          (568px) tudo cabe; em telas grandes fica centralizado bonito. */}
-      <div className="flex-1 flex items-center justify-center w-full">
-        <div className="w-full max-w-sm bg-surface-elevated rounded-xl shadow-lg px-5 py-4 flex flex-col gap-3">
-          {/* Brand header compacto — inline, ~40px */}
-          <div className="flex items-center gap-2 self-center">
-            <BrandIcon size={28} />
-            <div className="flex items-baseline gap-1.5 leading-none">
-              <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-ink-3">Cozinha da</span>
-              <span className="text-lg font-bold -tracking-[0.01em] text-ink">Gil</span>
-            </div>
+      {/* Marca em destaque ACIMA do card — aproveita o gradient amarelo
+          vazio do topo (~30% da tela). BrandIcon grande + "COZINHA DA Gil"
+          stack vertical com hierarquia clara: label discreto + nome forte.
+          Usa o espaço respirado pra dar protagonismo de brand sem custar
+          área do card de login. */}
+      <div className="flex-1 flex flex-col items-center justify-center w-full gap-5">
+        <div className="flex flex-col items-center gap-2">
+          <BrandIcon size={72} />
+          <div className="flex flex-col items-center leading-none">
+            <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-ink/70">
+              Cozinha da
+            </span>
+            <span className="text-[34px] font-extrabold -tracking-[0.02em] text-ink mt-1">
+              Gil
+            </span>
           </div>
+        </div>
 
+        {/* Card de login — mais compacto agora que a marca saiu pra cima. */}
+        <div className="w-full max-w-sm bg-surface-elevated rounded-xl shadow-lg px-5 py-4 flex flex-col gap-3">
           {/* Segmented control — 3 modos compactos. Substitui os 2 cards
               grandes "Atendente/Cozinha" + botão "Admin" no canto.
               Tamanho fixo, sem wrap, cabe em 320px. */}
