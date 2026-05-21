@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
+import { SplashScreen } from "@/components/SplashScreen";
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -79,7 +80,10 @@ export default function RootLayout({
           />
         ))}
       </head>
-      <body className="font-sans bg-surface text-ink">{children}</body>
+      <body className="font-sans bg-surface text-ink">
+        <SplashScreen />
+        {children}
+      </body>
     </html>
   );
 }

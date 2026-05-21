@@ -232,6 +232,17 @@ const config: Config = {
           "60%": { transform: "translateX(-6px)" },
           "80%": { transform: "translateX(4px)" },
         },
+        // Splash inicial: marca sobe + aparece (mimics iOS app launch)
+        "splash-rise": {
+          "0%": { transform: "translateY(12px)", opacity: "0" },
+          "60%": { transform: "translateY(-2px)", opacity: "1" },
+          "100%": { transform: "translateY(0)", opacity: "1" },
+        },
+        // Pulso sutil no glyph durante splash — dá sensação de "vivo"
+        "splash-pulse": {
+          "0%, 100%": { transform: "scale(1)" },
+          "50%": { transform: "scale(1.06)" },
+        },
       },
       animation: {
         "fade-in": "fade-in 180ms cubic-bezier(.2,.8,.2,1)",
@@ -261,6 +272,8 @@ const config: Config = {
         "empty-breathe": "empty-breathe 3.6s ease-in-out 30",
         "icon-snap": "icon-snap 160ms cubic-bezier(.2,.8,.2,1)",
         "shake-x": "shake-x 380ms cubic-bezier(.36,.07,.19,.97)",
+        "splash-rise": "splash-rise 520ms cubic-bezier(.2,.8,.2,1) both",
+        "splash-pulse": "splash-pulse 1.4s ease-in-out infinite",
       },
     },
   },

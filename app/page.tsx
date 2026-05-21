@@ -117,26 +117,26 @@ export default function LoginPage() {
     >
       <PWAInstallBanner />
 
-      {/* Marca em destaque ACIMA do card — aproveita o gradient amarelo
-          vazio do topo (~30% da tela). BrandIcon grande + "COZINHA DA Gil"
-          stack vertical com hierarquia clara: label discreto + nome forte.
-          Usa o espaço respirado pra dar protagonismo de brand sem custar
-          área do card de login. */}
-      <div className="flex-1 flex flex-col items-center justify-center w-full gap-5">
-        <div className="flex flex-col items-center gap-2">
-          <BrandIcon size={72} />
-          <div className="flex flex-col items-center leading-none">
-            <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-ink/70">
-              Cozinha da
-            </span>
-            <span className="text-[34px] font-extrabold -tracking-[0.02em] text-ink mt-1">
-              Gil
-            </span>
-          </div>
-        </div>
-
-        {/* Card de login — mais compacto agora que a marca saiu pra cima. */}
+      {/* Card centralizado com marca em destaque DENTRO. Aproveita o
+          gradient amarelo no fundo + card branco como contenção visual.
+          flex-1 + justify-center distribui no espaço disponível. */}
+      <div className="flex-1 flex items-center justify-center w-full">
         <div className="w-full max-w-sm bg-surface-elevated rounded-xl shadow-lg px-5 py-4 flex flex-col gap-3">
+          {/* Brand DENTRO do card — grande, destacada, alinhada centro.
+              BrandIcon 56px + "COZINHA DA" tracking gerador de hierarquia +
+              "Gil" extrabold 28px. Stack vertical respirado. */}
+          <div className="flex flex-col items-center gap-1 pt-1 pb-2">
+            <BrandIcon size={56} />
+            <div className="flex flex-col items-center leading-none mt-1">
+              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-ink-3">
+                Cozinha da
+              </span>
+              <span className="text-[26px] font-extrabold -tracking-[0.02em] text-ink mt-0.5">
+                Gil
+              </span>
+            </div>
+          </div>
+
           {/* Segmented control — 3 modos compactos. Substitui os 2 cards
               grandes "Atendente/Cozinha" + botão "Admin" no canto.
               Tamanho fixo, sem wrap, cabe em 320px. */}
