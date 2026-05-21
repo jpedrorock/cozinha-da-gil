@@ -12,10 +12,11 @@ const PIN_LENGTH = 4;
 
 type UserOption = { id: string; name: string; role: Role };
 
+// Só os 2 modos operacionais (uso diário, rotação de operador). Admin é Gil
+// só, acesso esporádico — fica num link no rodapé junto com Tela do cliente.
 const ROLE_TABS: Array<{ id: Role; label: string; Icon: typeof ClipboardList }> = [
   { id: "atendente", label: "Atendente", Icon: ClipboardList },
   { id: "cozinha", label: "Cozinha", Icon: CookingPot },
-  { id: "admin", label: "Admin", Icon: ChartBar },
 ];
 
 export default function LoginPage() {
@@ -137,28 +138,45 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Segmented control — 3 modos compactos. Substitui os 2 cards
-              grandes "Atendente/Cozinha" + botão "Admin" no canto.
-              Tamanho fixo, sem wrap, cabe em 320px. */}
-          <div className="grid grid-cols-3 gap-1 p-1 bg-surface-sunken rounded-lg">
-            {ROLE_TABS.map(({ id, label, Icon }) => {
-              const active = role === id;
-              return (
-                <button
-                  key={id}
-                  onClick={() => setRole(id)}
-                  className={`h-10 rounded-md inline-flex items-center justify-center gap-1.5 text-xs font-bold transition-colors ${
-                    active
-                      ? "bg-surface-elevated text-ink shadow-sm"
-                      : "text-ink-3 hover:text-ink-2"
-                  }`}
-                >
-                  <Icon size={14} strokeWidth={2.25} />
-                  <span>{label}</span>
-                </button>
-              );
-            })}
-          </div>
+          {/* Segmented control / chip de modo:
+              - Operação (atendente/cozinha): 2-tabs segmented control
+              - Admin: chip de identificação + "← voltar" pra modo operação.
+                Mostrar só o chip evita confusão de "qual tab está ativa?"
+                quando admin não está no segmented control. */}
+          {role === "admin" ? (
+            <div className="flex items-center justify-between bg-ink rounded-lg px-3 py-2 text-brand-yellow">
+              <span className="inline-flex items-center gap-1.5 text-sm font-bold">
+                <ChartBar size={14} strokeWidth={2.5} />
+                Modo Admin
+              </span>
+              <button
+                onClick={() => setRole("atendente")}
+                className="text-xs font-semibold opacity-80 hover:opacity-100"
+              >
+                ← voltar
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-1 p-1 bg-surface-sunken rounded-lg">
+              {ROLE_TABS.map(({ id, label, Icon }) => {
+                const active = role === id;
+                return (
+                  <button
+                    key={id}
+                    onClick={() => setRole(id)}
+                    className={`h-11 rounded-md inline-flex items-center justify-center gap-2 text-sm font-bold transition-colors ${
+                      active
+                        ? "bg-surface-elevated text-ink shadow-sm"
+                        : "text-ink-3 hover:text-ink-2"
+                    }`}
+                  >
+                    <Icon size={16} strokeWidth={2.25} />
+                    <span>{label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
           {/* Lista de usuários do modo atual — pills compactas em grid.
               Max 2 linhas; se passar, vira scroll horizontal compacto. */}
@@ -221,12 +239,22 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Rodapé: link discreto pra Tela do cliente (display público).
-          Não precisa de login, dá pra abrir direto em TV/painel. */}
-      <div className="flex justify-center">
+      {/* Rodapé: acessos esporádicos — Admin (login com Gil) + Tela do cliente
+          (display público, sem login). Separados por divider visual sutil. */}
+      <div className="flex justify-center items-center gap-1 text-xs">
+        <button
+          onClick={() => setRole("admin")}
+          className={`inline-flex items-center gap-1.5 text-ink/70 hover:text-ink font-semibold px-3 py-1.5 rounded-full transition-colors ${
+            role === "admin" ? "text-ink bg-white/30" : ""
+          }`}
+        >
+          <ChartBar size={14} strokeWidth={2.25} />
+          <span>Admin</span>
+        </button>
+        <span className="text-ink/30" aria-hidden>·</span>
         <Link
           href="/cliente"
-          className="inline-flex items-center gap-1.5 text-ink/70 hover:text-ink text-xs font-semibold px-3 py-1.5 rounded-full"
+          className="inline-flex items-center gap-1.5 text-ink/70 hover:text-ink font-semibold px-3 py-1.5 rounded-full"
         >
           <Monitor size={14} strokeWidth={2.25} />
           <span>Tela do cliente</span>
