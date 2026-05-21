@@ -224,6 +224,14 @@ const config: Config = {
           "55%": { transform: "scale(1.18)" },
           "100%": { transform: "scale(1)" },
         },
+        // Shake horizontal pra erro de PIN — visual reforçado + vibrate API
+        "shake-x": {
+          "0%, 100%": { transform: "translateX(0)" },
+          "20%": { transform: "translateX(-8px)" },
+          "40%": { transform: "translateX(8px)" },
+          "60%": { transform: "translateX(-6px)" },
+          "80%": { transform: "translateX(4px)" },
+        },
       },
       animation: {
         "fade-in": "fade-in 180ms cubic-bezier(.2,.8,.2,1)",
@@ -252,6 +260,7 @@ const config: Config = {
         // pra atrair atenção quando coluna entra empty; depois fica parado.
         "empty-breathe": "empty-breathe 3.6s ease-in-out 30",
         "icon-snap": "icon-snap 160ms cubic-bezier(.2,.8,.2,1)",
+        "shake-x": "shake-x 380ms cubic-bezier(.36,.07,.19,.97)",
       },
     },
   },

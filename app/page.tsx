@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChartBar, ClipboardList, CookingPot, Monitor } from "lucide-react";
 import Link from "next/link";
@@ -12,6 +12,12 @@ const PIN_LENGTH = 4;
 
 type UserOption = { id: string; name: string; role: Role };
 
+const ROLE_TABS: Array<{ id: Role; label: string; Icon: typeof ClipboardList }> = [
+  { id: "atendente", label: "Atendente", Icon: ClipboardList },
+  { id: "cozinha", label: "Cozinha", Icon: CookingPot },
+  { id: "admin", label: "Admin", Icon: ChartBar },
+];
+
 export default function LoginPage() {
   const router = useRouter();
   const { operator, ready, save } = useOperator();
@@ -19,9 +25,10 @@ export default function LoginPage() {
   const [users, setUsers] = useState<UserOption[]>([]);
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
-  const [remember, setRemember] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Key incrementa a cada erro pra re-disparar animação shake nos dots
+  const [shakeKey, setShakeKey] = useState(0);
 
   useEffect(() => {
     if (ready && operator) {
@@ -32,6 +39,7 @@ export default function LoginPage() {
   useEffect(() => {
     setError(null);
     setName("");
+    setPassword("");
     fetch(`/api/users?role=${role}`)
       .then((r) => r.json())
       .then((data) => {
@@ -41,210 +49,183 @@ export default function LoginPage() {
   }, [role]);
 
   async function attemptLogin(pin: string) {
-    if (!name.trim() || pin.length < PIN_LENGTH) return;
+    if (!name.trim() || pin.length < PIN_LENGTH || submitting) return;
     setSubmitting(true);
     setError(null);
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
+        cache: "no-store",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: name.trim(), password: pin, role }),
       });
       const data = await res.json();
       if (!res.ok) {
+        // Erro de senha: shake + vibrate + clear pra retentar.
+        // Visual + tátil pra atendente perceber sem precisar ler texto.
         setError(data.error || "Senha errada.");
         setPassword("");
+        setShakeKey((k) => k + 1);
+        if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+          navigator.vibrate([60, 30, 60]); // dois pulsos curtos
+        }
         setSubmitting(false);
         return;
       }
-      save({ id: data.id, role: data.role, name: data.name }, remember);
+      // Sucesso: salva sessão e redireciona. `remember: true` por default —
+      // POS de família não precisa do checkbox manual (eliminado pra
+      // economizar espaço vertical no iPhone SE).
+      save({ id: data.id, role: data.role, name: data.name }, true);
       router.replace(`/${data.role}`);
     } catch {
       setError("Sem conexão. Tente de novo.");
       setPassword("");
+      setShakeKey((k) => k + 1);
       setSubmitting(false);
     }
   }
 
-  function handleLogin() {
-    if (!name.trim()) {
-      setError("Selecione um usuário.");
-      return;
+  // Auto-submit: assim que o 4º dígito é digitado E há usuário selecionado,
+  // tenta logar automaticamente. Se errar, shake + clear (retry imediato).
+  // Sem botão "Entrar" — economiza ~64px verticais no iPhone SE.
+  useEffect(() => {
+    if (password.length === PIN_LENGTH && name && !submitting) {
+      // Pequeno delay (350ms) pra usuário ver os 4 dots preenchidos antes
+      // de submeter — sensação de "confirmação visual" sem clique manual.
+      const t = setTimeout(() => attemptLogin(password), 350);
+      return () => clearTimeout(t);
     }
-    if (password.length < PIN_LENGTH) {
-      setError(`Digite a senha de ${PIN_LENGTH} dígitos.`);
-      return;
-    }
-    attemptLogin(password);
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [password, name]);
+
+  // Auto-foca o input do PIN ao escolher usuário
+  const pinAutoFocus = useMemo(() => !!name && password.length < PIN_LENGTH, [name, password]);
 
   if (!ready || operator) {
     return <div className="min-h-dvh bg-surface" />;
   }
 
   return (
-    <main className="min-h-dvh flex flex-col items-center justify-center p-4 bg-gradient-to-b from-brand-yellow to-brand-orange">
-      {/* Banner discreto que aparece após 4s sugerindo "Adicionar à Tela de
-          Início" (iOS) ou disparando prompt nativo (Android). Auto-hidden
-          se já estiver instalado ou se user dispensou nos últimos 7 dias. */}
+    <main
+      className="min-h-dvh flex flex-col bg-gradient-to-b from-brand-yellow to-brand-orange"
+      style={{
+        paddingTop: "max(env(safe-area-inset-top), 8px)",
+        paddingBottom: "max(env(safe-area-inset-bottom), 8px)",
+        paddingLeft: "max(env(safe-area-inset-left), 8px)",
+        paddingRight: "max(env(safe-area-inset-right), 8px)",
+      }}
+    >
       <PWAInstallBanner />
-      <div className="w-full max-w-md bg-surface-elevated rounded-xl shadow-lg p-6 md:p-7 relative">
-        {/* Admin no canto superior direito do card */}
-        <button
-          onClick={() => setRole("admin")}
-          className={`absolute top-4 right-4 inline-flex items-center gap-1.5 t-h3 transition-colors py-1.5 px-2.5 rounded-md ${
-            role === "admin"
-              ? "text-ink bg-brand-yellow"
-              : "text-ink-3 hover:text-ink hover:bg-surface-sunken"
-          }`}
-        >
-          <ChartBar size={14} strokeWidth={2.25} />
-          <span>Admin (Gil)</span>
-        </button>
 
-        {/* Brand header — label + nome forte, alinhado pelo baseline */}
-        <div className="flex items-baseline gap-2 mb-6">
-          <BrandIcon size={40} className="self-center" />
-          <span className="t-label">Cozinha da</span>
-          <span className="text-[22px] font-bold -tracking-[0.01em] leading-none text-ink">Gil</span>
-        </div>
-
-        <h1 className="t-h1 mb-1">Entrar</h1>
-        <p className="t-body-sm mb-5">Onde você vai trabalhar agora?</p>
-
-        {/* Atendente + Cozinha — role pickers compactos. Ícone pequeno
-            em cima, nome embaixo. Sem subtitle pra não competir com PIN. */}
-        <div className="grid grid-cols-2 gap-3 mb-6">
-          <button
-            onClick={() => setRole("atendente")}
-            className={`h-20 rounded-lg border-2 flex flex-col items-center justify-center gap-1.5 transition-colors ${
-              role === "atendente"
-                ? "border-brand-yellow bg-[#FFFCE5] text-ink"
-                : "border-line bg-surface-elevated text-ink-2 hover:border-ink-3 hover:text-ink"
-            }`}
-          >
-            <ClipboardList size={22} strokeWidth={2} />
-            <span className="text-[15px] font-semibold text-ink">Atendente</span>
-          </button>
-          <button
-            onClick={() => setRole("cozinha")}
-            className={`h-20 rounded-lg border-2 flex flex-col items-center justify-center gap-1.5 transition-colors ${
-              role === "cozinha"
-                ? "border-brand-yellow bg-[#FFFCE5] text-ink"
-                : "border-line bg-surface-elevated text-ink-2 hover:border-ink-3 hover:text-ink"
-            }`}
-          >
-            <CookingPot size={22} strokeWidth={2} />
-            <span className="text-[15px] font-semibold text-ink">Cozinha</span>
-          </button>
-        </div>
-
-        {/* Usuário */}
-        <label className="t-label block mb-2 text-center">Usuário</label>
-        {users.length === 0 ? (
-          <div className="card p-4 t-body-sm italic mb-5 text-center">
-            Nenhum usuário cadastrado pra essa função.
+      {/* Card centralizado verticalmente — flex-1 + justify-center pega
+          espaço sobrando e centraliza, mas sem permitir scroll. Em iPhone SE
+          (568px) tudo cabe; em telas grandes fica centralizado bonito. */}
+      <div className="flex-1 flex items-center justify-center w-full">
+        <div className="w-full max-w-sm bg-surface-elevated rounded-xl shadow-lg px-5 py-4 flex flex-col gap-3">
+          {/* Brand header compacto — inline, ~40px */}
+          <div className="flex items-center gap-2 self-center">
+            <BrandIcon size={28} />
+            <div className="flex items-baseline gap-1.5 leading-none">
+              <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-ink-3">Cozinha da</span>
+              <span className="text-lg font-bold -tracking-[0.01em] text-ink">Gil</span>
+            </div>
           </div>
-        ) : users.length > 6 ? (
-          <select
-            className="input mb-5 w-full text-center font-semibold"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          >
-            <option value="">— Selecione —</option>
-            {users.map((u) => (
-              <option key={u.id} value={u.name}>
-                {u.name}
-              </option>
-            ))}
-          </select>
-        ) : (
-          <div className="flex flex-wrap gap-2 mb-5 max-h-40 overflow-y-auto justify-center">
-            {users.map((u) => {
-              const active = name === u.name;
+
+          {/* Segmented control — 3 modos compactos. Substitui os 2 cards
+              grandes "Atendente/Cozinha" + botão "Admin" no canto.
+              Tamanho fixo, sem wrap, cabe em 320px. */}
+          <div className="grid grid-cols-3 gap-1 p-1 bg-surface-sunken rounded-lg">
+            {ROLE_TABS.map(({ id, label, Icon }) => {
+              const active = role === id;
               return (
                 <button
-                  key={u.id}
-                  onClick={() => setName(u.name)}
-                  className={`h-14 px-6 rounded-full border-2 text-lg font-bold transition-colors ${
+                  key={id}
+                  onClick={() => setRole(id)}
+                  className={`h-10 rounded-md inline-flex items-center justify-center gap-1.5 text-xs font-bold transition-colors ${
                     active
-                      ? "bg-ink text-brand-yellow border-ink"
-                      : "bg-surface-elevated text-ink-2 border-line-strong hover:border-ink-3"
+                      ? "bg-surface-elevated text-ink shadow-sm"
+                      : "text-ink-3 hover:text-ink-2"
                   }`}
                 >
-                  {u.name}
+                  <Icon size={14} strokeWidth={2.25} />
+                  <span>{label}</span>
                 </button>
               );
             })}
           </div>
-        )}
 
-        {/* PIN */}
-        <label className="t-label block mb-2 text-center">
-          Senha de {PIN_LENGTH} dígitos
-        </label>
-        <div className="mb-4">
-          <PinInput
-            value={password}
-            onChange={(v) => {
-              setError(null);
-              setPassword(v);
-            }}
-            length={PIN_LENGTH}
-            autoFocus={!!name}
-            // submitOnComplete=false: ao digitar o 4º dígito, NÃO loga
-            // automaticamente. Atendente vê os 4 dots preenchidos, confirma
-            // mentalmente, aperta "Entrar". Evita queimar tentativas do
-            // rate-limit (5/60s) em erros de pressa.
-            submitOnComplete={false}
-            keypad
-          />
-        </div>
-
-        <label className="flex items-start justify-center gap-2 mb-4 cursor-pointer select-none">
-          <input
-            type="checkbox"
-            checked={remember}
-            onChange={(e) => setRemember(e.target.checked)}
-            className="h-4 w-4 mt-0.5 shrink-0 accent-brand-yellow"
-          />
-          <div className="flex flex-col items-start">
-            <span className="t-body-sm">Manter conectado nesse aparelho</span>
-            <span className="t-caption">Não vai pedir senha nos próximos acessos.</span>
-          </div>
-        </label>
-
-        {error && (
-          <div className="t-body-sm text-danger bg-danger-bg rounded-md px-3 py-2 mb-3 text-center">
-            {error}
-          </div>
-        )}
-
-        <button
-          onClick={handleLogin}
-          disabled={submitting || !name || password.length < PIN_LENGTH}
-          className="btn btn-primary btn-lg w-full"
-        >
-          {submitting ? (
-            <>
-              <span className="spinner-inline" aria-hidden />
-              <span>Entrando...</span>
-            </>
+          {/* Lista de usuários do modo atual — pills compactas em grid.
+              Max 2 linhas; se passar, vira scroll horizontal compacto. */}
+          {users.length === 0 ? (
+            <div className="text-center t-body-sm italic py-2">
+              Nenhum {role} cadastrado.
+            </div>
           ) : (
-            "Entrar →"
+            <div className="flex flex-wrap gap-1.5 justify-center">
+              {users.map((u) => {
+                const active = name === u.name;
+                return (
+                  <button
+                    key={u.id}
+                    onClick={() => setName(u.name)}
+                    className={`h-10 px-4 rounded-full border-2 text-sm font-bold transition-colors ${
+                      active
+                        ? "bg-ink text-brand-yellow border-ink"
+                        : "bg-surface-elevated text-ink-2 border-line-strong"
+                    }`}
+                  >
+                    {u.name}
+                  </button>
+                );
+              })}
+            </div>
           )}
-        </button>
+
+          {/* PIN — dots + numpad. Shake key força re-animação a cada erro. */}
+          <div key={shakeKey} className={error ? "animate-shake-x" : ""}>
+            <PinInput
+              value={password}
+              onChange={(v) => {
+                setError(null);
+                setPassword(v);
+              }}
+              length={PIN_LENGTH}
+              autoFocus={pinAutoFocus}
+              // Auto-submit em si fica no useEffect acima — o PinInput só
+              // informa que completou via onChange (last digit). Mantemos
+              // submitOnComplete=false pra evitar dupla chamada.
+              submitOnComplete={false}
+              keypad
+            />
+          </div>
+
+          {/* Status: erro OU loading. Stack vertical pra não inflar quando
+              há ambos. Mensagens curtas pra caber em 1 linha. */}
+          {error && !submitting && (
+            <div className="t-body-sm text-danger bg-danger-bg rounded-md px-3 py-1.5 text-center font-semibold">
+              {error}
+            </div>
+          )}
+          {submitting && (
+            <div className="t-body-sm text-ink-2 inline-flex items-center justify-center gap-2">
+              <span className="spinner-inline" aria-hidden />
+              <span>Entrando…</span>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Tela do cliente — display público. Fora do card pois não precisa
-          de senha; abre direto. Discreto na cor, maior pra fácil toque. */}
-      <Link
-        href="/cliente"
-        className="mt-6 inline-flex items-center gap-2.5 text-ink/80 hover:text-ink bg-white/40 hover:bg-white/60 backdrop-blur px-5 py-3 rounded-full t-body font-semibold transition-colors"
-      >
-        <Monitor size={20} strokeWidth={2.25} />
-        <span>Tela do cliente (painel público)</span>
-      </Link>
+      {/* Rodapé: link discreto pra Tela do cliente (display público).
+          Não precisa de login, dá pra abrir direto em TV/painel. */}
+      <div className="flex justify-center">
+        <Link
+          href="/cliente"
+          className="inline-flex items-center gap-1.5 text-ink/70 hover:text-ink text-xs font-semibold px-3 py-1.5 rounded-full"
+        >
+          <Monitor size={14} strokeWidth={2.25} />
+          <span>Tela do cliente</span>
+        </Link>
+      </div>
     </main>
   );
 }
