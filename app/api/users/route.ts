@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { hashPassword, isValidRole } from "@/lib/auth-server";
+import { hashPassword, isPinDuplicateInRole, isValidRole, type Role } from "@/lib/auth-server";
 import { requireRole } from "@/lib/session";
 
 export const runtime = "nodejs";
@@ -48,6 +48,17 @@ export async function POST(request: Request) {
   const existing = await prisma.user.findUnique({ where: { name } });
   if (existing) {
     return NextResponse.json({ error: `Já existe um usuário "${name}".` }, { status: 409 });
+  }
+
+  // PIN único por role — o login identifica o user pelo {role + PIN} sem
+  // pedir nome. PINs entre roles diferentes podem repetir (não há conflito).
+  if (await isPinDuplicateInRole(password, role as Role)) {
+    return NextResponse.json(
+      {
+        error: `Já existe outro ${role} com esse PIN. Escolhe um diferente — PINs no mesmo papel não podem repetir.`,
+      },
+      { status: 409 },
+    );
   }
 
   const passwordHash = await hashPassword(password);

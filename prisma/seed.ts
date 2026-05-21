@@ -3,12 +3,15 @@ import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
-const DEFAULT_PASSWORD = "1234";
-
+// PINs únicos por role — backend identifica o user pelo {role + PIN} sem
+// precisar de pills de seleção. Restrição: 2 users do mesmo role NÃO podem
+// ter o mesmo PIN (validado em app/api/users + create/update routes).
+// Entre roles diferentes pode repetir sem problema (cada role tem seu próprio
+// search space). Conferir comentário do auth/login route pra detalhes.
 const DEFAULT_USERS = [
-  { name: "Gil", role: "admin" },
-  { name: "Maria", role: "atendente" },
-  { name: "José", role: "cozinha" },
+  { name: "Gil", role: "admin", password: "1111" },
+  { name: "Maria", role: "atendente", password: "2222" },
+  { name: "José", role: "cozinha", password: "3333" },
 ];
 
 type Seed = { name: string; available?: boolean };
@@ -204,18 +207,27 @@ async function main() {
   const sizeCount = await prisma.productSize.count();
   console.log(`✓ Produtos: ${prodCount} (${sizeCount} tamanhos).`);
 
-  // 3. Users — só cria se não existe (não sobrescreve senha)
-  const passwordHash = await bcrypt.hash(DEFAULT_PASSWORD, 10);
+  // 3. Users — só cria se não existe (não sobrescreve senha existente).
+  // Cada usuário tem PIN próprio — necessário porque o login identifica
+  // pelo {role + PIN} sem pedir nome.
   let created = 0;
+  const createdLog: string[] = [];
   for (const u of DEFAULT_USERS) {
     const existing = await prisma.user.findUnique({ where: { name: u.name } });
     if (!existing) {
-      await prisma.user.create({ data: { ...u, passwordHash } });
+      const passwordHash = await bcrypt.hash(u.password, 10);
+      await prisma.user.create({
+        data: { name: u.name, role: u.role, passwordHash },
+      });
       created++;
+      createdLog.push(`${u.name} (${u.role}, PIN ${u.password})`);
     }
   }
   const usersCount = await prisma.user.count();
-  console.log(`✓ Usuários: ${usersCount} total (${created} criados agora, senha padrão "${DEFAULT_PASSWORD}").`);
+  console.log(`✓ Usuários: ${usersCount} total, ${created} criados agora.`);
+  if (createdLog.length > 0) {
+    console.log(`  ${createdLog.join("  ·  ")}`);
+  }
 }
 
 main()
