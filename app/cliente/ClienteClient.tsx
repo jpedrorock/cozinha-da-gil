@@ -83,7 +83,10 @@ export function ClienteClient({ initialOrders }: { initialOrders: OrderView[] })
 
   return (
     <div className="min-h-dvh flex flex-col bg-surface">
-      <header className="bg-surface-elevated border-b border-line">
+      <header
+        className="bg-surface-elevated border-b border-line"
+        style={{ paddingTop: "env(safe-area-inset-top)" }}
+      >
         <div className="max-w-6xl mx-auto px-6 md:px-10 py-5 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 md:gap-4">
             {/* Voltar pro login — discreto pra não competir com a marca,

@@ -5,6 +5,7 @@ import { ChartBar, ClipboardList, CookingPot, Monitor } from "lucide-react";
 import Link from "next/link";
 import { BrandIcon } from "@/components/icons";
 import { PinInput } from "@/components/PinInput";
+import { PWAInstallBanner } from "@/components/PWAInstallBanner";
 import { useOperator, type Role } from "@/lib/use-operator";
 
 const PIN_LENGTH = 4;
@@ -83,6 +84,10 @@ export default function LoginPage() {
 
   return (
     <main className="min-h-dvh flex flex-col items-center justify-center p-4 bg-gradient-to-b from-brand-yellow to-brand-orange">
+      {/* Banner discreto que aparece após 4s sugerindo "Adicionar à Tela de
+          Início" (iOS) ou disparando prompt nativo (Android). Auto-hidden
+          se já estiver instalado ou se user dispensou nos últimos 7 dias. */}
+      <PWAInstallBanner />
       <div className="w-full max-w-md bg-surface-elevated rounded-xl shadow-lg p-6 md:p-7 relative">
         {/* Admin no canto superior direito do card */}
         <button

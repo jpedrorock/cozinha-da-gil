@@ -69,6 +69,33 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  // Service Worker DEVE ser sempre fresh — senão usuários ficam grudados
+  // em versão antiga sem nunca pegar updates. skipWaiting do next-pwa só
+  // ajuda quando o browser baixa o novo sw.js; pra isso baixar, Cache-Control
+  // tem que ser explícito. Mesmo pra workbox-*.js que o sw.js importa.
+  async headers() {
+    return [
+      {
+        source: "/sw.js",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=0, must-revalidate" },
+          { key: "Service-Worker-Allowed", value: "/" },
+        ],
+      },
+      {
+        source: "/workbox-:hash.js",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=0, must-revalidate" },
+        ],
+      },
+      {
+        source: "/manifest.webmanifest",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=0, must-revalidate" },
+        ],
+      },
+    ];
+  },
 };
 
 export default withPWA(nextConfig);

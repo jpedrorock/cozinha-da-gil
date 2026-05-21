@@ -16,7 +16,11 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     title: "Cozinha da Gil",
-    statusBarStyle: "default",
+    // black-translucent: status bar fica TRANSPARENTE sobre o app (texto branco).
+    // App desenha edge-to-edge por baixo. Exige padding-top: env(safe-area-inset-top)
+    // nos headers fixos pra conteúdo não ficar atrás do notch. Com "default" iOS
+    // mostrava barra branca opaca SEPARADA do app — quebrava sensação nativa.
+    statusBarStyle: "black-translucent",
   },
   icons: {
     icon: [
@@ -25,7 +29,7 @@ export const metadata: Metadata = {
       { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
     ],
     // iOS Safari NÃO renderiza SVG no apple-touch-icon — exige PNG 180×180
-    // com fundo opaco. Sem isso, "Add to Home Screen" usa ícone genérico.
+    // SEM canal alpha (RGB sólido). Com alpha, iOS cai no ícone genérico.
     apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
   },
 };
@@ -33,18 +37,48 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  // viewport-fit: cover é OBRIGATÓRIO pra `env(safe-area-inset-*)` funcionar
+  // no iOS. Sem isso, viewport fica "inset by safe areas" e env() retorna 0px,
+  // app não cobre notch, status bar fica como barra separada. Esse é o switch
+  // que faz o app sair de "tela web" pra "tela nativa edge-to-edge".
+  viewportFit: "cover",
   // NÃO bloqueamos zoom (maximumScale ausente) — respeita acessibilidade
   // WCAG 1.4.4 e permite pinch-zoom pra usuário com visão fraca.
-  // Tap delay de 300ms já é eliminado só com width=device-width.
   themeColor: "#FFD600",
   colorScheme: "light",
 };
+
+// === iOS splash screens — apple-touch-startup-image ===
+// Next 14 metadata API NÃO suporta startup-image (só apple-touch-icon).
+// Precisa de <link> direto no <head>. Cada splash tem media query específica
+// por device (combinação device-width + device-height + pixel-ratio).
+// Sem isso, iOS abre PWA com fundo branco/preto padrão por 1-2s — parece bug.
+const IOS_SPLASHES = [
+  { src: "/splash/splash-1290x2796.png", media: "(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" }, // 14/15/16 Pro Max
+  { src: "/splash/splash-1179x2556.png", media: "(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" }, // 14/15/16 Pro
+  { src: "/splash/splash-1170x2532.png", media: "(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" }, // 12/13/14
+  { src: "/splash/splash-1284x2778.png", media: "(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" }, // 12/13 Pro Max
+  { src: "/splash/splash-1125x2436.png", media: "(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" }, // X/XS/11 Pro
+  { src: "/splash/splash-828x1792.png", media: "(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" }, // XR/11
+  { src: "/splash/splash-750x1334.png", media: "(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" }, // SE/6/7/8
+  { src: "/splash/splash-1242x2208.png", media: "(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" }, // 6+/7+/8+
+];
 
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="pt-BR" className={jakarta.variable}>
+      <head>
+        {IOS_SPLASHES.map((s) => (
+          <link
+            key={s.src}
+            rel="apple-touch-startup-image"
+            href={s.src}
+            media={s.media}
+          />
+        ))}
+      </head>
       <body className="font-sans bg-surface text-ink">{children}</body>
     </html>
   );

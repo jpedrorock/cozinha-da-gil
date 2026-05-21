@@ -18,7 +18,13 @@ html { color-scheme: only light; }
     font-feature-settings: 'cv11', 'ss01';
   }
   * { box-sizing: border-box; }
-  button { -webkit-tap-highlight-color: transparent; }
+  /* Tap highlight em botões + links: removido pra UI parecer nativa.
+     Sem isso, iOS pinta um cinza-translúcido em cada toque. */
+  button, a { -webkit-tap-highlight-color: transparent; }
+  /* touch-action: manipulation elimina os 300ms de delay do double-tap
+     zoom em iOS pra elementos clicáveis. Pinch-zoom em conteúdo
+     continua funcionando (WCAG 1.4.4). */
+  button, a, [role="button"] { touch-action: manipulation; }
 
   /* Bloqueia pull-to-refresh acidental do iOS/Android quando atendente
      puxa de leve no topo da fila durante stepper aberto. Sem isso, a
@@ -168,6 +174,26 @@ html { color-scheme: only light; }
 @layer utilities {
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* === SAFE AREA helpers (iOS notch + home indicator) ===
+     Use junto com viewportFit: 'cover' no Viewport export do layout.
+     Em browsers normais, env() retorna 0 — sem efeito. */
+  .pt-safe { padding-top: env(safe-area-inset-top); }
+  .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+  .pl-safe { padding-left: env(safe-area-inset-left); }
+  .pr-safe { padding-right: env(safe-area-inset-right); }
+  .px-safe {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* Bloqueia seleção de texto em UI chrome (header, nav, badges).
+     Conteúdo do app (nome cliente, items do pedido) continua selecionável. */
+  .no-select {
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
 
   /* Foco visível só pra navegação por teclado — não pra tap em mobile.
      Em iOS Safari, tap deixa foco "preso" no botão e confunde visualmente.

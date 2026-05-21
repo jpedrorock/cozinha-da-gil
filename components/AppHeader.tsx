@@ -30,7 +30,13 @@ export function AppHeader({
   }
 
   return (
-    <header className="sticky top-0 z-30 bg-surface-elevated border-b border-line">
+    // pt-safe: respeita env(safe-area-inset-top) em iOS standalone com
+    // status bar translucent. Sem isso, conteúdo do header ficaria atrás
+    // do notch / Dynamic Island. Em browsers sem standalone, o env() é 0.
+    <header
+      className="sticky top-0 z-30 bg-surface-elevated border-b border-line no-select"
+      style={{ paddingTop: "env(safe-area-inset-top)" }}
+    >
       <div className="flex items-center gap-3 px-4 md:px-6 h-16">
         <Link href="/" className="flex items-center gap-2 shrink-0">
           <BrandIcon size={32} />

@@ -60,5 +60,9 @@ next-env.d.ts
 /test-results/
 /playwright-report/
 
-# Claude Code — config local não-compartilhada
+# Claude Code — config local + runtime files
 .claude/settings.local.json
+.claude/*.lock
+
+# One-off scripts (geração de PWA assets, etc) — não-runtime
+scripts-tmp/
