@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowDownUp, Check, Coffee, Package, Play, Search, Utensils, Volume2, VolumeX, WifiOff, X } from "lucide-react";
 import { useIdleLogout } from "@/lib/use-idle-logout";
@@ -19,6 +19,11 @@ const PREP_TARGET_MIN = 20;
 const PREP_WARN_MIN = 10;
 const PREP_URGENT_MIN = 15;
 const FLASH_DURATION_MS = 4000;
+// Audit-Crit B #21: re-ding em pedidos passados da meta a cada 2min.
+// Equilíbrio: insistente o suficiente pra forçar ação, espaçado o
+// suficiente pra não virar tortura sonora. 2min × 5 ciclos = 10min
+// de incômodo crescente — bem antes disso cook já agiu.
+const OVER_TARGET_RE_DING_MS = 2 * 60 * 1000;
 
 type Stage = "PEDIDO_FEITO" | "EM_PREPARO";
 
@@ -94,6 +99,13 @@ export function CozinhaClient({
   const [pendingIds, setPendingIds] = useState<Set<number>>(new Set());
   const ding = useDing();
   const { showToast, node: toastNode } = useToast();
+  // Audit-Crit B #21: rastreia qual nível de alarme já tocou pra cada
+  // pedido. Sem isso, o loop de check (a cada 30s) re-disparava o ding
+  // toda iteração — tortura. Map<orderId, { level, lastDingedAt }>.
+  // Reset quando pedido sai da fila (PRONTO/ENTREGUE/CANCELADO).
+  const alarmStateRef = useRef<Map<number, { level: "warn" | "urgent" | "over"; lastDingedAt: number }>>(
+    new Map(),
+  );
 
   useEffect(() => {
     setSoundOn(isSoundEnabled());
@@ -108,6 +120,68 @@ export function CozinhaClient({
       clearInterval(tNow);
     };
   }, []);
+
+  // Audit-Crit B #21: alarme escalonado. Cook olha pra fora 5min, volta
+  // e pedido tá há 25min sem ação. Sem som insistente, vira reclamação
+  // do cliente. Lógica:
+  //   - 10min (WARN): ding warn 1×
+  //   - 15min (URGENT): ding urgent 1×
+  //   - 20min (OVER TARGET): ding urgent + re-ding a cada 2min até cook agir
+  //   - Som off no header também silencia esses alarmes (isSoundEnabled)
+  //
+  // Mantém estado por orderId em ref pra não re-disparar a cada tick.
+  // Limpa quando pedido sai da fila (PRONTO/ENTREGUE/CANCELADO via SSE
+  // já remove de `orders`, o cleanup abaixo derruba o entry).
+  useEffect(() => {
+    const tick = () => {
+      const nowMs = Date.now();
+      const activeIds = new Set<number>();
+      for (const o of orders) {
+        if (o.status !== "PEDIDO_FEITO" && o.status !== "EM_PREPARO") continue;
+        activeIds.add(o.id);
+        const stageStart =
+          o.status === "EM_PREPARO" && o.preparedAt
+            ? new Date(o.preparedAt).getTime()
+            : new Date(o.createdAt).getTime();
+        const elapsedMin = (nowMs - stageStart) / 60_000;
+        const state = alarmStateRef.current.get(o.id);
+
+        // Determina nível atual baseado no elapsed
+        let shouldDing: "warn" | "urgent" | "over" | null = null;
+        if (elapsedMin >= PREP_TARGET_MIN) {
+          // OVER: 1ª vez OU passou 2min do último re-ding
+          if (!state || state.level !== "over") {
+            shouldDing = "over";
+          } else if (nowMs - state.lastDingedAt >= OVER_TARGET_RE_DING_MS) {
+            shouldDing = "over";
+          }
+        } else if (elapsedMin >= PREP_URGENT_MIN) {
+          if (!state || (state.level !== "urgent" && state.level !== "over")) {
+            shouldDing = "urgent";
+          }
+        } else if (elapsedMin >= PREP_WARN_MIN) {
+          if (!state) shouldDing = "warn";
+        }
+
+        if (shouldDing) {
+          if (shouldDing === "over" || shouldDing === "urgent") {
+            ding("urgent");
+          } else {
+            ding("warn");
+          }
+          alarmStateRef.current.set(o.id, { level: shouldDing, lastDingedAt: nowMs });
+        }
+      }
+      // Cleanup: pedidos que saíram da fila perdem o entry
+      for (const id of Array.from(alarmStateRef.current.keys())) {
+        if (!activeIds.has(id)) alarmStateRef.current.delete(id);
+      }
+    };
+    // 30s é granular o suficiente pra alarmes minutários sem ser caro
+    const t = setInterval(tick, 30_000);
+    tick(); // dispara imediato ao mount/order change pra não esperar 30s
+    return () => clearInterval(t);
+  }, [orders, ding]);
 
   function markArrived(id: number) {
     setRecentlyArrived((prev) => new Set(prev).add(id));
