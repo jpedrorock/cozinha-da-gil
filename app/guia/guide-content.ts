@@ -358,6 +358,34 @@ export const GUIDE: GuideTab[] = [
     icon: "ChartBar",
     sections: [
       {
+        id: "caixa",
+        title: "Abrir e fechar caixa",
+        icon: "Activity",
+        description: "Sempre o primeiro passo do dia. Sem caixa, atendente não vende.",
+        topics: [
+          {
+            title: "Começar uma festa",
+            body: "Toca 'Abrir caixa'. Bota um nome do evento (tipo 'Aniversário João' ou só a data) e confirma. Daí todos os pedidos novos vão pra essa festa.",
+            rules: [
+              "Só pode ter 1 caixa aberto por vez.",
+              "Sem caixa aberto, atendente não consegue fazer pedido.",
+            ],
+          },
+          {
+            title: "Acompanhar ao vivo",
+            body: "Enquanto o caixa tá aberto, a tela mostra contador de pedidos, receita parcial e quadro com cada status (Pedido feito / Em preparo / Pronto / Entregue). Atualiza sozinho.",
+          },
+          {
+            title: "Encerrar a festa",
+            body: "Toca 'Fechar caixa'. O app guarda o total final daquela festa. Nenhum pedido novo entra mais nessa.",
+          },
+          {
+            title: "Ver festas antigas",
+            body: "Lista de todas as festas anteriores com data, total e quem abriu/fechou. Clica em uma pra ver os pedidos dela ou baixar o relatório.",
+          },
+        ],
+      },
+      {
         id: "vendas",
         title: "Ver vendas do dia/semana/mês",
         icon: "TrendingUp",
@@ -388,30 +416,6 @@ export const GUIDE: GuideTab[] = [
           {
             title: "Baixar relatório bonito (PDF)",
             body: "Arquivo PDF visual: capa, números grandes, resumo financeiro, top vendidos e gráfico por hora ou dia. Pra imprimir ou mandar pro contador.",
-          },
-        ],
-      },
-      {
-        id: "caixa",
-        title: "Abrir e fechar caixa",
-        icon: "Activity",
-        description: "Marca o início e o fim de cada festa/evento.",
-        topics: [
-          {
-            title: "Começar uma festa",
-            body: "Toca 'Abrir caixa'. Bota um nome do evento (tipo 'Aniversário João' ou só a data) e confirma. Daí todos os pedidos novos vão pra essa festa.",
-            rules: [
-              "Só pode ter 1 caixa aberto por vez.",
-              "Sem caixa aberto, atendente não consegue fazer pedido.",
-            ],
-          },
-          {
-            title: "Encerrar a festa",
-            body: "Toca 'Fechar caixa'. O app guarda o total final daquela festa. Nenhum pedido novo entra mais nessa.",
-          },
-          {
-            title: "Ver festas antigas",
-            body: "Lista de todas as festas anteriores com data, total e quem abriu/fechou. Clica em uma pra ver os pedidos dela ou baixar o relatório.",
           },
         ],
       },

@@ -114,7 +114,9 @@ export function AdminClient({
     router.replace("/");
   }, 15 * 60 * 1000);
 
-  const [tab, setTab] = useState<Tab>("vendas");
+  // Default em "operacao" (Caixa) pra Gil cair direto onde decide se vai
+  // abrir/fechar caixa — passo 1 do dia. Antes era "vendas".
+  const [tab, setTab] = useState<Tab>("operacao");
   const { confirm, node: confirmDialogNode } = useConfirmDialog();
   const { showToast, node: toastNode } = useToast();
   const [todayOrders, setTodayOrders] = useState<OrderView[]>(initialTodayOrders);
@@ -323,11 +325,16 @@ type TabMeta = {
   priority: number; // 0-3 = visível no mobile bottom nav, 4+ = no menu "Mais"
 };
 
+// Ordem do menu admin reflete fluxo real do dia:
+//   1º Caixa — Gil sempre abre antes de qualquer venda começar
+//   2º Vendas — KPIs depois que tá rolando
+//   3º Cardápio — ajuste de estoque/produto no meio do dia
+//   4º+ Mais — clientes, histórico, promo, usuários no menu "Mais"
+// Operação renomeada pra Caixa porque é o que Gil chama. Conteúdo segue
+// o mesmo (status do caixa atual + Abrir/Fechar + board ao vivo).
 const ADMIN_TABS: TabMeta[] = [
-  { id: "vendas", label: "Vendas", icon: <ChartBar size={22} strokeWidth={2} />, priority: 0 },
-  // "Op" no bottom-nav 320px (iPhone SE) pra não cortar; sidebar desktop
-  // ainda mostra "Operação" porque tem espaço — vide AdminShell mobileLabel.
-  { id: "operacao", label: "Operação", icon: <Activity size={22} strokeWidth={2} />, priority: 1, mobileLabel: "Op" },
+  { id: "operacao", label: "Caixa", icon: <Activity size={22} strokeWidth={2} />, priority: 0 },
+  { id: "vendas", label: "Vendas", icon: <ChartBar size={22} strokeWidth={2} />, priority: 1 },
   { id: "cardapio", label: "Cardápio", icon: <UtensilsCrossed size={22} strokeWidth={2} />, priority: 2 },
   { id: "clientes", label: "Clientes", icon: <Contact size={22} strokeWidth={2} />, priority: 4 },
   { id: "historico", label: "Histórico", icon: <HistoryIcon size={22} strokeWidth={2} />, priority: 5 },
@@ -3066,7 +3073,7 @@ function Operacao({
   return (
     <div className="flex flex-col gap-5">
       <header>
-        <h1 className="t-h1 mb-1">Operação</h1>
+        <h1 className="t-h1 mb-1">Caixa</h1>
         <p className="t-body-sm">
           {eventStatus.open
             ? `Ao vivo · ${eventStatus.name ?? "Caixa atual"}`
