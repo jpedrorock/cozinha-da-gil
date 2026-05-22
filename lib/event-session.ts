@@ -40,6 +40,25 @@ export async function getEventSessionStatus(): Promise<EventSessionStatus> {
 }
 
 /**
+ * Detecta caixa órfão — aberto há mais de N horas (default 12h).
+ * Cenário real: Gil esqueceu de fechar ontem à noite, abre app hoje e
+ * pedidos novos agregam no caixa errado. Banner de alerta convida fechar.
+ *
+ * Usa `openedAt` (string ISO ou Date) — funciona tanto no client (com a
+ * `EventSessionStatus` serializada) quanto no server.
+ */
+export function isStaleEventSession(
+  openedAt: string | Date | null | undefined,
+  staleHours = 12,
+): boolean {
+  if (!openedAt) return false;
+  const opened = typeof openedAt === "string" ? new Date(openedAt) : openedAt;
+  if (isNaN(opened.getTime())) return false;
+  const ageHours = (Date.now() - opened.getTime()) / (1000 * 60 * 60);
+  return ageHours >= staleHours;
+}
+
+/**
  * Calcula totalCents (sem cancelados) de todos os pedidos da sessão.
  * Usado no fechamento pra snapshot.
  */

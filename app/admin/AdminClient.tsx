@@ -56,7 +56,7 @@ import { formatBRL, SIZE_LABEL } from "@/lib/pricing";
 import type { OrderView } from "@/lib/orders";
 import type { ProductView } from "@/lib/products";
 import type { PromotionView } from "@/lib/promotions";
-import type { EventSessionStatus } from "@/lib/event-session";
+import { isStaleEventSession, type EventSessionStatus } from "@/lib/event-session";
 import type { Ingredient } from "@prisma/client";
 
 type Tab = "vendas" | "operacao" | "historico" | "cardapio" | "promocoes" | "clientes" | "usuarios";
@@ -201,8 +201,50 @@ export function AdminClient({
     }
   }
 
+  const caixaOrfao = eventStatus.open && isStaleEventSession(eventStatus.openedAt, 12);
+  const [staleDismissed, setStaleDismissed] = useState(false);
+  // Reset dismiss quando trocar de caixa (abrir/fechar)
+  useEffect(() => {
+    setStaleDismissed(false);
+  }, [eventStatus.id]);
+
   return (
     <AdminShell tab={tab} setTab={setTab}>
+      {/* Banner caixa órfão admin — mesmo que o atendente, mas com botão
+          DIRETO "Fechar agora" porque admin pode resolver na hora. */}
+      {caixaOrfao && !staleDismissed && (
+        <div className="bg-brand-orange/15 border border-brand-orange/40 rounded-md px-4 py-3 mb-4 flex items-start gap-2.5">
+          <AlertTriangle size={20} strokeWidth={2.25} className="shrink-0 text-brand-orange mt-0.5" />
+          <div className="flex-1 min-w-0">
+            <div className="font-bold text-sm text-ink">Caixa aberto há mais de 12 horas</div>
+            <div className="text-xs text-ink-2 mt-0.5">
+              {eventStatus.name ? `"${eventStatus.name}" ` : ""}desde{" "}
+              {eventStatus.openedAt &&
+                new Date(eventStatus.openedAt).toLocaleString("pt-BR", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              . Vendas novas vão pra esse caixa — se for de outro evento, feche e abra um novo.
+            </div>
+            <div className="flex gap-2 mt-2">
+              <button
+                onClick={closeEvent}
+                className="inline-flex items-center gap-1.5 h-8 px-3 rounded-md bg-brand-orange text-white text-xs font-bold hover:brightness-110"
+              >
+                Fechar caixa agora
+              </button>
+              <button
+                onClick={() => setStaleDismissed(true)}
+                className="inline-flex items-center h-8 px-3 rounded-md text-ink-2 hover:text-ink hover:bg-brand-orange/10 text-xs font-semibold"
+              >
+                Dispensar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {tab === "vendas" && (
         <Vendas
           todayOrders={todayOrders}

@@ -23,7 +23,7 @@ import { useIdleLogout } from "@/lib/use-idle-logout";
 import { useSSE } from "@/lib/use-sse";
 import { useOperator } from "@/lib/use-operator";
 import type { OrderView } from "@/lib/orders";
-import type { EventSessionStatus } from "@/lib/event-session";
+import { isStaleEventSession, type EventSessionStatus } from "@/lib/event-session";
 import type { ProductView } from "@/lib/products";
 import { isExpressProduct } from "@/lib/products";
 import { computeDiscount, detectApplicable, findCouponMatch, type PromotionView } from "@/lib/promotions";
@@ -220,6 +220,13 @@ export function AtendenteClient({
   const [cancelTarget, setCancelTarget] = useState<OrderView | null>(null);
   const [eventStatus, setEventStatus] = useState<EventSessionStatus>(initialEventStatus);
   const caixaFechado = !eventStatus.open;
+  // Caixa órfão: aberto há +12h, provavelmente Gil esqueceu de fechar.
+  // Vendas novas vão pra esse caixa errado se não alertar. Audit-Crit #5.
+  const caixaOrfao =
+    eventStatus.open && isStaleEventSession(eventStatus.openedAt, 12);
+  // Dismiss do banner dentro da sessão atual — atendente pode ignorar se
+  // sabe que tá certo (festa overnight legítima). Reabre se trocar caixa.
+  const [staleDismissed, setStaleDismissed] = useState(false);
 
   // Auto-logout por inatividade (30min). Pausado durante `creating`: atendente
   // conversa com cliente em pé, fica 5min sem tocar a tela e o draft sumia
@@ -681,6 +688,36 @@ export function AtendenteClient({
           <span className="text-sm font-bold">
             Caixa fechado. Peça pra Gil abrir um caixa no admin.
           </span>
+        </div>
+      )}
+
+      {/* Banner caixa órfão — alerta de caixa esquecido aberto há +12h.
+          Vendas novas agregam nele se não fechar. Audit-Crit #5. */}
+      {!caixaFechado && caixaOrfao && !staleDismissed && !creating && (
+        <div className="bg-brand-orange/15 border-b border-brand-orange/40 text-ink px-4 py-2.5 flex items-center gap-2 sticky top-16 z-20 shadow-sm">
+          <AlertTriangle size={18} strokeWidth={2.5} className="shrink-0 text-brand-orange" />
+          <div className="flex-1 min-w-0 text-sm">
+            <span className="font-bold">Caixa aberto há +12h</span>
+            <span className="text-ink-2">
+              {" — "}
+              {eventStatus.name ? `"${eventStatus.name}" ` : ""}desde{" "}
+              {eventStatus.openedAt &&
+                new Date(eventStatus.openedAt).toLocaleString("pt-BR", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              . Esqueceram de fechar? Peça pra Gil revisar.
+            </span>
+          </div>
+          <button
+            onClick={() => setStaleDismissed(true)}
+            className="shrink-0 inline-flex items-center justify-center w-8 h-8 rounded-md text-ink-3 hover:text-ink hover:bg-brand-orange/10"
+            aria-label="Dispensar aviso"
+          >
+            <X size={16} strokeWidth={2.5} />
+          </button>
         </div>
       )}
 
