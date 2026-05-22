@@ -1207,11 +1207,15 @@ function TopList({
   items,
   highlightFirst = false,
 }: {
-  items: Array<{ name: string; count: number }>;
+  items: Array<{ name: string; count: number; revenueCents?: number }>;
   highlightFirst?: boolean;
 }) {
   if (items.length === 0) return null;
   const max = Math.max(...items.map((i) => i.count));
+  // Audit-Crit B #11: mostra receita quando o backend mandar (top do
+  // /api/reports/today já retorna revenueCents). Útil pra Gil planejar
+  // compras: "Catupiry deu R$ 350 esse mês" > "12 ocorrências".
+  const hasRevenue = items.some((i) => typeof i.revenueCents === "number");
   return (
     <ul className="flex flex-col gap-2">
       {items.map((it, idx) => {
@@ -1219,7 +1223,7 @@ function TopList({
         const isTop = idx === 0 && highlightFirst;
         return (
           <li key={it.name} className="flex items-center gap-3">
-            <span className="text-sm font-semibold text-ink w-32 truncate flex items-center gap-1.5">
+            <span className="text-sm font-semibold text-ink w-28 truncate flex items-center gap-1.5">
               {isTop && <Trophy size={14} strokeWidth={2.25} className="text-brand-orange shrink-0" aria-hidden />}
               <span className="truncate">{it.name}</span>
             </span>
@@ -1230,6 +1234,16 @@ function TopList({
               />
             </div>
             <span className="text-sm font-bold t-num w-8 text-right">{it.count}</span>
+            {hasRevenue && (
+              <span
+                className="text-xs t-num text-ink-3 w-20 text-right tabular-nums"
+                title="Receita atribuída (split por categoria)"
+              >
+                {it.revenueCents
+                  ? formatBRL(it.revenueCents)
+                  : "—"}
+              </span>
+            )}
           </li>
         );
       })}

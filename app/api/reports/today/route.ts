@@ -97,10 +97,14 @@ export async function GET(request: Request) {
     byDay = Array.from(buckets.entries()).map(([date, v]) => ({ date, ...v }));
   }
 
-  // Top toppings/sabores/molhos — agora considerando quantity
-  const toppingCount: Record<string, number> = {};
-  const flavorCount: Record<string, number> = {};
-  const sauceCount: Record<string, number> = {};
+  // Top toppings/sabores/molhos — agora considerando quantity E receita.
+  // Audit-Crit B #11: além de "Catupiry apareceu em 12 pedidos", admin
+  // quer saber "Catupiry gerou R$ 350 essa semana". Split share-based
+  // dentro de cada categoria — sum por categoria ≈ revenue total.
+  type Agg = { count: number; revenueCents: number };
+  const toppingAgg: Record<string, Agg> = {};
+  const flavorAgg: Record<string, Agg> = {};
+  const sauceAgg: Record<string, Agg> = {};
   let salgadoCount = 0;
   let doceCount = 0;
   let pequenoCount = 0;
@@ -108,34 +112,53 @@ export async function GET(request: Request) {
   let normalCount = 0;
   let miniCount = 0;
 
+  function bump(record: Record<string, Agg>, key: string, count: number, revenue: number) {
+    const cur = record[key] ?? { count: 0, revenueCents: 0 };
+    cur.count += count;
+    cur.revenueCents += revenue;
+    record[key] = cur;
+  }
+
   for (const o of active) {
     for (const item of o.items) {
       const qty = item.quantity || 1;
+      const itemRevenue = item.unitPrice * qty;
+
       if (item.kind === "salgado") {
         salgadoCount += qty;
         if (item.size === "pequeno") pequenoCount += qty;
         if (item.size === "grande") grandeCount += qty;
-        for (const t of parseExtras(item.toppings)) {
-          toppingCount[t] = (toppingCount[t] ?? 0) + qty;
+        const toppings = parseExtras(item.toppings);
+        // Share por topping pra somar ≈ total receita salgado
+        const share = toppings.length > 0 ? itemRevenue / toppings.length : 0;
+        for (const t of toppings) {
+          bump(toppingAgg, t, qty, share);
         }
       }
       if (item.kind === "doce") {
         doceCount += qty;
         if (item.size === "normal") normalCount += qty;
         if (item.size === "mini") miniCount += qty;
-        if (item.flavor) flavorCount[item.flavor] = (flavorCount[item.flavor] ?? 0) + qty;
+        // Doce só tem 1 sabor — recebe receita inteira
+        if (item.flavor) bump(flavorAgg, item.flavor, qty, itemRevenue);
       }
-      for (const s of parseExtras(item.sauces)) {
-        sauceCount[s] = (sauceCount[s] ?? 0) + qty;
+      const sauces = parseExtras(item.sauces);
+      const sauceShare = sauces.length > 0 ? itemRevenue / sauces.length : 0;
+      for (const s of sauces) {
+        bump(sauceAgg, s, qty, sauceShare);
       }
     }
   }
 
-  function top(record: Record<string, number>, n = 5) {
+  function top(record: Record<string, Agg>, n = 5) {
     return Object.entries(record)
-      .sort((a, b) => b[1] - a[1])
+      .sort((a, b) => b[1].count - a[1].count)
       .slice(0, n)
-      .map(([name, count]) => ({ name, count }));
+      .map(([name, agg]) => ({
+        name,
+        count: agg.count,
+        revenueCents: Math.round(agg.revenueCents),
+      }));
   }
 
   // Tempos médios
@@ -188,9 +211,9 @@ export async function GET(request: Request) {
     byHour: groupBy === "hour" ? byHour : null,
     byDay: groupBy === "day" ? byDay : null,
     top: {
-      toppings: top(toppingCount),
-      flavors: top(flavorCount),
-      sauces: top(sauceCount),
+      toppings: top(toppingAgg),
+      flavors: top(flavorAgg),
+      sauces: top(sauceAgg),
     },
     timings: {
       avgWaitSec: avg(waitDurations),
