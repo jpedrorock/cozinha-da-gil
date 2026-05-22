@@ -8,6 +8,7 @@ import Link from "next/link";
 import {
   Activity,
   AlertTriangle,
+  BookOpen,
   ChartBar,
   ChevronLeft,
   ChevronRight,
@@ -392,6 +393,20 @@ function AdminShell({
             />
           ))}
         </nav>
+        {/* Link pro guia — sempre visível embaixo, fora da nav de abas.
+            Acesso de referência rápida sem ocupar slot de tab principal. */}
+        <Link
+          href="/guia"
+          className={`border-t border-line px-3 py-3 inline-flex items-center gap-2 text-ink-2 hover:text-ink hover:bg-surface-sunken transition ${
+            sidebarExpanded ? "" : "justify-center"
+          }`}
+          title="Guia do app"
+        >
+          <BookOpen size={18} strokeWidth={2.25} />
+          {sidebarExpanded && (
+            <span className="text-sm font-semibold">Guia do app</span>
+          )}
+        </Link>
         <button
           onClick={toggleSidebar}
           className="border-t border-line px-3 py-3 inline-flex items-center gap-2 text-ink-3 hover:text-ink transition"
@@ -509,6 +524,16 @@ function MoreSheet({
               </button>
             );
           })}
+          {/* Guia do app no rodapé do sheet — separado das abas
+              principais. Link sai do admin (página dedicada). */}
+          <Link
+            href="/guia"
+            onClick={onClose}
+            className="inline-flex items-center gap-3 h-14 px-4 rounded-md text-base font-semibold bg-surface text-ink-2 hover:bg-surface-sunken hover:text-ink border-t border-line mt-2 pt-3"
+          >
+            <BookOpen size={22} strokeWidth={2} />
+            <span>Guia do app</span>
+          </Link>
         </div>
       </div>
     </div>

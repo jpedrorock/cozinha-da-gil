@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ChartBar, ClipboardList, CookingPot, Monitor } from "lucide-react";
+import { BookOpen, ChartBar, ClipboardList, CookingPot, Monitor } from "lucide-react";
 import Link from "next/link";
 import { BrandIcon } from "@/components/icons";
 import { PinInput } from "@/components/PinInput";
@@ -179,8 +179,9 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Rodapé: Admin + Tela do cliente */}
-      <div className="flex justify-center items-center gap-1 text-xs">
+      {/* Rodapé: Admin + Tela do cliente + Guia do app
+          Wrap pra caber em iPhone SE; gap-x maior pra cada item respirar. */}
+      <div className="flex flex-wrap justify-center items-center gap-x-2 gap-y-1 text-xs">
         <button
           onClick={() => setRole("admin")}
           className={`inline-flex items-center gap-1.5 text-ink/70 hover:text-ink font-semibold px-3 py-1.5 rounded-full transition-colors ${
@@ -197,6 +198,15 @@ export default function LoginPage() {
         >
           <Monitor size={14} strokeWidth={2.25} />
           <span>Tela do cliente</span>
+        </Link>
+        <span className="text-ink/30" aria-hidden>·</span>
+        <Link
+          href="/guia"
+          className="inline-flex items-center gap-1.5 text-ink/70 hover:text-ink font-semibold px-3 py-1.5 rounded-full"
+          title="Manual completo do app"
+        >
+          <BookOpen size={14} strokeWidth={2.25} />
+          <span>Guia</span>
         </Link>
       </div>
     </main>
