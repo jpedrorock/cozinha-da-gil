@@ -32,7 +32,6 @@ import {
   Users as UsersIcon,
   Utensils,
   UtensilsCrossed,
-  XCircle,
 } from "lucide-react";
 import { Icon } from "@iconify/react";
 import { useBodyScrollLock } from "@/lib/use-body-scroll-lock";
@@ -273,18 +272,6 @@ export function AdminClient({
               method: "PATCH",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ available }),
-            });
-          }}
-          onStockChange={async (id, stock, lowStockThreshold) => {
-            setIngredients((prev) =>
-              prev.map((i) =>
-                i.id === id ? { ...i, stock: stock ?? null, lowStockThreshold: lowStockThreshold ?? null } : i,
-              ),
-            );
-            await fetch(`/api/ingredients/${id}`, {
-              method: "PATCH",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ stock, lowStockThreshold }),
             });
           }}
           onIconChange={async (id, icon) => {
@@ -1667,14 +1654,12 @@ function Cardapio({
   setProducts,
   ingredients,
   onToggle,
-  onStockChange,
   onIconChange,
 }: {
   products: ProductView[];
   setProducts: React.Dispatch<React.SetStateAction<ProductView[]>>;
   ingredients: Ingredient[];
   onToggle: (id: string, available: boolean) => void;
-  onStockChange: (id: string, stock: number | null, lowStockThreshold: number | null) => void;
   onIconChange: (id: string, icon: string | null) => void;
 }) {
   const [editingProduct, setEditingProduct] = useState<ProductView | "new" | null>(null);
@@ -1795,7 +1780,6 @@ function Cardapio({
                     key={ing.id}
                     ing={ing}
                     onToggle={onToggle}
-                    onStockChange={onStockChange}
                     onIconChange={onIconChange}
                   />
                 ))}
@@ -2786,34 +2770,13 @@ function ProductModal({
 function IngredientRow({
   ing,
   onToggle,
-  onStockChange,
   onIconChange,
 }: {
   ing: Ingredient;
   onToggle: (id: string, available: boolean) => void;
-  onStockChange: (id: string, stock: number | null, lowStockThreshold: number | null) => void;
   onIconChange: (id: string, icon: string | null) => void;
 }) {
-  const [expanded, setExpanded] = useState(false);
   const [iconPickerOpen, setIconPickerOpen] = useState(false);
-  const [stockInput, setStockInput] = useState(ing.stock === null || ing.stock === undefined ? "" : String(ing.stock));
-  const [thresholdInput, setThresholdInput] = useState(
-    ing.lowStockThreshold === null || ing.lowStockThreshold === undefined
-      ? ""
-      : String(ing.lowStockThreshold),
-  );
-
-  const lowStock =
-    ing.stock !== null && ing.stock !== undefined && ing.lowStockThreshold !== null && ing.lowStockThreshold !== undefined && ing.stock <= ing.lowStockThreshold;
-  const noStock = ing.stock !== null && ing.stock !== undefined && ing.stock === 0;
-
-  function saveStock() {
-    const stock = stockInput.trim() === "" ? null : Math.max(0, Math.floor(Number(stockInput) || 0));
-    const threshold =
-      thresholdInput.trim() === "" ? null : Math.max(0, Math.floor(Number(thresholdInput) || 0));
-    onStockChange(ing.id, stock, threshold);
-    setExpanded(false);
-  }
 
   return (
     <li
@@ -2846,18 +2809,6 @@ function IngredientRow({
           >
             {ing.name}
           </span>
-          {noStock && (
-            <span className="text-[10px] font-bold uppercase tracking-[0.06em] bg-danger-bg text-danger px-1.5 py-0.5 rounded inline-flex items-center gap-1">
-              <XCircle size={11} strokeWidth={2.5} />
-              <span>acabou</span>
-            </span>
-          )}
-          {!noStock && lowStock && (
-            <span className="text-[10px] font-bold uppercase tracking-[0.06em] bg-status-preparing-bg text-status-preparing-ink px-1.5 py-0.5 rounded inline-flex items-center gap-1">
-              <AlertTriangle size={11} strokeWidth={2.5} />
-              <span>acabando</span>
-            </span>
-          )}
         </div>
         <Toggle
           on={ing.available}
@@ -2866,49 +2817,6 @@ function IngredientRow({
           labelOff="Esgotou"
         />
       </div>
-
-      <button
-        onClick={() => setExpanded((v) => !v)}
-        className="text-[11px] text-ink-3 font-semibold hover:text-ink-2 text-left flex items-center gap-1"
-      >
-        {expanded ? "Esconder estoque" : (ing.stock !== null && ing.stock !== undefined ? `Estoque: ${ing.stock}` : "Configurar estoque")}
-      </button>
-
-      {expanded && (
-        <div className="flex items-end gap-2 pt-1 border-t border-line">
-          <div className="flex-1">
-            <label className="block t-label mb-1">
-              Estoque
-            </label>
-            <input
-              type="number"
-              inputMode="numeric"
-              min={0}
-              className="input input-sm"
-              placeholder="—"
-              value={stockInput}
-              onChange={(e) => setStockInput(e.target.value)}
-            />
-          </div>
-          <div className="flex-1">
-            <label className="block t-label mb-1">
-              Alertar &lt;=
-            </label>
-            <input
-              type="number"
-              inputMode="numeric"
-              min={0}
-              className="input input-sm"
-              placeholder="—"
-              value={thresholdInput}
-              onChange={(e) => setThresholdInput(e.target.value)}
-            />
-          </div>
-          <button onClick={saveStock} className="btn btn-primary btn-sm">
-            Salvar
-          </button>
-        </div>
-      )}
 
       <IconPicker
         open={iconPickerOpen}

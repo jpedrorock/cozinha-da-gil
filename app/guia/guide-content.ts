@@ -156,8 +156,7 @@ export const GUIDE: GuideTab[] = [
             title: "3º — Recheios e molhos",
             body: "Toca em cada coisa que ele quer (frango, catupiry, etc). Se quiser tudo, tem botão 'Marcar todos'. Depois escolhe os molhos.",
             rules: [
-              "Recheio com ⚠ amarelo = acabando. Ainda dá, mas avisa Gil.",
-              "Recheio riscado = acabou mesmo, não dá pra escolher.",
+              "Recheio que Gil desligou no Cardápio não aparece pra escolha.",
             ],
           },
           {
@@ -423,7 +422,7 @@ export const GUIDE: GuideTab[] = [
         id: "cardapio",
         title: "Mexer no cardápio",
         icon: "UtensilsCrossed",
-        description: "Adicionar produtos, recheios e controlar estoque.",
+        description: "Adicionar produtos e recheios. Ligar/desligar quando acabar.",
         topics: [
           {
             title: "Criar produto novo",
@@ -441,12 +440,11 @@ export const GUIDE: GuideTab[] = [
             body: "Lista todos os recheios disponíveis. Cada um tem nome, ícone, ordem e botão 'disponível'. Atendente só vê os que tão disponíveis.",
           },
           {
-            title: "Estoque com aviso de acabando",
-            body: "Marca quanto tem e a partir de quantos é pouco (tipo 'Bacon: tenho 10, avisa quando chegar em 3'). Quando vende, o app desconta sozinho do estoque.",
-            rules: [
-              "Aparece ⚠ amarelo no atendente quando tá pouco.",
-              "Quando zera, aparece riscado e atendente não consegue selecionar.",
-              "Você marcou 'Acabou bacon'? Atendente vê em 1 segundo, sem precisar atualizar a tela.",
+            title: "Tem ou não tem (toggle simples)",
+            body: "Cada recheio e produto tem um toggle 'Disponível / Esgotou'. Quando acabar o bacon, vira a chavinha — atendente vê o chip sumir em 1 segundo, sem precisar atualizar a tela. Quando reabastecer, liga de volta.",
+            tips: [
+              "Não tem contagem numérica nem alerta de 'pouco estoque' — só liga e desliga.",
+              "A mudança propaga via tempo-real (SSE), atendente vê na hora.",
             ],
           },
         ],
@@ -542,10 +540,6 @@ export const RULES = [
   {
     title: "Cliente é cadastrado sozinho",
     body: "Quando atendente põe o telefone do cliente no pedido, ele entra automaticamente na lista de clientes. Da próxima vez é reconhecido — sem precisar cadastrar de novo.",
-  },
-  {
-    title: "Estoque desconta sozinho",
-    body: "Cliente pediu 2 pastéis de bacon? O app desconta 2 do estoque de bacon automático. Você só precisa atualizar quando comprar mais.",
   },
   {
     title: "Pedido duplicado é bloqueado",

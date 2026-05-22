@@ -2175,42 +2175,25 @@ function StepIngredients({
       <div className="grid grid-cols-2 gap-2.5" role="group" aria-label="Ingredientes disponíveis">
         {ingredients.map((opt) => {
           const isSelected = current.ingredients.includes(opt.name);
-          const stock = opt.stock;
-          const lowStock = stock !== null && stock !== undefined && opt.lowStockThreshold !== null && opt.lowStockThreshold !== undefined && stock <= opt.lowStockThreshold;
-          const noStock = stock !== null && stock !== undefined && stock === 0;
-          const disabled = noStock;
+          // Ingredientes indisponíveis (toggled off pelo admin) já foram
+          // filtrados upstream (toppings = allToppings.filter(i => i.available)).
+          // Aqui todos os chips visíveis são selecionáveis.
           const ariaParts = [opt.name];
-          if (disabled) ariaParts.push("esgotado");
-          else if (lowStock) ariaParts.push(`estoque baixo: ${stock} unidades`);
           if (isSelected) ariaParts.push("selecionado");
           return (
             <button
               key={opt.id}
-              onClick={() => !disabled && toggle(opt.name)}
-              disabled={disabled}
+              onClick={() => toggle(opt.name)}
               aria-pressed={isSelected}
               aria-label={ariaParts.join(", ")}
               className={`min-h-14 px-4 py-2.5 rounded-md text-[15px] font-semibold border-2 flex items-center justify-between gap-2 transition-colors text-left ${
-                disabled
-                  ? "border-line text-ink-3 line-through opacity-50 cursor-not-allowed"
-                  : isSelected
+                isSelected
                   ? "border-brand-yellow bg-[#FFFCE5] text-ink"
                   : "border-line bg-surface-elevated text-ink-2 hover:border-ink-3 hover:text-ink"
               }`}
             >
-              <span className="truncate flex items-center gap-1.5">
-                <span className="truncate">{opt.name}</span>
-                {lowStock && !disabled && (
-                  <span
-                    className="inline-flex items-center bg-status-preparing-bg text-status-preparing-ink px-1 py-0.5 rounded shrink-0"
-                    title={`Estoque: ${stock}`}
-                    aria-hidden
-                  >
-                    <AlertTriangle size={11} strokeWidth={2.5} />
-                  </span>
-                )}
-              </span>
-              {isSelected && !disabled && (
+              <span className="truncate">{opt.name}</span>
+              {isSelected && (
                 <Check size={18} strokeWidth={3} className="shrink-0" aria-hidden />
               )}
             </button>
@@ -2484,46 +2467,24 @@ function StepConfigure({
           <div className="grid grid-cols-2 gap-2.5" role="group" aria-label="Ingredientes disponíveis">
             {ingredients.map((opt) => {
               const isSelected = current.ingredients.includes(opt.name);
-              const lowStock =
-                opt.stock !== null &&
-                opt.stock !== undefined &&
-                opt.lowStockThreshold !== null &&
-                opt.lowStockThreshold !== undefined &&
-                opt.stock <= opt.lowStockThreshold;
-              const noStock =
-                opt.stock !== null && opt.stock !== undefined && opt.stock === 0;
-              const disabled = noStock;
+              // Indisponíveis já foram filtrados upstream — todos os chips
+              // visíveis são selecionáveis.
               const ariaParts = [opt.name];
-              if (disabled) ariaParts.push("esgotado");
-              else if (lowStock) ariaParts.push(`estoque baixo: ${opt.stock} unidades`);
               if (isSelected) ariaParts.push("selecionado");
               return (
                 <button
                   key={opt.id}
-                  onClick={() => !disabled && toggleIngredient(opt.name)}
-                  disabled={disabled}
+                  onClick={() => toggleIngredient(opt.name)}
                   aria-pressed={isSelected}
                   aria-label={ariaParts.join(", ")}
                   className={`min-h-14 px-4 py-2.5 rounded-md text-[15px] font-semibold border-2 flex items-center justify-between gap-2 transition-colors text-left ${
-                    disabled
-                      ? "border-line text-ink-3 line-through opacity-50 cursor-not-allowed"
-                      : isSelected
+                    isSelected
                       ? "border-brand-yellow bg-[#FFFCE5] text-ink"
                       : "border-line bg-surface-elevated text-ink-2 hover:border-ink-3 hover:text-ink"
                   }`}
                 >
-                  <span className="truncate flex items-center gap-1.5">
-                    <span className="truncate">{opt.name}</span>
-                    {lowStock && !disabled && (
-                      <span
-                        className="inline-flex items-center bg-status-preparing-bg text-status-preparing-ink px-1 py-0.5 rounded shrink-0"
-                        title={`Estoque: ${opt.stock}`}
-                      >
-                        <AlertTriangle size={11} strokeWidth={2.5} />
-                      </span>
-                    )}
-                  </span>
-                  {isSelected && !disabled && <Check size={18} strokeWidth={3} className="shrink-0" />}
+                  <span className="truncate">{opt.name}</span>
+                  {isSelected && <Check size={18} strokeWidth={3} className="shrink-0" />}
                 </button>
               );
             })}

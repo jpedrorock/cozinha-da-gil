@@ -110,88 +110,6 @@ async function resolveProduct(item: RawItem): Promise<{
   return { product, productSize };
 }
 
-/**
- * Audit-Crit B #15+#25: decrementa estoque de produtos e ingredientes
- * usados no pedido. Best-effort — se algo falha, log e segue. Order
- * já tá commitado.
- *
- * Estratégia:
- *   - Produtos: decrement por quantity (ex: bebidas com stock=12, vendeu
- *     2 → stock=10)
- *   - Ingredientes: indexa por NAME (ordem armazena nome, não id).
- *     Soma uso total por nome (toppings+flavor+sauces × quantity) e
- *     decrementa em batch.
- *   - Não bloqueia negativo: stock=−1 é sinal de que admin esqueceu
- *     de atualizar. UI mostra "✕ acabou" e admin reconcilia.
- *
- * Broadcast `ingredient:updated` / `product:updated` pro atendente
- * refletir disponibilidade em tempo real no stepper (sem reload).
- */
-type StockItem = {
-  productId: string | null;
-  toppings: string[];
-  flavor: string | null;
-  sauces: string[];
-  quantity: number;
-};
-
-async function decrementStockBestEffort(items: StockItem[]) {
-  // 1. Produtos: agrega por productId, decrement só se stock != null.
-  const productQty = new Map<string, number>();
-  for (const it of items) {
-    if (!it.productId) continue;
-    productQty.set(it.productId, (productQty.get(it.productId) ?? 0) + it.quantity);
-  }
-  for (const [productId, qty] of productQty) {
-    const product = await prisma.product.findUnique({ where: { id: productId } });
-    if (!product || product.stock === null || product.stock === undefined) continue;
-    const updated = await prisma.product.update({
-      where: { id: productId },
-      data: { stock: { decrement: qty } },
-    });
-    broadcast("product:updated", { id: updated.id, stock: updated.stock, available: updated.available });
-  }
-
-  // 2. Ingredientes: agrega por NOME (sauces, toppings, flavor todos
-  //    contam). Multiplica pelo qty do item (3× Frango usa 3 frangos).
-  const ingredientUsage = new Map<string, number>();
-  for (const it of items) {
-    for (const t of it.toppings) {
-      ingredientUsage.set(t, (ingredientUsage.get(t) ?? 0) + it.quantity);
-    }
-    if (it.flavor) {
-      ingredientUsage.set(it.flavor, (ingredientUsage.get(it.flavor) ?? 0) + it.quantity);
-    }
-    for (const s of it.sauces) {
-      ingredientUsage.set(s, (ingredientUsage.get(s) ?? 0) + it.quantity);
-    }
-  }
-  if (ingredientUsage.size === 0) return;
-
-  const names = Array.from(ingredientUsage.keys());
-  // Resolve por nome — mesma string pode aparecer em categorias diferentes
-  // (ex: "Queijo" como topping E como combo). Decrementa todas as ocorrências.
-  const found = await prisma.ingredient.findMany({
-    where: { name: { in: names }, stock: { not: null } },
-  });
-  for (const ing of found) {
-    const qty = ingredientUsage.get(ing.name) ?? 0;
-    if (qty === 0) continue;
-    const updated = await prisma.ingredient.update({
-      where: { id: ing.id },
-      data: { stock: { decrement: qty } },
-    });
-    broadcast("ingredient:updated", {
-      id: updated.id,
-      name: updated.name,
-      category: updated.category,
-      available: updated.available,
-      stock: updated.stock,
-      lowStockThreshold: updated.lowStockThreshold,
-    });
-  }
-}
-
 export async function POST(request: Request) {
   const auth = await requireRole(["atendente", "cozinha", "admin"]);
   if (auth instanceof NextResponse) return auth;
@@ -516,17 +434,6 @@ export async function POST(request: Request) {
 
     const serialized = serializeOrder(order);
     broadcast("order:created", serialized);
-
-    // Audit-Crit B #15: auto-decrement de estoque pra produtos e ingredientes
-    // cadastrados com `stock != null`. Best-effort — falha aqui NÃO derruba
-    // o pedido (order já tá commitado; estoque é correção, não verdade).
-    // Admin vê os badges "acabando/acabou" no Cardápio e ajusta.
-    //
-    // Broadcast `ingredient:updated` / `product:updated` (B #25) pra
-    // atendente refletir disponibilidade em tempo real no stepper.
-    decrementStockBestEffort(resolvedItems).catch((e) => {
-      console.error(`[stock] decrement failed for order ${order.id}:`, e);
-    });
 
     const tEnd = performance.now();
     console.log(
