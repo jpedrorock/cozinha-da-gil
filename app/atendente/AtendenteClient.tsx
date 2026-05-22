@@ -654,6 +654,78 @@ export function AtendenteClient({
     setCancelTarget(null);
   }
 
+  /**
+   * Audit-Crit #1+#6: Remove UM item específico do pedido sem abrir o
+   * stepper inteiro. Atendente clica X numa linha → confirma → backend
+   * recebe lista de items remanescentes via PATCH /items.
+   *
+   * Funciona em PEDIDO_FEITO e EM_PREPARO (backend libera ambos).
+   * Botão só aparece se sobrar ≥1 item — pro último, atendente cai no
+   * fluxo de Cancelar pedido inteiro (que tem motivo, etc).
+   */
+  async function handleRemoveItem(orderId: number, itemId: string) {
+    const order = orders.find((o) => o.id === orderId);
+    if (!order) return;
+    const item = order.items.find((i) => i.id === itemId);
+    if (!item) return;
+
+    const itemDesc = item.productName ||
+      (item.kind === "doce" ? "Pastel Doce" : item.kind === "salgado" ? "Pastel Salgado" : item.kind);
+
+    const ok = await confirm({
+      title: "Remover esse item?",
+      message:
+        order.status === "EM_PREPARO"
+          ? `Cozinha já tá preparando. Remover "${itemDesc}" agora? Eles vão receber alerta.`
+          : `Remover "${itemDesc}" do pedido?`,
+      confirmLabel: "Remover",
+      cancelLabel: "Não",
+      destructive: true,
+    });
+    if (!ok) return;
+
+    const remaining = order.items.filter((i) => i.id !== itemId);
+    // Defesa: nunca deveria chegar aqui (botão escondido se length<=1)
+    if (remaining.length === 0) {
+      showToast("Esse era o único item. Use Cancelar pedido.");
+      return;
+    }
+
+    // Reconstrói o payload no mesmo formato que submitOrder usa, sem o
+    // item removido. PATCH /items recalcula preço no servidor.
+    const items = remaining.map((it) => ({
+      productId: it.productId ?? undefined,
+      productSizeId: it.productSizeId ?? undefined,
+      ingredients:
+        it.kind === "doce" && it.flavor ? [it.flavor] : it.toppings,
+      sauces: it.sauces,
+      notes: it.notes ?? undefined,
+      quantity: it.quantity,
+      kind: it.kind,
+      size: it.size,
+      toppings: it.kind === "salgado" ? it.toppings : undefined,
+      flavor: it.kind === "doce" ? it.flavor ?? undefined : undefined,
+    }));
+
+    try {
+      const res = await fetch(`/api/orders/${orderId}/items`, {
+        method: "PATCH",
+        cache: "no-store",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items, operator: operator?.name }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: "Erro" }));
+        showToast(err.error || "Não foi possível remover.");
+        return;
+      }
+      showToast(`Item removido do pedido #${String(orderId).padStart(3, "0")}.`);
+      // SSE order:updated vai chegar e atualizar a lista.
+    } catch {
+      showToast("Sem conexão. Tente de novo.");
+    }
+  }
+
   async function deliverOrder(id: number) {
     await fetch(`/api/orders/${id}`, {
       method: "PATCH",
@@ -820,6 +892,7 @@ export function AtendenteClient({
             onCancel={requestCancel}
             onAdvance={deliverOrder}
             onEdit={openEdit}
+            onRemoveItem={handleRemoveItem}
             onNotifyReady={notifyReady}
           />
           <div
@@ -2961,6 +3034,7 @@ function Fila({
   onCancel,
   onAdvance,
   onEdit,
+  onRemoveItem,
   onNotifyReady,
 }: {
   orders: OrderView[];
@@ -2969,6 +3043,7 @@ function Fila({
   onCancel: (id: number) => void;
   onAdvance: (id: number) => void;
   onEdit: (order: OrderView) => void;
+  onRemoveItem: (orderId: number, itemId: string) => void;
   onNotifyReady: (order: OrderView) => void;
 }) {
   const effectiveFilter: OrderStatus = filter === "todos" ? "PRONTO" : filter;
@@ -3083,6 +3158,7 @@ function Fila({
                   onCancel={onCancel}
                   onAdvance={onAdvance}
                   onEdit={() => onEdit(o)}
+                  onRemoveItem={onRemoveItem}
                   onNotifyReady={onNotifyReady}
                 />
               ))}

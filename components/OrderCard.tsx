@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Check, Coffee, HandPlatter, MessageCircle, Package, Pencil, Utensils } from "lucide-react";
+import { Check, Coffee, HandPlatter, MessageCircle, Package, Pencil, Utensils, X } from "lucide-react";
 import { StatusBadge } from "./StatusBadge";
 import { PastelIcon, DoceIcon } from "./icons";
 import type { OrderView, OrderItemView } from "@/lib/orders";
@@ -42,6 +42,7 @@ export function OrderCard({
   onCancel,
   onAdvance,
   onEdit,
+  onRemoveItem,
   onNotifyReady,
 }: {
   order: OrderView;
@@ -52,6 +53,10 @@ export function OrderCard({
   onCancel?: (id: number) => void;
   onAdvance?: (id: number) => void;
   onEdit?: () => void;
+  /** Per-item remove — atendente clica X numa linha do pedido pra remover
+   *  só aquele item. Mais cirúrgico que abrir o stepper pra editar tudo.
+   *  Audit-Crit #1+#6: cliente desiste de UM item ("esquece o suco"). */
+  onRemoveItem?: (orderId: number, itemId: string) => void;
   /** Atendente clicou "Avisar" no card pronto — abre wa.me + marca no banco.
    *  Cozinha não recebe esse handler (atendente é quem comunica). */
   onNotifyReady?: (order: OrderView) => void;
@@ -115,30 +120,49 @@ export function OrderCard({
 
       <ul className="flex flex-col gap-1.5">
         {/* Expande cada item por quantidade — repete linhas em vez de "×N"
-            pra cozinha/atendente verem cada unidade do pedido. */}
-        {order.items
-          .flatMap((item) =>
-            Array.from({ length: item.quantity }, (_, n) => ({ item, n })),
-          )
-          .map(({ item, n }, flatIdx, allUnits) => (
-            <li
-              key={`${item.id}-${n}`}
-              className="t-body-sm flex gap-2 items-start"
-            >
-              {allUnits.length > 1 && (
-                <span className="t-num t-caption font-bold shrink-0 w-4 mt-0.5">
-                  {flatIdx + 1}.
+            pra cozinha/atendente verem cada unidade do pedido.
+            O X (remover este) só aparece na 1ª unidade do item, e remove o
+            item inteiro (todas as qty juntas) — granular por qty seria
+            confuso ("removi 1, sobrou 2 com mesmo id"). Audit-Crit #1+#6. */}
+        {(() => {
+          const canRemoveItem =
+            !!onRemoveItem &&
+            (order.status === "PEDIDO_FEITO" || order.status === "EM_PREPARO") &&
+            order.items.length > 1; // último item: usar Cancelar pedido inteiro
+          return order.items
+            .flatMap((item) =>
+              Array.from({ length: item.quantity }, (_, n) => ({ item, n })),
+            )
+            .map(({ item, n }, flatIdx, allUnits) => (
+              <li
+                key={`${item.id}-${n}`}
+                className="t-body-sm flex gap-2 items-start"
+              >
+                {allUnits.length > 1 && (
+                  <span className="t-num t-caption font-bold shrink-0 w-4 mt-0.5">
+                    {flatIdx + 1}.
+                  </span>
+                )}
+                <span className="shrink-0 mt-0.5">
+                  {iconFor(item.kind)}
                 </span>
-              )}
-              <span className="shrink-0 mt-0.5">
-                {iconFor(item.kind)}
-              </span>
-              <span className="leading-snug flex-1 text-ink-2">{describeItem(item)}</span>
-              <span className="t-num font-semibold text-ink-2 shrink-0">
-                {formatBRL(item.unitPrice)}
-              </span>
-            </li>
-          ))}
+                <span className="leading-snug flex-1 text-ink-2">{describeItem(item)}</span>
+                <span className="t-num font-semibold text-ink-2 shrink-0">
+                  {formatBRL(item.unitPrice)}
+                </span>
+                {canRemoveItem && n === 0 && (
+                  <button
+                    onClick={() => onRemoveItem!(order.id, item.id)}
+                    className="shrink-0 -my-1 -mr-1 w-7 h-7 inline-flex items-center justify-center rounded-md text-ink-3 hover:text-danger hover:bg-danger-bg active:scale-95 transition"
+                    aria-label={`Remover ${describeItem(item)}`}
+                    title="Remover este item"
+                  >
+                    <X size={16} strokeWidth={2.5} />
+                  </button>
+                )}
+              </li>
+            ));
+        })()}
       </ul>
 
       {order.items.some((i) => i.notes) && (
@@ -164,19 +188,25 @@ export function OrderCard({
           )}
         </div>
         <div className="ml-auto flex gap-2">
-          {/* Atendente só edita/cancela ANTES do preparo começar.
-              Depois que cozinha clicou "Iniciar preparo", o pedido tá em
-              produção e mudança vira ruído — cozinha já tá fazendo. */}
-          {onEdit && order.status === "PEDIDO_FEITO" && (
-            <button
-              onClick={onEdit}
-              className="btn btn-secondary btn-sm"
-              title="Editar pedido"
-            >
-              <Pencil size={14} strokeWidth={2.5} />
-              Editar
-            </button>
-          )}
+          {/* Audit-Crit #1+#6: Editar agora permitido também em EM_PREPARO.
+              Cliente desiste de algo, atendente precisa ajustar — bloquear
+              força cancelar+refazer (pior pra todo mundo). Backend
+              broadcasta `_editedInPreparation: true` pra cozinha destacar.
+              Cancelar pedido inteiro continua só em PEDIDO_FEITO pelo
+              atendente — em preparo, só cozinha/admin pode (regra ainda
+              válida: força comunicação). */}
+          {onEdit &&
+            (order.status === "PEDIDO_FEITO" ||
+              order.status === "EM_PREPARO") && (
+              <button
+                onClick={onEdit}
+                className="btn btn-secondary btn-sm"
+                title="Editar pedido"
+              >
+                <Pencil size={14} strokeWidth={2.5} />
+                Editar
+              </button>
+            )}
           {onCancel && order.status === "PEDIDO_FEITO" && (
             <button
               onClick={() => onCancel(order.id)}

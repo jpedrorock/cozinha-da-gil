@@ -81,6 +81,10 @@ export function CozinhaClient({
   // Agora é 1. Cada Ticket calcula seu elapsed do prop.
   const [now, setNow] = useState<number | null>(null);
   const [recentlyArrived, setRecentlyArrived] = useState<Set<number>>(new Set());
+  // Pedidos editados em EM_PREPARO via atendente (audit-crit #1+#6).
+  // Backend sinaliza com `_editedInPreparation: true` no broadcast;
+  // ring vermelho + ding alertam cook pra revisar antes de continuar.
+  const [recentlyEdited, setRecentlyEdited] = useState<Set<number>>(new Set());
   const [soundOn, setSoundOn] = useState(true);
   const [cancelTarget, setCancelTarget] = useState<OrderView | null>(null);
   // Pedidos com mutation pendente — usado pra mostrar "Salvando…" no botão
@@ -116,6 +120,17 @@ export function CozinhaClient({
     }, FLASH_DURATION_MS);
   }
 
+  function markEdited(id: number) {
+    setRecentlyEdited((prev) => new Set(prev).add(id));
+    setTimeout(() => {
+      setRecentlyEdited((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }, FLASH_DURATION_MS * 2); // 8s — quer chamar atenção forte
+  }
+
   const sseStatus = useSSE("/api/sse", {
     "order:created": (data) => {
       const order = data as OrderView;
@@ -130,7 +145,8 @@ export function CozinhaClient({
       }
     },
     "order:updated": (data) => {
-      const order = data as OrderView;
+      const raw = data as OrderView & { _editedInPreparation?: boolean };
+      const order: OrderView = raw;
       const lagMs = Date.now() - new Date(order.updatedAt).getTime();
       console.log(`[SSE-LAT] cozinha order:updated id=${order.id} lag=${lagMs}ms status=${order.status}`);
       setOrders((prev) => {
@@ -140,6 +156,14 @@ export function CozinhaClient({
         }
         return without;
       });
+      // Audit-Crit #1+#6: atendente alterou pedido enquanto cozinha preparava.
+      // Ring vermelho + ding pra cook olhar e revisar antes de continuar.
+      // Sem isso, o card só re-renderiza silenciosamente e cook segue
+      // a versão antiga na cabeça.
+      if (raw._editedInPreparation) {
+        markEdited(order.id);
+        ding();
+      }
       // Mutation chegou de volta — libera o "Salvando…" do botão
       setPendingIds((prev) => {
         if (!prev.has(order.id)) return prev;
@@ -419,6 +443,7 @@ export function CozinhaClient({
                   stage={stage}
                   allToppings={allToppings}
                   flash={recentlyArrived.has(o.id)}
+                  flashEdited={recentlyEdited.has(o.id)}
                   pending={pendingIds.has(o.id)}
                   now={now}
                   onAdvance={() => advance(o.id, next)}
@@ -446,6 +471,7 @@ function Ticket({
   stage,
   allToppings,
   flash,
+  flashEdited,
   pending,
   now,
   onAdvance,
@@ -455,6 +481,9 @@ function Ticket({
   stage: Stage;
   allToppings: string[];
   flash: boolean;
+  /** Audit-Crit #1+#6: atendente editou o pedido em EM_PREPARO.
+   *  Ring vermelho + label "ALTERADO" pra cook não passar batido. */
+  flashEdited: boolean;
   pending: boolean;
   /** Timestamp central do CozinhaClient — vide nota no parent. */
   now: number | null;
@@ -557,8 +586,18 @@ function Ticket({
         leaving ? "animate-ticket-out pointer-events-none" : "animate-card-in"
       } ${
         flash && !leaving ? "ring-4 ring-brand-orange ring-opacity-60 animate-flash-ring" : ""
+      } ${
+        // Edit-em-preparo é mais grave que arrived — ring vermelho destaca
+        // que conteúdo MUDOU enquanto cook olhava pra outro lado.
+        flashEdited && !leaving ? "ring-4 ring-danger ring-opacity-80 animate-flash-ring" : ""
       } ${overTarget && !leaving ? "animate-prep-glow" : ""}`}
     >
+      {flashEdited && !leaving && (
+        <div className="-mx-5 -mt-5 px-5 py-2 rounded-t-md bg-danger text-white t-label !text-white inline-flex items-center gap-2 animate-flash-ring-once">
+          <span className="text-xl leading-none">⚠</span>
+          <span>Atendente alterou — revise os itens</span>
+        </div>
+      )}
       <header className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex items-center gap-2 mb-0.5 flex-wrap">

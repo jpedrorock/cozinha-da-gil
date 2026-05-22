@@ -97,17 +97,20 @@ export async function PATCH(
     return NextResponse.json({ error: "Pedido não encontrado." }, { status: 404 });
   }
 
-  if (existing.status !== "PEDIDO_FEITO") {
+  // Audit-Crit #1+#6: permite editar em EM_PREPARO também. Cliente desiste
+  // de UM item ("esquece o suco") com cozinha já preparando — bloquear edit
+  // força cancelar pedido inteiro + refazer (perde histórico, irrita cozinha).
+  // Sinaliza a edição com `_editedInPreparation: true` no payload do
+  // broadcast: cozinha pode dar flash visual no card pra não passar batido.
+  const canEdit =
+    existing.status === "PEDIDO_FEITO" || existing.status === "EM_PREPARO";
+  if (!canEdit) {
     return NextResponse.json(
-      {
-        error:
-          existing.status === "EM_PREPARO"
-            ? "Pedido já entrou em preparo. Avise a cozinha pra alteração."
-            : "Pedido encerrado, não dá pra editar.",
-      },
+      { error: "Pedido encerrado, não dá pra editar." },
       { status: 409 },
     );
   }
+  const wasInPreparation = existing.status === "EM_PREPARO";
 
   const rawItems = Array.isArray(body.items) ? (body.items as RawItem[]) : [];
   if (rawItems.length === 0) {
@@ -219,7 +222,13 @@ export async function PATCH(
     });
 
     const serialized = serializeOrder(order);
-    broadcast("order:updated", serialized);
+    // Anexa hint transiente (não persistido) pra cozinha destacar visualmente
+    // que esse pedido foi mexido enquanto preparava. Sem isso, o card só
+    // re-renderiza silenciosamente e o cozinheiro pode pegar a versão antiga.
+    const payload = wasInPreparation
+      ? { ...serialized, _editedInPreparation: true }
+      : serialized;
+    broadcast("order:updated", payload);
 
     return NextResponse.json(serialized);
   } catch (err) {
