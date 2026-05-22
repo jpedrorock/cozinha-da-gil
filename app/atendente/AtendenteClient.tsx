@@ -8,6 +8,7 @@ import type { Ingredient, OrderStatus } from "@prisma/client";
 import { AppHeader } from "@/components/AppHeader";
 import { OrderCard } from "@/components/OrderCard";
 import { CancelDialog } from "@/components/CancelDialog";
+import { useConfirmDialog } from "@/components/ConfirmDialog";
 import { SwipeableCartItem } from "@/components/SwipeableCartItem";
 import { buildWaNativeUrl, buildWaUrl, templateOrderReady } from "@/lib/whatsapp-templates";
 import { useBodyScrollLock } from "@/lib/use-body-scroll-lock";
@@ -218,6 +219,10 @@ export function AtendenteClient({
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [cancelTarget, setCancelTarget] = useState<OrderView | null>(null);
+  // Hook imperativo de confirmação (substitui window.confirm). Retorna
+  // `confirm({ title, message, ... })` que resolve true/false, mais o `node`
+  // que precisa ser montado no JSX. Audit-Crit #2: dedup server-side.
+  const { confirm, node: confirmNode } = useConfirmDialog();
   const [eventStatus, setEventStatus] = useState<EventSessionStatus>(initialEventStatus);
   const caixaFechado = !eventStatus.open;
   // Caixa órfão: aberto há +12h, provavelmente Gil esqueceu de fechar.
@@ -541,7 +546,7 @@ export function AtendenteClient({
     setEditDraft(emptyBuilding());
   }
 
-  async function submitOrder() {
+  async function submitOrder(force = false) {
     if (submitting) return;
     setSubmitting(true);
     try {
@@ -573,6 +578,10 @@ export function AtendenteClient({
             items,
             operator: operator?.name,
             promotionId: selectedPromoId ?? undefined,
+            // force: true pula a checagem de duplicado server-side. Setado
+            // apenas após user confirmar no dialog "É outro pedido mesmo?".
+            // Audit-Crit #2.
+            ...(force ? { force: true } : {}),
           };
       // [LATÊNCIA] mede round-trip do fetch — comparar com log do
       // servidor (POST /api/orders) e do listener da cozinha.
@@ -592,6 +601,24 @@ export function AtendenteClient({
       const tResp = performance.now();
       if (!res.ok) {
         const err = await res.json().catch(() => ({ error: "Erro" }));
+        // Duplicado suspeito: backend detectou pedido similar nos últimos 90s.
+        // Pergunta pro user se é mesmo um novo pedido. Se sim, re-submete
+        // com force=true (que pula a checagem).
+        if (err.code === "DUPLICATE_SUSPECTED") {
+          setSubmitting(false);
+          const isReally = await confirm({
+            title: "Pedido parecido há poucos segundos",
+            message: err.error || "É realmente um novo pedido?",
+            confirmLabel: "Sim, é novo pedido",
+            cancelLabel: "Não, cancelar",
+          });
+          if (isReally) {
+            // Reset idempotency key — novo intent, novo key
+            idemKeyRef.current = null;
+            await submitOrder(true);
+          }
+          return;
+        }
         showToast(err.error || "Não foi possível confirmar.");
         setSubmitting(false);
         return;
@@ -829,6 +856,10 @@ export function AtendenteClient({
         onConfirm={confirmCancel}
         onClose={() => setCancelTarget(null)}
       />
+
+      {/* ConfirmDialog node — montado uma vez, controlado via hook.
+          Usado pelo handler de DUPLICATE_SUSPECTED (audit-crit #2). */}
+      {confirmNode}
 
       {toast && (
         /* Toast bottom-center (padrão Material) — fica acima do FAB,

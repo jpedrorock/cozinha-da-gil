@@ -143,6 +143,7 @@ export async function POST(request: Request) {
     items?: unknown;
     operator?: unknown;
     promotionId?: unknown;
+    force?: unknown;
   };
   try {
     body = await request.json();
@@ -158,6 +159,10 @@ export async function POST(request: Request) {
   const clientPhone = normalizePhone(asString(body.clientPhone) ?? "");
   const optInMarketing = body.optInMarketing === true;
   const createdBy = asString(body.operator) ?? "—";
+  // `force: true` no body bypassa a checagem de duplicado (audit-crit #2).
+  // UI atendente seta isso após confirmação explícita no dialog "esse é um
+  // novo pedido mesmo?". Não bypassa idempotency (caso UI envie outra coisa).
+  const forceDuplicate = body.force === true;
 
   const rawItems = Array.isArray(body.items) ? (body.items as RawItem[]) : [];
   if (rawItems.length === 0) {
@@ -299,6 +304,53 @@ export async function POST(request: Request) {
     const allBebida = resolvedItems.every((it) => it.kind === "bebida");
     const initialStatus = allBebida ? "PRONTO" : "PEDIDO_FEITO";
     const now = new Date();
+
+    // === Detecção de pedido duplicado (audit-crit #2) ===========
+    // Cenário: internet caiu, Maria clicou "Confirmar" 2 vezes, criou 2
+    // pedidos idênticos. Idempotency-Key cobre double-tap mesma submissão;
+    // ESSE check cobre intervalos curtos com chamadas separadas.
+    //
+    // Heurística: mesmo clientPhone (se setado) + mesmo total + mesmo
+    // count de items nos últimos 90s. Conservador — só dispara em padrão
+    // muito provável de duplicação. UI mostra dialog "Esse é um novo
+    // pedido mesmo?" e re-submete com force:true se confirmado.
+    //
+    // Se SEM telefone, não checa — atendente "Balcão" pode ter 2 pessoas
+    // diferentes pedindo igual de seguida e isso é legítimo.
+    if (clientPhone && !forceDuplicate) {
+      const ninetySecondsAgo = new Date(now.getTime() - 90_000);
+      const expectedTotal = resolvedItems.reduce(
+        (s, it) => s + it.unitPrice * it.quantity,
+        0,
+      );
+      const expectedItemCount = resolvedItems.length;
+      const candidates = await prisma.order.findMany({
+        where: {
+          clientPhone,
+          createdAt: { gte: ninetySecondsAgo },
+          status: { notIn: ["CANCELADO"] },
+        },
+        include: { items: true },
+        orderBy: { createdAt: "desc" },
+        take: 5,
+      });
+      const duplicate = candidates.find((o) => {
+        if (o.items.length !== expectedItemCount) return false;
+        const oTotal = o.items.reduce((s, it) => s + it.unitPrice * it.quantity, 0);
+        return Math.abs(oTotal - expectedTotal) < 1; // tolerância 1 centavo
+      });
+      if (duplicate) {
+        return NextResponse.json(
+          {
+            error: `Já tem pedido similar pra ${clientName} (#${String(duplicate.id).padStart(3, "0")}) há poucos segundos. É outro pedido novo?`,
+            code: "DUPLICATE_SUSPECTED",
+            existingOrderId: duplicate.id,
+            existingCreatedAt: duplicate.createdAt.toISOString(),
+          },
+          { status: 409 },
+        );
+      }
+    }
 
     // Fase 7 CRM: se tem telefone, upsert no Customer. Agrega totais.
     // Phone vem normalizado +55XXX do normalizePhone().
