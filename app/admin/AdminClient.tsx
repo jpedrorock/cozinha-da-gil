@@ -2336,8 +2336,8 @@ function ProductRow({
         <Toggle
           on={product.available}
           onChange={(v) => onToggle(product.id, v)}
-          labelOn="Ativo"
-          labelOff="Pausado"
+          labelOn="Disponível"
+          labelOff="Esgotou"
         />
       </div>
       <button

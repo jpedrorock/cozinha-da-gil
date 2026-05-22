@@ -1739,12 +1739,16 @@ function StepProduct({
   const [category, setCategory] = useState<MenuCategory | null>(null);
 
   // Agrupa produtos por nossas categorias visuais
-  const pastelSalgado = products.find((p) => p.type === "salgado");
-  const pastelDoce = products.find((p) => p.type === "doce");
+  // Produtos no atendente: SÓ os disponíveis (Gil pode desligar qualquer
+  // um via Admin → Cardápio). Indisponíveis somem da seleção totalmente —
+  // atendente nem vê. Card de tipo (Salgado/Doce/Macarrão) some quando o
+  // produto singleton dele tá desligado. Bebida/Combo aparecem só as ativas.
+  const pastelSalgado = products.find((p) => p.type === "salgado" && p.available);
+  const pastelDoce = products.find((p) => p.type === "doce" && p.available);
   const miniPackSize = pastelDoce?.sizes.find((s) => s.name === "Mini Pack");
-  const macarrao = products.find((p) => p.type === "macarrao");
-  const bebidas = products.filter((p) => p.type === "bebida");
-  const combos = products.filter((p) => p.type === "combo");
+  const macarrao = products.find((p) => p.type === "macarrao" && p.available);
+  const bebidas = products.filter((p) => p.type === "bebida" && p.available);
+  const combos = products.filter((p) => p.type === "combo" && p.available);
 
   // Pre-selecionar size opcional (caso "Pack mini pastéis")
   function pick(product: ProductView, preSelectedSize?: { id: string; name: string }) {
