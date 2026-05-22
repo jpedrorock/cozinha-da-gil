@@ -234,6 +234,20 @@ export function OrderCard({
               Cancelar
             </button>
           )}
+          {/* Audit-Crit B #20: cliente fez pedido, sumiu, pedido fica em
+              PRONTO eternamente. Atendente precisa marcar abandonado.
+              Texto "Cliente sumiu" comunica o caso real; CancelDialog
+              recebe um motivo padrão. Backend já aceita PRONTO→CANCELADO
+              pelo atendente (regra mid-preparo é só EM_PREPARO). */}
+          {onCancel && order.status === "PRONTO" && (
+            <button
+              onClick={() => onCancel(order.id)}
+              className="btn btn-ghost btn-sm text-ink-3"
+              title="Cliente não voltou pra retirar"
+            >
+              Cliente sumiu
+            </button>
+          )}
           {/* Avisar cliente via WhatsApp: só atendente, só PRONTO, só com fone,
               e só se ainda não avisou. Depois de avisar, vira badge "Avisado". */}
           {onNotifyReady && order.status === "PRONTO" && order.clientPhone && !order.notifiedReadyAt && (
