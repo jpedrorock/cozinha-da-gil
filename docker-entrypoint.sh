@@ -23,6 +23,15 @@ echo "🔧 Sincronizando schema do Prisma em $DB_PATH..."
 DATABASE_URL="file:$DB_PATH" npx prisma db push --skip-generate --accept-data-loss \
   || echo "⚠️ prisma db push falhou — pode ser primeiro boot, continuando."
 
+# Audit #63: migra imageDataUrl legacy → arquivo no volume. Idempotente:
+# produtos sem imageDataUrl ou que já têm imageUrl são pulados.
+# Em primeiro boot (DB vazio) é no-op rápido. Em deploys subsequentes,
+# pega resíduo de versões antigas que ainda guardavam base64 no DB.
+echo "🖼️  Migrando imagens de produto pra filesystem (se houver)..."
+DATABASE_URL="file:$DB_PATH" UPLOADS_DIR="/app/data/uploads" \
+  npx tsx scripts/migrate-product-images.ts \
+  || echo "⚠️ migração de imagens falhou — não bloqueia boot."
+
 # Seed só se SEED_ON_BOOT=true E o DB acabou de ser criado (sem users).
 # Evita re-seedar a cada redeploy (que apagaria customers/orders reais).
 #

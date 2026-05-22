@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { serializeProduct } from "@/lib/products";
 import { requireRole } from "@/lib/session";
 import { broadcast } from "@/lib/sse";
+import { deleteProductImage, saveProductImage } from "@/lib/uploads";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -83,12 +84,39 @@ export async function PATCH(
     ["sauceCategory", asStr],
     ["stock", asInt],
     ["lowStockThreshold", asInt],
-    ["imageDataUrl", asImageDataUrl],
+    // imageDataUrl é tratado separadamente abaixo (#63) — vira arquivo
+    // em disco e popula imageUrl. Não persiste base64 no DB.
   ];
   for (const [key, parser] of fields) {
     if (body[key] !== undefined) {
       const parsed = parser(body[key]);
       if (parsed !== undefined) data[key] = parsed;
+    }
+  }
+
+  // Audit #63: imagem nova vai pro filesystem; admin pode mandar `null`
+  // pra remover imagem. Buscamos imageUrl atual pra limpar arquivo antigo.
+  let imageUpdate: { imageUrl: string | null } | null = null;
+  if (body.imageDataUrl !== undefined) {
+    const existing = await prisma.product.findUnique({
+      where: { id: params.id },
+      select: { imageUrl: true, imageDataUrl: true },
+    });
+    const oldUrl = existing?.imageUrl ?? null;
+    if (body.imageDataUrl === null) {
+      // Remover imagem
+      await deleteProductImage(oldUrl);
+      imageUpdate = { imageUrl: null };
+    } else {
+      const parsed = asImageDataUrl(body.imageDataUrl);
+      if (parsed) {
+        const newUrl = await saveProductImage(params.id, parsed, oldUrl);
+        if (newUrl) imageUpdate = { imageUrl: newUrl };
+      }
+    }
+    // Sempre zera imageDataUrl legacy quando essa flow novo escreve algo
+    if (imageUpdate) {
+      Object.assign(data, imageUpdate, { imageDataUrl: null });
     }
   }
 

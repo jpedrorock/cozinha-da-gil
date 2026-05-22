@@ -1962,10 +1962,12 @@ function StepProduct({
             <KindCard
               key={b.id}
               icon={
-                b.imageDataUrl ? (
+                /* imageUrl (filesystem) preferido; imageDataUrl é fallback
+                   legacy enquanto migração antiga não rodou. Audit #63. */
+                (b.imageUrl ?? b.imageDataUrl) ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
-                    src={b.imageDataUrl}
+                    src={b.imageUrl ?? b.imageDataUrl ?? ""}
                     alt=""
                     width={64}
                     height={64}
@@ -2694,10 +2696,10 @@ function ExpressCard({ product, onAdd }: { product: ProductView; onAdd: () => vo
       <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-brand-yellow text-ink flex items-center justify-center font-bold text-xs">
         +
       </div>
-      {product.imageDataUrl ? (
+      {(product.imageUrl ?? product.imageDataUrl) ? (
         /* eslint-disable-next-line @next/next/no-img-element */
         <img
-          src={product.imageDataUrl}
+          src={product.imageUrl ?? product.imageDataUrl ?? ""}
           alt=""
           width={40}
           height={40}

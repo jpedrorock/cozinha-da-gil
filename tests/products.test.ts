@@ -19,6 +19,7 @@ function makeProduct(overrides: Partial<Product> = {}): Product {
     sauceCategory: null,
     stock: null,
     lowStockThreshold: null,
+    imageUrl: null,
     imageDataUrl: null,
     createdAt: new Date(),
     updatedAt: new Date(),

@@ -133,9 +133,14 @@ model Product {
   stock              Int?
   lowStockThreshold  Int?
 
-  // Imagem opcional — data URI base64 (SVG/PNG). Substitui ícone Lucide
-  // quando presente. Útil pra bebidas com marca (Coca, Sprite, Guaraná).
-  // Limite suave 200KB. Null = usa ícone default por tipo.
+  // Imagem opcional pra substituir ícone default (bebidas com marca).
+  //
+  // imageUrl: caminho relativo servido por /api/uploads/products/<file>
+  //   (preferido — arquivo no volume, fora do row do DB)
+  // imageDataUrl: legacy base64. Mantido pra back-compat até migração
+  //   completa rodar em produção. POST/PATCH novos sempre escrevem em
+  //   imageUrl e zeram imageDataUrl. Pode ser dropado em versão futura.
+  imageUrl           String?
   imageDataUrl       String?
 
   createdAt          DateTime      @default(now())

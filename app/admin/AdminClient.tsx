@@ -2314,10 +2314,10 @@ function ProductRow({
     >
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2.5 min-w-0 flex-1">
-          {product.imageDataUrl && (
+          {(product.imageUrl ?? product.imageDataUrl) && (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={product.imageDataUrl}
+              src={product.imageUrl ?? product.imageDataUrl ?? ""}
               alt=""
               width={36}
               height={36}
@@ -2380,7 +2380,15 @@ function ProductModal({
       ? String(product.basePriceCents / 100)
       : "",
   );
-  const [imageDataUrl, setImageDataUrl] = useState<string | null>(product?.imageDataUrl ?? null);
+  // Estado da imagem no editor:
+  //   imageDataUrl: o que mostra no preview — pode ser data URI (novo
+  //     arquivo), URL (/api/uploads/...) ou null
+  //   imageChange: 'none' = não enviar imageDataUrl no payload; 'replace'
+  //     = enviar o data URI; 'remove' = enviar null. Audit #63.
+  const [imageDataUrl, setImageDataUrl] = useState<string | null>(
+    product?.imageUrl ?? product?.imageDataUrl ?? null,
+  );
+  const [imageChange, setImageChange] = useState<"none" | "replace" | "remove">("none");
   const [imageError, setImageError] = useState<string | null>(null);
   const [allowsIngredients, setAllowsIngredients] = useState(product?.allowsIngredients ?? false);
   const [ingredientCategory, setIngredientCategory] = useState(product?.ingredientCategory ?? "");
@@ -2410,6 +2418,7 @@ function ProductModal({
     setImageError(null);
     if (!file) {
       setImageDataUrl(null);
+      setImageChange("remove");
       return;
     }
     if (file.size > 200_000) {
@@ -2423,7 +2432,10 @@ function ProductModal({
     const reader = new FileReader();
     reader.onload = () => {
       const result = reader.result;
-      if (typeof result === "string") setImageDataUrl(result);
+      if (typeof result === "string") {
+        setImageDataUrl(result);
+        setImageChange("replace");
+      }
     };
     reader.onerror = () => setImageError("Erro lendo arquivo.");
     reader.readAsDataURL(file);
@@ -2448,7 +2460,11 @@ function ProductModal({
       maxIngredients: allowsIngredients && maxIngredients ? parseInt(maxIngredients) : null,
       allowsSauces,
       sauceCategory: allowsSauces ? sauceCategory || null : null,
-      imageDataUrl,
+      // imageDataUrl só vai no payload quando user trocou/removeu (audit #63).
+      // Replace = manda data URI (backend converte pra file); Remove = null
+      // (backend deleta file existente); None = omite (preserva intacto).
+      ...(imageChange === "replace" ? { imageDataUrl } : {}),
+      ...(imageChange === "remove" ? { imageDataUrl: null } : {}),
       ...(pricingMode === "by_size" && isNew ? { sizes: sizes.map((s, i) => ({ name: s.name, description: s.description || null, priceCents: s.priceCents, position: i })) } : {}),
     };
 
@@ -2587,7 +2603,11 @@ function ProductModal({
                 {imageDataUrl && (
                   <button
                     type="button"
-                    onClick={() => { setImageDataUrl(null); setImageError(null); }}
+                    onClick={() => {
+                      setImageDataUrl(null);
+                      setImageError(null);
+                      setImageChange("remove");
+                    }}
                     className="t-caption text-danger hover:underline self-start"
                   >
                     Remover imagem

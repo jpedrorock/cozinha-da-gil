@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { serializeProduct } from "@/lib/products";
 import { requireRole } from "@/lib/session";
+import { saveProductImage } from "@/lib/uploads";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -129,7 +130,8 @@ export async function POST(request: Request) {
         sauceCategory: asStr(body.sauceCategory),
         stock: asInt(body.stock),
         lowStockThreshold: asInt(body.lowStockThreshold),
-        imageDataUrl: asImageDataUrl(body.imageDataUrl),
+        // imageDataUrl criado primeiro só pra ter ID; depois decode +
+        // salva em disco e converte pra imageUrl no UPDATE abaixo.
         sizes:
           sizesInput.length > 0
             ? {
@@ -147,7 +149,23 @@ export async function POST(request: Request) {
       },
       include: { sizes: true },
     });
-    return NextResponse.json(serializeProduct(product), { status: 201 });
+
+    // Audit #63: se admin mandou imageDataUrl, decodifica e grava no
+    // filesystem (volume Coolify) em vez de inflar o row no DB.
+    // imageDataUrl nunca persistido nessa flow nova.
+    const incomingImage = asImageDataUrl(body.imageDataUrl);
+    let final = product;
+    if (incomingImage) {
+      const imageUrl = await saveProductImage(product.id, incomingImage, null);
+      if (imageUrl) {
+        final = await prisma.product.update({
+          where: { id: product.id },
+          data: { imageUrl },
+          include: { sizes: true },
+        });
+      }
+    }
+    return NextResponse.json(serializeProduct(final), { status: 201 });
   } catch (err) {
     const msg =
       err instanceof Error && err.message.includes("Unique constraint")
