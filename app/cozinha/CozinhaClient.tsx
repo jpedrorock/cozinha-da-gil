@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Check, Coffee, Package, Play, Utensils, Volume2, VolumeX, WifiOff, X } from "lucide-react";
+import { ArrowDownUp, Check, Coffee, Package, Play, Search, Utensils, Volume2, VolumeX, WifiOff, X } from "lucide-react";
 import { useIdleLogout } from "@/lib/use-idle-logout";
 import { useSSE } from "@/lib/use-sse";
 import { useOperator } from "@/lib/use-operator";
@@ -214,20 +214,84 @@ export function CozinhaClient({
     if (next) ding();
   }
 
-  // Fila ÚNICA ordenada por chegada (mais antigo no topo, mais novo no fim).
-  // Cozinheira foca no que está fazendo agora — pedidos novos vão pro fim.
-  // NÃO separar em seções: ela precisa enxergar o fluxo contínuo.
-  function byCreatedAsc(a: OrderView, b: OrderView) {
-    return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+  // === Busca + ordenação configurável (audit crítica #4) ===
+  // Cenário: 30 pedidos na fila, José cozinhando — "qual era do Pedro?"
+  // Busca rápida por nome ou #pedido. Ordenação alternável: chegada (default,
+  // FIFO) OU urgência (em preparo há mais tempo + com notes especiais primeiro).
+  // Persistido em localStorage pra preferência ficar.
+  const [search, setSearch] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [sortMode, setSortMode] = useState<"chegada" | "urgencia">("chegada");
+
+  // Restore preferência
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("pdg:cozinha-sort");
+      if (stored === "urgencia") setSortMode("urgencia");
+    } catch {}
+  }, []);
+  function toggleSort() {
+    const next = sortMode === "chegada" ? "urgencia" : "chegada";
+    setSortMode(next);
+    try {
+      localStorage.setItem("pdg:cozinha-sort", next);
+    } catch {}
   }
+
+  // Ordenação por urgência: pedidos com mais tempo em EM_PREPARO primeiro
+  // (atraso real); empate desempata pela presença de observações (notes)
+  // — pedido com obs precisa de atenção extra; depois chegada ASC.
+  function urgencyScore(o: OrderView, nowMs: number): number {
+    let score = 0;
+    if (o.status === "EM_PREPARO") {
+      const startTs = o.preparedAt ? new Date(o.preparedAt).getTime() : new Date(o.createdAt).getTime();
+      score += Math.max(0, Math.floor((nowMs - startTs) / 60_000)) * 100;
+    }
+    if (o.items.some((it) => it.notes && it.notes.trim().length > 0)) {
+      score += 50;
+    }
+    return score;
+  }
+
   // Pedidos que precisam preparo na cozinha:
   // - status ∈ {PEDIDO_FEITO, EM_PREPARO}
   // - pelo menos 1 item NÃO é bebida (bebida vai direto do atendente)
-  const queue = orders
-    .filter((o) => o.status === "PEDIDO_FEITO" || o.status === "EM_PREPARO")
-    .filter((o) => o.items.some((it) => it.kind !== "bebida"))
-    .sort(byCreatedAsc);
+  const queue = useMemo(() => {
+    const nowMs = now ?? Date.now();
+    const base = orders
+      .filter((o) => o.status === "PEDIDO_FEITO" || o.status === "EM_PREPARO")
+      .filter((o) => o.items.some((it) => it.kind !== "bebida"));
+
+    // Busca filtra ANTES da ordenação
+    const q = search.trim().toLowerCase();
+    const filtered = q
+      ? base.filter((o) => {
+          if (o.clientName.toLowerCase().includes(q)) return true;
+          if (String(o.id).padStart(3, "0").includes(q)) return true;
+          if (String(o.id).includes(q)) return true;
+          return false;
+        })
+      : base;
+
+    if (sortMode === "urgencia") {
+      return [...filtered].sort((a, b) => {
+        const diff = urgencyScore(b, nowMs) - urgencyScore(a, nowMs);
+        if (diff !== 0) return diff;
+        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      });
+    }
+    return [...filtered].sort(
+      (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+    );
+  }, [orders, search, sortMode, now]);
+
   const novosCount = queue.filter((o) => o.status === "PEDIDO_FEITO").length;
+  // Total real (sem filtro de busca) pra mostrar "X de Y" quando filtrando
+  const totalQueueCount = orders.filter(
+    (o) =>
+      (o.status === "PEDIDO_FEITO" || o.status === "EM_PREPARO") &&
+      o.items.some((it) => it.kind !== "bebida"),
+  ).length;
 
   return (
     <div className="min-h-dvh flex flex-col">
@@ -240,6 +304,46 @@ export function CozinhaClient({
                 <span className="hidden sm:inline">Sem conexão</span>
               </span>
             )}
+            {/* Toggle busca — em festa cheia (30 pedidos), José procura
+                "qual era do Pedro?" sem scrollar visualmente. Audit-Crit #4 */}
+            <button
+              onClick={() => {
+                setSearchOpen((v) => !v);
+                if (searchOpen) setSearch("");
+              }}
+              className={`h-11 w-11 inline-flex items-center justify-center rounded-full border transition ${
+                searchOpen || search
+                  ? "border-ink bg-ink text-brand-yellow"
+                  : "border-line-strong text-ink-2 hover:border-ink-3 hover:text-ink"
+              }`}
+              aria-label={searchOpen ? "Fechar busca" : "Buscar pedido"}
+              title="Buscar pedido"
+            >
+              <Search size={18} strokeWidth={2.25} />
+            </button>
+            {/* Toggle ordenação chegada vs urgência — em festa, pedido mais
+                antigo pode estar parado por outro motivo. Modo urgência prioriza
+                pedidos em preparo há mais tempo + com observações. */}
+            <button
+              onClick={toggleSort}
+              className={`h-11 w-11 inline-flex items-center justify-center rounded-full border transition ${
+                sortMode === "urgencia"
+                  ? "border-brand-orange bg-brand-orange/15 text-brand-orange"
+                  : "border-line-strong text-ink-2 hover:border-ink-3 hover:text-ink"
+              }`}
+              aria-label={
+                sortMode === "urgencia"
+                  ? "Ordenar por chegada"
+                  : "Ordenar por urgência (atrasos primeiro)"
+              }
+              title={
+                sortMode === "urgencia"
+                  ? "Urgência (atrasos primeiro) · clique pra chegada"
+                  : "Chegada (FIFO) · clique pra urgência"
+              }
+            >
+              <ArrowDownUp size={16} strokeWidth={2.5} />
+            </button>
             <button
               onClick={toggleSound}
               className="h-11 w-11 inline-flex items-center justify-center rounded-full border border-line-strong text-ink-2 hover:border-ink-3 hover:text-ink active:scale-[0.95] transition"
@@ -248,16 +352,13 @@ export function CozinhaClient({
             >
               {soundOn ? <Volume2 size={18} strokeWidth={2} /> : <VolumeX size={18} strokeWidth={2} />}
             </button>
-            {/* Hierarquia visual: "novos" dominante (sinal de ação),
-                "na fila" é contexto periférico. Audit P1 #05 — pesos
-                competindo dificulta varredura em 200ms da cozinheira. */}
             {novosCount > 0 && (
               <span className="bg-status-incoming text-white font-bold text-[15px] px-3 py-1.5 rounded-full t-num animate-badge-pop">
                 {novosCount} novo{novosCount === 1 ? "" : "s"}
               </span>
             )}
             <span className="t-caption text-ink-3 t-num bg-surface-sunken px-2 py-1 rounded-full hidden sm:inline">
-              {queue.length} na fila
+              {search ? `${queue.length} de ${totalQueueCount}` : `${queue.length} na fila`}
             </span>
             <span className="font-mono font-bold text-[17px] t-num text-ink hidden sm:block">
               {clock
@@ -268,9 +369,44 @@ export function CozinhaClient({
         }
       />
 
+      {/* Barra de busca expansível — só quando ativada via botão Search */}
+      {searchOpen && (
+        <div className="bg-surface-elevated border-b border-line px-4 py-2 sticky top-16 z-20">
+          <div className="relative max-w-md mx-auto">
+            <Search
+              size={16}
+              strokeWidth={2.25}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-3 pointer-events-none"
+              aria-hidden
+            />
+            <input
+              type="search"
+              autoFocus
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Buscar por nome ou número do pedido…"
+              className="input pl-10 h-10"
+            />
+          </div>
+        </div>
+      )}
+
       <main className="flex-1 p-4 md:p-6">
         {queue.length === 0 ? (
-          <EmptyState />
+          search ? (
+            <div className="text-center py-20 text-ink-3">
+              <Search size={48} strokeWidth={1.5} className="mx-auto mb-3 opacity-40" />
+              <div className="t-h3">Nenhum pedido bate com &ldquo;{search}&rdquo;</div>
+              <button
+                onClick={() => setSearch("")}
+                className="mt-3 text-sm font-semibold text-ink-2 hover:text-ink underline"
+              >
+                Limpar busca
+              </button>
+            </div>
+          ) : (
+            <EmptyState />
+          )
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4">
             {queue.map((o) => {
