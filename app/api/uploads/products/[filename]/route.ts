@@ -2,10 +2,10 @@ import { NextResponse } from "next/server";
 import { readProductImage } from "@/lib/uploads";
 
 export const runtime = "nodejs";
-// Imagens não mudam durante runtime (filename muda quando admin substitui).
-// Pode ser cached agressivamente — fingerprint do hash no nome invalida sozinho.
-export const dynamic = "force-static";
-export const revalidate = false;
+// Rota dinâmica (filename varia) — Next lida sozinho com base no Cache-Control
+// que devolvemos. `force-static` tava forçando avaliação em build time o que
+// confunde com filesystem reads. Cache real fica no CDN/browser via header.
+export const dynamic = "force-dynamic";
 
 /**
  * GET /api/uploads/products/[filename]
