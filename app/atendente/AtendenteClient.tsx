@@ -150,7 +150,7 @@ function priceOfBuilt(b: Built): number {
 }
 
 export function AtendenteClient({
-  ingredients,
+  ingredients: initialIngredientsArg,
   initialOrders,
   initialEventStatus,
   initialProducts,
@@ -173,6 +173,15 @@ export function AtendenteClient({
   // Pausado durante creating=true: atendente conversa com cliente em pé,
   // não toca a tela por 5min e o draft sumia. Audit P0 #01.
 
+  // Fase 6: lista de produtos disponíveis. SSR já entrega via initialProducts —
+  // não refazemos o fetch no mount pra evitar request duplicado em cada nav.
+  // Audit-Crit B #25: mudanças do admin (stock, available, preço) propagam
+  // via SSE — listener abaixo faz merge no state local sem reload.
+  const [products, setProducts] = useState<ProductView[]>(initialProducts);
+  // Ingredientes vêm do SSR (initialIngredients) — converto pra state pra
+  // poder fazer merge via SSE quando admin toggla available ou ajusta stock.
+  const [ingredients, setIngredients] = useState(initialIngredientsArg);
+
   const allToppings = ingredients.topping ?? [];
   const allDoces = ingredients.doce ?? [];
   const allMolhos = ingredients.molho ?? [];
@@ -183,11 +192,6 @@ export function AtendenteClient({
   const molhos = allMolhos.filter((i) => i.available);
   const macarraoToppings = allMacarraoToppings.filter((i) => i.available);
   const macarraoMolhos = allMacarraoMolhos.filter((i) => i.available);
-
-  // Fase 6: lista de produtos disponíveis. SSR já entrega via initialProducts —
-  // não refazemos o fetch no mount pra evitar request duplicado em cada nav.
-  // Mudanças de admin propagam via SSE quando implementarmos product:updated.
-  const [products] = useState<ProductView[]>(initialProducts);
 
   // Promoções ativas — vem vazio no SSR por enquanto; busca uma vez no mount.
   // TODO: receber via initialPromotions no SSR pra eliminar esse fetch também.
@@ -346,6 +350,52 @@ export function AtendenteClient({
     },
     "event:closed": () => {
       setEventStatus({ open: false, id: null, name: null, eventDate: null, openedAt: null, openedBy: null });
+    },
+    // Audit-Crit B #25: admin marca "acabou bacon" → atendente vê chip
+    // desabilitado em ~1s. Sem isso, atendente vendia algo indisponível e
+    // cozinha rejeitava no balcão. Merge no objeto Record<category, Ingredient[]>
+    // mantendo posição original (apenas atualiza campos do item afetado).
+    "ingredient:updated": (data) => {
+      const ing = data as {
+        id: string;
+        name: string;
+        category: string;
+        available: boolean;
+        stock: number | null;
+        lowStockThreshold: number | null;
+      };
+      setIngredients((prev) => {
+        const list = prev[ing.category] ?? [];
+        const next = list.map((i) =>
+          i.id === ing.id
+            ? { ...i, available: ing.available, stock: ing.stock, lowStockThreshold: ing.lowStockThreshold }
+            : i,
+        );
+        return { ...prev, [ing.category]: next };
+      });
+    },
+    "product:updated": (data) => {
+      const p = data as {
+        id: string;
+        name: string;
+        available: boolean;
+        stock: number | null;
+        lowStockThreshold: number | null;
+        basePriceCents: number | null;
+      };
+      setProducts((prev) =>
+        prev.map((item) =>
+          item.id === p.id
+            ? {
+                ...item,
+                available: p.available,
+                stock: p.stock,
+                lowStockThreshold: p.lowStockThreshold,
+                basePriceCents: p.basePriceCents,
+              }
+            : item,
+        ),
+      );
     },
   });
 

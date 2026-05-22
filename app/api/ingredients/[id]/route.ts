@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/session";
+import { broadcast } from "@/lib/sse";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -73,6 +74,17 @@ export async function PATCH(
     const ingredient = await prisma.ingredient.update({
       where: { id: params.id },
       data,
+    });
+    // Audit-Crit B #25: atendente vê toggle "Acabou bacon" em tempo real,
+    // chip vira disabled sem precisar reload. Cozinha não precisa
+    // (não monta pedido).
+    broadcast("ingredient:updated", {
+      id: ingredient.id,
+      name: ingredient.name,
+      category: ingredient.category,
+      available: ingredient.available,
+      stock: ingredient.stock,
+      lowStockThreshold: ingredient.lowStockThreshold,
     });
     return NextResponse.json(ingredient);
   } catch {

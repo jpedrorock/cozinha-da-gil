@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { serializeProduct } from "@/lib/products";
 import { requireRole } from "@/lib/session";
+import { broadcast } from "@/lib/sse";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -100,6 +101,16 @@ export async function PATCH(
       where: { id: params.id },
       data,
       include: { sizes: true },
+    });
+    // Audit-Crit B #25: atendente reflete disponibilidade/preço/estoque
+    // em tempo real sem reload. Payload mínimo — UI faz merge com state.
+    broadcast("product:updated", {
+      id: product.id,
+      name: product.name,
+      available: product.available,
+      stock: product.stock,
+      lowStockThreshold: product.lowStockThreshold,
+      basePriceCents: product.basePriceCents,
     });
     return NextResponse.json(serializeProduct(product));
   } catch {
