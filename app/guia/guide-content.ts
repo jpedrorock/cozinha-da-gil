@@ -1,26 +1,27 @@
 /**
- * Conteúdo do Guia do Usuário.
+ * Conteúdo do Guia do Usuário — escrito pra família/staff simples.
  *
- * Estruturado como data (não JSX) pra facilitar manutenção, busca, e
- * potencial tradução futura. Cada seção tem múltiplos tópicos com
- * corpo + dicas opcionais + regras opcionais.
- *
- * Mantido próximo ao código pra atualizar junto com features novas.
+ * Regras de escrita:
+ *   - Zero jargão técnico (sem PWA, SSE, API, código, etc)
+ *   - Cenários reais com nomes (Maria, José, Gil)
+ *   - 2-3 frases por tópico, sem prosa longa
+ *   - Verbos simples: toca, abre, clica, escolhe
+ *   - Como se fosse explicação verbal pra alguém que usa iFood
  */
 
 export type GuideTopic = {
   title: string;
   body: string;
-  /** Dicas práticas — bullets em cinza menor, ícone lâmpada */
+  /** Truques úteis — bullets com lâmpada amarela */
   tips?: string[];
-  /** Regras/limites — bullets em laranja, ícone aviso */
+  /** Atenções/avisos — bullets com alerta vermelho */
   rules?: string[];
 };
 
 export type GuideSection = {
   id: string;
   title: string;
-  /** Lucide icon name (string) — mapeado em GuiaClient pra evitar import circular */
+  /** Lucide icon name */
   icon: string;
   description: string;
   topics: GuideTopic[];
@@ -35,87 +36,82 @@ export type GuideTab = {
 
 export const GUIDE: GuideTab[] = [
   // ============================================================
-  //   GERAL — funcionalidades comuns a todos os papéis
+  //   GERAL — primeiros passos
   // ============================================================
   {
     id: "geral",
-    label: "Geral",
+    label: "Começar",
     icon: "Sparkles",
     sections: [
       {
         id: "login",
-        title: "Login com PIN",
+        title: "Como entrar no app",
         icon: "KeyRound",
-        description: "Como entrar no app e trocar de operador.",
+        description: "Sua senha de 4 números e troca rápida de pessoa.",
         topics: [
           {
-            title: "Como entrar",
-            body: "Na tela inicial, escolha o papel (Atendente, Cozinha ou Admin) e digite seu PIN de 4 dígitos. Não precisa selecionar nome — o servidor identifica você pelo PIN + papel.",
+            title: "Abrir o app pela primeira vez",
+            body: "Escolha o que você é hoje: Atendente (quem anota pedido), Cozinha (quem prepara) ou Admin (Gil). Depois digite sua senha de 4 números e pronto.",
             tips: [
-              "O PIN é único dentro do papel. Dois atendentes não podem ter o mesmo PIN.",
-              "Errou? O campo treme e pode tentar de novo.",
-              "Após o 4º dígito, o login dispara automaticamente.",
+              "A senha já manda você pra dentro assim que digita o 4º número.",
+              "Errou? O quadro treme e você tenta de novo.",
             ],
           },
           {
-            title: "Trocar de operador",
-            body: "No header, clique na pílula com seu nome (ícone do papel + nome). Confirme a saída e a tela volta pra seleção de papel.",
+            title: "Trocar de pessoa no mesmo tablet",
+            body: "No topo da tela tem uma bolinha com seu nome. Toca nela, confirma 'Sair' e cai de volta pra tela de senha. Agora a próxima pessoa digita a dela.",
             tips: [
-              "Em tablet compartilhado, sempre troque ao passar pra outra pessoa — pedidos ficam atribuídos a quem criou.",
-              "O nome do operador aparece em todos os pedidos pra rastreabilidade.",
+              "Sempre troca quando passar o tablet — assim quem fez cada pedido fica certo.",
             ],
           },
           {
-            title: "Auto-logout por inatividade",
-            body: "Após 30 minutos sem toque, o app desloga automaticamente — evita que tablet esquecido fique aberto.",
+            title: "App te desloga sozinho",
+            body: "Se ninguém tocar a tela por 30 minutos, o app desloga sozinho. Evita que tablet esquecido fique aberto pro mundo.",
             rules: [
-              "Pausa durante criação de pedido (atendente conversando com cliente em pé).",
+              "Não desloga enquanto você tá montando um pedido — pode conversar com cliente sem pressa.",
             ],
           },
         ],
       },
       {
-        id: "pwa",
-        title: "Instalar como app no celular",
+        id: "instalar",
+        title: "Colocar como app no celular",
         icon: "Smartphone",
-        description: "Pra rodar em tela cheia sem barra do navegador.",
+        description: "Pra ficar igual aplicativo nativo, com ícone na tela.",
         topics: [
           {
-            title: "iOS (Safari)",
-            body: "Abra cozinhadagil.evapro.cloud no Safari. Toque no botão Compartilhar (quadrado com seta pra cima) → 'Adicionar à Tela de Início'. O ícone aparece na home como app nativo.",
+            title: "No iPhone (Safari)",
+            body: "Abre cozinhadagil.evapro.cloud no Safari. Toca no quadradinho com a seta pra cima (compartilhar) → 'Adicionar à Tela de Início'. O ícone aparece na sua tela igual app de banco.",
             rules: [
-              "Funciona só no Safari. Chrome iOS não suporta PWA standalone.",
+              "Tem que ser Safari. Chrome no iPhone não funciona pra isso.",
             ],
           },
           {
-            title: "Android (Chrome)",
-            body: "Abra o site no Chrome. Aparece um banner 'Adicionar à tela inicial' — toque pra confirmar. Ou abra o menu (3 pontinhos) → 'Instalar app'.",
+            title: "No Android (Chrome)",
+            body: "Abre o site no Chrome. Vai aparecer 'Adicionar à tela inicial' embaixo — toca pra confirmar. Se não aparecer, vai nos 3 pontinhos do canto e procura 'Instalar app'.",
           },
           {
-            title: "Atualizar o app",
-            body: "O app atualiza sozinho quando você abre, desde que tenha internet. Sem precisar reinstalar.",
-            tips: [
-              "Se ficar travado em versão antiga, force-quit no app e reabra.",
-            ],
+            title: "Quando sai versão nova",
+            body: "Não precisa baixar nada de novo. Quando você abre o app com internet, ele atualiza sozinho. Pronto.",
           },
         ],
       },
       {
         id: "conexao",
-        title: "Conexão e sincronia",
+        title: "Quando aparece 'Sem conexão'",
         icon: "Wifi",
-        description: "Como o app conversa com o servidor em tempo real.",
+        description: "Internet caiu? Calma — explica o que fazer.",
         topics: [
           {
-            title: "Sincronia em tempo real (SSE)",
-            body: "Pedidos novos, alterações e status aparecem em todas as telas em ~1 segundo, sem refresh. Atendente cria pedido → cozinha vê na hora.",
+            title: "Pedido aparece na hora",
+            body: "Quando Maria faz pedido novo, José vê na cozinha em 1 segundo. Tudo sincroniza sozinho — não precisa atualizar a tela.",
           },
           {
-            title: "Indicador 'Sem conexão'",
-            body: "Quando o servidor cai ou a internet some, aparece pill vermelho 'Sem conexão' no header. O app continua mostrando o último estado conhecido.",
+            title: "Vermelho no canto = wifi caiu",
+            body: "Se aparece uma pílula vermelha 'Sem conexão' lá em cima, é porque o wifi caiu ou tá ruim. O app continua mostrando o que já tinha na tela.",
             rules: [
-              "Ações que precisam de servidor (criar pedido, avançar status) falham com erro claro.",
-              "Quando volta a conexão, o app reconecta sozinho e sincroniza.",
+              "Fazer pedido novo, marcar pronto ou cancelar não vai funcionar até voltar.",
+              "Assim que volta o wifi, o app reconecta sozinho.",
             ],
           },
         ],
@@ -124,7 +120,7 @@ export const GUIDE: GuideTab[] = [
   },
 
   // ============================================================
-  //   ATENDENTE — fluxo de pedido + fila
+  //   ATENDENTE
   // ============================================================
   {
     id: "atendente",
@@ -133,111 +129,110 @@ export const GUIDE: GuideTab[] = [
     sections: [
       {
         id: "novo-pedido",
-        title: "Criar pedido novo",
+        title: "Anotar um pedido",
         icon: "Plus",
-        description: "Stepper passo-a-passo: cliente → produto → confirma.",
+        description: "Cliente chegou pedindo? Aperta o botão amarelo e segue.",
         topics: [
           {
-            title: "1. Cliente",
-            body: "Nome obrigatório (pode ser 'Mesa 5' ou 'Balcão'). Telefone opcional — se informado, libera 'Avisar cliente via WhatsApp' depois.",
+            title: "Botão grande amarelo embaixo",
+            body: "Toca em 'Novo pedido' lá embaixo da tela. Abre o passo-a-passo do que perguntar pro cliente.",
+          },
+          {
+            title: "1º — Quem é o cliente",
+            body: "Escreve o nome do jeito que vai chamar quando ficar pronto (pode ser 'Mesa 5' ou só 'Balcão'). Telefone é só se quiser avisar pelo WhatsApp depois.",
             tips: [
-              "Atalho 'Atendimento rápido' pula essa tela com nome vazio (cliente anônimo).",
-              "Telefone com DDD: (11) 99999-9999 — máscara automática.",
+              "Tem botão 'Atendimento rápido' que pula essa parte se for cliente passageiro.",
+              "Telefone formata sozinho: (11) 99999-9999.",
             ],
           },
           {
-            title: "2. Produto",
-            body: "Escolha entre Salgado, Doce, Bebida, Macarrão ou Combo. Cada produto pode ter tamanhos (Pequeno, Grande, Normal, Mini Pack).",
+            title: "2º — O que ele quer comer",
+            body: "Escolhe entre Salgado, Doce, Bebida, Macarrão ou Combo. Se tem tamanho (Pequeno, Grande), escolhe também.",
             tips: [
-              "Bebidas vão direto pro PRONTO (não passam pela cozinha).",
+              "Bebidas pulam a cozinha — ficam logo 'Pronto' pra você pegar.",
             ],
           },
           {
-            title: "3. Ingredientes",
-            body: "Toque pra selecionar/desmarcar. Limite varia por produto (ex: Pequeno aceita até 2 toppings). Botão 'Marcar todos' acelera quando cliente pediu 'tudo'.",
+            title: "3º — Recheios e molhos",
+            body: "Toca em cada coisa que ele quer (frango, catupiry, etc). Se quiser tudo, tem botão 'Marcar todos'. Depois escolhe os molhos.",
             rules: [
-              "Ingredientes com estoque zero aparecem riscados (não dá pra selecionar).",
-              "Com estoque baixo, aparece badge ⚠ amarelo pra avisar.",
+              "Recheio com ⚠ amarelo = acabando. Ainda dá, mas avisa Gil.",
+              "Recheio riscado = acabou mesmo, não dá pra escolher.",
             ],
           },
           {
-            title: "4. Molhos",
-            body: "Cada molho extra tem preço (R$ 1,50 padrão). 'Nenhum molho' é grátis e selecionado por padrão.",
+            title: "4º — Quantos iguais",
+            body: "Se o cliente quer 3 pastéis iguais, coloca 3. Default é 1. A cozinha vai preparar a quantidade que você marcar.",
           },
           {
-            title: "5. Quantidade",
-            body: "Quantos pastéis iguais? Default 1, máximo 20. Cozinha recebe a quantidade pra preparar (3 pastéis iguais = 3 unidades).",
-          },
-          {
-            title: "6. Observações",
-            body: "Chips rápidos pra modificadores comuns: 'sem cebola', 'bem dourado', etc. Negativos ('sem X') aparecem em vermelho na cozinha. Campo livre embaixo pra outras observações.",
+            title: "5º — Alguma observação?",
+            body: "Botões prontos pros pedidos mais comuns: 'sem cebola', 'bem dourado', etc. Toca pra ativar. Se for algo diferente, escreve no campo embaixo.",
             tips: [
-              "Cada chip toca pra ativar (laranja) ou desativar.",
-              "Texto digitado fica abaixo dos chips, separado por vírgula.",
+              "'Sem cebola' fica vermelho gritante na cozinha — eles não esquecem.",
+              "Pode marcar vários, tipo 'sem cebola, bem dourado'.",
             ],
           },
           {
-            title: "7. Cart e confirmar",
-            body: "Revisa items no carrinho. Pode editar inline (lápis), aumentar/diminuir quantidade, duplicar, ou remover (X). Botão grande 'Confirmar pedido' envia pra cozinha.",
+            title: "6º — Conferir e mandar",
+            body: "Aparece a lista de tudo que o cliente pediu com o preço total. Se tiver algo errado, toca no lápis pra editar ou X pra tirar. Quando estiver certo, toca 'Confirmar pedido'.",
             rules: [
-              "Caixa fechado bloqueia confirmar — banner vermelho avisa.",
-              "Se internet falhar e você clicar de novo, sistema detecta possível duplicata e pergunta antes de enviar.",
+              "Caixa fechado? Não dá pra confirmar — peça pra Gil abrir.",
+              "Se a internet falhar e você apertar de novo, o app pergunta 'É outro pedido?' antes de mandar duplicado.",
             ],
           },
         ],
       },
       {
         id: "fila",
-        title: "Fila de pedidos",
+        title: "Acompanhar pedidos",
         icon: "ListOrdered",
-        description: "Acompanhe e gerencie pedidos ativos.",
+        description: "Ver quem tá pronto, quem ainda tá fazendo.",
         topics: [
           {
-            title: "Filtros por status",
-            body: "Chips no topo: PEDIDO_FEITO (aguardando preparo), EM_PREPARO (cozinha fazendo), PRONTO (esperando cliente), ENTREGUE, CANCELADO. Contagem em cada chip.",
+            title: "Filtros lá em cima",
+            body: "Os botões mostram: 'Pedido feito' (esperando cozinha), 'Em preparo', 'Pronto' (esperando cliente buscar), 'Entregue' e 'Cancelado'. O número do lado é quantos tem em cada.",
             tips: [
-              "Default é PRONTO — atendente foca em quem precisa retirar.",
+              "Por padrão abre em 'Pronto' — quem precisa ir buscar primeiro.",
             ],
           },
           {
-            title: "Editar pedido",
-            body: "Botão 'Editar' aparece em PEDIDO_FEITO e EM_PREPARO. Abre o stepper pré-preenchido. Salvar atualiza e cozinha recebe alerta vermelho 'Atendente alterou'.",
+            title: "Cliente mudou de ideia — editar",
+            body: "Tem botão 'Editar' nos pedidos que ainda não saíram. Abre o pedido inteiro do jeito que tava, você muda o que precisar e salva. A cozinha recebe um alerta vermelho avisando.",
             rules: [
-              "Após PRONTO, não dá mais pra editar.",
+              "Depois que tá 'Pronto', não dá mais pra mexer.",
             ],
           },
           {
-            title: "Remover item específico",
-            body: "Botão X em cada linha do pedido (cards com 2+ items). Confirma e remove só aquele item. Toast com 'Desfazer' por 6s pra reverter.",
+            title: "Cliente desistiu de UM item",
+            body: "Em pedidos com vários items, cada linha tem um X. Toca pra tirar só aquele. Aparece 'Desfazer' por 6 segundos caso clique errado.",
             rules: [
-              "Se sobrar 1 item, o X some — use 'Cancelar pedido' inteiro.",
+              "Se sobrar 1 item só, o X some — aí use 'Cancelar' o pedido inteiro.",
             ],
           },
           {
-            title: "Cancelar pedido",
-            body: "Botão 'Cancelar' em PEDIDO_FEITO. Diálogo pede motivo (preset 'Cliente foi embora', 'Ingrediente acabou', 'Erro no pedido', 'Cliente desistiu', ou texto livre).",
+            title: "Cancelar o pedido inteiro",
+            body: "Botão 'Cancelar' no pedido. Abre uma caixinha pedindo o motivo: 'Cliente foi embora', 'Ingrediente acabou', 'Erro no pedido' ou 'Cliente desistiu'.",
             rules: [
-              "Em EM_PREPARO, só cozinha ou admin pode cancelar (regra força comunicação).",
+              "Se a cozinha já começou a fazer, só Gil ou o pessoal da cozinha pode cancelar — pra todo mundo combinar antes.",
             ],
           },
           {
-            title: "'Cliente sumiu'",
-            body: "Botão em pedidos PRONTO quando cliente não voltou pra buscar. Abre o mesmo diálogo de cancelamento com motivo 'Cliente foi embora' como preset.",
+            title: "Cliente sumiu sem buscar",
+            body: "No pedido que tá 'Pronto' há tempos, aparece botão 'Cliente sumiu'. Usa pra marcar como cancelado quando ele desapareceu mesmo.",
           },
           {
-            title: "Avisar cliente via WhatsApp",
-            body: "Botão 'Avisar' em PRONTO quando há telefone. Abre WhatsApp com mensagem pré-formatada. Após 5min sem resposta, vira 'Avisar de novo' (laranja).",
+            title: "Avisar cliente pelo WhatsApp",
+            body: "Se o pedido tá 'Pronto' e o cliente deu telefone, aparece botão 'Avisar'. Abre o WhatsApp com mensagem pronta — você só toca enviar.",
             tips: [
-              "Badge 'Avisado · há X min' mostra quando foi avisado.",
-              "Cada clique cria um log no CRM do cliente.",
+              "Cliente não respondeu? Depois de 5 minutos o botão volta como 'Avisar de novo' (laranja).",
+              "Aparece 'Avisado · há X min' pra você lembrar quando mandou.",
             ],
           },
           {
-            title: "Banner caixa órfão",
-            body: "Se o caixa tá aberto há mais de 12h, banner amarelo no topo avisa. Provavelmente Gil esqueceu de fechar — pedidos novos vão pro caixa errado.",
+            title: "Aviso amarelo lá em cima",
+            body: "Se a barra amarela aparece dizendo que o caixa tá aberto há muitas horas, é porque a Gil esqueceu de fechar ontem. Pedidos novos vão pro caixa errado — chama ela.",
             tips: [
-              "Pode dispensar (X) se for festa overnight legítima.",
-              "Ou peça pro admin fechar e abrir novo caixa.",
+              "Se for festa que continuou madrugada adentro, toca no X pra dispensar.",
             ],
           },
         ],
@@ -246,7 +241,7 @@ export const GUIDE: GuideTab[] = [
   },
 
   // ============================================================
-  //   COZINHA — fluxo de preparo + atalhos
+  //   COZINHA
   // ============================================================
   {
     id: "cozinha",
@@ -255,82 +250,79 @@ export const GUIDE: GuideTab[] = [
     sections: [
       {
         id: "operacao",
-        title: "Operação na cozinha",
+        title: "Receber e preparar pedidos",
         icon: "ChefHat",
-        description: "Como receber e processar pedidos.",
+        description: "Os cards aparecem sozinhos — só seguir os botões.",
         topics: [
           {
-            title: "Lista de pedidos ativos",
-            body: "Mostra todos os pedidos em PEDIDO_FEITO e EM_PREPARO. PRONTO/ENTREGUE/CANCELADO somem (foco em quem ainda precisa de ação).",
+            title: "Pedido chegando na fila",
+            body: "Aparece card amarelo brilhando no topo + som de notificação. Lá tem o nome do cliente, número do pedido e tudo que ele pediu.",
             tips: [
-              "Pedido novo chega com flash laranja + ding — chama atenção.",
-              "Bebidas não aparecem (atendente entrega direto).",
+              "Bebida só não aparece — atendente entrega da geladeira direto.",
             ],
           },
           {
-            title: "Iniciar preparo",
-            body: "Botão 'Iniciar preparo' no card PEDIDO_FEITO. Muda status pra EM_PREPARO e cronômetro começa do zero (preparo). Ring de progresso ao redor mostra tempo restante.",
-            rules: [
-              "Meta padrão: 20 minutos. Verde → amarelo (10min) → laranja (15min) → vermelho (20min+).",
-              "Acima de 20min, card pulsa em vermelho.",
+            title: "Começar a preparar",
+            body: "Toca em 'Iniciar preparo'. O card muda de cor e começa um cronômetro circular ao redor da hora — verde no começo, amarelo passando 10 min, laranja 15 min, vermelho 20 min.",
+            tips: [
+              "Passou de 20 minutos, o card inteiro pisca vermelho — chama atenção.",
             ],
           },
           {
-            title: "Marcar Pronto",
-            body: "Botão 'Pronto' no card EM_PREPARO. Card sai da cozinha e vai pra fila do atendente notificar/entregar.",
+            title: "Marcar como Pronto",
+            body: "Quando tá pronto, toca 'Pronto'. O card sai da sua tela e vai pra do atendente — ele entrega ou avisa o cliente.",
           },
           {
-            title: "Cancelar pedido",
-            body: "Diálogo com motivo. Cozinha pode cancelar mid-preparo (ingrediente acabou, queimou, etc).",
+            title: "Cancelar (queimou, acabou, etc)",
+            body: "Tem botão 'Cancelar' também. Abre a caixinha pedindo motivo — escolhe o que aconteceu e confirma.",
           },
           {
-            title: "Alerta de alteração",
-            body: "Se o atendente edita um pedido enquanto você prepara, o card ganha ring vermelho + label 'Atendente alterou — revise os itens' + ding urgente. Confira antes de seguir.",
+            title: "Quando atendente muda no meio",
+            body: "Se Maria editar um pedido enquanto você tá preparando, o card vira vermelho com aviso 'Atendente alterou — revise os itens' + um som diferente. Para o que tá fazendo, olha o que mudou.",
           },
           {
-            title: "Densidade 2-colunas",
-            body: "Pedido com 2+ unidades vira grid 2-col automaticamente (md+) com layout compacto pra caber mais na tela.",
+            title: "Várias unidades = 2 colunas",
+            body: "Se o cliente pediu 3 pastéis iguais, em vez de 3 cards um embaixo do outro, viram 2 lado a lado pra caber tudo na tela. Cada um é uma unidade separada.",
           },
           {
-            title: "Observações destacadas",
-            body: "Notes 'sem X' (sem cebola, sem alho) aparecem em vermelho com ⚠ pra você ler ANTES de começar. Outras observações em amarelo (preferências).",
+            title: "Observações 'sem' em vermelho",
+            body: "Se atendente marcou 'sem cebola', aparece grandão vermelho no topo do item — você lê antes de começar. Outras coisas ('bem dourado') ficam em amarelo, mais discreto.",
           },
         ],
       },
       {
-        id: "controles",
-        title: "Controles e busca",
+        id: "busca",
+        title: "Buscar e organizar fila",
         icon: "Search",
-        description: "Busca, ordenação e som no bottom-nav.",
+        description: "Botões embaixo: Buscar, Ordenar e Som.",
         topics: [
           {
-            title: "Busca",
-            body: "Toque 'Buscar' no bottom-nav. Filtra por nome do cliente ou número do pedido (#042 ou 42).",
+            title: "Achar um pedido específico",
+            body: "Toca 'Buscar' lá embaixo. Digita o nome do cliente ou o número (#042 ou 42). Filtra na hora.",
             tips: [
-              "Atalho teclado: tecle '/' pra abrir/fechar.",
-              "Contador 'X de Y' mostra resultados vs total quando filtrando.",
+              "Tem teclado? Tecla '/' pra abrir/fechar a busca.",
             ],
           },
           {
-            title: "Ordenação",
-            body: "Toggle entre 'Chegada' (FIFO, mais antigo primeiro) e 'Urgência' (em preparo há mais tempo + com observações primeiro).",
+            title: "Ordenar por mais atrasado",
+            body: "Botão 'Chegada' (mostra o mais antigo primeiro) ou 'Urgência' (mostra quem tá há mais tempo em preparo primeiro). Toca pra alternar.",
             tips: [
-              "Atalho teclado: tecle 'S'.",
-              "Preferência salva no aparelho.",
+              "Atalho do teclado: tecla 'S'.",
+              "A escolha fica salva — quando abre de novo lembra a sua preferência.",
             ],
           },
           {
-            title: "Som on/off",
-            body: "Toggle. Som ligado: dings em pedidos novos, alarmes escalonados em pedidos atrasados.",
+            title: "Ligar ou desligar som",
+            body: "Botão 'Som' ou 'Mudo'. Quando ligado, toca som a cada pedido novo e alarmes pra pedidos atrasados.",
             tips: [
-              "Atalho teclado: tecle 'M'.",
+              "Atalho: tecla 'M'.",
             ],
           },
           {
-            title: "Alarme escalonado",
-            body: "Pedido cruza 10min → ding 'aviso'. 15min → ding 'urgente'. 20min+ → ding urgente + repete a cada 2min até cook agir. Cada nível dispara só 1x (não spam).",
+            title: "Som diferente pra cada urgência",
+            body: "10 min sem terminar = 1 bip médio. 15 min = bips mais agudos. 20+ min = bip alarme repetindo a cada 2 minutos até você marcar pronto.",
             rules: [
-              "Som off no toggle silencia tudo.",
+              "Se você desligar o som, todos os alarmes vão junto.",
             ],
           },
         ],
@@ -339,17 +331,17 @@ export const GUIDE: GuideTab[] = [
         id: "atalhos",
         title: "Atalhos de teclado",
         icon: "Keyboard",
-        description: "Pra tablet com teclado bluetooth ou notebook fixo.",
+        description: "Só se você usar tablet com teclado ou notebook.",
         topics: [
           {
-            title: "Lista de atalhos",
-            body: "Disponíveis quando não tá digitando em campo de texto:",
+            title: "Lista completa",
+            body: "Funcionam quando você não tá digitando em algum campo:",
             tips: [
-              "/ — Buscar pedido",
-              "S — Alternar ordenação (chegada ↔ urgência)",
-              "M — Ligar/silenciar som",
-              "? — Mostrar/esconder esta ajuda",
-              "Esc — Fechar busca ou ajuda",
+              "/  →  Abrir/fechar busca",
+              "S  →  Trocar ordenação (chegada ↔ urgência)",
+              "M  →  Ligar/desligar som",
+              "?  →  Mostrar essa lista de atalhos",
+              "Esc  →  Fechar busca ou ajuda",
             ],
           },
         ],
@@ -358,7 +350,7 @@ export const GUIDE: GuideTab[] = [
   },
 
   // ============================================================
-  //   ADMIN — gestão completa
+  //   ADMIN
   // ============================================================
   {
     id: "admin",
@@ -367,128 +359,135 @@ export const GUIDE: GuideTab[] = [
     sections: [
       {
         id: "vendas",
-        title: "Vendas e relatórios",
+        title: "Ver vendas do dia/semana/mês",
         icon: "TrendingUp",
-        description: "KPIs, gráficos, top vendidos e exportação.",
+        description: "Quanto vendeu, quantos pedidos, o que vende mais.",
         topics: [
           {
-            title: "Períodos",
-            body: "Chips no topo: Hoje, Semana, Mês, Personalizado. Tudo reflete o range selecionado — KPIs, gráfico, top vendidos.",
+            title: "Trocar o período",
+            body: "Botões 'Hoje', 'Semana', 'Mês' ou 'Personalizado' lá em cima. Quando muda, todos os números embaixo recalculam.",
           },
           {
-            title: "KPIs principais",
-            body: "Faturamento, Pedidos, Ticket médio, Tempo médio de preparo. No PDF, cada KPI mostra delta % vs período anterior equivalente (+12% vs 7d anteriores).",
-          },
-          {
-            title: "Top vendidos",
-            body: "Ranking de toppings, sabores e molhos mais vendidos. Coluna 'Receita' mostra quanto cada ingrediente gerou (split share-based por categoria).",
+            title: "Os 4 números principais",
+            body: "Faturamento (quanto entrou), Pedidos (quantos), Ticket médio (média por pedido) e Tempo médio de preparo (quanto a cozinha demora).",
             tips: [
-              "Badge 🏆 no #1 quando range não é 'Hoje'.",
+              "No PDF do dia, cada número vem com a comparação: '+12% que ontem' ou '-8% que semana passada'.",
             ],
           },
           {
-            title: "Exportar CSV",
-            body: "Botão baixa CSV com todos os pedidos do período (incluindo cancelados com motivo, atendente, items, preços, telefone). Pra abrir no Excel/Sheets.",
+            title: "O que vende mais",
+            body: "Lista dos recheios, sabores e molhos mais pedidos no período. Tem coluna 'Receita' mostrando quanto cada um trouxe de dinheiro.",
+            tips: [
+              "Quando o período não é 'Hoje', aparece troféu 🏆 no campeão.",
+            ],
           },
           {
-            title: "Exportar PDF",
-            body: "Relatório visual completo: capa, KPIs com deltas, resumo financeiro, top vendidos, gráfico por hora/dia, lista de pedidos.",
+            title: "Baixar planilha (Excel)",
+            body: "Botão baixa um arquivo com tudo do período: pedidos, cancelados com motivo, quem atendeu, preços, telefone. Abre no Excel ou Google Planilhas.",
+          },
+          {
+            title: "Baixar relatório bonito (PDF)",
+            body: "Arquivo PDF visual: capa, números grandes, resumo financeiro, top vendidos e gráfico por hora ou dia. Pra imprimir ou mandar pro contador.",
           },
         ],
       },
       {
-        id: "operacao",
-        title: "Operação e caixa",
+        id: "caixa",
+        title: "Abrir e fechar caixa",
         icon: "Activity",
-        description: "Abrir, fechar e listar caixas (sessões).",
+        description: "Marca o início e o fim de cada festa/evento.",
         topics: [
           {
-            title: "Abrir caixa",
-            body: "Botão 'Abrir caixa' com nome do evento (opcional) e data. Cria uma sessão — todos os pedidos novos ficam atribuídos a ela.",
+            title: "Começar uma festa",
+            body: "Toca 'Abrir caixa'. Bota um nome do evento (tipo 'Aniversário João' ou só a data) e confirma. Daí todos os pedidos novos vão pra essa festa.",
             rules: [
               "Só pode ter 1 caixa aberto por vez.",
-              "Caixa fechado bloqueia pedidos novos.",
+              "Sem caixa aberto, atendente não consegue fazer pedido.",
             ],
           },
           {
-            title: "Fechar caixa",
-            body: "Botão 'Fechar caixa'. Calcula totalCents da sessão (snapshot). Depois disso, nenhum pedido novo entra nessa sessão.",
+            title: "Encerrar a festa",
+            body: "Toca 'Fechar caixa'. O app guarda o total final daquela festa. Nenhum pedido novo entra mais nessa.",
           },
           {
-            title: "Histórico de caixas",
-            body: "Lista todos os caixas anteriores com data, totalCents, quem abriu/fechou. Click pra ver pedidos do caixa + baixar relatório.",
+            title: "Ver festas antigas",
+            body: "Lista de todas as festas anteriores com data, total e quem abriu/fechou. Clica em uma pra ver os pedidos dela ou baixar o relatório.",
           },
         ],
       },
       {
         id: "cardapio",
-        title: "Cardápio",
+        title: "Mexer no cardápio",
         icon: "UtensilsCrossed",
-        description: "Produtos, ingredientes, estoque.",
+        description: "Adicionar produtos, recheios e controlar estoque.",
         topics: [
           {
-            title: "Produtos",
-            body: "Crie/edite Salgados, Doces, Bebidas, Macarrão, Combos. Defina preço (fixo ou por tamanho), ingredientes permitidos, molhos, mínimo/máximo de ingredientes.",
+            title: "Criar produto novo",
+            body: "Botão 'Novo produto'. Escolhe o tipo (salgado, doce, bebida, etc), nome, preço e quais recheios aceita. Pode subir uma foto também (pras bebidas com marca, tipo Coca).",
             tips: [
-              "Imagem opcional (SVG/PNG) — útil pra bebidas com marca.",
-              "Toggle 'Disponível' esconde do atendente sem apagar.",
+              "Botão 'Disponível' liga/desliga sem precisar apagar.",
             ],
           },
           {
-            title: "Tamanhos (ProductSize)",
-            body: "Pra produtos com pricing 'by_size', cadastre nomes (Pequeno, Grande, etc) e preços. Cada tamanho tem seu próprio preço base.",
+            title: "Tamanhos diferentes",
+            body: "Se o produto vende em mais de um tamanho (Pequeno e Grande, por exemplo), cadastra cada tamanho com seu preço.",
           },
           {
-            title: "Ingredientes",
-            body: "Lista por categoria: topping, doce (sabores), molho, macarrao_topping, macarrao_molho, bebida_extra. Cada um com nome, ícone (Iconify), posição, disponível.",
+            title: "Recheios e molhos",
+            body: "Lista todos os recheios disponíveis. Cada um tem nome, ícone, ordem e botão 'disponível'. Atendente só vê os que tão disponíveis.",
           },
           {
-            title: "Estoque com alerta",
-            body: "Defina 'Estoque' (quantidade atual) e 'Alerta abaixo de' (threshold). Sistema decrementa automático quando pedido criado. Badge ⚠ 'acabando' no atendente quando ≤ threshold.",
+            title: "Estoque com aviso de acabando",
+            body: "Marca quanto tem e a partir de quantos é pouco (tipo 'Bacon: tenho 10, avisa quando chegar em 3'). Quando vende, o app desconta sozinho do estoque.",
             rules: [
-              "Stock vira negativo se admin esquece de atualizar — sinal pra reconciliar.",
-              "Quando admin marca 'Acabou bacon', atendente vê chip desabilitado em ~1s (SSE).",
+              "Aparece ⚠ amarelo no atendente quando tá pouco.",
+              "Quando zera, aparece riscado e atendente não consegue selecionar.",
+              "Você marcou 'Acabou bacon'? Atendente vê em 1 segundo, sem precisar atualizar a tela.",
             ],
           },
         ],
       },
       {
         id: "clientes",
-        title: "Clientes (CRM)",
+        title: "Lista de clientes",
         icon: "Contact",
-        description: "Banco de clientes recorrentes, broadcast.",
+        description: "Banco de clientes que voltam sempre.",
         topics: [
           {
-            title: "Auto-upsert",
-            body: "Quando cliente faz pedido com telefone, sistema cria/atualiza Customer automaticamente. Total de pedidos e gasto acumulam.",
+            title: "Cliente é salvo sozinho",
+            body: "Quando o atendente coloca o telefone do cliente no pedido, o app cria o cliente automaticamente. Da próxima vez, conta como mesmo cliente.",
           },
           {
-            title: "Busca e perfil",
-            body: "Busca por nome ou telefone. Drawer mostra histórico de pedidos, total gasto, opt-in marketing.",
+            title: "Procurar e ver histórico",
+            body: "Busca por nome ou telefone. Abre uma janela com: quantos pedidos já fez, quanto gastou no total, e a lista de cada pedido.",
           },
           {
-            title: "Opt-in marketing",
-            body: "Checkbox no stepper do atendente (opcional). Cliente concorda em receber promos. Necessário pra entrar em broadcast.",
+            title: "Cliente aceita receber promo?",
+            body: "Tem uma caixinha 'Aceita receber novidades?' no atendimento. Se cliente marcar, ele entra na lista de quem pode receber promoção por WhatsApp.",
           },
           {
-            title: "Broadcast guiado",
-            body: "Pra mandar promo pra N clientes via WhatsApp, sistema abre 1 por vez (limita rate). Cada msg vira BroadcastLog row pra histórico.",
+            title: "Mandar promo pra muitos clientes",
+            body: "Pra mandar promoção pra todo mundo da lista, o app abre o WhatsApp 1 cliente por vez (pro WhatsApp não bloquear). Você confirma cada um.",
           },
         ],
       },
       {
         id: "historico",
-        title: "Histórico de pedidos",
+        title: "Pedidos antigos",
         icon: "History",
-        description: "Buscar e filtrar pedidos antigos.",
+        description: "Buscar qualquer pedido já feito.",
         topics: [
           {
-            title: "Filtros",
-            body: "Range (Hoje, Ontem, 7d, Tudo) + filtro por caixa + busca por nome/telefone/número.",
+            title: "Filtrar por período",
+            body: "Botões 'Hoje', 'Ontem', '7 dias' ou 'Tudo'. Pode também filtrar por uma festa específica.",
           },
           {
-            title: "Paginação",
-            body: "50 por vez. Botão 'Ver mais' carrega próximo lote. Evita travar tablet com 600+ pedidos.",
+            title: "Buscar por nome ou número",
+            body: "Caixa de busca: digita nome do cliente, telefone ou número do pedido (#042). Mostra todos que batem.",
+          },
+          {
+            title: "Carregar mais",
+            body: "Mostra 50 pedidos por vez. Botão 'Ver mais' embaixo carrega o próximo lote. Evita travar quando tem muito pedido.",
           },
         ],
       },
@@ -496,35 +495,35 @@ export const GUIDE: GuideTab[] = [
         id: "promocoes",
         title: "Promoções",
         icon: "Tag",
-        description: "Descontos automáticos no checkout.",
+        description: "Desconto automático no checkout.",
         topics: [
           {
             title: "Tipos de promoção",
-            body: "Por valor fixo (-R$ X), percentual (-X%), ou compra-leve (X+Y). Datas de validade (de/até). Limite de uso.",
+            body: "Pode ser desconto em reais (-R$ 5), em porcentagem (-10%) ou compra-leva (3 e leva 4). Coloca a data de início e fim, e quantas vezes pode ser usada.",
           },
           {
-            title: "Aplicação no atendente",
-            body: "Atendente seleciona promoção no cart. Sistema valida (data, condições) e aplica desconto. Comprovante mostra subtotal, desconto e total.",
+            title: "Aplicar no atendimento",
+            body: "Atendente escolhe a promoção no carrinho do cliente. App confere se é válida (data, condições) e desconta. Comprovante mostra subtotal, desconto e total final.",
           },
         ],
       },
       {
         id: "usuarios",
-        title: "Usuários",
+        title: "Funcionários",
         icon: "Users",
-        description: "Criar e gerenciar atendentes, cozinheiros, admins.",
+        description: "Cadastrar atendentes, cozinheiros e admins.",
         topics: [
           {
-            title: "Criar usuário",
-            body: "Botão 'Novo usuário'. Nome, papel (Atendente/Cozinha/Admin), PIN de 4 dígitos. PIN é hash bcrypt no banco.",
+            title: "Adicionar funcionário",
+            body: "Botão 'Novo usuário'. Bota o nome, escolhe o papel (Atendente, Cozinha ou Admin) e cria uma senha de 4 números pra ela. Pronto, ela já pode entrar.",
             rules: [
-              "PIN é único POR PAPEL. Dois atendentes não podem ter o mesmo PIN. Dois admins não podem ter o mesmo PIN.",
-              "Mas um atendente E um admin podem ter PINs iguais (papéis diferentes).",
+              "Duas pessoas do mesmo papel NÃO podem ter a mesma senha. Tipo: dois atendentes não podem ter senha '1234'.",
+              "Mas um atendente e um admin podem ter '1234' os dois (papéis diferentes não conflitam).",
             ],
           },
           {
-            title: "Editar/desativar",
-            body: "Edit muda nome, papel ou PIN. Toggle ativo/inativo esconde do login sem apagar.",
+            title: "Mudar ou desativar",
+            body: "Edita o nome, papel ou senha. O botão 'Ativo' desliga ela do login sem apagar — útil pra funcionário que saiu mas pode voltar.",
           },
         ],
       },
@@ -533,35 +532,35 @@ export const GUIDE: GuideTab[] = [
 ];
 
 // ============================================================
-//   REGRAS DE NEGÓCIO (resumo global)
+//   O QUE O APP FAZ SOZINHO (regras automáticas — sem jargão)
 // ============================================================
 export const RULES = [
   {
-    title: "Transições de status",
-    body: "PEDIDO_FEITO → EM_PREPARO → PRONTO → ENTREGUE. CANCELADO pode partir de PEDIDO_FEITO, EM_PREPARO ou PRONTO. ENTREGUE e CANCELADO são terminais (sem volta).",
+    title: "Cliente é cadastrado sozinho",
+    body: "Quando atendente põe o telefone do cliente no pedido, ele entra automaticamente na lista de clientes. Da próxima vez é reconhecido — sem precisar cadastrar de novo.",
   },
   {
-    title: "Quem pode cancelar",
-    body: "Atendente: PEDIDO_FEITO e PRONTO ('Cliente sumiu'). Cozinha e Admin: qualquer status ativo. Em EM_PREPARO, atendente bloqueado (força comunicação).",
+    title: "Estoque desconta sozinho",
+    body: "Cliente pediu 2 pastéis de bacon? O app desconta 2 do estoque de bacon automático. Você só precisa atualizar quando comprar mais.",
   },
   {
-    title: "Caixa fechado bloqueia tudo",
-    body: "Sem caixa aberto, POST /api/orders retorna 423 LOCKED com code: CAIXA_FECHADO. Atendente vê banner vermelho e botão de novo pedido desabilitado.",
+    title: "Pedido duplicado é bloqueado",
+    body: "Se Maria clica 'Confirmar' duas vezes sem querer (porque o wifi travou), o app pergunta 'É outro pedido mesmo?' antes de mandar igual pra cozinha.",
   },
   {
-    title: "Dedup automático (90s)",
-    body: "Se mesmo clientPhone + mesmos items + mesmo total surgem em 90s, sistema bloqueia segundo pedido e pergunta 'É realmente um novo pedido?'. Atendente confirma com 'Sim, é novo'.",
+    title: "Caixa fechado trava pedidos",
+    body: "Sem caixa aberto, atendente não consegue fazer pedido novo. Aparece banner vermelho explicando — chama a Gil pra abrir.",
   },
   {
-    title: "Idempotency-Key (retry seguro)",
-    body: "Cada submissão tem um UUID único. Se rede falhar e atendente tentar de novo, servidor reconhece e devolve o pedido original (sem criar duplicata).",
+    title: "Quem pode cancelar o quê",
+    body: "Atendente cancela pedido que ainda não saiu OU que tá esperando cliente. Quando a cozinha já começou a fazer, só cozinha ou Gil pode cancelar — pra todo mundo combinar.",
   },
   {
-    title: "Decremento automático de estoque",
-    body: "Pedido criado → produtos e ingredientes com stock != null são decrementados pela quantidade usada. Best-effort: se falhar, pedido segue (admin reconcilia depois).",
+    title: "Pedido que travou volta sozinho",
+    body: "Se o wifi caiu na hora de mandar o pedido e você apertou de novo, o app é esperto: reconhece que é o mesmo e não duplica.",
   },
   {
-    title: "Telefone normalizado",
-    body: "Salvo como +55XXXXXXXXXXX no banco. Display formata como (11) 99999-9999. WhatsApp deep-link usa o formato +55 direto.",
+    title: "Telefone padronizado",
+    body: "Você digita '(11) 99999-9999' do jeito normal. O app guarda no formato que o WhatsApp entende e formata bonito quando mostra.",
   },
 ];

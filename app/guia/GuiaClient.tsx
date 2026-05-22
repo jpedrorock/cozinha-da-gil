@@ -253,7 +253,7 @@ export function GuiaClient() {
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-ink-3 mb-1">
-                Manual · {currentTab.label}
+                Guia · {currentTab.label}
               </div>
               <h1 className="text-2xl md:text-3xl font-extrabold -tracking-[0.015em] mb-1 text-ink">
                 {tabHeroTitle(activeTab)}
@@ -524,21 +524,21 @@ function Callout({
       bg: "bg-brand-yellow-soft/60",
       border: "border-brand-orange/40",
       iconColor: "text-brand-orange",
-      label: "Dica",
+      label: "Truque",
     },
     rule: {
       Icon: AlertCircle,
       bg: "bg-danger-bg/60",
       border: "border-danger/40",
       iconColor: "text-danger",
-      label: "Regra",
+      label: "Atenção",
     },
     info: {
       Icon: Info,
       bg: "bg-surface-sunken/60",
       border: "border-ink-3/30",
       iconColor: "text-ink-2",
-      label: "Info",
+      label: "Saiba",
     },
   }[kind];
   const { Icon: IconCmp, bg, border, iconColor, label } = config;
@@ -619,25 +619,25 @@ function RelatedSection({
 function tabHeroTitle(id: GuideTab["id"]): string {
   switch (id) {
     case "geral":
-      return "Bem-vindo ao manual";
+      return "Aprende com a gente";
     case "atendente":
-      return "Atendente — o ritmo da barraca";
+      return "Como anotar pedido direitinho";
     case "cozinha":
-      return "Cozinha — preparo no tempo certo";
+      return "Como receber e preparar";
     case "admin":
-      return "Admin — controle completo";
+      return "Como Gil controla tudo";
   }
 }
 
 function tabHeroSubtitle(id: GuideTab["id"]): string {
   switch (id) {
     case "geral":
-      return "Tudo que você precisa pra começar a usar o app: login, instalar no celular, e regras de negócio que afetam todo mundo.";
+      return "Os primeiros passos: como entrar, instalar no celular e o que fazer quando a internet trava.";
     case "atendente":
-      return "Como montar pedidos, gerenciar a fila, editar em andamento e avisar cliente quando ficar pronto.";
+      return "Passo-a-passo de cada coisa que você faz: anotar pedido, mudar item, avisar cliente que tá pronto.";
     case "cozinha":
-      return "Receber pedidos, preparar no tempo certo, e usar busca/atalhos pra ganhar velocidade.";
+      return "Receber, preparar no tempo certo, achar pedido rápido, ligar/desligar som de alarme.";
     case "admin":
-      return "Vendas, cardápio, clientes, histórico, promoções e usuários. Toda a gestão da Cozinha da Gil em um lugar.";
+      return "Vendas do dia, cardápio, clientes, histórico, promoções, funcionários. Tudo que Gil precisa.";
   }
 }
