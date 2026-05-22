@@ -728,7 +728,17 @@ function Ticket({
 
       <div className="border-t-2 border-dashed border-line -mx-5" />
 
-      <ul className="flex flex-col gap-3">
+      {/* Feedback Gil: vertical um abaixo do outro ocupava muito espaço
+          quando pedido tinha 3-4 unidades. Agora 2 colunas no md+ pra
+          aproveitar largura. 1 item segue full-width (zoom natural).
+          Mobile fica vertical pra cada bloco ser legível em 360px. */}
+      <ul
+        className={
+          expandedItems.length > 1
+            ? "grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-2.5"
+            : "flex flex-col gap-3"
+        }
+      >
         {expandedItems.map(({ item, n }, idx) => (
           <li
             key={`${item.id}-${n}`}
@@ -736,13 +746,13 @@ function Ticket({
             // Quando tem só 1 item, sem destaque pra não inflar.
             className={
               expandedItems.length > 1
-                ? "flex flex-col gap-2 rounded-md bg-surface-sunken/60 border-l-4 border-brand-yellow p-3"
+                ? "flex flex-col gap-1.5 rounded-md bg-surface-sunken/60 border-l-4 border-brand-yellow p-2.5"
                 : "flex flex-col gap-2"
             }
           >
             {expandedItems.length > 1 && (
-              <div className="flex items-center gap-2 -mb-1">
-                <span className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-brand-yellow text-ink font-bold text-[15px] t-num shrink-0">
+              <div className="flex items-center gap-1.5 -mb-0.5">
+                <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-brand-yellow text-ink font-bold text-[13px] t-num shrink-0">
                   {idx + 1}
                 </span>
                 <span className="t-label">
@@ -750,7 +760,11 @@ function Ticket({
                 </span>
               </div>
             )}
-            <TicketItem item={item} allToppings={allToppings} />
+            <TicketItem
+              item={item}
+              allToppings={allToppings}
+              compact={expandedItems.length > 1}
+            />
           </li>
         ))}
       </ul>
@@ -908,7 +922,18 @@ function ProductIcon({ kind }: { kind: string }) {
   return <PastelIcon size={40} />;
 }
 
-function TicketItem({ item, allToppings }: { item: OrderItemView; allToppings: string[] }) {
+function TicketItem({
+  item,
+  allToppings,
+  compact = false,
+}: {
+  item: OrderItemView;
+  allToppings: string[];
+  /** Quando pedido tem >1 unidade, renderiza em grid 2-col com fonts
+   *  menores e gaps mais apertados pra caber 2 lado-a-lado sem perder
+   *  legibilidade. Feedback Gil: vertical inflava muito. */
+  compact?: boolean;
+}) {
   // Fase 6: usa snapshot productName se existir (pra macarrão/bebida/combo/etc),
   // senão fallback no SIZE_LABEL antigo.
   const productName = item.productName || (item.kind === "doce" ? "Pastel doce" : item.kind === "salgado" ? "Pastel salgado" : item.kind);
@@ -920,18 +945,34 @@ function TicketItem({ item, allToppings }: { item: OrderItemView; allToppings: s
   const showsToppingChecklist = item.kind === "salgado";
 
   return (
-    <div className="flex flex-col gap-2.5">
-      <div className="flex items-center gap-3">
+    <div className={compact ? "flex flex-col gap-1.5" : "flex flex-col gap-2.5"}>
+      <div className={compact ? "flex items-center gap-2" : "flex items-center gap-3"}>
         <span className="shrink-0">
           <ProductIcon kind={item.kind} />
         </span>
         <div className="flex-1 min-w-0">
-          <div className="text-xl font-bold leading-tight -tracking-[0.01em]">
+          <div
+            className={
+              compact
+                ? "text-base font-bold leading-tight -tracking-[0.01em]"
+                : "text-xl font-bold leading-tight -tracking-[0.01em]"
+            }
+          >
             {sizeLabel || productName}
-            {isMini && <span className="text-[15px] text-ink-3 font-medium ml-1.5">· 10 unid.</span>}
+            {isMini && (
+              <span
+                className={
+                  compact
+                    ? "text-[12px] text-ink-3 font-medium ml-1"
+                    : "text-[15px] text-ink-3 font-medium ml-1.5"
+                }
+              >
+                · 10 unid.
+              </span>
+            )}
           </div>
           {sizeLabel && productName && (
-            <div className="t-label tracking-[0.06em] mt-0.5">
+            <div className={compact ? "text-[10px] uppercase tracking-[0.06em] text-ink-3 mt-0" : "t-label tracking-[0.06em] mt-0.5"}>
               {productName}
             </div>
           )}
@@ -944,13 +985,18 @@ function TicketItem({ item, allToppings }: { item: OrderItemView; allToppings: s
           selected={item.toppings}
           mode={isPequeno ? "only-in" : "all"}
           emptyLabel="Sem toppings"
+          compact={compact}
         />
       )}
 
       {item.kind === "doce" && item.flavor && (
-        <div className="bg-[#FFFCE5] border border-brand-yellow rounded-sm px-3 py-2 flex items-center gap-2">
+        <div className={
+          compact
+            ? "bg-[#FFFCE5] border border-brand-yellow rounded-sm px-2 py-1.5 flex items-center gap-1.5"
+            : "bg-[#FFFCE5] border border-brand-yellow rounded-sm px-3 py-2 flex items-center gap-2"
+        }>
           <CheckIcon />
-          <span className="text-[15px] font-bold">{item.flavor}</span>
+          <span className={compact ? "text-[13px] font-bold" : "text-[15px] font-bold"}>{item.flavor}</span>
         </div>
       )}
 
@@ -958,14 +1004,14 @@ function TicketItem({ item, allToppings }: { item: OrderItemView; allToppings: s
           (não usa Checklist porque a lista de referência é específica) */}
       {(item.kind === "macarrao" || item.kind === "combo") && item.toppings.length > 0 && (
         <div>
-          <div className="t-label mb-1.5">
+          <div className={compact ? "text-[10px] uppercase tracking-[0.06em] text-ink-3 mb-1" : "t-label mb-1.5"}>
             {item.kind === "combo" ? "Sabores" : "Ingredientes"}
           </div>
-          <ul className="flex flex-wrap gap-x-4 gap-y-1">
+          <ul className={compact ? "flex flex-wrap gap-x-2 gap-y-0.5" : "flex flex-wrap gap-x-4 gap-y-1"}>
             {item.toppings.map((t) => (
               <li key={t} className="flex items-center gap-1.5">
                 <CheckIcon />
-                <span className="text-[15px] font-bold text-ink">{t}</span>
+                <span className={compact ? "text-[13px] font-bold text-ink" : "text-[15px] font-bold text-ink"}>{t}</span>
               </li>
             ))}
           </ul>
@@ -974,12 +1020,12 @@ function TicketItem({ item, allToppings }: { item: OrderItemView; allToppings: s
 
       {item.sauces.length > 0 && (
         <div>
-          <div className="t-label mb-1.5">Molhos</div>
-          <ul className="flex flex-wrap gap-x-4 gap-y-1">
+          <div className={compact ? "text-[10px] uppercase tracking-[0.06em] text-ink-3 mb-1" : "t-label mb-1.5"}>Molhos</div>
+          <ul className={compact ? "flex flex-wrap gap-x-2 gap-y-0.5" : "flex flex-wrap gap-x-4 gap-y-1"}>
             {item.sauces.map((m) => (
               <li key={m} className="flex items-center gap-1.5">
                 <CheckIcon />
-                <span className="text-sm font-bold text-ink">{m}</span>
+                <span className={compact ? "text-[12px] font-bold text-ink" : "text-sm font-bold text-ink"}>{m}</span>
               </li>
             ))}
           </ul>

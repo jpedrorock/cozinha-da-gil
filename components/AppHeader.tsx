@@ -48,26 +48,26 @@ export function AppHeader({
           </div>
         </Link>
 
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-2 min-w-0">
           {right}
+          {/* Operador visível em TODA viewport — feedback de quem tá
+              logado é crítico em tablet compartilhado (Maria/José trocam
+              o tempo todo). Antes mobile só mostrava ícone; agora mostra
+              ícone + 1º nome também (truncate se for muito longo).
+              Tap em qualquer ponto abre confirm de trocar. */}
           {showOperator && operator && (
             <button
               onClick={() => setConfirmingSwitch(true)}
-              className="hidden md:inline-flex items-center gap-1.5 h-9 px-3 rounded-full border border-line-strong text-sm font-semibold text-ink-2 hover:border-ink-3 hover:text-ink"
-              title="Trocar operador"
+              className="inline-flex items-center gap-1.5 h-9 pl-2 pr-2 md:pr-3 rounded-full border border-line-strong text-ink-2 hover:border-ink-3 hover:text-ink max-w-[160px] md:max-w-none"
+              title={`${operator.name} — trocar operador`}
             >
               <RoleIcon role={operator.role} size={16} />
-              <span>{operator.name}</span>
-              <ChevronDown size={14} strokeWidth={2.5} />
-            </button>
-          )}
-          {showOperator && operator && (
-            <button
-              onClick={() => setConfirmingSwitch(true)}
-              className="md:hidden inline-flex items-center justify-center h-9 w-9 rounded-full border border-line-strong text-ink-2"
-              title={`${operator.name} — trocar`}
-            >
-              <RoleIcon role={operator.role} size={18} />
+              <span className="text-sm font-semibold truncate">
+                {/* Mobile: 1º nome (Maria José → Maria); desktop: nome completo */}
+                <span className="md:hidden">{operator.name.split(" ")[0]}</span>
+                <span className="hidden md:inline">{operator.name}</span>
+              </span>
+              <ChevronDown size={14} strokeWidth={2.5} className="shrink-0 hidden md:block" />
             </button>
           )}
         </div>
