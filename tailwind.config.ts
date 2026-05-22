@@ -213,10 +213,14 @@ const config: Config = {
           "30%": { boxShadow: "0 0 0 12px rgba(31,155,74,0.45)" },
           "100%": { boxShadow: "0 0 0 0 rgba(31,155,74,0.0)" },
         },
-        // Empty states respirando — sutil mas vivo
+        // Empty states respirando — intermitente em vez de contínuo.
+        // Audit follow-up P2 #20: cadência constante (3.6s loop) virava
+        // motion fatigue periférica em TV ligada 8h. Agora respira por
+        // ~25% do ciclo e descansa 75% — atrai atenção sem cansar.
         "empty-breathe": {
           "0%, 100%": { transform: "scale(1)" },
-          "50%": { transform: "scale(1.03)" },
+          "12%": { transform: "scale(1.03)" }, // pico breve
+          "24%, 100%": { transform: "scale(1)" }, // resto do tempo: parado
         },
         // Feedback tátil quando swipe passa threshold
         "icon-snap": {
@@ -266,10 +270,11 @@ const config: Config = {
         "ring-tick": "ring-tick 280ms cubic-bezier(.2,.8,.2,1)",
         "tv-card-in": "tv-card-in 320ms cubic-bezier(.2,.8,.2,1)",
         "flash-ring-once": "flash-ring-once 1400ms ease-out 1",
-        // Idle público (TV ligada 8h direto) — limita ciclos pra reduzir
-        // motion fatigue. 30 ciclos × 3.6s ≈ ~2min de "respiração", suficiente
-        // pra atrair atenção quando coluna entra empty; depois fica parado.
-        "empty-breathe": "empty-breathe 3.6s ease-in-out 30",
+        // Idle público (TV ligada 8h direto) — agora intermitente.
+        // 6s/ciclo (era 3.6s) com pause longo dentro do keyframe = ~1.4s
+        // de motion + 4.6s parado por ciclo. 20 iterações ≈ 2min total
+        // antes de descansar de vez. Audit follow-up P2 #20.
+        "empty-breathe": "empty-breathe 6s ease-in-out 20",
         "icon-snap": "icon-snap 160ms cubic-bezier(.2,.8,.2,1)",
         "shake-x": "shake-x 380ms cubic-bezier(.36,.07,.19,.97)",
         "splash-rise": "splash-rise 520ms cubic-bezier(.2,.8,.2,1) both",

@@ -1,6 +1,7 @@
 "use client";
 
-import { ArrowLeft, Coffee, MessageCircle, Package, Printer, Utensils } from "lucide-react";
+import { useState } from "react";
+import { ArrowLeft, Coffee, Eye, EyeOff, MessageCircle, Package, Printer, Utensils } from "lucide-react";
 import Link from "next/link";
 import { BrandIcon, DoceIcon, PastelIcon } from "@/components/icons";
 import type { OrderView } from "@/lib/orders";
@@ -10,6 +11,11 @@ import { buildWaUrl, templateReceipt } from "@/lib/whatsapp-templates";
 
 export function ComprovanteClient({ order }: { order: OrderView }) {
   const created = new Date(order.createdAt);
+  // Audit follow-up P2 #24: preview inline antes de imprimir. Em vez de
+  // confiar no diálogo nativo do navegador (que renderiza preto-no-branco
+  // genérico), o user vê a versão exata 80mm térmica antes de gastar
+  // papel. Toggle "Pré-visualizar" → ticket vira monocromático + 80mm-wide.
+  const [previewMode, setPreviewMode] = useState(false);
 
   function handlePrint() {
     window.print();
@@ -22,20 +28,37 @@ export function ComprovanteClient({ order }: { order: OrderView }) {
   }
 
   return (
-    <div className="min-h-dvh bg-surface flex flex-col items-center justify-start py-6 print:py-0 print:bg-white">
+    <div
+      className={`min-h-dvh flex flex-col items-center justify-start py-6 print:py-0 print:bg-white ${
+        previewMode ? "bg-[#2a2a2a]" : "bg-surface"
+      }`}
+    >
       <div className="no-print w-full max-w-md px-4 mb-4 flex items-center justify-between">
         <Link
           href="/atendente"
-          className="inline-flex items-center gap-1.5 text-ink-2 hover:text-ink font-semibold text-sm"
+          className={`inline-flex items-center gap-1.5 font-semibold text-sm ${
+            previewMode ? "text-white/70 hover:text-white" : "text-ink-2 hover:text-ink"
+          }`}
         >
           <ArrowLeft size={18} strokeWidth={2.5} />
           Voltar
         </Link>
+        {previewMode && (
+          <span className="t-label text-white/60 tracking-[0.1em]">
+            Modo impressão · 80mm térmica
+          </span>
+        )}
       </div>
 
       <article
         id="ticket"
-        className="bg-white text-ink w-full max-w-[320px] mx-4 sm:mx-auto p-6 print:p-4 print:max-w-none print:shadow-none shadow-lg rounded-lg print:rounded-none font-mono text-sm leading-snug"
+        className={
+          previewMode
+            ? // Preview mode: simula papel térmico 80mm — borda dashed, sombra
+              // de impressora, monocromático, fonte do tamanho real impresso
+              "bg-white text-black w-[280px] mx-auto p-3 shadow-[0_8px_32px_rgba(0,0,0,0.5)] font-mono text-[11px] leading-[1.35] border border-dashed border-black/40"
+            : "bg-white text-ink w-full max-w-[320px] mx-4 sm:mx-auto p-6 print:p-4 print:max-w-none print:shadow-none shadow-lg rounded-lg print:rounded-none font-mono text-sm leading-snug"
+        }
       >
         <header className="text-center mb-4">
           <div className="flex justify-center mb-1">
@@ -171,6 +194,25 @@ export function ComprovanteClient({ order }: { order: OrderView }) {
         <button onClick={handlePrint} className="btn btn-primary w-full">
           <Printer size={18} strokeWidth={2.5} />
           Imprimir
+        </button>
+        {/* Preview toggle — útil pra conferir antes de gastar bobina térmica.
+            Em festa cheia, errar 1 comprovante por bobina cara é dinheiro. */}
+        <button
+          onClick={() => setPreviewMode((v) => !v)}
+          className="btn btn-ghost w-full"
+          aria-pressed={previewMode}
+        >
+          {previewMode ? (
+            <>
+              <EyeOff size={18} strokeWidth={2.5} />
+              Voltar à tela
+            </>
+          ) : (
+            <>
+              <Eye size={18} strokeWidth={2.5} />
+              Pré-visualizar impressão
+            </>
+          )}
         </button>
         <button onClick={handleWhatsApp} className="btn btn-secondary w-full">
           <MessageCircle size={18} strokeWidth={2.5} />
