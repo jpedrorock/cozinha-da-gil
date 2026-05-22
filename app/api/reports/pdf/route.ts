@@ -70,10 +70,41 @@ export async function GET(request: Request) {
     orderBy: { createdAt: "asc" },
   });
 
+  // Audit follow-up P3 #30: período comparativo pro KPI mostrar tendência.
+  // - Sessão de caixa não tem comparação automática (sessões variam muito
+  //   em duração — comparar Sábado vs Quinta enviesa)
+  // - Date/range: shift back pela duração equivalente (1d anterior, 7d
+  //   anteriores ao período atual etc)
+  let comparisonOrders: typeof orders = [];
+  let comparisonLabel: string | undefined;
+  if (!eventSessionId && where.createdAt?.gte) {
+    const start = where.createdAt.gte;
+    const end = where.createdAt.lt ?? where.createdAt.lte;
+    if (end) {
+      const durationMs = end.getTime() - start.getTime();
+      const prevStart = new Date(start.getTime() - durationMs);
+      const prevEnd = new Date(start.getTime());
+      comparisonOrders = await prisma.order.findMany({
+        where: { createdAt: { gte: prevStart, lt: prevEnd } },
+        include: { items: true },
+        orderBy: { createdAt: "asc" },
+      });
+      // Label humano pro período comparado
+      const days = Math.round(durationMs / (24 * 60 * 60 * 1000));
+      if (days <= 1) {
+        comparisonLabel = `vs ${prevStart.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}`;
+      } else {
+        comparisonLabel = `vs ${days}d anteriores`;
+      }
+    }
+  }
+
   const pdf = await generateReportPDF({
     title,
     subtitle,
     orders: orders.map(serializeOrder),
+    comparisonOrders: comparisonOrders.length > 0 ? comparisonOrders.map(serializeOrder) : undefined,
+    comparisonLabel,
   });
 
   const filenameBase = title

@@ -21,6 +21,11 @@ export type ReportContext = {
   title: string;
   subtitle?: string;
   orders: OrderView[];
+  /** Audit follow-up P3 #30: pedidos do período anterior equivalente
+   *  pra KPIs mostrarem delta (+12%, -8%). Omitido = sem comparativo. */
+  comparisonOrders?: OrderView[];
+  /** Label humano do período comparado (ex: "vs 7d anteriores"). */
+  comparisonLabel?: string;
 };
 
 // === Brand tokens ===
@@ -194,17 +199,67 @@ function drawKPICards(doc: PDFKit.PDFDocument, ctx: ReportContext) {
       ? Math.round(prepDurations.reduce((s, d) => s + d, 0) / prepDurations.length / 60000)
       : 0;
 
+  // Audit follow-up P3 #30: deltas vs período anterior, se houver.
+  // Calcula mesmas métricas no comparison set e gera string de delta.
+  let prevMetrics: { revenue: number; count: number; ticket: number; prep: number } | null = null;
+  if (ctx.comparisonOrders && ctx.comparisonOrders.length > 0) {
+    const pValid = ctx.comparisonOrders.filter((o) => o.status !== "CANCELADO");
+    const pRev = sum(pValid, (o) => o.finalCents);
+    const pTicket = pValid.length > 0 ? Math.round(pRev / pValid.length) : 0;
+    const pDurs = ctx.comparisonOrders
+      .filter((o) => o.preparedAt && o.readyAt)
+      .map((o) => new Date(o.readyAt!).getTime() - new Date(o.preparedAt!).getTime())
+      .filter((d) => d > 0);
+    const pPrep =
+      pDurs.length > 0
+        ? Math.round(pDurs.reduce((s, d) => s + d, 0) / pDurs.length / 60000)
+        : 0;
+    prevMetrics = { revenue: pRev, count: pValid.length, ticket: pTicket, prep: pPrep };
+  }
+
+  // Formata delta: +12% (success), -8% (danger), — (sem comparação).
+  // Mais positivo SEMPRE = melhor, exceto pra TEMPO (menor = melhor).
+  function delta(current: number, previous: number | undefined, lowerIsBetter = false): { text: string; positive: boolean } | undefined {
+    if (previous === undefined || previous === 0) return undefined;
+    const pct = ((current - previous) / previous) * 100;
+    if (Math.abs(pct) < 0.5) return { text: "= mesmo", positive: true };
+    const sign = pct > 0 ? "+" : "";
+    const rounded = pct.toFixed(0);
+    const isImprovement = lowerIsBetter ? pct < 0 : pct > 0;
+    return { text: `${sign}${rounded}% ${ctx.comparisonLabel ?? "vs anterior"}`, positive: isImprovement };
+  }
+
   const cards = [
-    { label: "FATURAMENTO", value: formatBRL(revenue), accent: true },
-    { label: "PEDIDOS", value: String(valid.length), sub: ctx.orders.length > valid.length ? `${ctx.orders.length - valid.length} cancelados` : undefined },
-    { label: "TICKET MÉDIO", value: formatBRL(avgTicket) },
-    { label: "TEMPO MÉDIO", value: avgPrep > 0 ? `${avgPrep} min` : "—", sub: avgPrep > 0 ? "preparo" : undefined },
+    {
+      label: "FATURAMENTO",
+      value: formatBRL(revenue),
+      accent: true,
+      delta: delta(revenue, prevMetrics?.revenue),
+    },
+    {
+      label: "PEDIDOS",
+      value: String(valid.length),
+      sub: ctx.orders.length > valid.length ? `${ctx.orders.length - valid.length} cancelados` : undefined,
+      delta: delta(valid.length, prevMetrics?.count),
+    },
+    {
+      label: "TICKET MÉDIO",
+      value: formatBRL(avgTicket),
+      delta: delta(avgTicket, prevMetrics?.ticket),
+    },
+    {
+      label: "TEMPO MÉDIO",
+      value: avgPrep > 0 ? `${avgPrep} min` : "—",
+      sub: avgPrep > 0 ? "preparo" : undefined,
+      delta: avgPrep > 0 ? delta(avgPrep, prevMetrics?.prep, true) : undefined,
+    },
   ];
 
   const w = doc.page.width - M.left - M.right;
   const gap = 10;
   const cardW = (w - gap * (cards.length - 1)) / cards.length;
-  const cardH = 70;
+  // Cards com delta crescem 12pt pra acomodar a linha extra
+  const cardH = prevMetrics ? 82 : 70;
   const startY = doc.y;
 
   cards.forEach((card, i) => {
@@ -221,7 +276,13 @@ function drawCard(
   y: number,
   w: number,
   h: number,
-  card: { label: string; value: string; sub?: string; accent?: boolean },
+  card: {
+    label: string;
+    value: string;
+    sub?: string;
+    accent?: boolean;
+    delta?: { text: string; positive: boolean };
+  },
 ) {
   doc.save();
   // Fundo + borda
@@ -240,7 +301,17 @@ function drawCard(
     .font("Helvetica-Bold")
     .fontSize(card.value.length > 10 ? T.h2 : T.h1)
     .text(card.value, x + 10, y + 24, { width: w - 20, lineBreak: false });
-  // Sub texto — t-caption
+  // Delta (audit P3 #30) — empilha acima do sub se ambos existirem.
+  // Verde quando melhora, vermelho quando piora. Texto compacto pra
+  // caber em card 4-col estreito.
+  if (card.delta) {
+    doc
+      .fillColor(card.delta.positive ? C.success : C.danger)
+      .font("Helvetica-Bold")
+      .fontSize(T.caption)
+      .text(card.delta.text, x + 10, y + 48, { width: w - 20, lineBreak: false });
+  }
+  // Sub texto — t-caption (sempre no rodapé)
   if (card.sub) {
     doc
       .fillColor(card.accent ? C.ink2 : C.ink3)
