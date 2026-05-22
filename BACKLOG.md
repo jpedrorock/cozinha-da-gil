@@ -33,26 +33,53 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ## ⏭️ Próximos (prontos pra executar)
 
-_Adicione itens reais aqui na primeira sessão. Templates abaixo pra você começar:_
+### Higiene de gestão (XS — fazer cedo)
 
-### Da Fase 6 (ver docs/FASE-6.md)
-- [ ] _adicione conforme docs/FASE-6.md_
-
-### Bugs conhecidos
-- [ ] _adicione aqui o que tá te incomodando_
-
-### Manutenção / Tech debt
-- [ ] **[P2] #chore** Atualizar deps menores (`npm outdated`)
-  - **Pronto quando:** `npm update` rodado (sem mudar major), `npm test` verde.
+- [ ] **[P2] #docs** Sincronizar STATUS.md com o estado atual do projeto
+  - **Pronto quando:** "Última atualização" preenchida, "Saúde dos módulos" todos 🟢, "Histórico recente" com bullets dos commits do dia, "Próximo passo recomendado" claro.
   - **Autonomia:** OK fazer direto.
 
-- [ ] **[P2] #test** Subir cobertura dos handlers de SSE
-  - **Pronto quando:** `npm run test:coverage` mostra > 70% em `app/api/**/*sse*` e `lib/sse*`.
+### Deploy & ops
+
+- [ ] **[P1] #chore #evento** Redeploy Coolify com volume resetado + `SEED_ON_BOOT=true`
+  - **Pronto quando:** prod responde em `cozinhadagil.evapro.cloud` com schema novo (imageUrl, dedup, etc), Gil consegue logar com PIN 2699, primeiro caixa pode ser aberto.
+  - **Contexto:** depois das mudanças de schema dos commits recentes, volume antigo do Coolify pode ter rows incompatíveis.
+  - **Autonomia:** Confirmar antes (mexe em produção real).
+
+- [ ] **[P1] #chore** Backup automático do `dev.db` no volume Coolify
+  - **Pronto quando:** cron diário cria `prisma/backups/dev-YYYY-MM-DD.db` no volume, mantém últimos 14 dias, log de sucesso/erro visível em algum lugar checável.
+  - **Contexto:** se o volume corromper sem backup, perde todo histórico de vendas/clientes — risco real pra família.
+  - **Autonomia:** Abrir PR (toca em Docker/entrypoint).
+
+- [ ] **[P2] #chore** Limpeza de imagens órfãs em `uploads/products/`
+  - **Pronto quando:** script `scripts/cleanup-orphan-images.ts` lista (dry-run) ou deleta arquivos cuja URL não bate com nenhum `Product.imageUrl` no DB; documentado no README de scripts.
+  - **Contexto:** quando admin troca imagem via UI, `lib/uploads` já deleta a antiga. Mas se um produto for deletado direto no DB, o arquivo fica órfão.
+  - **Autonomia:** OK fazer direto (idempotente, dry-run por default).
+
+### Tech debt com critério
+
+- [ ] **[P2] #chore #atendente** Receber `promotions` via SSR em vez de `fetch` no mount
+  - **Pronto quando:** TODO em `app/atendente/AtendenteClient.tsx:196` resolvido. SSR de `app/atendente/page.tsx` passa `initialPromotions` igual a `initialProducts`. Sem useEffect+fetch.
   - **Autonomia:** OK fazer direto.
 
-- [ ] **[P3] #docs** Adicionar exemplo de "modo treinamento" no README pra novos voluntários
-  - **Pronto quando:** seção no README mostrando como rodar com seed + senha 1234 sem afetar evento real.
+- [ ] **[P3] #chore** Plano de major bump Next 14 → 15 (doc-only por agora)
+  - **Pronto quando:** `docs/UPGRADE-NEXT-15.md` criado com breaking changes (async `params`/`searchParams`, fetch caching invertido, React 19 default), passos de migração, riscos por arquivo, estimativa de horas.
+  - **Contexto:** vulns Next 14.x não aplicam ao app (sem `remotePatterns`, sem `rewrites`, sem CSP nonces) mas eventualmente vão acumular. Doc serve de roadmap quando tiver janela.
   - **Autonomia:** OK fazer direto.
+
+### Cobertura de testes
+
+- [ ] **[P2] #test** E2E Playwright: fluxo completo de 1 pedido (atendente → cozinha → entregue)
+  - **Pronto quando:** `e2e/order-flow.spec.ts` faz login Gil, abre caixa, troca pra atendente (PIN), cria pedido com 2 itens, troca pra cozinha, marca pronto, volta atendente, marca entregue, valida row final no DB. `npm run test:e2e` verde.
+  - **Contexto:** se algo quebrar SSE/auth/schema, esse teste captura antes de chegar em prod.
+  - **Autonomia:** OK fazer direto.
+
+### Decisão de produto pendente
+
+- [ ] **[P3] #pwa** Decidir se liga HTTPS local
+  - **Pronto quando:** `docs/HTTPS-LOCAL.md` atualizado com decisão: ligar com mkcert quando atender festa com convidados externos (não só família); enquanto for evento de família, fica HTTP plano.
+  - **Contexto:** PIN trafega em claro na LAN. Pra família 3 devices é OK; pra evento com visitantes não.
+  - **Autonomia:** Confirmar antes (decisão de produto).
 
 ---
 
@@ -61,14 +88,28 @@ _Adicione itens reais aqui na primeira sessão. Templates abaixo pra você come�
 _Itens sem critério de pronto claro ainda._
 
 - [ ] **[P2] #impressora** Melhorar layout do comprovante térmico (margens cortando)
-- [ ] **[P2] #pwa** Resolver bug do background sync em offline prolongado (ver docs/BACKGROUND-SYNC.md)
+- [ ] **[P2] #pwa** Resolver bug do background sync em offline prolongado (ver docs/BACKGROUND-SYNC.md — decisão atual é NÃO implementar)
 - [ ] **[P3] #admin** Dashboard de vendas em tempo real durante evento
 
 ---
 
 ## ✅ Concluídos recentemente
 
-- 2026-05-22 · Sistema STATUS/BACKLOG/PLAYBOOK instalado pelo claude-orchestrator (Cowork).
+### 2026-05-22
+- Auditoria UX crítica 4º pass — Fases A (5/5), B (9/14), C (4/5)
+- Follow-ups audit externo: preview comprovante (#74), atalhos teclado (#75), PDF comparativo (#77), TV breathe intermitente (#78), áudio escalonado (#76)
+- `/guia` criado: manual completo por papel, hero gradient, steps numerados, callouts, reescrito pra família (zero jargão)
+- Header com nome do operador sempre visível (mobile + desktop)
+- Cozinha em 2 colunas (densidade) + botnav inferior com labels
+- ESLint cleanup (#67): 115 → 0 erros, reativado no build
+- Migração imageDataUrl base64 → filesystem (#63): novo helper, rota /api/uploads, script idempotente no entrypoint
+- Caixa vira primeiro item do menu admin (rename "Operação" → "Caixa")
+- Bump patches/minors: lucide-react, tsx, vitest, @types/react
+- PIN do Gil resetado pra 2699 + script reusável
+- Upload route: force-static → force-dynamic (corrigia erro Prisma in browser)
+
+### 2026-05-22 (instalação)
+- Sistema STATUS/BACKLOG/PLAYBOOK instalado pelo claude-orchestrator (Cowork).
 
 ---
 
