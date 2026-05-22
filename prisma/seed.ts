@@ -13,9 +13,9 @@ const prisma = new PrismaClient();
 // pelo Admin → Usuários no app, com PINs próprios escolhidos por ela. Evita
 // confusão de "PINs default expostos em código" e dá controle total.
 //
-// PIN do Gil: 1111 — TROCAR no primeiro login via Admin → Usuários.
+// PIN do Gil: 2699 — definido pela Gil. Trocar no Admin → Usuários se mudar.
 const DEFAULT_USERS = [
-  { name: "Gil", role: "admin", password: "1111" },
+  { name: "Gil", role: "admin", password: "2699" },
 ];
 
 type Seed = { name: string; available?: boolean };
