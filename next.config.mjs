@@ -61,13 +61,11 @@ const nextConfig = {
   experimental: {
     serverComponentsExternalPackages: ["pdfkit"],
   },
-  // Dívida de lint acumulada (unused imports, quotes não-escapadas, e um
-  // useSwipeable depois de early-return em AtendenteClient) não bloqueia
-  // o build de produção. Type-check via `npx tsc --noEmit` continua sendo
-  // obrigatório no CI — TypeScript errors quebram. ESLint vira só warning
-  // até a limpeza dedicada (vide tasks de housekeeping).
+  // Lint roda no build — falha trava produção. Limpeza dos 28 erros reais
+  // feita na task de housekeeping (#67); arquivos gerados (sw.js, workbox-*)
+  // ignorados via .eslintignore. Se algum erro voltar, build quebra cedo.
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: false,
   },
   // Service Worker DEVE ser sempre fresh — senão usuários ficam grudados
   // em versão antiga sem nunca pegar updates. skipWaiting do next-pwa só

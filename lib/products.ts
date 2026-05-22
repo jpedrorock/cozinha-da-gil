@@ -9,7 +9,10 @@ export type ProductView = Omit<Product, "createdAt" | "updatedAt"> & {
 export function serializeProduct(
   product: Product & { sizes: ProductSize[] },
 ): ProductView {
-  const { createdAt: _c, updatedAt: _u, ...rest } = product;
+  // Tira timestamps internos — view não precisa
+  const rest = { ...product };
+  delete (rest as Partial<typeof rest>).createdAt;
+  delete (rest as Partial<typeof rest>).updatedAt;
   return {
     ...rest,
     sizes: product.sizes

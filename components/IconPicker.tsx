@@ -161,7 +161,7 @@ export function IconPicker({
                   <>
                     {translated && (
                       <span className="text-ink-2">
-                        Mostrando ícones de <span className="font-semibold">"{translated}"</span>
+                        Mostrando ícones de <span className="font-semibold">&ldquo;{translated}&rdquo;</span>
                         {" · "}
                       </span>
                     )}

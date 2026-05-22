@@ -1,0 +1,6 @@
+# Arquivos gerados pelo next-pwa (sw.js, workbox-*.js) — minificados,
+# não tem como lintar e nem deve. Build regenera a cada `next build`.
+public/sw.js
+public/workbox-*.js
+public/worker-*.js
+public/fallback-*.js

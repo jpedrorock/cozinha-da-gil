@@ -19,8 +19,6 @@ export type CartItem = {
   quantity: number;
 };
 
-const SAUCE_PRICE_CENTS = 150;
-
 /**
  * Filtra promoções aplicáveis ao carrinho atual.
  *

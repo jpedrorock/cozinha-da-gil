@@ -967,12 +967,6 @@ function tableRowWithItems(
   doc.x = leftX;
 }
 
-function estimateRowHeight(doc: PDFKit.PDFDocument, text: string, width: number): number {
-  // pdfkit calcula altura — usamos heightOfString
-  doc.font("Helvetica").fontSize(T.label);
-  return doc.heightOfString(text, { width });
-}
-
 /**
  * Tabela com barra horizontal proporcional. Cada row tem:
  * label | count | revenue + barra de fundo proporcional ao max.

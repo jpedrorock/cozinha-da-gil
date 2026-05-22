@@ -152,7 +152,7 @@ export function ComprovanteClient({ order }: { order: OrderView }) {
                     </div>
                   )}
                   {item.notes && (
-                    <div className="text-xs italic text-ink-2 ml-4">"{item.notes}"</div>
+                    <div className="text-xs italic text-ink-2 ml-4">&ldquo;{item.notes}&rdquo;</div>
                   )}
                 </div>
               );

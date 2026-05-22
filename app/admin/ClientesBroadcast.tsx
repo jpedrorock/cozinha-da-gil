@@ -202,11 +202,11 @@ export function ClientesBroadcast({ onBack }: { onBack: () => void }) {
               Próxima tela mostra <span className="font-bold">um cliente por vez</span>.
             </li>
             <li>
-              Você clica <span className="font-bold">"Abrir WhatsApp"</span> → vai pro chat já com a
+              Você clica <span className="font-bold">&ldquo;Abrir WhatsApp&rdquo;</span> → vai pro chat já com a
               mensagem digitada. Aí você revisa e dá ENVIAR no WhatsApp.
             </li>
             <li>
-              Voltando aqui, clica <span className="font-bold">"Próximo"</span>.
+              Voltando aqui, clica <span className="font-bold">&ldquo;Próximo&rdquo;</span>.
             </li>
             <li>O app registra que abriu, mas não confirma se foi entregue.</li>
           </ul>

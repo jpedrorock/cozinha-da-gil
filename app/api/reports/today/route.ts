@@ -63,7 +63,7 @@ export async function GET(request: Request) {
   const daySpan = Math.round((end.getTime() - start.getTime()) / msInDay);
   const groupBy: "hour" | "day" = daySpan <= 1 ? "hour" : "day";
 
-  let byHour: Record<number, { count: number; revenueCents: number }> = {};
+  const byHour: Record<number, { count: number; revenueCents: number }> = {};
   let byDay: Array<{ date: string; count: number; revenueCents: number }> = [];
 
   if (groupBy === "hour") {

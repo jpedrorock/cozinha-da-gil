@@ -979,7 +979,7 @@ function CaixaSection({
         </button>
         {(!openName.trim() || !openDate) && (
           <p className="t-caption text-ink-3">
-            Preenche nome e data pra abrir. Ajuda a saber depois "qual caixa foi esse".
+            Preenche nome e data pra abrir. Ajuda a saber depois &ldquo;qual caixa foi esse&rdquo;.
           </p>
         )}
       </div>
@@ -2009,7 +2009,7 @@ function PromotionRow({
         <Toggle on={promo.active} onChange={onToggle} labelOn="Ativa" labelOff="Pausada" />
       </div>
       {promo.description && (
-        <div className="text-xs text-ink-2 italic">"{promo.description}"</div>
+        <div className="text-xs text-ink-2 italic">&ldquo;{promo.description}&rdquo;</div>
       )}
       <button
         onClick={onEdit}
@@ -2180,7 +2180,7 @@ function PromotionModal({
             </div>
             {discountType === "free_item" && (
               <div className="text-[10px] text-ink-3 mt-1">
-                Zera o preço do item ELEGÍVEL mais barato. Use "Aplica a quais produtos" pra restringir (ex: só refrigerante).
+                Zera o preço do item ELEGÍVEL mais barato. Use &ldquo;Aplica a quais produtos&rdquo; pra restringir (ex: só refrigerante).
               </div>
             )}
           </div>
@@ -3147,7 +3147,6 @@ function OperacaoCard({
   const created = new Date(order.createdAt);
   const elapsedMin =
     now === null ? 0 : Math.max(0, Math.floor((now - created.getTime()) / 60000));
-  const totalUnits = order.items.reduce((s, it) => s + it.quantity, 0);
   // Cor do tempo: > 20min = atenção, > 30min = atraso forte
   const timeColor =
     elapsedMin >= 30 ? "text-danger" : elapsedMin >= 20 ? "text-brand-orange" : "text-ink-3";
@@ -3498,86 +3497,4 @@ function formatDuration(sec: number): string {
   const h = Math.floor(m / 60);
   const rm = m % 60;
   return `${h}h ${rm}min`;
-}
-
-function computeStats(orders: OrderView[]) {
-  const active = orders.filter((o) => o.status !== "CANCELADO");
-  const delivered = active.filter((o) => o.status === "ENTREGUE");
-  const cancelled = orders.filter((o) => o.status === "CANCELADO");
-  const inFlight = active.filter(
-    (o) => o.status === "PEDIDO_FEITO" || o.status === "EM_PREPARO" || o.status === "PRONTO",
-  );
-
-  const revenueCents = active.reduce((sum, o) => sum + o.totalCents, 0);
-
-  let salgadoCount = 0;
-  let doceCount = 0;
-  let pequenoCount = 0;
-  let grandeCount = 0;
-  let normalCount = 0;
-  let miniCount = 0;
-  const toppingCount: Record<string, number> = {};
-  const flavorCount: Record<string, number> = {};
-  for (const o of active) {
-    for (const it of o.items) {
-      if (it.kind === "salgado") {
-        salgadoCount++;
-        if (it.size === "pequeno") pequenoCount++;
-        if (it.size === "grande") grandeCount++;
-        for (const t of it.toppings) toppingCount[t] = (toppingCount[t] ?? 0) + 1;
-      } else {
-        doceCount++;
-        if (it.size === "normal") normalCount++;
-        if (it.size === "mini") miniCount++;
-        if (it.flavor) flavorCount[it.flavor] = (flavorCount[it.flavor] ?? 0) + 1;
-      }
-    }
-  }
-
-  const byHour: { hour: number; count: number; revenueCents: number }[] = [];
-  for (let h = 0; h < 24; h++) byHour.push({ hour: h, count: 0, revenueCents: 0 });
-  for (const o of active) {
-    const h = new Date(o.createdAt).getHours();
-    byHour[h].count += 1;
-    byHour[h].revenueCents += o.totalCents;
-  }
-
-  const prepDurations: number[] = [];
-  for (const o of active) {
-    if (o.preparedAt && o.readyAt) {
-      prepDurations.push(
-        (new Date(o.readyAt).getTime() - new Date(o.preparedAt).getTime()) / 1000,
-      );
-    }
-  }
-  const avgPrepSec =
-    prepDurations.length > 0
-      ? prepDurations.reduce((a, b) => a + b, 0) / prepDurations.length
-      : null;
-
-  function top(record: Record<string, number>, n = 5) {
-    return Object.entries(record)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, n)
-      .map(([name, count]) => ({ name, count }));
-  }
-
-  return {
-    activeCount: active.length,
-    deliveredCount: delivered.length,
-    cancelledCount: cancelled.length,
-    inFlightCount: inFlight.length,
-    revenueCents,
-    avgTicketCents: active.length > 0 ? Math.round(revenueCents / active.length) : 0,
-    salgadoCount,
-    doceCount,
-    pequenoCount,
-    grandeCount,
-    normalCount,
-    miniCount,
-    byHour,
-    avgPrepSec,
-    topToppings: top(toppingCount),
-    topFlavors: top(flavorCount),
-  };
 }

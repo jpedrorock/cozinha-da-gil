@@ -32,7 +32,6 @@ import {
   formatBRL,
   MAX_TOPPINGS_PEQUENO,
   PRICE,
-  SIZE_LABEL,
   type Kind,
   type Size,
 } from "@/lib/pricing";
@@ -430,19 +429,6 @@ export function AtendenteClient({
     // Atendimento de balcão alta-rotação não precisa anotar nome.
     if (!clientName.trim()) setClientName("Balcão");
     setPhase("product");
-  }
-
-  // Atalho de 1 toque pra balcão: pula tela de cliente e começa direto.
-  function quickStartBalcao() {
-    if (caixaFechado) return;
-    setClientName("Balcão");
-    setClientPhone("");
-    setClientOptInMarketing(false);
-    setBuilt([]);
-    setCurrent(emptyBuilding());
-    setPhase("product");
-    setCreating(true);
-    setEditingOrderId(null);
   }
 
   function openNew() {
@@ -1058,8 +1044,6 @@ export function AtendenteClient({
 
 // Phases possíveis em ordem canônica. Para um produto específico,
 // usamos `phasesForProduct(product)` pra computar quais aparecem.
-const ALL_PHASES: Phase[] = ["product", "kind", "size", "content", "sauces", "notes", "quantity"];
-
 function phasesForProduct(product: ProductView | null): Phase[] {
   // sem produto selecionado: só "product"
   if (!product) return ["product"];
@@ -1070,19 +1054,6 @@ function phasesForProduct(product: ProductView | null): Phase[] {
   // tamanho + ingredientes + extras (molho/obs) + qty.
   return ["product", "configure"];
 }
-
-const PHASE_LABEL: Record<Phase, string> = {
-  client: "Cliente",
-  product: "Produto",
-  kind: "Tipo",
-  size: "Tamanho",
-  content: "Conteúdo",
-  sauces: "Molhos extras",
-  notes: "Observações",
-  quantity: "Quantidade",
-  configure: "Configurar",
-  cart: "Resumo",
-};
 
 function formatPhoneMask(raw: string): string {
   const d = raw.replace(/\D/g, "").slice(0, 11);
@@ -1193,6 +1164,29 @@ function NovoPedido({
     if (cat === "macarrao_molho") return macarraoMolhos;
     return molhos;
   }
+
+  // Swipe gestures: hook chamado ANTES de qualquer early return pra
+  // obedecer rules-of-hooks. Handlers usam closure pra ler back/advance/
+  // canAdvance que são declarados depois — closures resolvem em tempo de
+  // execução, então OK. isInStopRegion idem.
+  function isInStopRegion(target: EventTarget | null) {
+    if (!(target instanceof Element)) return false;
+    return target.closest("[data-stop-swipe]") !== null;
+  }
+  const swipeHandlers = useSwipeable({
+    onSwipedRight: (e) => {
+      if (isInStopRegion(e.event.target)) return;
+      back();
+    },
+    onSwipedLeft: (e) => {
+      if (isInStopRegion(e.event.target)) return;
+      if (canAdvance) advance();
+    },
+    trackMouse: false,
+    preventScrollOnSwipe: false,
+    delta: 60, // 60px pra evitar trigger acidental enquanto rola
+  });
+
   if (phase === "client") {
     return (
       <div className="flex-1 flex flex-col">
@@ -1426,7 +1420,7 @@ function NovoPedido({
                       </div>
                     )}
                     {item.notes && (
-                      <div className="text-xs text-ink-2 mt-1 italic">"{item.notes}"</div>
+                      <div className="text-xs text-ink-2 mt-1 italic">&ldquo;{item.notes}&rdquo;</div>
                     )}
                     {/* Footer do item: qty controls (esq) vs edit+remove (dir).
                         Hitboxes 44px (h-11) — Apple/Material guideline pra touch.
@@ -1568,29 +1562,6 @@ function NovoPedido({
     // Configure precisa que isBuildingComplete passe (size + ingredients).
     canAdvance = isBuildingComplete(current, currentProduct) && current.quantity >= 1;
   }
-
-  // Swipe gestures: arrastar pra direita volta passo, pra esquerda avança.
-  // Só mobile (trackMouse: false). Threshold maior pra não disparar sem querer.
-  // Bypass: containers com [data-stop-swipe] não disparam o stepper —
-  // necessário pro carrossel "Adicionar rápido" (overflow-x-auto) onde
-  // o usuário arrasta horizontal pra rolar cards e NÃO pra avançar etapa.
-  function isInStopRegion(target: EventTarget | null) {
-    if (!(target instanceof Element)) return false;
-    return target.closest("[data-stop-swipe]") !== null;
-  }
-  const swipeHandlers = useSwipeable({
-    onSwipedRight: (e) => {
-      if (isInStopRegion(e.event.target)) return;
-      back();
-    },
-    onSwipedLeft: (e) => {
-      if (isInStopRegion(e.event.target)) return;
-      if (canAdvance) advance();
-    },
-    trackMouse: false,
-    preventScrollOnSwipe: false,
-    delta: 60, // 60px pra evitar trigger acidental enquanto rola
-  });
 
   return (
     <div className="flex-1 flex flex-col md:flex-row">
