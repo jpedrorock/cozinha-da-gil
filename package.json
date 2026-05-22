@@ -21,7 +21,7 @@
     "@prisma/client": "^6.19.3",
     "bcryptjs": "^3.0.3",
     "iron-session": "^8.0.4",
-    "lucide-react": "^1.14.0",
+    "lucide-react": "^1.16.0",
     "next": "14.2.35",
     "next-pwa": "^5.6.0",
     "pdfkit": "^0.18.0",
@@ -35,16 +35,16 @@
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
     "@types/pdfkit": "^0.17.6",
-    "@types/react": "^18",
+    "@types/react": "^18.3.29",
     "@types/react-dom": "^18",
-    "@vitest/coverage-v8": "^4.1.6",
+    "@vitest/coverage-v8": "^4.1.7",
     "eslint": "^8",
     "eslint-config-next": "14.2.35",
     "postcss": "^8",
     "sharp": "^0.34.5",
     "tailwindcss": "^3.4.1",
-    "tsx": "^4.21.0",
+    "tsx": "^4.22.3",
     "typescript": "^5",
-    "vitest": "^4.1.6"
+    "vitest": "^4.1.7"
   }
 }
