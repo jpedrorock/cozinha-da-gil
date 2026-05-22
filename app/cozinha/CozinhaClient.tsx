@@ -912,12 +912,32 @@ function TicketItem({ item, allToppings }: { item: OrderItemView; allToppings: s
         </div>
       )}
 
-      {item.notes && (
-        <div className="mt-1 bg-[#FFF4C2] text-[#5C4500] rounded-sm px-3 py-2 flex gap-2 items-start">
-          <span className="t-label !text-current tracking-[0.06em] mt-0.5">Obs</span>
-          <span className="text-[15px] font-semibold leading-snug">{item.notes}</span>
-        </div>
-      )}
+      {item.notes && (() => {
+        // Audit-Crit #3: separa modificadores negativos ("sem X") do resto.
+        // SEM CEBOLA em vermelho gritado é o que cozinha precisa ler ANTES
+        // de começar. O resto vai amarelo padrão.
+        const parts = item.notes.split(",").map((s) => s.trim()).filter(Boolean);
+        const negatives = parts.filter((p) => /^sem\s+/i.test(p));
+        const rest = parts.filter((p) => !/^sem\s+/i.test(p));
+        return (
+          <div className="mt-1 flex flex-col gap-1">
+            {negatives.length > 0 && (
+              <div className="bg-danger text-white rounded-sm px-3 py-2 flex gap-2 items-center font-extrabold uppercase tracking-wide">
+                <span className="text-lg leading-none">⚠</span>
+                <span className="text-[16px] leading-tight">
+                  {negatives.join(" · ")}
+                </span>
+              </div>
+            )}
+            {rest.length > 0 && (
+              <div className="bg-[#FFF4C2] text-[#5C4500] rounded-sm px-3 py-2 flex gap-2 items-start">
+                <span className="t-label !text-current tracking-[0.06em] mt-0.5">Obs</span>
+                <span className="text-[15px] font-semibold leading-snug">{rest.join(", ")}</span>
+              </div>
+            )}
+          </div>
+        );
+      })()}
     </div>
   );
 }

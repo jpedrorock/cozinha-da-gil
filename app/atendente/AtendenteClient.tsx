@@ -2698,6 +2698,46 @@ function StepSauces({
   );
 }
 
+// Audit-Crit #3: modificadores rápidos. Cliente fala "sem cebola, bem
+// dourado" e atendente leva 15s digitando. Chips de 1-tap canónicos
+// resolvem 80% dos casos comuns. Free text continua disponível pro resto.
+//
+// Os chips são divididos em 2 grupos:
+//   - NEGATIVOS ("sem X") em vermelho — destacam pra cozinha o que NÃO
+//     pôr. Atalho pro caso mais comum de erro (cliente reclama porque
+//     veio com cebola que ele disse pra tirar).
+//   - PREFERÊNCIAS (ponto, temperatura) — neutros, mas estruturados.
+//
+// Toggle por substring no notes — se "sem cebola" já tá lá, remove.
+// Senão append. Permite mistura com free text natural.
+const QUICK_MODIFIERS: { label: string; phrase: string; negative: boolean }[] = [
+  { label: "sem cebola", phrase: "sem cebola", negative: true },
+  { label: "sem alho", phrase: "sem alho", negative: true },
+  { label: "sem orégano", phrase: "sem orégano", negative: true },
+  { label: "sem molho", phrase: "sem molho", negative: true },
+  { label: "extra queijo", phrase: "extra queijo", negative: false },
+  { label: "extra molho", phrase: "extra molho", negative: false },
+  { label: "bem dourado", phrase: "bem dourado", negative: false },
+  { label: "mal dourado", phrase: "mal dourado", negative: false },
+];
+
+function notesHas(notes: string, phrase: string): boolean {
+  const n = notes.toLowerCase();
+  return n.includes(phrase.toLowerCase());
+}
+
+function toggleModifier(notes: string, phrase: string): string {
+  if (notesHas(notes, phrase)) {
+    // Remove + limpa vírgulas/espaços órfãos
+    return notes
+      .replace(new RegExp(`\\s*,?\\s*${phrase}\\s*,?\\s*`, "i"), ", ")
+      .replace(/,\s*,/g, ",")
+      .replace(/^[,\s]+|[,\s]+$/g, "")
+      .trim();
+  }
+  return notes.trim() ? `${notes.trim()}, ${phrase}` : phrase;
+}
+
 function StepNotes({
   current,
   setCurrent,
@@ -2705,14 +2745,46 @@ function StepNotes({
   current: Building;
   setCurrent: (c: Building) => void;
 }) {
+  const notes = current.notes ?? "";
   return (
     <>
       <h2 className="t-h1 mb-1">Observações</h2>
-      <p className="t-body-sm mb-5">Algo pra cozinha? (opcional)</p>
+      <p className="t-body-sm mb-4">Toque os mais comuns ou escreva à vontade.</p>
+
+      <div className="flex flex-wrap gap-2 mb-4">
+        {QUICK_MODIFIERS.map((mod) => {
+          const active = notesHas(notes, mod.phrase);
+          const baseCls =
+            "inline-flex items-center gap-1.5 px-3 py-2 rounded-md t-body-sm font-semibold border-2 active:scale-[0.96] transition-colors";
+          const cls = active
+            ? mod.negative
+              ? `${baseCls} bg-danger-bg border-danger text-danger`
+              : `${baseCls} bg-brand-yellow-soft border-brand-orange text-ink`
+            : mod.negative
+              ? `${baseCls} bg-surface-elevated border-line text-ink-2 hover:border-danger hover:text-danger`
+              : `${baseCls} bg-surface-elevated border-line text-ink-2 hover:border-ink-3 hover:text-ink`;
+          return (
+            <button
+              key={mod.phrase}
+              type="button"
+              onClick={() =>
+                setCurrent({ ...current, notes: toggleModifier(notes, mod.phrase) })
+              }
+              className={cls}
+              aria-pressed={active}
+            >
+              {mod.negative && <span className="text-xs leading-none">✕</span>}
+              {!mod.negative && active && <span className="text-xs leading-none">✓</span>}
+              {mod.label}
+            </button>
+          );
+        })}
+      </div>
+
       <textarea
-        className="textarea h-36"
-        placeholder="Ex: sem cebola, bem passado"
-        value={current.notes ?? ""}
+        className="textarea h-28"
+        placeholder="Outra observação livre"
+        value={notes}
         onChange={(e) => setCurrent({ ...current, notes: e.target.value })}
       />
     </>

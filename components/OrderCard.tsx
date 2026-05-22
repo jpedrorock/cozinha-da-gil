@@ -165,11 +165,30 @@ export function OrderCard({
         })()}
       </ul>
 
-      {order.items.some((i) => i.notes) && (
-        <div className="text-xs bg-[#FFF4C2] text-[#5C4500] rounded-sm px-2.5 py-1.5 font-semibold leading-snug">
-          {order.items.filter((i) => i.notes).map((i) => i.notes).join(" · ")}
-        </div>
-      )}
+      {order.items.some((i) => i.notes) && (() => {
+        // Audit-Crit #3: separa "sem X" pra render vermelho gritado.
+        // Mesma lógica que cozinha Ticket — atendente vê consistente.
+        const allNotes = order.items
+          .filter((i) => i.notes)
+          .flatMap((i) => i.notes!.split(",").map((s) => s.trim()).filter(Boolean));
+        const negatives = allNotes.filter((p) => /^sem\s+/i.test(p));
+        const rest = allNotes.filter((p) => !/^sem\s+/i.test(p));
+        return (
+          <div className="flex flex-col gap-1">
+            {negatives.length > 0 && (
+              <div className="text-xs bg-danger text-white rounded-sm px-2.5 py-1.5 font-bold uppercase tracking-wide leading-snug inline-flex items-start gap-1.5">
+                <span className="leading-none">⚠</span>
+                <span>{negatives.join(" · ")}</span>
+              </div>
+            )}
+            {rest.length > 0 && (
+              <div className="text-xs bg-[#FFF4C2] text-[#5C4500] rounded-sm px-2.5 py-1.5 font-semibold leading-snug">
+                {rest.join(" · ")}
+              </div>
+            )}
+          </div>
+        );
+      })()}
 
       <div className="flex items-center justify-between gap-2 pt-1">
         <div className="flex gap-2 items-baseline">
