@@ -121,6 +121,77 @@ export function CozinhaClient({
     };
   }, []);
 
+  // Audit follow-up P3 #28: atalhos de teclado pra cook com laptop/teclado
+  // na estação. Cozinha desktop é caso comum (tablet conectado a teclado
+  // Bluetooth, ou notebook fixo). Mouse-only é ineficiente em sessão de 6h.
+  //
+  // Shortcuts:
+  //   /  → toggle busca (foca input quando abre)
+  //   S  → toggle ordenação chegada ↔ urgência
+  //   M  → toggle som on/off
+  //   ?  → mostra/esconde overlay de ajuda
+  //
+  // Bloqueio: não dispara em input/textarea (digitando busca). Caso `?`
+  // shift+/ no qwerty US, capturado também.
+  const [helpOpen, setHelpOpen] = useState(false);
+  // Ref pra acessar ding atual sem re-attach o listener a cada render
+  // (useDing retorna função nova cada render). Listener fica imutável.
+  const dingRef = useRef(ding);
+  dingRef.current = ding;
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const t = e.target as HTMLElement | null;
+      // Não atalha enquanto digitando
+      if (
+        t &&
+        (t.tagName === "INPUT" ||
+          t.tagName === "TEXTAREA" ||
+          t.isContentEditable)
+      ) {
+        return;
+      }
+      // Functional updates pra sempre pegar state mais recente sem
+      // precisar re-attach o listener a cada render.
+      if (e.key === "?" || (e.key === "/" && e.shiftKey)) {
+        e.preventDefault();
+        setHelpOpen((v) => !v);
+        return;
+      }
+      if (e.key === "Escape") {
+        setHelpOpen(false);
+        setSearchOpen(false);
+        return;
+      }
+      if (e.key === "/") {
+        e.preventDefault();
+        setSearchOpen((open) => {
+          if (open) setSearch("");
+          return !open;
+        });
+      } else if (e.key === "s" || e.key === "S") {
+        e.preventDefault();
+        setSortMode((cur) => {
+          const next = cur === "chegada" ? "urgencia" : "chegada";
+          try {
+            localStorage.setItem("pdg:cozinha-sort", next);
+          } catch {}
+          return next;
+        });
+      } else if (e.key === "m" || e.key === "M") {
+        e.preventDefault();
+        setSoundOn((cur) => {
+          const next = !cur;
+          setSoundEnabled(next);
+          if (next) dingRef.current();
+          return next;
+        });
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
   // Audit-Crit B #21: alarme escalonado. Cook olha pra fora 5min, volta
   // e pedido tá há 25min sem ação. Sem som insistente, vira reclamação
   // do cliente. Lógica:
@@ -529,7 +600,7 @@ export function CozinhaClient({
             }`}
             aria-label={searchOpen ? "Fechar busca" : "Abrir busca de pedido"}
             aria-pressed={searchOpen || !!search}
-            title="Buscar pedido por nome ou número"
+            title="Buscar pedido por nome ou número  ·  atalho: /"
           >
             <Search size={22} strokeWidth={2.25} aria-hidden />
             <span className="text-[11px] font-semibold leading-none">
@@ -552,8 +623,8 @@ export function CozinhaClient({
             aria-pressed={sortMode === "urgencia"}
             title={
               sortMode === "urgencia"
-                ? "Urgência (atrasos primeiro) — tocar pra FIFO"
-                : "Chegada (FIFO) — tocar pra urgência"
+                ? "Urgência (atrasos primeiro) — tocar pra FIFO  ·  atalho: S"
+                : "Chegada (FIFO) — tocar pra urgência  ·  atalho: S"
             }
           >
             <ArrowDownUp size={22} strokeWidth={2.25} aria-hidden />
@@ -571,7 +642,7 @@ export function CozinhaClient({
             }`}
             aria-label={soundOn ? "Som ligado. Tocar pra silenciar alarmes" : "Som silenciado. Tocar pra ligar alarmes"}
             aria-pressed={soundOn}
-            title={soundOn ? "Som ligado — tocar pra silenciar" : "Silenciado — tocar pra ligar"}
+            title={soundOn ? "Som ligado — tocar pra silenciar  ·  atalho: M" : "Silenciado — tocar pra ligar  ·  atalho: M"}
           >
             {soundOn ? (
               <Volume2 size={22} strokeWidth={2.25} aria-hidden />
@@ -584,6 +655,45 @@ export function CozinhaClient({
           </button>
         </div>
       </nav>
+
+      {/* Audit follow-up P3 #28: overlay de atalhos. Aciona com `?`
+          (shift+/ no qwerty US). Click no fundo ou Esc fecha. Útil pro
+          cook descobrir os atalhos sem ter que decorar. */}
+      {helpOpen && (
+        <div
+          className="fixed inset-0 z-[100] bg-ink/60 backdrop-blur-[3px] flex items-center justify-center p-4 animate-fade-in"
+          onClick={() => setHelpOpen(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="kb-help-title"
+        >
+          <div
+            className="w-full max-w-sm bg-surface-elevated rounded-xl shadow-2xl p-6 animate-sheet-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 id="kb-help-title" className="t-h2 mb-4">Atalhos de teclado</h2>
+            <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2.5 text-sm">
+              <dt className="font-mono font-bold text-ink bg-surface-sunken px-2 py-0.5 rounded text-center">/</dt>
+              <dd className="text-ink-2 self-center">Buscar pedido</dd>
+              <dt className="font-mono font-bold text-ink bg-surface-sunken px-2 py-0.5 rounded text-center">S</dt>
+              <dd className="text-ink-2 self-center">Alternar ordenação (chegada ↔ urgência)</dd>
+              <dt className="font-mono font-bold text-ink bg-surface-sunken px-2 py-0.5 rounded text-center">M</dt>
+              <dd className="text-ink-2 self-center">Ligar/silenciar som</dd>
+              <dt className="font-mono font-bold text-ink bg-surface-sunken px-2 py-0.5 rounded text-center">Esc</dt>
+              <dd className="text-ink-2 self-center">Fechar busca / ajuda</dd>
+              <dt className="font-mono font-bold text-ink bg-surface-sunken px-2 py-0.5 rounded text-center">?</dt>
+              <dd className="text-ink-2 self-center">Mostrar esta ajuda</dd>
+            </dl>
+            <button
+              onClick={() => setHelpOpen(false)}
+              className="btn btn-primary w-full mt-5"
+              autoFocus
+            >
+              Fechar
+            </button>
+          </div>
+        </div>
+      )}
 
       {toastNode}
     </div>
