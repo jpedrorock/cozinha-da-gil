@@ -248,27 +248,48 @@ export function OrderCard({
               Cliente sumiu
             </button>
           )}
-          {/* Avisar cliente via WhatsApp: só atendente, só PRONTO, só com fone,
-              e só se ainda não avisou. Depois de avisar, vira badge "Avisado". */}
-          {onNotifyReady && order.status === "PRONTO" && order.clientPhone && !order.notifiedReadyAt && (
-            <button
-              onClick={() => {
-                if (notifyPending) return;
-                setNotifyPending(true);
-                onNotifyReady(order);
-              }}
-              disabled={notifyPending}
-              className="btn btn-secondary btn-sm disabled:opacity-70"
-              title="Abrir WhatsApp pra avisar cliente"
-            >
-              {notifyPending ? (
-                <span className="spinner-inline" aria-hidden />
-              ) : (
-                <MessageCircle size={14} strokeWidth={2.5} />
-              )}
-              {notifyPending ? "Avisando…" : "Avisar"}
-            </button>
-          )}
+          {/* Avisar cliente via WhatsApp: só atendente, só PRONTO, só com fone.
+              Audit-Crit B #16: re-avisar habilitado após 5min do último aviso.
+              Em festa, cliente não responde 1ª msg → 2ª chama atenção. Sem
+              isso, atendente tinha que abrir contato no celular pessoal. */}
+          {(() => {
+            if (!onNotifyReady || order.status !== "PRONTO" || !order.clientPhone) return null;
+            const notifiedMs = order.notifiedReadyAt
+              ? new Date(order.notifiedReadyAt).getTime()
+              : 0;
+            const minsSinceNotify =
+              notifiedMs && now !== null
+                ? Math.floor((now - notifiedMs) / 60000)
+                : 0;
+            const canReNotify = !!notifiedMs && minsSinceNotify >= 5;
+            const showButton = !notifiedMs || canReNotify;
+            const label = notifyPending
+              ? "Avisando…"
+              : !notifiedMs
+                ? "Avisar"
+                : "Avisar de novo";
+            return showButton ? (
+              <button
+                onClick={() => {
+                  if (notifyPending) return;
+                  setNotifyPending(true);
+                  onNotifyReady(order);
+                }}
+                disabled={notifyPending}
+                className={`btn btn-sm disabled:opacity-70 ${
+                  canReNotify ? "btn-secondary text-brand-orange border-brand-orange" : "btn-secondary"
+                }`}
+                title={canReNotify ? "Cliente não respondeu — re-avisar" : "Abrir WhatsApp"}
+              >
+                {notifyPending ? (
+                  <span className="spinner-inline" aria-hidden />
+                ) : (
+                  <MessageCircle size={14} strokeWidth={2.5} />
+                )}
+                {label}
+              </button>
+            ) : null;
+          })()}
           {order.notifiedReadyAt && order.status === "PRONTO" && (
             <span
               className="inline-flex items-center gap-1 t-caption text-status-ready font-semibold"
