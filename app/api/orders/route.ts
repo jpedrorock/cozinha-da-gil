@@ -212,8 +212,14 @@ export async function POST(request: Request) {
   // Se nenhum caixa aberto, bloqueia. Se aberto, atribui o pedido a ele.
   const session = await getCurrentEventSession();
   if (!session) {
+    // Audit-Crit C #19: code estruturado deixa frontend tratar caso a caso
+    // (banner persistente, sugestão de logout, etc). Sem code, atendente
+    // só vê toast genérico e tenta de novo.
     return NextResponse.json(
-      { error: "Caixa fechado. Peça pra abrir um caixa no admin antes de criar pedidos." },
+      {
+        error: "Caixa fechado. Peça pra abrir um caixa no admin antes de criar pedidos.",
+        code: "CAIXA_FECHADO",
+      },
       { status: 423 },
     );
   }

@@ -105,8 +105,14 @@ export async function PATCH(
   const canEdit =
     existing.status === "PEDIDO_FEITO" || existing.status === "EM_PREPARO";
   if (!canEdit) {
+    // Audit-Crit C #19: ORDER_LOCKED code permite frontend mostrar
+    // estado atual ("Pedido já entregue, não dá pra editar").
     return NextResponse.json(
-      { error: "Pedido encerrado, não dá pra editar." },
+      {
+        error: "Pedido encerrado, não dá pra editar.",
+        code: "ORDER_LOCKED",
+        currentStatus: existing.status,
+      },
       { status: 409 },
     );
   }

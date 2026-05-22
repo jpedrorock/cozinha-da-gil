@@ -190,7 +190,11 @@ export function OrderCard({
         );
       })()}
 
-      <div className="flex items-center justify-between gap-2 pt-1">
+      {/* Audit-Crit C #24: footer ganha flex-wrap pra acomodar até 3-4
+          botões em PRONTO (Avisar/Cliente sumiu/Retirada) em telas
+          estreitas. Total + tempo ficam num bloco que não quebra; os
+          botões wrap pra próxima linha quando faltar espaço. */}
+      <div className="flex items-center justify-between gap-2 pt-1 flex-wrap">
         <div className="flex gap-2 items-baseline">
           {order.discountCents > 0 ? (
             <>
@@ -206,7 +210,7 @@ export function OrderCard({
             </span>
           )}
         </div>
-        <div className="ml-auto flex gap-2">
+        <div className="ml-auto flex gap-2 flex-wrap justify-end">
           {/* Audit-Crit #1+#6: Editar agora permitido também em EM_PREPARO.
               Cliente desiste de algo, atendente precisa ajustar — bloquear
               força cancelar+refazer (pior pra todo mundo). Backend

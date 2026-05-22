@@ -1416,7 +1416,22 @@ function Historico({ orders: initialOrders, events }: { orders: OrderView[]; eve
       </header>
 
       {loading ? (
-        <div className="card p-10 text-center text-ink-3 italic">Carregando...</div>
+        // Audit-Crit C #13: skeletons em vez de "Carregando…" — UX moderna.
+        // Renderiza placeholders com mesma estrutura visual de HistoryRow
+        // (avatar circular, 2 linhas, badge à direita) pra layout não
+        // saltar quando dados chegam. Animação pulse pisca discreto.
+        <ul className="flex flex-col gap-3" aria-busy="true" aria-live="polite">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <li key={i} className="card p-4 flex items-center gap-3 animate-pulse">
+              <div className="w-10 h-10 rounded-full bg-surface-sunken shrink-0" />
+              <div className="flex-1 min-w-0">
+                <div className="h-3 w-32 bg-surface-sunken rounded mb-2" />
+                <div className="h-2.5 w-48 bg-surface-sunken rounded" />
+              </div>
+              <div className="h-6 w-20 bg-surface-sunken rounded" />
+            </li>
+          ))}
+        </ul>
       ) : filtered.length === 0 ? (
         <div className="card p-10 text-center border-dashed">
           <div className="flex justify-center mb-2 opacity-50">

@@ -58,6 +58,8 @@ export async function PATCH(
   }
   const allowed = TRANSITIONS[existing.status];
   if (!allowed.includes(status)) {
+    // Audit-Crit C #19: INVALID_TRANSITION code + incluí current/attempted
+    // pra frontend mostrar mensagem mais útil ou abrir tela do pedido.
     return NextResponse.json(
       {
         error: `Transição inválida: ${existing.status} → ${status}. ${
@@ -65,6 +67,9 @@ export async function PATCH(
             ? "Pedido já encerrado."
             : `Estados válidos: ${allowed.join(", ")}.`
         }`,
+        code: "INVALID_TRANSITION",
+        currentStatus: existing.status,
+        attemptedStatus: status,
       },
       { status: 409 },
     );

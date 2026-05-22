@@ -2195,18 +2195,28 @@ function StepIngredients({
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-2.5">
+      {/* Audit-Crit C #23: ARIA pra ingredient toggles. Grid sem role
+          implícito; chips usam aria-pressed (button toggle pattern WAI-ARIA).
+          Texto do aria-label inclui estado pra leitor de tela ouvir
+          "Bacon, selecionado" ou "Catupiry, esgotado, indisponível". */}
+      <div className="grid grid-cols-2 gap-2.5" role="group" aria-label="Ingredientes disponíveis">
         {ingredients.map((opt) => {
           const isSelected = current.ingredients.includes(opt.name);
           const stock = opt.stock;
           const lowStock = stock !== null && stock !== undefined && opt.lowStockThreshold !== null && opt.lowStockThreshold !== undefined && stock <= opt.lowStockThreshold;
           const noStock = stock !== null && stock !== undefined && stock === 0;
           const disabled = noStock;
+          const ariaParts = [opt.name];
+          if (disabled) ariaParts.push("esgotado");
+          else if (lowStock) ariaParts.push(`estoque baixo: ${stock} unidades`);
+          if (isSelected) ariaParts.push("selecionado");
           return (
             <button
               key={opt.id}
               onClick={() => !disabled && toggle(opt.name)}
               disabled={disabled}
+              aria-pressed={isSelected}
+              aria-label={ariaParts.join(", ")}
               className={`min-h-14 px-4 py-2.5 rounded-md text-[15px] font-semibold border-2 flex items-center justify-between gap-2 transition-colors text-left ${
                 disabled
                   ? "border-line text-ink-3 line-through opacity-50 cursor-not-allowed"
@@ -2221,13 +2231,14 @@ function StepIngredients({
                   <span
                     className="inline-flex items-center bg-status-preparing-bg text-status-preparing-ink px-1 py-0.5 rounded shrink-0"
                     title={`Estoque: ${stock}`}
+                    aria-hidden
                   >
                     <AlertTriangle size={11} strokeWidth={2.5} />
                   </span>
                 )}
               </span>
               {isSelected && !disabled && (
-                <Check size={18} strokeWidth={3} className="shrink-0" />
+                <Check size={18} strokeWidth={3} className="shrink-0" aria-hidden />
               )}
             </button>
           );
@@ -2497,7 +2508,7 @@ function StepConfigure({
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-2.5">
+          <div className="grid grid-cols-2 gap-2.5" role="group" aria-label="Ingredientes disponíveis">
             {ingredients.map((opt) => {
               const isSelected = current.ingredients.includes(opt.name);
               const lowStock =
@@ -2509,11 +2520,17 @@ function StepConfigure({
               const noStock =
                 opt.stock !== null && opt.stock !== undefined && opt.stock === 0;
               const disabled = noStock;
+              const ariaParts = [opt.name];
+              if (disabled) ariaParts.push("esgotado");
+              else if (lowStock) ariaParts.push(`estoque baixo: ${opt.stock} unidades`);
+              if (isSelected) ariaParts.push("selecionado");
               return (
                 <button
                   key={opt.id}
                   onClick={() => !disabled && toggleIngredient(opt.name)}
                   disabled={disabled}
+                  aria-pressed={isSelected}
+                  aria-label={ariaParts.join(", ")}
                   className={`min-h-14 px-4 py-2.5 rounded-md text-[15px] font-semibold border-2 flex items-center justify-between gap-2 transition-colors text-left ${
                     disabled
                       ? "border-line text-ink-3 line-through opacity-50 cursor-not-allowed"
@@ -2774,11 +2791,17 @@ function StepSauces({
 
         {molhos.map((opt) => {
           const isSelected = selected.has(opt.name);
+          // Audit-Crit C #23: ARIA pra molhos (mesmo pattern dos toppings)
+          const ariaParts = [opt.name];
+          if (!opt.available) ariaParts.push("indisponível");
+          if (isSelected) ariaParts.push("selecionado");
           return (
             <button
               key={opt.id}
               disabled={!opt.available}
               onClick={() => toggle(opt.name)}
+              aria-pressed={isSelected}
+              aria-label={ariaParts.join(", ")}
               className={`h-14 px-4 rounded-md border-2 flex items-center justify-between font-semibold text-base transition-colors ${
                 !opt.available
                   ? "opacity-40 cursor-not-allowed border-line bg-surface-sunken"
