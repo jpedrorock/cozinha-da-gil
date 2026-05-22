@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSwipeable } from "react-swipeable";
-import { AlertTriangle, Check, Lock, Minus, Pencil, Plus, Tag, X } from "lucide-react";
+import { AlertTriangle, Check, Lock, Minus, Pencil, Plus, RotateCcw, Tag, X } from "lucide-react";
 import type { Ingredient, OrderStatus } from "@prisma/client";
 import { AppHeader } from "@/components/AppHeader";
 import { OrderCard } from "@/components/OrderCard";
@@ -221,7 +221,11 @@ export function AtendenteClient({
   const [orders, setOrders] = useState<OrderView[]>(initialOrders);
   const [filter, setFilter] = useState<"todos" | OrderStatus>("PRONTO");
   const [submitting, setSubmitting] = useState(false);
-  const [toast, setToast] = useState<string | null>(null);
+  // Audit-Crit B #14: toasts agora aceitam action opcional (Undo etc).
+  // Com action, fica 6s em vez de 2.6s pra dar tempo do user reagir.
+  const [toast, setToast] = useState<
+    { text: string; action?: { label: string; onClick: () => void } } | null
+  >(null);
   const [cancelTarget, setCancelTarget] = useState<OrderView | null>(null);
   // Hook imperativo de confirmação (substitui window.confirm). Retorna
   // `confirm({ title, message, ... })` que resolve true/false, mais o `node`
@@ -399,9 +403,12 @@ export function AtendenteClient({
     },
   });
 
-  function showToast(msg: string) {
-    setToast(msg);
-    setTimeout(() => setToast(null), 2600);
+  function showToast(
+    msg: string,
+    action?: { label: string; onClick: () => void },
+  ) {
+    setToast({ text: msg, action });
+    setTimeout(() => setToast(null), action ? 6000 : 2600);
   }
 
   function resetOrder() {
@@ -757,6 +764,22 @@ export function AtendenteClient({
       flavor: it.kind === "doce" ? it.flavor ?? undefined : undefined,
     }));
 
+    // Snapshot ANTES do PATCH — usado pelo Undo (audit-crit B #14).
+    // Re-PATCH com a lista completa original restaura o item removido.
+    const originalItems = order.items.map((it) => ({
+      productId: it.productId ?? undefined,
+      productSizeId: it.productSizeId ?? undefined,
+      ingredients:
+        it.kind === "doce" && it.flavor ? [it.flavor] : it.toppings,
+      sauces: it.sauces,
+      notes: it.notes ?? undefined,
+      quantity: it.quantity,
+      kind: it.kind,
+      size: it.size,
+      toppings: it.kind === "salgado" ? it.toppings : undefined,
+      flavor: it.kind === "doce" ? it.flavor ?? undefined : undefined,
+    }));
+
     try {
       const res = await fetch(`/api/orders/${orderId}/items`, {
         method: "PATCH",
@@ -769,7 +792,28 @@ export function AtendenteClient({
         showToast(err.error || "Não foi possível remover.");
         return;
       }
-      showToast(`Item removido do pedido #${String(orderId).padStart(3, "0")}.`);
+      // Toast com Undo: 6s pra atendente perceber erro e reverter.
+      // Re-PATCH com items originais — backend aceita, cozinha recebe
+      // outro `_editedInPreparation` se aplicável (já implementado).
+      showToast(
+        `Item removido do pedido #${String(orderId).padStart(3, "0")}.`,
+        {
+          label: "Desfazer",
+          onClick: async () => {
+            try {
+              await fetch(`/api/orders/${orderId}/items`, {
+                method: "PATCH",
+                cache: "no-store",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ items: originalItems, operator: operator?.name }),
+              });
+              showToast("Item restaurado.");
+            } catch {
+              showToast("Não consegui desfazer. Tente editar manual.");
+            }
+          },
+        },
+      );
       // SSE order:updated vai chegar e atualizar a lista.
     } catch {
       showToast("Sem conexão. Tente de novo.");
@@ -993,7 +1037,19 @@ export function AtendenteClient({
           style={{ bottom: "max(env(safe-area-inset-bottom), 120px)" }}
         >
           <Check size={18} strokeWidth={3} />
-          <span>{toast}</span>
+          <span>{toast.text}</span>
+          {toast.action && (
+            <button
+              onClick={() => {
+                toast.action!.onClick();
+                setToast(null);
+              }}
+              className="ml-2 inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white/20 hover:bg-white/30 active:scale-95 transition uppercase tracking-wide text-xs font-bold"
+            >
+              <RotateCcw size={14} strokeWidth={3} />
+              {toast.action.label}
+            </button>
+          )}
         </div>
       )}
     </div>
