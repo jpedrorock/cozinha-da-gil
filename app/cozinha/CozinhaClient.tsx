@@ -393,72 +393,37 @@ export function CozinhaClient({
 
   return (
     <div className="min-h-dvh flex flex-col">
+      {/* Feedback Gil: header lotado de ícones — movemos controles globais
+          (busca/ordenar/som) pro bottom action bar com labels visíveis.
+          Header agora só mostra info passiva: status conexão, badges de
+          contagem, relógio. Tudo mais espaçado. */}
       <AppHeader
         right={
           <div className="flex items-center gap-2">
             {sseStatus !== "open" && (
-              <span className="inline-flex items-center gap-1.5 bg-danger-bg text-danger text-xs font-bold uppercase tracking-[0.06em] px-2.5 py-1 rounded-full">
+              <span
+                className="inline-flex items-center gap-1.5 bg-danger-bg text-danger text-xs font-bold uppercase tracking-[0.06em] px-2.5 py-1 rounded-full"
+                title="Sem conexão com servidor — pedidos novos podem demorar"
+              >
                 <WifiOff size={14} strokeWidth={2.5} />
                 <span className="hidden sm:inline">Sem conexão</span>
               </span>
             )}
-            {/* Toggle busca — em festa cheia (30 pedidos), José procura
-                "qual era do Pedro?" sem scrollar visualmente. Audit-Crit #4 */}
-            <button
-              onClick={() => {
-                setSearchOpen((v) => !v);
-                if (searchOpen) setSearch("");
-              }}
-              className={`h-11 w-11 inline-flex items-center justify-center rounded-full border transition ${
-                searchOpen || search
-                  ? "border-ink bg-ink text-brand-yellow"
-                  : "border-line-strong text-ink-2 hover:border-ink-3 hover:text-ink"
-              }`}
-              aria-label={searchOpen ? "Fechar busca" : "Buscar pedido"}
-              title="Buscar pedido"
-            >
-              <Search size={18} strokeWidth={2.25} />
-            </button>
-            {/* Toggle ordenação chegada vs urgência — em festa, pedido mais
-                antigo pode estar parado por outro motivo. Modo urgência prioriza
-                pedidos em preparo há mais tempo + com observações. */}
-            <button
-              onClick={toggleSort}
-              className={`h-11 w-11 inline-flex items-center justify-center rounded-full border transition ${
-                sortMode === "urgencia"
-                  ? "border-brand-orange bg-brand-orange/15 text-brand-orange"
-                  : "border-line-strong text-ink-2 hover:border-ink-3 hover:text-ink"
-              }`}
-              aria-label={
-                sortMode === "urgencia"
-                  ? "Ordenar por chegada"
-                  : "Ordenar por urgência (atrasos primeiro)"
-              }
-              title={
-                sortMode === "urgencia"
-                  ? "Urgência (atrasos primeiro) · clique pra chegada"
-                  : "Chegada (FIFO) · clique pra urgência"
-              }
-            >
-              <ArrowDownUp size={16} strokeWidth={2.5} />
-            </button>
-            <button
-              onClick={toggleSound}
-              className="h-11 w-11 inline-flex items-center justify-center rounded-full border border-line-strong text-ink-2 hover:border-ink-3 hover:text-ink active:scale-[0.95] transition"
-              title={soundOn ? "Som ligado" : "Som desligado"}
-              aria-label="Alternar som"
-            >
-              {soundOn ? <Volume2 size={18} strokeWidth={2} /> : <VolumeX size={18} strokeWidth={2} />}
-            </button>
             {novosCount > 0 && (
-              <span className="bg-status-incoming text-white font-bold text-[15px] px-3 py-1.5 rounded-full t-num animate-badge-pop">
+              <span
+                className="bg-status-incoming text-white font-bold text-[15px] px-3 py-1.5 rounded-full t-num animate-badge-pop"
+                title="Pedidos novos aguardando preparo"
+              >
                 {novosCount} novo{novosCount === 1 ? "" : "s"}
               </span>
             )}
-            <span className="t-caption text-ink-3 t-num bg-surface-sunken px-2 py-1 rounded-full hidden sm:inline">
+            <span
+              className="t-caption text-ink-3 t-num bg-surface-sunken px-2 py-1 rounded-full hidden sm:inline"
+              title="Total de pedidos na fila"
+            >
               {search ? `${queue.length} de ${totalQueueCount}` : `${queue.length} na fila`}
             </span>
-            <span className="font-mono font-bold text-[17px] t-num text-ink hidden sm:block">
+            <span className="font-mono font-bold text-[17px] t-num text-ink hidden sm:block" aria-label="Hora atual">
               {clock
                 ? clock.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
                 : "--:--"}
@@ -489,7 +454,12 @@ export function CozinhaClient({
         </div>
       )}
 
-      <main className="flex-1 p-4 md:p-6">
+      <main
+        className="flex-1 p-4 md:p-6"
+        // Padding bottom respeita altura do action bar fixo (72px) +
+        // safe-area do iPhone, pra último card não ficar coberto.
+        style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 88px)" }}
+      >
         {queue.length === 0 ? (
           search ? (
             <div className="text-center py-20 text-ink-3">
@@ -535,6 +505,86 @@ export function CozinhaClient({
         onConfirm={(reason) => cancelTarget && cancelOrder(cancelTarget.id, reason)}
         onClose={() => setCancelTarget(null)}
       />
+
+      {/* Feedback Gil: header lotado de ícones — agora botnav fixa embaixo
+          com label visível em cada botão. A11y: cada label é uma palavra
+          que descreve a ação atual (Buscar/Urgência/Som), evitando que
+          cook precise hover descobrir o que faz. Sticky bottom + safe-area
+          pra iOS standalone. Layout horizontal igual ao admin bottom-nav. */}
+      <nav
+        className="fixed bottom-0 left-0 right-0 z-40 bg-surface-elevated border-t border-line-strong"
+        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+        aria-label="Controles da cozinha"
+      >
+        <div className="flex items-stretch justify-around max-w-md mx-auto">
+          <button
+            onClick={() => {
+              setSearchOpen((v) => !v);
+              if (searchOpen) setSearch("");
+            }}
+            className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-2 min-h-[60px] transition-colors ${
+              searchOpen || search
+                ? "text-brand-orange bg-brand-orange/10"
+                : "text-ink-2 hover:text-ink hover:bg-surface-sunken"
+            }`}
+            aria-label={searchOpen ? "Fechar busca" : "Abrir busca de pedido"}
+            aria-pressed={searchOpen || !!search}
+            title="Buscar pedido por nome ou número"
+          >
+            <Search size={22} strokeWidth={2.25} aria-hidden />
+            <span className="text-[11px] font-semibold leading-none">
+              {search ? "Buscando" : "Buscar"}
+            </span>
+          </button>
+
+          <button
+            onClick={toggleSort}
+            className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-2 min-h-[60px] transition-colors ${
+              sortMode === "urgencia"
+                ? "text-brand-orange bg-brand-orange/10"
+                : "text-ink-2 hover:text-ink hover:bg-surface-sunken"
+            }`}
+            aria-label={
+              sortMode === "urgencia"
+                ? "Modo urgência ativo. Tocar pra ordenar por chegada"
+                : "Modo chegada (FIFO) ativo. Tocar pra ordenar por urgência (atrasos primeiro)"
+            }
+            aria-pressed={sortMode === "urgencia"}
+            title={
+              sortMode === "urgencia"
+                ? "Urgência (atrasos primeiro) — tocar pra FIFO"
+                : "Chegada (FIFO) — tocar pra urgência"
+            }
+          >
+            <ArrowDownUp size={22} strokeWidth={2.25} aria-hidden />
+            <span className="text-[11px] font-semibold leading-none">
+              {sortMode === "urgencia" ? "Urgência" : "Chegada"}
+            </span>
+          </button>
+
+          <button
+            onClick={toggleSound}
+            className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-2 min-h-[60px] transition-colors ${
+              soundOn
+                ? "text-ink hover:text-ink hover:bg-surface-sunken"
+                : "text-ink-3 hover:text-ink-2 hover:bg-surface-sunken"
+            }`}
+            aria-label={soundOn ? "Som ligado. Tocar pra silenciar alarmes" : "Som silenciado. Tocar pra ligar alarmes"}
+            aria-pressed={soundOn}
+            title={soundOn ? "Som ligado — tocar pra silenciar" : "Silenciado — tocar pra ligar"}
+          >
+            {soundOn ? (
+              <Volume2 size={22} strokeWidth={2.25} aria-hidden />
+            ) : (
+              <VolumeX size={22} strokeWidth={2.25} aria-hidden />
+            )}
+            <span className="text-[11px] font-semibold leading-none">
+              {soundOn ? "Som" : "Mudo"}
+            </span>
+          </button>
+        </div>
+      </nav>
+
       {toastNode}
     </div>
   );
