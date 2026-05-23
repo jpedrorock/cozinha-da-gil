@@ -35,9 +35,7 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ### Higiene de gestão (XS — fazer cedo)
 
-- [ ] **[P2] #docs** Sincronizar STATUS.md com o estado atual do projeto
-  - **Pronto quando:** "Última atualização" preenchida, "Saúde dos módulos" todos 🟢, "Histórico recente" com bullets dos commits do dia, "Próximo passo recomendado" claro.
-  - **Autonomia:** OK fazer direto.
+- [x] **[P2] #docs** Sincronizar STATUS.md com o estado atual do projeto ✅ 2026-05-23 [routine]
 
 ### Deploy & ops
 
@@ -51,10 +49,7 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
   - **Contexto:** se o volume corromper sem backup, perde todo histórico de vendas/clientes — risco real pra família.
   - **Autonomia:** Abrir PR (toca em Docker/entrypoint).
 
-- [ ] **[P2] #chore** Limpeza de imagens órfãs em `uploads/products/`
-  - **Pronto quando:** script `scripts/cleanup-orphan-images.ts` lista (dry-run) ou deleta arquivos cuja URL não bate com nenhum `Product.imageUrl` no DB; documentado no README de scripts.
-  - **Contexto:** quando admin troca imagem via UI, `lib/uploads` já deleta a antiga. Mas se um produto for deletado direto no DB, o arquivo fica órfão.
-  - **Autonomia:** OK fazer direto (idempotente, dry-run por default).
+- [x] **[P2] #chore** Limpeza de imagens órfãs em `uploads/products/` ✅ 2026-05-23 [routine]
 
 ### Tech debt com critério
 

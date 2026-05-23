@@ -2,7 +2,7 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-05-22
+**Última atualização:** 2026-05-23
 **Atualizado por:** `claude-pastel`
 
 ---
@@ -13,9 +13,10 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## O que rolou desde a última sessão
 
+- Rotina background 2026-05-23: STATUS sincronizado, script limpeza imagens órfãs, promotions via SSR no atendente, doc plano Next 15, E2E Playwright fluxo completo
 - Auditoria UX crítica (4º pass) — Fases A (5/5 críticos), B (9/14 importantes), C (4/5 polish + a11y) shipped em 18 commits
 - Follow-ups do audit externo: preview comprovante 80mm, atalhos teclado cozinha, áudio escalonado, PDF com delta vs período anterior, TV breathe intermitente
-- Página `/guia` criada — manual por papel (atendente/cozinha/admin/geral) com tabs, busca, accordion, hero gradient, steps numerados, callouts. Reescrito 2x: primeiro inspirado no `Help.tsx` do cultivo-server, depois sem jargão técnico pra família ler
+- Página `/guia` criada — manual por papel (atendente/cozinha/admin/geral) com tabs, busca, accordion, hero gradient, steps numerados, callouts
 - Header com nome do operador sempre visível (mobile + desktop)
 - Cozinha em 2 colunas quando pedido tem qty>1 + botnav inferior com labels (acessibilidade)
 - ESLint cleanup completa: 115 erros → 0, reativado check no build
@@ -31,7 +32,7 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## Próximo passo recomendado
 
-Redeploy do Coolify com volume resetado + `SEED_ON_BOOT=true` (P1 do BACKLOG) — só assim o schema novo (imageUrl, dedup, etc) sobe pra prod.
+Redeploy do Coolify com volume resetado + `SEED_ON_BOOT=true` (P1 do BACKLOG) — só assim o schema novo (imageUrl, dedup, etc) sobe pra prod. Requer João presencialmente (mexe em produção real).
 
 ---
 
@@ -76,7 +77,10 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 
 ## Histórico recente (últimos 5 dias)
 
-### 2026-05-22 (hoje)
+### 2026-05-23 (hoje)
+- Rotina background: STATUS sincronizado, script limpeza imagens órfãs (`scripts/cleanup-orphan-images.ts`), promotions via SSR no atendente, doc `docs/UPGRADE-NEXT-15.md`, E2E Playwright `e2e/order-flow.spec.ts`
+
+### 2026-05-22
 - 22 commits — auditoria crítica + guia + housekeeping + reorganização admin
 - BACKLOG replanejado: 9 itens novos aprovados (higiene, deploy, tech debt, testes, decisão produto)
 - PIN do Gil resetado pra 2699
