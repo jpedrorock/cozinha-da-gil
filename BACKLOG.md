@@ -59,10 +59,7 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ### Cobertura de testes
 
-- [ ] **[P2] #test** E2E Playwright: fluxo completo de 1 pedido (atendente → cozinha → entregue)
-  - **Pronto quando:** `e2e/order-flow.spec.ts` faz login Gil, abre caixa, troca pra atendente (PIN), cria pedido com 2 itens, troca pra cozinha, marca pronto, volta atendente, marca entregue, valida row final no DB. `npm run test:e2e` verde.
-  - **Contexto:** se algo quebrar SSE/auth/schema, esse teste captura antes de chegar em prod.
-  - **Autonomia:** OK fazer direto.
+- [x] **[P2] #test** E2E Playwright: fluxo completo de 1 pedido (atendente → cozinha → entregue) ✅ 2026-05-23 [routine]
 
 ### Decisão de produto pendente
 
@@ -84,6 +81,13 @@ _Itens sem critério de pronto claro ainda._
 ---
 
 ## ✅ Concluídos recentemente
+
+### 2026-05-23 (rotina background)
+- STATUS.md sincronizado com estado atual
+- Script `scripts/cleanup-orphan-images.ts` para limpeza de imagens órfãs
+- Promotions entregues via SSR no atendente (eliminou fetch no mount)
+- Doc `docs/UPGRADE-NEXT-15.md` com plano de migração Next 14 → 15
+- E2E Playwright `e2e/order-flow.spec.ts` — fluxo completo + validação da máquina de estados
 
 ### 2026-05-22
 - Auditoria UX crítica 4º pass — Fases A (5/5), B (9/14), C (4/5)
