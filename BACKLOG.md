@@ -55,10 +55,7 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 - [x] **[P2] #chore #atendente** Receber `promotions` via SSR em vez de `fetch` no mount ✅ 2026-05-23 [routine]
 
-- [ ] **[P3] #chore** Plano de major bump Next 14 → 15 (doc-only por agora)
-  - **Pronto quando:** `docs/UPGRADE-NEXT-15.md` criado com breaking changes (async `params`/`searchParams`, fetch caching invertido, React 19 default), passos de migração, riscos por arquivo, estimativa de horas.
-  - **Contexto:** vulns Next 14.x não aplicam ao app (sem `remotePatterns`, sem `rewrites`, sem CSP nonces) mas eventualmente vão acumular. Doc serve de roadmap quando tiver janela.
-  - **Autonomia:** OK fazer direto.
+- [x] **[P3] #chore** Plano de major bump Next 14 → 15 (doc-only) ✅ 2026-05-23 [routine]
 
 ### Cobertura de testes
 
