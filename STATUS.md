@@ -52,7 +52,7 @@ Redeploy do Coolify com volume resetado + `SEED_ON_BOOT=true` (P1 do BACKLOG) �
 | PWA (next-pwa, manifest, service worker) | 🟢 | Standalone, splash, install prompts. |
 | Auth (iron-session) | 🟢 | PIN único por role, identificação por {role + PIN}. |
 | Testes Vitest | 🟢 | 57/57 passando. |
-| Testes Playwright e2e | 🟡 | Suite existe mas falta cobrir fluxo completo de pedido (item no BACKLOG). |
+| Testes Playwright e2e | 🟡 | Suite cobre auth, smoke e fluxo completo de pedido (`e2e/order-flow.spec.ts`). Requer servidor rodando pra executar. |
 
 ---
 
