@@ -53,9 +53,7 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ### Tech debt com critério
 
-- [ ] **[P2] #chore #atendente** Receber `promotions` via SSR em vez de `fetch` no mount
-  - **Pronto quando:** TODO em `app/atendente/AtendenteClient.tsx:196` resolvido. SSR de `app/atendente/page.tsx` passa `initialPromotions` igual a `initialProducts`. Sem useEffect+fetch.
-  - **Autonomia:** OK fazer direto.
+- [x] **[P2] #chore #atendente** Receber `promotions` via SSR em vez de `fetch` no mount ✅ 2026-05-23 [routine]
 
 - [ ] **[P3] #chore** Plano de major bump Next 14 → 15 (doc-only por agora)
   - **Pronto quando:** `docs/UPGRADE-NEXT-15.md` criado com breaking changes (async `params`/`searchParams`, fetch caching invertido, React 19 default), passos de migração, riscos por arquivo, estimativa de horas.

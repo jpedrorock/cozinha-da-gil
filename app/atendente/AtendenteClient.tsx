@@ -153,11 +153,13 @@ export function AtendenteClient({
   initialOrders,
   initialEventStatus,
   initialProducts,
+  initialPromotions,
 }: {
   ingredients: Record<string, Ingredient[]>;
   initialOrders: OrderView[];
   initialEventStatus: EventSessionStatus;
   initialProducts: ProductView[];
+  initialPromotions: PromotionView[];
 }) {
   const router = useRouter();
   const { operator, ready, clear } = useOperator();
@@ -192,16 +194,9 @@ export function AtendenteClient({
   const macarraoToppings = allMacarraoToppings.filter((i) => i.available);
   const macarraoMolhos = allMacarraoMolhos.filter((i) => i.available);
 
-  // Promoções ativas — vem vazio no SSR por enquanto; busca uma vez no mount.
-  // TODO: receber via initialPromotions no SSR pra eliminar esse fetch também.
-  const [promotions, setPromotions] = useState<PromotionView[]>([]);
+  // Promoções ativas — entregues via SSR (initialPromotions). Sem fetch no mount.
+  const [promotions] = useState<PromotionView[]>(initialPromotions);
   const [selectedPromoId, setSelectedPromoId] = useState<string | null>(null);
-  useEffect(() => {
-    fetch("/api/promotions?active=true")
-      .then((r) => r.json())
-      .then((data) => Array.isArray(data) && setPromotions(data))
-      .catch(() => {});
-  }, []);
 
   const [creating, setCreating] = useState(false);
   const [editingOrderId, setEditingOrderId] = useState<number | null>(null);
