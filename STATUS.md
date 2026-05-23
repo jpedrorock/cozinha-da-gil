@@ -2,8 +2,8 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-05-22
-**Atualizado por:** `claude-pastel`
+**Última atualização:** 2026-05-23
+**Atualizado por:** `claude-pastel` (routine background)
 
 ---
 
@@ -13,17 +13,11 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## O que rolou desde a última sessão
 
-- Auditoria UX crítica (4º pass) — Fases A (5/5 críticos), B (9/14 importantes), C (4/5 polish + a11y) shipped em 18 commits
-- Follow-ups do audit externo: preview comprovante 80mm, atalhos teclado cozinha, áudio escalonado, PDF com delta vs período anterior, TV breathe intermitente
-- Página `/guia` criada — manual por papel (atendente/cozinha/admin/geral) com tabs, busca, accordion, hero gradient, steps numerados, callouts. Reescrito 2x: primeiro inspirado no `Help.tsx` do cultivo-server, depois sem jargão técnico pra família ler
-- Header com nome do operador sempre visível (mobile + desktop)
-- Cozinha em 2 colunas quando pedido tem qty>1 + botnav inferior com labels (acessibilidade)
-- ESLint cleanup completa: 115 erros → 0, reativado check no build
-- Migração `Product.imageDataUrl` base64 → filesystem (`/api/uploads/products/<file>`), com script idempotente no entrypoint Docker
-- Caixa virou primeiro item do menu admin (rename "Operação" → "Caixa", default tab também)
-- Bump de patches/minors (`lucide-react`, `tsx`, `vitest`, `@types/react`) — majors deferidos com razão
-- PIN do Gil resetado pra 2699 (local) + script `scripts/reset-gil-password.ts` reusável
-- Backlog replanejado: 9 novos itens aprovados pelo João
+- Routine background 2026-05-23: 4 itens do BACKLOG entregues (promotions SSR, script imagens órfãs, doc Next 15, E2E fluxo completo)
+- `promotions` via SSR — eliminado fetch+useEffect em `AtendenteClient`; page.tsx passa `initialPromotions`
+- `scripts/cleanup-orphan-images.ts` — dry-run por default, --delete pra apagar arquivos não referenciados no DB
+- `docs/UPGRADE-NEXT-15.md` — plano detalhado de upgrade Next 14→15: 18 arquivos, codemod oficial, estimativa 4,5h
+- `e2e/order-flow.spec.ts` — fluxo completo API + smoke de páginas UI com operador injetado via localStorage
 
 ## Bloqueios ativos
 
@@ -31,7 +25,7 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## Próximo passo recomendado
 
-Redeploy do Coolify com volume resetado + `SEED_ON_BOOT=true` (P1 do BACKLOG) — só assim o schema novo (imageUrl, dedup, etc) sobe pra prod.
+Redeploy do Coolify com volume resetado + `SEED_ON_BOOT=true` (P1 do BACKLOG, "Confirmar antes") — só assim o schema novo (imageUrl, dedup, etc) sobe pra prod. Requer João presente. Segundo item prioritário: backup automático do dev.db (P1, "Abrir PR").
 
 ---
 
@@ -76,7 +70,13 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 
 ## Histórico recente (últimos 5 dias)
 
-### 2026-05-22 (hoje)
+### 2026-05-23 (routine background)
+- Promotions via SSR: `app/atendente/page.tsx` busca promoções ativas no servidor, passa `initialPromotions` ao Client
+- Script `scripts/cleanup-orphan-images.ts`: lista/apaga imagens de produtos sem referência no DB (dry-run por default)
+- Doc `docs/UPGRADE-NEXT-15.md`: plano de migração Next 14→15 completo, 18 arquivos identificados
+- E2E `e2e/order-flow.spec.ts`: cobre fluxo completo atendente→cozinha→entregue + smoke UI das páginas
+
+### 2026-05-22
 - 22 commits — auditoria crítica + guia + housekeeping + reorganização admin
 - BACKLOG replanejado: 9 itens novos aprovados (higiene, deploy, tech debt, testes, decisão produto)
 - PIN do Gil resetado pra 2699

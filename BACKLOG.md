@@ -33,12 +33,6 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ## ⏭️ Próximos (prontos pra executar)
 
-### Higiene de gestão (XS — fazer cedo)
-
-- [ ] **[P2] #docs** Sincronizar STATUS.md com o estado atual do projeto
-  - **Pronto quando:** "Última atualização" preenchida, "Saúde dos módulos" todos 🟢, "Histórico recente" com bullets dos commits do dia, "Próximo passo recomendado" claro.
-  - **Autonomia:** OK fazer direto.
-
 ### Deploy & ops
 
 - [ ] **[P1] #chore #evento** Redeploy Coolify com volume resetado + `SEED_ON_BOOT=true`
@@ -51,28 +45,7 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
   - **Contexto:** se o volume corromper sem backup, perde todo histórico de vendas/clientes — risco real pra família.
   - **Autonomia:** Abrir PR (toca em Docker/entrypoint).
 
-- [ ] **[P2] #chore** Limpeza de imagens órfãs em `uploads/products/`
-  - **Pronto quando:** script `scripts/cleanup-orphan-images.ts` lista (dry-run) ou deleta arquivos cuja URL não bate com nenhum `Product.imageUrl` no DB; documentado no README de scripts.
-  - **Contexto:** quando admin troca imagem via UI, `lib/uploads` já deleta a antiga. Mas se um produto for deletado direto no DB, o arquivo fica órfão.
-  - **Autonomia:** OK fazer direto (idempotente, dry-run por default).
-
-### Tech debt com critério
-
-- [ ] **[P2] #chore #atendente** Receber `promotions` via SSR em vez de `fetch` no mount
-  - **Pronto quando:** TODO em `app/atendente/AtendenteClient.tsx:196` resolvido. SSR de `app/atendente/page.tsx` passa `initialPromotions` igual a `initialProducts`. Sem useEffect+fetch.
-  - **Autonomia:** OK fazer direto.
-
-- [ ] **[P3] #chore** Plano de major bump Next 14 → 15 (doc-only por agora)
-  - **Pronto quando:** `docs/UPGRADE-NEXT-15.md` criado com breaking changes (async `params`/`searchParams`, fetch caching invertido, React 19 default), passos de migração, riscos por arquivo, estimativa de horas.
-  - **Contexto:** vulns Next 14.x não aplicam ao app (sem `remotePatterns`, sem `rewrites`, sem CSP nonces) mas eventualmente vão acumular. Doc serve de roadmap quando tiver janela.
-  - **Autonomia:** OK fazer direto.
-
-### Cobertura de testes
-
-- [ ] **[P2] #test** E2E Playwright: fluxo completo de 1 pedido (atendente → cozinha → entregue)
-  - **Pronto quando:** `e2e/order-flow.spec.ts` faz login Gil, abre caixa, troca pra atendente (PIN), cria pedido com 2 itens, troca pra cozinha, marca pronto, volta atendente, marca entregue, valida row final no DB. `npm run test:e2e` verde.
-  - **Contexto:** se algo quebrar SSE/auth/schema, esse teste captura antes de chegar em prod.
-  - **Autonomia:** OK fazer direto.
+### Decisão de produto pendente
 
 ### Decisão de produto pendente
 
@@ -94,6 +67,13 @@ _Itens sem critério de pronto claro ainda._
 ---
 
 ## ✅ Concluídos recentemente
+
+### 2026-05-23
+- `promotions` via SSR em `app/atendente/page.tsx` — eliminado fetch+useEffect do mount (backlog: Receber promotions via SSR) [routine]
+- `scripts/cleanup-orphan-images.ts` criado — dry-run por default, --delete pra apagar (backlog: Limpeza de imagens órfãs) [routine]
+- `docs/UPGRADE-NEXT-15.md` criado — breaking changes, 18 arquivos afetados, estimativa 4,5h (backlog: Plano major bump Next 14→15) [routine]
+- `e2e/order-flow.spec.ts` criado — fluxo completo atendente→cozinha→entregue + smoke de páginas UI (backlog: E2E fluxo completo) [routine]
+- STATUS.md sincronizado com estado atual (backlog: Sincronizar STATUS.md) [routine]
 
 ### 2026-05-22
 - Auditoria UX crítica 4º pass — Fases A (5/5), B (9/14), C (4/5)
