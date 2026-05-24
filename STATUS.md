@@ -2,8 +2,8 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-05-22
-**Atualizado por:** `claude-pastel`
+**Última atualização:** 2026-05-24
+**Atualizado por:** `claude-pastel` (background routine)
 
 ---
 
@@ -11,8 +11,9 @@
 
 Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
-## O que rolou desde a última sessão
+## O que rolou desde a última sessão (2026-05-24 — routine background)
 
+- Routine background 2026-05-24: 3 itens do BACKLOG (ver seção abaixo)
 - Auditoria UX crítica (4º pass) — Fases A (5/5 críticos), B (9/14 importantes), C (4/5 polish + a11y) shipped em 18 commits
 - Follow-ups do audit externo: preview comprovante 80mm, atalhos teclado cozinha, áudio escalonado, PDF com delta vs período anterior, TV breathe intermitente
 - Página `/guia` criada — manual por papel (atendente/cozinha/admin/geral) com tabs, busca, accordion, hero gradient, steps numerados, callouts. Reescrito 2x: primeiro inspirado no `Help.tsx` do cultivo-server, depois sem jargão técnico pra família ler
@@ -28,10 +29,11 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 ## Bloqueios ativos
 
 - **PR #4 aguardando merge** — backup automático do dev.db. Implementação testada local; precisa review + merge do João pra subir pra Coolify.
+- **Branch `routine-pastel-20260524-2101` aguardando merge** — 3 itens concluídos pela routine (ver abaixo). Mergear quando conveniente — sem urgência, sem risco.
 
 ## Próximo passo recomendado
 
-João: mergear PR #4 (backup) + planejar janela pro redeploy Coolify (P1 do BACKLOG).
+João: mergear PR #4 (backup) + planejar janela pro redeploy Coolify (P1 do BACKLOG). Depois, mergear branch da routine de 2026-05-24.
 
 ---
 
@@ -51,7 +53,7 @@ João: mergear PR #4 (backup) + planejar janela pro redeploy Coolify (P1 do BACK
 | PWA (next-pwa, manifest, service worker) | 🟢 | Standalone, splash, install prompts. |
 | Auth (iron-session) | 🟢 | PIN único por role, identificação por {role + PIN}. |
 | Testes Vitest | 🟢 | 57/57 passando. |
-| Testes Playwright e2e | 🟡 | Suite existe mas falta cobrir fluxo completo de pedido (item no BACKLOG). |
+| Testes Playwright e2e | 🟡 | `order-flow.spec.ts` escrito; e2e inconclusivo sem dev server (validar rodando `npm run test:e2e` com server ativo). |
 
 ---
 
@@ -75,6 +77,13 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 ---
 
 ## Histórico recente (últimos 5 dias)
+
+### 2026-05-24 (routine background)
+
+3 itens concluídos na branch `routine-pastel-20260524-2101`:
+- **Fix PRAGMA log**: `lib/prisma.ts` — `$queryRawUnsafe` em vez de `$executeRawUnsafe` pro `PRAGMA journal_mode = WAL` (eliminado erro cosmético "Execute returned results" nos logs de scripts CLI). 57/57 testes verdes.
+- **Doc Next 14→15**: `docs/UPGRADE-NEXT-15.md` criado — breaking changes mapeados (13 route handlers + 1 page com async params, fetch cache invertido, React 19), passos de migração em 3 dias, estimativa 8h. Serve de roadmap pra quando tiver janela.
+- **E2E fluxo completo**: `e2e/order-flow.spec.ts` — testa login/switch de roles, criação de pedido com 2 itens, transições EM_PREPARO→PRONTO→ENTREGUE, valida status final via GET /api/orders, rejeição de transição inválida. e2e inconclusivo nesta sessão (sem dev server; mesmo comportamento dos tests auth/api-smoke legados).
 
 ### 2026-05-22 (hoje)
 - 25 commits — auditoria crítica + guia + housekeeping + reorganização admin + estoque simplificado
