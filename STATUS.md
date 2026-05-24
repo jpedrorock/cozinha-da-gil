@@ -2,8 +2,8 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-05-22
-**Atualizado por:** `claude-pastel`
+**Última atualização:** 2026-05-24
+**Atualizado por:** `claude-pastel` (routine background)
 
 ---
 
@@ -13,6 +13,14 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## O que rolou desde a última sessão
 
+### 2026-05-24 (routine background — 4 itens)
+- Fix `PRAGMA journal_mode = WAL` — trocado `$executeRawUnsafe` por `$queryRawUnsafe` em `lib/prisma.ts` (elimina erro cosmético nos logs de scripts CLI)
+- Promotions via SSR no atendente — removido `useEffect+fetch("/api/promotions")` do mount; `page.tsx` agora passa `initialPromotions` como prop SSR
+- `docs/UPGRADE-NEXT-15.md` criado — plano de upgrade Next 14→15 com todos os breaking changes mapeados (20 route handlers com async params, next-pwa, estimativa 4-6h)
+- `e2e/order-flow.spec.ts` criado — spec do fluxo completo de pedido (atendente→cozinha→entregue). E2E inconclusivo sem servidor rodando.
+- **Branch aberta:** `routine-pastel-20260524-0108` (PR pendente de merge)
+
+### 2026-05-22 (sessão anterior)
 - Auditoria UX crítica (4º pass) — Fases A (5/5 críticos), B (9/14 importantes), C (4/5 polish + a11y) shipped em 18 commits
 - Follow-ups do audit externo: preview comprovante 80mm, atalhos teclado cozinha, áudio escalonado, PDF com delta vs período anterior, TV breathe intermitente
 - Página `/guia` criada — manual por papel (atendente/cozinha/admin/geral) com tabs, busca, accordion, hero gradient, steps numerados, callouts. Reescrito 2x: primeiro inspirado no `Help.tsx` do cultivo-server, depois sem jargão técnico pra família ler
@@ -28,10 +36,11 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 ## Bloqueios ativos
 
 - **PR #4 aguardando merge** — backup automático do dev.db. Implementação testada local; precisa review + merge do João pra subir pra Coolify.
+- **PR routine-pastel-20260524-0108 aguardando merge** — 4 itens de tech debt (PRAGMA fix, SSR promotions, doc Next 15, e2e spec).
 
 ## Próximo passo recomendado
 
-João: mergear PR #4 (backup) + planejar janela pro redeploy Coolify (P1 do BACKLOG).
+João: mergear PR #4 (backup) + este PR da routine + planejar janela pro redeploy Coolify (P1 do BACKLOG).
 
 ---
 
