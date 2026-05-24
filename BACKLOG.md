@@ -27,7 +27,7 @@
 
 _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
--
+- [ ] **[P1] #chore** Backup automático do `dev.db` no volume Coolify — **PR #4 aberto, aguardando merge** [claude-pastel 2026-05-22]
 
 ---
 
@@ -39,11 +39,6 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
   - **Pronto quando:** prod responde em `cozinhadagil.evapro.cloud` com schema novo (imageUrl, dedup, etc), Gil consegue logar com PIN 2699, primeiro caixa pode ser aberto.
   - **Contexto:** depois das mudanças de schema dos commits recentes, volume antigo do Coolify pode ter rows incompatíveis.
   - **Autonomia:** Confirmar antes (mexe em produção real).
-
-- [ ] **[P1] #chore** Backup automático do `dev.db` no volume Coolify
-  - **Pronto quando:** cron diário cria `prisma/backups/dev-YYYY-MM-DD.db` no volume, mantém últimos 14 dias, log de sucesso/erro visível em algum lugar checável.
-  - **Contexto:** se o volume corromper sem backup, perde todo histórico de vendas/clientes — risco real pra família.
-  - **Autonomia:** Abrir PR (toca em Docker/entrypoint).
 
 - [ ] **[P2] #chore** Limpeza de imagens órfãs em `uploads/products/`
   - **Pronto quando:** script `scripts/cleanup-orphan-images.ts` lista (dry-run) ou deleta arquivos cuja URL não bate com nenhum `Product.imageUrl` no DB; documentado no README de scripts.

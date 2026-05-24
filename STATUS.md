@@ -27,11 +27,11 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## Bloqueios ativos
 
-- Nenhum.
+- **PR #4 aguardando merge** — backup automático do dev.db. Implementação testada local; precisa review + merge do João pra subir pra Coolify.
 
 ## Próximo passo recomendado
 
-Redeploy do Coolify com volume resetado + `SEED_ON_BOOT=true` (P1 do BACKLOG) — só assim o schema novo (imageUrl, dedup, etc) sobe pra prod.
+João: mergear PR #4 (backup) + planejar janela pro redeploy Coolify (P1 do BACKLOG).
 
 ---
 
@@ -77,11 +77,12 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 ## Histórico recente (últimos 5 dias)
 
 ### 2026-05-22 (hoje)
-- 24 commits — auditoria crítica + guia + housekeeping + reorganização admin + estoque simplificado
-- BACKLOG replanejado: 9 itens novos aprovados; 1 fechado (sincronizar STATUS)
+- 25 commits — auditoria crítica + guia + housekeeping + reorganização admin + estoque simplificado
+- BACKLOG replanejado: 9 itens novos aprovados; 1 fechado (sincronizar STATUS); 1 em PR (backup #4)
 - PIN do Gil resetado pra 2699
 - Estoque numérico removido — só toggle "Disponível / Esgotou" (decisão de produto: meio pastel de cada recheio inviabiliza contagem)
 - Toggle de produto também filtra no atendente (bug encontrado e corrigido)
+- **PR #4 aberto:** backup automático diário do dev.db (instrumentation hook do Next 14, WAL checkpoint, retenção 14 dias, scheduler in-process)
 
 ### 2026-05-22 (instalação)
 - Sistema STATUS/BACKLOG/PLAYBOOK instalado pelo claude-orchestrator (Cowork).
