@@ -25,7 +25,7 @@ if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 if (!globalForPrisma.prismaInitialized) {
   globalForPrisma.prismaInitialized = true;
   prisma
-    .$executeRawUnsafe("PRAGMA journal_mode = WAL;")
+    .$queryRawUnsafe("PRAGMA journal_mode = WAL;") // retorna 1 row, precisa de queryRaw
     .then(() => prisma.$executeRawUnsafe("PRAGMA busy_timeout = 5000;"))
     .then(() => prisma.$executeRawUnsafe("PRAGMA synchronous = NORMAL;"))
     .then(() => {
