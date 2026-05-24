@@ -33,12 +33,6 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ## ⏭️ Próximos (prontos pra executar)
 
-### Higiene de gestão (XS — fazer cedo)
-
-- [ ] **[P2] #docs** Sincronizar STATUS.md com o estado atual do projeto
-  - **Pronto quando:** "Última atualização" preenchida, "Saúde dos módulos" todos 🟢, "Histórico recente" com bullets dos commits do dia, "Próximo passo recomendado" claro.
-  - **Autonomia:** OK fazer direto.
-
 ### Deploy & ops
 
 - [ ] **[P1] #chore #evento** Redeploy Coolify com volume resetado + `SEED_ON_BOOT=true`
@@ -96,6 +90,10 @@ _Itens sem critério de pronto claro ainda._
 ## ✅ Concluídos recentemente
 
 ### 2026-05-22
+- [claude-pastel 2026-05-22] Sincronizar STATUS.md com estado atual do projeto (módulos 🟢, histórico do dia, próximo passo recomendado, métricas vivas)
+- Toggle "Disponível / Esgotou" também filtra produtos no atendente (bug pós-remoção do estoque numérico)
+- Remover estoque numérico — só "tem ou não tem" (feedback Gil)
+- Reset PIN do Gil pra 2699 + script reusável
 - Auditoria UX crítica 4º pass — Fases A (5/5), B (9/14), C (4/5)
 - Follow-ups audit externo: preview comprovante (#74), atalhos teclado (#75), PDF comparativo (#77), TV breathe intermitente (#78), áudio escalonado (#76)
 - `/guia` criado: manual completo por papel, hero gradient, steps numerados, callouts, reescrito pra família (zero jargão)

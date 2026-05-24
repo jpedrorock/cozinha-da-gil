@@ -77,9 +77,11 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 ## Histórico recente (últimos 5 dias)
 
 ### 2026-05-22 (hoje)
-- 22 commits — auditoria crítica + guia + housekeeping + reorganização admin
-- BACKLOG replanejado: 9 itens novos aprovados (higiene, deploy, tech debt, testes, decisão produto)
+- 24 commits — auditoria crítica + guia + housekeeping + reorganização admin + estoque simplificado
+- BACKLOG replanejado: 9 itens novos aprovados; 1 fechado (sincronizar STATUS)
 - PIN do Gil resetado pra 2699
+- Estoque numérico removido — só toggle "Disponível / Esgotou" (decisão de produto: meio pastel de cada recheio inviabiliza contagem)
+- Toggle de produto também filtra no atendente (bug encontrado e corrigido)
 
 ### 2026-05-22 (instalação)
 - Sistema STATUS/BACKLOG/PLAYBOOK instalado pelo claude-orchestrator (Cowork).
