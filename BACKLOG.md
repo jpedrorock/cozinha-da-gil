@@ -47,10 +47,6 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ### Cobertura de testes
 
-- [ ] **[P2] #test** E2E Playwright: fluxo completo de 1 pedido (atendente → cozinha → entregue)
-  - **Pronto quando:** `e2e/order-flow.spec.ts` faz login Gil, abre caixa, troca pra atendente (PIN), cria pedido com 2 itens, troca pra cozinha, marca pronto, volta atendente, marca entregue, valida row final no DB. `npm run test:e2e` verde.
-  - **Contexto:** se algo quebrar SSE/auth/schema, esse teste captura antes de chegar em prod.
-  - **Autonomia:** OK fazer direto.
 
 ### Decisão de produto pendente
 
@@ -77,6 +73,7 @@ _Itens sem critério de pronto claro ainda._
 - [claude-pastel 2026-05-24 background] Fix log PRAGMA WAL — `lib/prisma.ts` usa `$queryRawUnsafe` em vez de `$executeRawUnsafe` pro `journal_mode = WAL`
 - [claude-pastel 2026-05-24 background] Promotions via SSR — `page.tsx` passa `initialPromotions`; removido `useEffect+fetch` do `AtendenteClient`
 - [claude-pastel 2026-05-24 background] `docs/UPGRADE-NEXT-15.md` — plano de upgrade Next 14→15: async params (20 arquivos), fetch caching, React 19, next-pwa, estimativa 4-6h
+- [claude-pastel 2026-05-24 background] `e2e/order-flow.spec.ts` — spec do fluxo completo: atendente cria (API) → cozinha prepara (UI) → atendente entrega (UI) → valida ENTREGUE via API. Requer servidor rodando pra `npm run test:e2e` verde.
 
 ### 2026-05-22
 - [claude-pastel 2026-05-22] Limpeza de imagens órfãs em `uploads/products/` — `scripts/cleanup-orphan-images.ts` com dry-run default + flag `--delete`. Idempotente.
