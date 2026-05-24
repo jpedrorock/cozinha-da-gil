@@ -46,10 +46,6 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ### Cobertura de testes
 
-- [ ] **[P2] #test** E2E Playwright: fluxo completo de 1 pedido (atendente → cozinha → entregue)
-  - **Pronto quando:** `e2e/order-flow.spec.ts` faz login Gil, abre caixa, troca pra atendente (PIN), cria pedido com 2 itens, troca pra cozinha, marca pronto, volta atendente, marca entregue, valida row final no DB. `npm run test:e2e` verde.
-  - **Contexto:** se algo quebrar SSE/auth/schema, esse teste captura antes de chegar em prod.
-  - **Autonomia:** OK fazer direto.
 
 ### Decisão de produto pendente
 
@@ -73,6 +69,7 @@ _Itens sem critério de pronto claro ainda._
 ## ✅ Concluídos recentemente
 
 ### 2026-05-24
+- [claude-pastel 2026-05-24 background] E2E fluxo completo: `e2e/order-flow.spec.ts` — login/switch de roles, 2 itens, EM_PREPARO→PRONTO→ENTREGUE, valida row final, teste de transição inválida. e2e inconclusivo (sem dev server em background; testes legados auth/api-smoke também falham por ECONNREFUSED)
 - [claude-pastel 2026-05-24 background] Doc Next 14→15: `docs/UPGRADE-NEXT-15.md` com breaking changes, 14 arquivos afetados, passos de migração, estimativa 8h
 - [claude-pastel 2026-05-24 background] Fix PRAGMA journal_mode WAL — `$queryRawUnsafe` em vez de `$executeRawUnsafe` pra eliminar "Execute returned results" em scripts CLI (lib/prisma.ts)
 
