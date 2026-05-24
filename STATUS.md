@@ -2,8 +2,8 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-05-22
-**Atualizado por:** `claude-pastel`
+**Última atualização:** 2026-05-24
+**Atualizado por:** `claude-pastel` (rotina background)
 
 ---
 
@@ -13,6 +13,13 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## O que rolou desde a última sessão
 
+### 2026-05-24 (rotina background)
+- Fix `$queryRawUnsafe` no PRAGMA WAL (`lib/prisma.ts`) — erro cosmético "Execute returned results" eliminado dos logs de scripts CLI
+- `docs/UPGRADE-NEXT-15.md` criado — plano completo de migração Next 14→15: 13 arquivos afetados por async params, incompatibilidade `next-pwa@5`, sequência e estimativa 4–5h
+- `e2e/order-flow.spec.ts` criado — fluxo completo atendente→cozinha→entregue. API flow validado; UI tests inconclusivos (browser Chromium não disponível no cloud — rodar `npx playwright install` local)
+- Branch `routine-pastel-20260524-1103`, PR aberto
+
+### 2026-05-22
 - Auditoria UX crítica (4º pass) — Fases A (5/5 críticos), B (9/14 importantes), C (4/5 polish + a11y) shipped em 18 commits
 - Follow-ups do audit externo: preview comprovante 80mm, atalhos teclado cozinha, áudio escalonado, PDF com delta vs período anterior, TV breathe intermitente
 - Página `/guia` criada — manual por papel (atendente/cozinha/admin/geral) com tabs, busca, accordion, hero gradient, steps numerados, callouts. Reescrito 2x: primeiro inspirado no `Help.tsx` do cultivo-server, depois sem jargão técnico pra família ler
@@ -32,6 +39,7 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 ## Próximo passo recomendado
 
 João: mergear PR #4 (backup) + planejar janela pro redeploy Coolify (P1 do BACKLOG).
+Depois do merge: rodar `npx playwright install && npm run test:e2e` no laptop da barraca pra validar os testes UI do `e2e/order-flow.spec.ts` (inconclusivos no cloud por falta de browser).
 
 ---
 
@@ -51,7 +59,7 @@ João: mergear PR #4 (backup) + planejar janela pro redeploy Coolify (P1 do BACK
 | PWA (next-pwa, manifest, service worker) | 🟢 | Standalone, splash, install prompts. |
 | Auth (iron-session) | 🟢 | PIN único por role, identificação por {role + PIN}. |
 | Testes Vitest | 🟢 | 57/57 passando. |
-| Testes Playwright e2e | 🟡 | Suite existe mas falta cobrir fluxo completo de pedido (item no BACKLOG). |
+| Testes Playwright e2e | 🟡 | `order-flow.spec.ts` escrito; UI tests inconclusivos no cloud (sem browser). Rodar `npx playwright install && npm run test:e2e` local. |
 
 ---
 
@@ -76,7 +84,11 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 
 ## Histórico recente (últimos 5 dias)
 
-### 2026-05-22 (hoje)
+### 2026-05-24 (rotina background)
+- 3 itens do BACKLOG: PRAGMA fix, doc Next 14→15, e2e order-flow
+- PR aberto para review
+
+### 2026-05-22
 - 25 commits — auditoria crítica + guia + housekeeping + reorganização admin + estoque simplificado
 - BACKLOG replanejado: 9 itens novos aprovados; 1 fechado (sincronizar STATUS); 1 em PR (backup #4)
 - PIN do Gil resetado pra 2699
