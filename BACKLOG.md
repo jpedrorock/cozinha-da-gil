@@ -40,10 +40,10 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
   - **Contexto:** depois das mudanças de schema dos commits recentes, volume antigo do Coolify pode ter rows incompatíveis.
   - **Autonomia:** Confirmar antes (mexe em produção real).
 
-- [ ] **[P2] #chore** Limpeza de imagens órfãs em `uploads/products/`
-  - **Pronto quando:** script `scripts/cleanup-orphan-images.ts` lista (dry-run) ou deleta arquivos cuja URL não bate com nenhum `Product.imageUrl` no DB; documentado no README de scripts.
-  - **Contexto:** quando admin troca imagem via UI, `lib/uploads` já deleta a antiga. Mas se um produto for deletado direto no DB, o arquivo fica órfão.
-  - **Autonomia:** OK fazer direto (idempotente, dry-run por default).
+- [ ] **[P3] #chore** Fix log barulhento de `PRAGMA journal_mode = WAL` em `lib/prisma.ts`
+  - **Pronto quando:** `lib/prisma.ts` usa `$queryRawUnsafe` em vez de `$executeRawUnsafe` pro pragma `journal_mode = WAL` (que retorna 1 row), sem mais erro "Execute returned results" no log de scripts CLI.
+  - **Contexto:** descoberto rodando `scripts/cleanup-orphan-images.ts`. O erro é cosmético (PRAGMA roda mesmo no SQLite); só polui logs. Toca em `lib/prisma.ts` — sensível.
+  - **Autonomia:** OK fazer direto (mudança trivial), mas rodar `npm test` antes.
 
 ### Tech debt com critério
 
@@ -85,6 +85,7 @@ _Itens sem critério de pronto claro ainda._
 ## ✅ Concluídos recentemente
 
 ### 2026-05-22
+- [claude-pastel 2026-05-22] Limpeza de imagens órfãs em `uploads/products/` — `scripts/cleanup-orphan-images.ts` com dry-run default + flag `--delete`. Idempotente.
 - [claude-pastel 2026-05-22] Sincronizar STATUS.md com estado atual do projeto (módulos 🟢, histórico do dia, próximo passo recomendado, métricas vivas)
 - Toggle "Disponível / Esgotou" também filtra produtos no atendente (bug pós-remoção do estoque numérico)
 - Remover estoque numérico — só "tem ou não tem" (feedback Gil)
