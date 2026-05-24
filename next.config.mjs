@@ -60,6 +60,10 @@ const nextConfig = {
   // arquivos do node_modules em vez de re-empacotar.
   experimental: {
     serverComponentsExternalPackages: ["pdfkit"],
+    // instrumentation.ts roda 1x no boot do server. Usamos pra agendar
+    // backup diário do SQLite (lib/backup-scheduler.ts). Em dev ou sem
+    // BACKUP_SCHEDULE_ENABLED=true, o scheduler é no-op.
+    instrumentationHook: true,
   },
   // Lint roda no build — falha trava produção. Limpeza dos 28 erros reais
   // feita na task de housekeeping (#67); arquivos gerados (sw.js, workbox-*)
