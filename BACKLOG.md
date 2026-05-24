@@ -47,10 +47,6 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ### Tech debt com critério
 
-- [ ] **[P2] #chore #atendente** Receber `promotions` via SSR em vez de `fetch` no mount
-  - **Pronto quando:** TODO em `app/atendente/AtendenteClient.tsx:196` resolvido. SSR de `app/atendente/page.tsx` passa `initialPromotions` igual a `initialProducts`. Sem useEffect+fetch.
-  - **Autonomia:** OK fazer direto.
-
 - [ ] **[P3] #chore** Plano de major bump Next 14 → 15 (doc-only por agora)
   - **Pronto quando:** `docs/UPGRADE-NEXT-15.md` criado com breaking changes (async `params`/`searchParams`, fetch caching invertido, React 19 default), passos de migração, riscos por arquivo, estimativa de horas.
   - **Contexto:** vulns Next 14.x não aplicam ao app (sem `remotePatterns`, sem `rewrites`, sem CSP nonces) mas eventualmente vão acumular. Doc serve de roadmap quando tiver janela.
@@ -85,6 +81,7 @@ _Itens sem critério de pronto claro ainda._
 ## ✅ Concluídos recentemente
 
 ### 2026-05-22
+- [claude-pastel 2026-05-22] Promotions via SSR — `app/atendente/page.tsx` passa `initialPromotions`, eliminado useEffect+fetch no mount. TODO antigo resolvido.
 - [claude-pastel 2026-05-22] Limpeza de imagens órfãs em `uploads/products/` — `scripts/cleanup-orphan-images.ts` com dry-run default + flag `--delete`. Idempotente.
 - [claude-pastel 2026-05-22] Sincronizar STATUS.md com estado atual do projeto (módulos 🟢, histórico do dia, próximo passo recomendado, métricas vivas)
 - Toggle "Disponível / Esgotou" também filtra produtos no atendente (bug pós-remoção do estoque numérico)
