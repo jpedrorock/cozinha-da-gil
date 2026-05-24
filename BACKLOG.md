@@ -44,10 +44,6 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 ### Tech debt com critério
 
 
-- [ ] **[P3] #chore** Plano de major bump Next 14 → 15 (doc-only por agora)
-  - **Pronto quando:** `docs/UPGRADE-NEXT-15.md` criado com breaking changes (async `params`/`searchParams`, fetch caching invertido, React 19 default), passos de migração, riscos por arquivo, estimativa de horas.
-  - **Contexto:** vulns Next 14.x não aplicam ao app (sem `remotePatterns`, sem `rewrites`, sem CSP nonces) mas eventualmente vão acumular. Doc serve de roadmap quando tiver janela.
-  - **Autonomia:** OK fazer direto.
 
 ### Cobertura de testes
 
@@ -80,6 +76,7 @@ _Itens sem critério de pronto claro ainda._
 ### 2026-05-24
 - [claude-pastel 2026-05-24 background] Fix log PRAGMA WAL — `lib/prisma.ts` usa `$queryRawUnsafe` em vez de `$executeRawUnsafe` pro `journal_mode = WAL`
 - [claude-pastel 2026-05-24 background] Promotions via SSR — `page.tsx` passa `initialPromotions`; removido `useEffect+fetch` do `AtendenteClient`
+- [claude-pastel 2026-05-24 background] `docs/UPGRADE-NEXT-15.md` — plano de upgrade Next 14→15: async params (20 arquivos), fetch caching, React 19, next-pwa, estimativa 4-6h
 
 ### 2026-05-22
 - [claude-pastel 2026-05-22] Limpeza de imagens órfãs em `uploads/products/` — `scripts/cleanup-orphan-images.ts` com dry-run default + flag `--delete`. Idempotente.
