@@ -48,7 +48,7 @@ João: mergear PR #4 (backup) + planejar janela pro redeploy Coolify (P1 do BACK
 | `app/api` (endpoints + SSE) | 🟢 | Codes estruturados (DUPLICATE_SUSPECTED, CAIXA_FECHADO, INVALID_TRANSITION, ORDER_LOCKED). |
 | `prisma/schema` | 🟢 | imageUrl + imageDataUrl (legacy) coexistem; migração roda no boot. |
 | Impressora térmica | 🟡 | window.print() funcional; integração ESC/POS espera hardware. |
-| PWA (next-pwa, manifest, service worker) | 🟢 | Standalone, splash, install prompts. |
+| PWA (next-pwa, manifest, service worker) | 🟢 | Standalone, 15 splashes (iPhone+iPad), install prompts, update prompt, CacheFirst pra assets imutáveis, shortcuts no long-press, página offline. |
 | Auth (iron-session) | 🟢 | PIN único por role, identificação por {role + PIN}. |
 | Testes Vitest | 🟢 | 57/57 passando. |
 | Testes Playwright e2e | 🟡 | Suite existe mas falta cobrir fluxo completo de pedido (item no BACKLOG). |
