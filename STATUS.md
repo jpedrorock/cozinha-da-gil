@@ -2,8 +2,8 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-05-22
-**Atualizado por:** `claude-pastel`
+**Última atualização:** 2026-05-25
+**Atualizado por:** `claude-pastel` (background routine)
 
 ---
 
@@ -11,7 +11,13 @@
 
 Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
-## O que rolou desde a última sessão
+## O que rolou desde a última sessão (routine 2026-05-25)
+
+- Fix PRAGMA: `lib/prisma.ts` usa `$queryRawUnsafe` pra `journal_mode = WAL` (retorna row), silencia "Execute returned results" em scripts CLI.
+- Doc `docs/UPGRADE-NEXT-15.md`: plano de upgrade Next 14→15 com 15 arquivos afetados por `params` async, risco `next-pwa`, React 19, estimativa 5-7h.
+- Teste `e2e/order-flow.spec.ts`: fluxo completo PEDIDO_FEITO→EM_PREPARO→PRONTO→ENTREGUE com login via UI real (PIN atendente/cozinha) + validação de timestamps. Inconclusivo no container (sem Chromium); validar localmente.
+
+## O que rolou desde a última sessão (presencial 2026-05-22)
 
 - Auditoria UX crítica (4º pass) — Fases A (5/5 críticos), B (9/14 importantes), C (4/5 polish + a11y) shipped em 18 commits
 - Follow-ups do audit externo: preview comprovante 80mm, atalhos teclado cozinha, áudio escalonado, PDF com delta vs período anterior, TV breathe intermitente
@@ -31,7 +37,7 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## Próximo passo recomendado
 
-João: mergear PR #4 (backup) + planejar janela pro redeploy Coolify (P1 do BACKLOG).
+João: mergear PR #4 (backup) + planejar janela pro redeploy Coolify (P1 do BACKLOG). Também mergeará PR desta routine (fixes + doc + e2e) — rodar `npx playwright install chromium && npm run test:e2e` pra confirmar o order-flow verde.
 
 ---
 
@@ -65,7 +71,7 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 
 ## Métricas vivas
 
-- Tests passando: **57/57** ✅
+- Tests passando: **57/57** ✅ (Vitest unit)
 - Type-check: **ok** ✅
 - ESLint: **0 erros** ✅ (check ativo no build)
 - DB schema: **sincronizado** ✅ (imageUrl adicionado)
@@ -75,6 +81,11 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 ---
 
 ## Histórico recente (últimos 5 dias)
+
+### 2026-05-25 (routine background)
+- Fix PRAGMA `journal_mode = WAL` em `lib/prisma.ts`: `$queryRawUnsafe` pra silenciar erro nos logs
+- Doc `docs/UPGRADE-NEXT-15.md`: plano de upgrade com breaking changes, arquivos afetados, estimativa
+- `e2e/order-flow.spec.ts`: fluxo completo de pedido (login PIN → criação → ENTREGUE), inconclusivo no container
 
 ### 2026-05-22 (hoje)
 - 25 commits — auditoria crítica + guia + housekeeping + reorganização admin + estoque simplificado

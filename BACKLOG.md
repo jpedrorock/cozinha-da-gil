@@ -46,10 +46,6 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ### Cobertura de testes
 
-- [ ] **[P2] #test** E2E Playwright: fluxo completo de 1 pedido (atendente → cozinha → entregue)
-  - **Pronto quando:** `e2e/order-flow.spec.ts` faz login Gil, abre caixa, troca pra atendente (PIN), cria pedido com 2 itens, troca pra cozinha, marca pronto, volta atendente, marca entregue, valida row final no DB. `npm run test:e2e` verde.
-  - **Contexto:** se algo quebrar SSE/auth/schema, esse teste captura antes de chegar em prod.
-  - **Autonomia:** OK fazer direto.
 
 ### Decisão de produto pendente
 
@@ -73,6 +69,7 @@ _Itens sem critério de pronto claro ainda._
 ## ✅ Concluídos recentemente
 
 ### 2026-05-25
+- [claude-pastel 2026-05-25 background] E2E Playwright order-flow: `e2e/order-flow.spec.ts` escrito — login atendente/cozinha via UI real, criação de pedido (2 bebidas), estado PEDIDO_FEITO→EM_PREPARO→PRONTO→ENTREGUE, validação de timestamps. `npm run test:e2e` inconclusivo no container (sem Chromium disponível); testar localmente com `npx playwright install chromium && npm run test:e2e`.
 - [claude-pastel 2026-05-25 background] Plano de upgrade Next 14 → 15: `docs/UPGRADE-NEXT-15.md` com breaking changes (15 arquivos de params async, next-pwa risco, React 19), passos de migração, riscos por área, estimativa 5-7h.
 - [claude-pastel 2026-05-25 background] Fix PRAGMA journal_mode = WAL: `$queryRawUnsafe` em vez de `$executeRawUnsafe` pra silenciar erro "Execute returned results" nos logs de scripts CLI.
 
