@@ -3,10 +3,24 @@ import nextPWA from "next-pwa";
 const withPWA = nextPWA({
   dest: "public",
   register: true,
-  skipWaiting: true,
+  // skipWaiting: false — novo SW fica em `waiting` state até receber
+  // mensagem SKIP_WAITING do client. components/PWAUpdatePrompt.tsx
+  // detecta e mostra toast "Nova versão — atualizar?" pro user clicar.
+  // Sem isso, novo SW assumia silenciosamente e podia recarregar no
+  // meio de pedido aberto, perdendo state do form. PWA audit #5.
+  skipWaiting: false,
   disable: process.env.NODE_ENV === "development",
+  // Fallback automático do SW quando navegação falha (offline).
+  // NÃO usar `fallbacks: { document }` aqui — next-pwa 5.6.0 tem bug
+  // que requer precacheFallback em TODA entry de runtimeCaching, o que
+  // sobrescreve nossas regras de NetworkFirst/CacheFirst. Quando migrar
+  // pra @ducanh2912/next-pwa (plano em docs/UPGRADE-NEXT-15.md), reativar.
+  //
+  // Por enquanto: /offline existe como rota normal (app/offline/page.tsx).
+  // Navegação manual funciona; fallback automático no offline ainda mostra
+  // erro genérico do browser. Aceitável — wifi de barraca volta rápido.
   // SSE não funciona offline. APIs de mutação também (POST/PATCH/DELETE) — falham com erro claro.
-  // Cache de páginas: StaleWhileRevalidate. Cache de assets: CacheFirst (default do next-pwa).
+  // Cache de páginas: StaleWhileRevalidate. Assets imutáveis: CacheFirst.
   runtimeCaching: [
     {
       // Bypass total pra SSE — não cache, não intercepta
@@ -41,7 +55,38 @@ const withPWA = nextPWA({
       method: "DELETE",
     },
     {
-      // Páginas/HTML: stale-while-revalidate
+      // Assets imutáveis do Next (hash no nome). CacheFirst = serve do
+      // cache sem checar rede primeiro — mais rápido e funciona offline
+      // mesmo após cold start. Quando o hash muda, a URL muda, browser
+      // baixa o novo automaticamente. PWA audit #7.
+      urlPattern: /\/_next\/static\/.+/,
+      handler: "CacheFirst",
+      options: {
+        cacheName: "next-static",
+        expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 30 },
+      },
+    },
+    {
+      // Ícones e splashes do PWA — também imutáveis
+      urlPattern: /\/(icons?|splash|apple-touch-icon|favicon)/,
+      handler: "CacheFirst",
+      options: {
+        cacheName: "pwa-assets",
+        expiration: { maxEntries: 50, maxAgeSeconds: 60 * 60 * 24 * 30 },
+      },
+    },
+    {
+      // Imagens de produto (filesystem via /api/uploads) — fingerprint
+      // de hash no filename, imutáveis também.
+      urlPattern: /\/api\/uploads\/.+/,
+      handler: "CacheFirst",
+      options: {
+        cacheName: "product-images",
+        expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 30 },
+      },
+    },
+    {
+      // Páginas/HTML: stale-while-revalidate (catch-all final)
       urlPattern: /^https?.*/,
       handler: "StaleWhileRevalidate",
       options: {

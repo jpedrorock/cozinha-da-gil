@@ -17,11 +17,40 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: "#FFD600",
     orientation: "portrait-primary",
     lang: "pt-BR",
-    // Categories ajudam launchers a indexar; "food" pelo domínio, "business"
-    // e "productivity" pela natureza POS.
-    categories: ["food", "business", "productivity"],
+    // dir: direção de leitura — ajuda acessibilidade (RTL screen readers
+    // pulam interpretação). Sempre LTR pro pt-BR.
+    dir: "ltr",
+    // Categories — só valores da spec W3C (food não está na lista oficial).
+    // business + productivity + utilities batem com a natureza do POS.
+    categories: ["business", "productivity", "utilities"],
     // Não sugere busca de app nativo — somos a versão definitiva.
     prefer_related_applications: false,
+    // Shortcuts no long-press do ícone (Android) / 3D-touch (iOS).
+    // Cada role tem atalho que cai DIRETO na tela operacional, pulando
+    // a tela de login. Maria/José/Gil ganham 1 tap a menos toda manhã.
+    shortcuts: [
+      {
+        name: "Atendente",
+        short_name: "Atendente",
+        description: "Anotar pedidos novos",
+        url: "/atendente",
+        icons: [{ src: "/icon-192.png", sizes: "192x192", type: "image/png" }],
+      },
+      {
+        name: "Cozinha",
+        short_name: "Cozinha",
+        description: "Ver pedidos pra preparar",
+        url: "/cozinha",
+        icons: [{ src: "/icon-192.png", sizes: "192x192", type: "image/png" }],
+      },
+      {
+        name: "Admin",
+        short_name: "Admin",
+        description: "Caixa, cardápio, vendas",
+        url: "/admin",
+        icons: [{ src: "/icon-192.png", sizes: "192x192", type: "image/png" }],
+      },
+    ],
     icons: [
       // PNGs pro iOS (Add to Home Screen) e Android (Install Banner).
       // iOS Safari não renderiza SVG no apple-touch-icon — exige PNG 180×180.
