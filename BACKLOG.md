@@ -43,10 +43,6 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ### Tech debt com critério
 
-- [ ] **[P3] #chore** Plano de major bump Next 14 → 15 (doc-only por agora)
-  - **Pronto quando:** `docs/UPGRADE-NEXT-15.md` criado com breaking changes (async `params`/`searchParams`, fetch caching invertido, React 19 default), passos de migração, riscos por arquivo, estimativa de horas.
-  - **Contexto:** vulns Next 14.x não aplicam ao app (sem `remotePatterns`, sem `rewrites`, sem CSP nonces) mas eventualmente vão acumular. Doc serve de roadmap quando tiver janela.
-  - **Autonomia:** OK fazer direto.
 
 ### Cobertura de testes
 
@@ -77,6 +73,7 @@ _Itens sem critério de pronto claro ainda._
 ## ✅ Concluídos recentemente
 
 ### 2026-05-25
+- [claude-pastel 2026-05-25 background] Plano de upgrade Next 14 → 15: `docs/UPGRADE-NEXT-15.md` com breaking changes (15 arquivos de params async, next-pwa risco, React 19), passos de migração, riscos por área, estimativa 5-7h.
 - [claude-pastel 2026-05-25 background] Fix PRAGMA journal_mode = WAL: `$queryRawUnsafe` em vez de `$executeRawUnsafe` pra silenciar erro "Execute returned results" nos logs de scripts CLI.
 
 ### 2026-05-22
