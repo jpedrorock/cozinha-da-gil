@@ -2,8 +2,8 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-05-22
-**Atualizado por:** `claude-pastel`
+**Última atualização:** 2026-05-25
+**Atualizado por:** `claude-pastel` (background routine)
 
 ---
 
@@ -12,6 +12,8 @@
 Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## O que rolou desde a última sessão
+
+- **Routine 2026-05-25:** E2E Playwright `order-flow.spec.ts` — 3 cenários de fluxo completo de pedido passando. Fix na senha do Gil no `api-smoke.spec.ts`. Auth UI tests (browser) pré-existentes no env cloud (requerem `npx playwright install`).
 
 - Auditoria UX crítica (4º pass) — Fases A (5/5 críticos), B (9/14 importantes), C (4/5 polish + a11y) shipped em 18 commits
 - Follow-ups do audit externo: preview comprovante 80mm, atalhos teclado cozinha, áudio escalonado, PDF com delta vs período anterior, TV breathe intermitente
@@ -28,6 +30,7 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 ## Bloqueios ativos
 
 - **PR #4 aguardando merge** — backup automático do dev.db. Implementação testada local; precisa review + merge do João pra subir pra Coolify.
+- **auth.spec.ts UI tests** — 4 testes requerem Chromium browser (`npx playwright install`). Pré-existente no env cloud; testes API (api-smoke + order-flow) todos verdes.
 
 ## Próximo passo recomendado
 
@@ -51,7 +54,7 @@ João: mergear PR #4 (backup) + planejar janela pro redeploy Coolify (P1 do BACK
 | PWA (next-pwa, manifest, service worker) | 🟢 | Standalone, 15 splashes (iPhone+iPad), install prompts, update prompt, CacheFirst pra assets imutáveis, shortcuts no long-press, página offline. |
 | Auth (iron-session) | 🟢 | PIN único por role, identificação por {role + PIN}. |
 | Testes Vitest | 🟢 | 57/57 passando. |
-| Testes Playwright e2e | 🟡 | Suite existe mas falta cobrir fluxo completo de pedido (item no BACKLOG). |
+| Testes Playwright e2e | 🟡 | `order-flow.spec.ts` cobre fluxo completo; `auth.spec.ts` requer Chromium instalado (pré-existente). |
 
 ---
 
@@ -65,7 +68,7 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 
 ## Métricas vivas
 
-- Tests passando: **57/57** ✅
+- Tests passando: **57/57** ✅ (unit) + **7/11 e2e** (4 falhas pré-existentes: Chromium não instalado)
 - Type-check: **ok** ✅
 - ESLint: **0 erros** ✅ (check ativo no build)
 - DB schema: **sincronizado** ✅ (imageUrl adicionado)
