@@ -1,3 +1,9 @@
+// `server-only` faz Next falhar no BUILD se algum client component
+// importar esse módulo. Defesa em profundidade contra o erro
+// "PrismaClient is unable to run in this browser environment" que já
+// aconteceu várias vezes (geralmente por cache stale do .next, mas
+// se um dia for leak real, esse import expõe na hora).
+import "server-only";
 import { PrismaClient } from "@prisma/client";
 
 const globalForPrisma = globalThis as unknown as {
@@ -24,8 +30,12 @@ if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
  */
 if (!globalForPrisma.prismaInitialized) {
   globalForPrisma.prismaInitialized = true;
+  // journal_mode RETORNA uma linha (modo atual) — precisa de
+  // `$queryRawUnsafe`. `$executeRawUnsafe` reclama "Execute returned
+  // results, which is not allowed in SQLite". Os outros 2 PRAGMAs são
+  // setters puros (sem retorno) e podem ficar com executeRaw.
   prisma
-    .$executeRawUnsafe("PRAGMA journal_mode = WAL;")
+    .$queryRawUnsafe("PRAGMA journal_mode = WAL;")
     .then(() => prisma.$executeRawUnsafe("PRAGMA busy_timeout = 5000;"))
     .then(() => prisma.$executeRawUnsafe("PRAGMA synchronous = NORMAL;"))
     .then(() => {

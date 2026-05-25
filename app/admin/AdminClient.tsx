@@ -56,7 +56,7 @@ import { formatBRL, SIZE_LABEL } from "@/lib/pricing";
 import type { OrderView } from "@/lib/orders";
 import type { ProductView } from "@/lib/products";
 import type { PromotionView } from "@/lib/promotions";
-import { isStaleEventSession, type EventSessionStatus } from "@/lib/event-session";
+import { isStaleEventSession, type EventSessionStatus } from "@/lib/event-session-shared";
 import type { Ingredient } from "@prisma/client";
 
 type Tab = "vendas" | "operacao" | "historico" | "cardapio" | "promocoes" | "clientes" | "usuarios";

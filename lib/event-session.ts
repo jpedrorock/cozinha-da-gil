@@ -1,5 +1,13 @@
+import "server-only";
 import { prisma } from "@/lib/prisma";
 import type { EventSession } from "@prisma/client";
+
+// Re-exporta tipos e helpers puros pra back-compat com server pages
+// que ainda importam tudo daqui. Client components devem usar
+// `@/lib/event-session-shared` diretamente — não esse arquivo.
+export { isStaleEventSession, type EventSessionStatus } from "@/lib/event-session-shared";
+
+import type { EventSessionStatus } from "@/lib/event-session-shared";
 
 /**
  * Retorna a sessão de caixa aberta atual (closedAt = null) ou null
@@ -11,18 +19,6 @@ export async function getCurrentEventSession(): Promise<EventSession | null> {
     orderBy: { openedAt: "desc" },
   });
 }
-
-/**
- * Status simplificado pro frontend — substitui o DayStatus antigo.
- */
-export type EventSessionStatus = {
-  open: boolean;
-  id: string | null;
-  name: string | null;
-  eventDate: string | null;
-  openedAt: string | null;
-  openedBy: string | null;
-};
 
 export async function getEventSessionStatus(): Promise<EventSessionStatus> {
   const session = await getCurrentEventSession();
@@ -37,25 +33,6 @@ export async function getEventSessionStatus(): Promise<EventSessionStatus> {
     openedAt: session.openedAt.toISOString(),
     openedBy: session.openedBy,
   };
-}
-
-/**
- * Detecta caixa órfão — aberto há mais de N horas (default 12h).
- * Cenário real: Gil esqueceu de fechar ontem à noite, abre app hoje e
- * pedidos novos agregam no caixa errado. Banner de alerta convida fechar.
- *
- * Usa `openedAt` (string ISO ou Date) — funciona tanto no client (com a
- * `EventSessionStatus` serializada) quanto no server.
- */
-export function isStaleEventSession(
-  openedAt: string | Date | null | undefined,
-  staleHours = 12,
-): boolean {
-  if (!openedAt) return false;
-  const opened = typeof openedAt === "string" ? new Date(openedAt) : openedAt;
-  if (isNaN(opened.getTime())) return false;
-  const ageHours = (Date.now() - opened.getTime()) / (1000 * 60 * 60);
-  return ageHours >= staleHours;
 }
 
 /**

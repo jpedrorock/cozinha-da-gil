@@ -40,10 +40,6 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
   - **Contexto:** depois das mudanças de schema dos commits recentes, volume antigo do Coolify pode ter rows incompatíveis.
   - **Autonomia:** Confirmar antes (mexe em produção real).
 
-- [ ] **[P3] #chore** Fix log barulhento de `PRAGMA journal_mode = WAL` em `lib/prisma.ts`
-  - **Pronto quando:** `lib/prisma.ts` usa `$queryRawUnsafe` em vez de `$executeRawUnsafe` pro pragma `journal_mode = WAL` (que retorna 1 row), sem mais erro "Execute returned results" no log de scripts CLI.
-  - **Contexto:** descoberto rodando `scripts/cleanup-orphan-images.ts`. O erro é cosmético (PRAGMA roda mesmo no SQLite); só polui logs. Toca em `lib/prisma.ts` — sensível.
-  - **Autonomia:** OK fazer direto (mudança trivial), mas rodar `npm test` antes.
 
 ### Tech debt com critério
 
@@ -76,6 +72,8 @@ _Itens sem critério de pronto claro ainda._
 ## ✅ Concluídos recentemente
 
 ### 2026-05-22
+- [claude-pastel 2026-05-22] **Fix leak Server → Client em `lib/event-session.ts`** — separado `lib/event-session-shared.ts` (puro) do server-only. AdminClient/AtendenteClient agora importam do shared. Causava erro "PrismaClient unable to run in browser environment". `import "server-only"` adicionado em `lib/prisma.ts` pra prevenir regressão (build trava se voltar).
+- [claude-pastel 2026-05-22] Fix log barulhento PRAGMA — `lib/prisma.ts` usa `$queryRawUnsafe` no `journal_mode = WAL`.
 - [claude-pastel 2026-05-22] Doc `docs/UPGRADE-NEXT-15.md` — plano completo de breaking changes (14 arquivos afetados), passos de migração (codemod oficial + next-pwa fork), estimativa 3-6h, rollback plan.
 - [claude-pastel 2026-05-22] Promotions via SSR — `app/atendente/page.tsx` passa `initialPromotions`, eliminado useEffect+fetch no mount. TODO antigo resolvido.
 - [claude-pastel 2026-05-22] Limpeza de imagens órfãs em `uploads/products/` — `scripts/cleanup-orphan-images.ts` com dry-run default + flag `--delete`. Idempotente.

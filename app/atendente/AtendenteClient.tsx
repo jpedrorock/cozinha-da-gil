@@ -24,7 +24,7 @@ import { useIdleLogout } from "@/lib/use-idle-logout";
 import { useSSE } from "@/lib/use-sse";
 import { useOperator } from "@/lib/use-operator";
 import type { OrderView } from "@/lib/orders";
-import { isStaleEventSession, type EventSessionStatus } from "@/lib/event-session";
+import { isStaleEventSession, type EventSessionStatus } from "@/lib/event-session-shared";
 import type { ProductView } from "@/lib/products";
 import { isExpressProduct } from "@/lib/products";
 import { computeDiscount, detectApplicable, findCouponMatch, type PromotionView } from "@/lib/promotions";
