@@ -52,6 +52,8 @@ next-env.d.ts
 /prisma/dev.db-wal
 /prisma/dev.db-shm
 /prisma/backups/
+# Artefato de path errado em prisma db push (DATABASE_URL com subpath extra)
+/prisma/prisma/
 
 # Volume de dados em dev (uploads de imagens de produto). Em produção
 # (Coolify), bate em /app/data — volume nomeado no docker-compose.yml.
