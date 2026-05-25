@@ -2,8 +2,8 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-05-22
-**Atualizado por:** `claude-pastel`
+**Última atualização:** 2026-05-25
+**Atualizado por:** `claude-pastel` (routine background)
 
 ---
 
@@ -13,6 +13,13 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## O que rolou desde a última sessão
 
+### 2026-05-25 (routine background)
+- Fix `$queryRawUnsafe` pra PRAGMA journal_mode = WAL — elimina erro cosmético nos logs de scripts CLI
+- `docs/UPGRADE-NEXT-15.md` criado — plano de upgrade Next 14→15, 19 handlers afetados, estimativa 7–9h
+- `e2e/order-flow.spec.ts` criado — fluxo completo atendente→cozinha→entregue com sessões isoladas por role; e2e inconclusivo (sem servidor neste ambiente, mesmo status dos testes existentes)
+- Vitest: 57/57 ✅ | ESLint: 0 erros ✅
+
+### 2026-05-22
 - Auditoria UX crítica (4º pass) — Fases A (5/5 críticos), B (9/14 importantes), C (4/5 polish + a11y) shipped em 18 commits
 - Follow-ups do audit externo: preview comprovante 80mm, atalhos teclado cozinha, áudio escalonado, PDF com delta vs período anterior, TV breathe intermitente
 - Página `/guia` criada — manual por papel (atendente/cozinha/admin/geral) com tabs, busca, accordion, hero gradient, steps numerados, callouts. Reescrito 2x: primeiro inspirado no `Help.tsx` do cultivo-server, depois sem jargão técnico pra família ler
@@ -32,6 +39,7 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 ## Próximo passo recomendado
 
 João: mergear PR #4 (backup) + planejar janela pro redeploy Coolify (P1 do BACKLOG).
+Quando disponível: rodar `npm run test:e2e` com servidor ativo (`npm run dev` ou `npm start`) pra validar o novo `e2e/order-flow.spec.ts`.
 
 ---
 
@@ -76,7 +84,10 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 
 ## Histórico recente (últimos 5 dias)
 
-### 2026-05-22 (hoje)
+### 2026-05-25 (routine background)
+- Fix PRAGMA WAL log, doc upgrade Next 15, e2e order-flow criado
+
+### 2026-05-22
 - 25 commits — auditoria crítica + guia + housekeeping + reorganização admin + estoque simplificado
 - BACKLOG replanejado: 9 itens novos aprovados; 1 fechado (sincronizar STATUS); 1 em PR (backup #4)
 - PIN do Gil resetado pra 2699
