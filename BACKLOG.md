@@ -40,24 +40,15 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
   - **Contexto:** depois das mudanças de schema dos commits recentes, volume antigo do Coolify pode ter rows incompatíveis.
   - **Autonomia:** Confirmar antes (mexe em produção real).
 
-- [ ] **[P3] #chore** Fix log barulhento de `PRAGMA journal_mode = WAL` em `lib/prisma.ts`
-  - **Pronto quando:** `lib/prisma.ts` usa `$queryRawUnsafe` em vez de `$executeRawUnsafe` pro pragma `journal_mode = WAL` (que retorna 1 row), sem mais erro "Execute returned results" no log de scripts CLI.
-  - **Contexto:** descoberto rodando `scripts/cleanup-orphan-images.ts`. O erro é cosmético (PRAGMA roda mesmo no SQLite); só polui logs. Toca em `lib/prisma.ts` — sensível.
-  - **Autonomia:** OK fazer direto (mudança trivial), mas rodar `npm test` antes.
+- [x] **[P3] #chore** Fix log barulhento de `PRAGMA journal_mode = WAL` em `lib/prisma.ts` [claude-pastel 2026-05-25 background]
 
 ### Tech debt com critério
 
-- [ ] **[P3] #chore** Plano de major bump Next 14 → 15 (doc-only por agora)
-  - **Pronto quando:** `docs/UPGRADE-NEXT-15.md` criado com breaking changes (async `params`/`searchParams`, fetch caching invertido, React 19 default), passos de migração, riscos por arquivo, estimativa de horas.
-  - **Contexto:** vulns Next 14.x não aplicam ao app (sem `remotePatterns`, sem `rewrites`, sem CSP nonces) mas eventualmente vão acumular. Doc serve de roadmap quando tiver janela.
-  - **Autonomia:** OK fazer direto.
+- [x] **[P3] #chore** Plano de major bump Next 14 → 15 (doc-only por agora) [claude-pastel 2026-05-25 background]
 
 ### Cobertura de testes
 
-- [ ] **[P2] #test** E2E Playwright: fluxo completo de 1 pedido (atendente → cozinha → entregue)
-  - **Pronto quando:** `e2e/order-flow.spec.ts` faz login Gil, abre caixa, troca pra atendente (PIN), cria pedido com 2 itens, troca pra cozinha, marca pronto, volta atendente, marca entregue, valida row final no DB. `npm run test:e2e` verde.
-  - **Contexto:** se algo quebrar SSE/auth/schema, esse teste captura antes de chegar em prod.
-  - **Autonomia:** OK fazer direto.
+- [x] **[P2] #test** E2E Playwright: fluxo completo de 1 pedido (atendente → cozinha → entregue) [claude-pastel 2026-05-25 background]
 
 ### Decisão de produto pendente
 
@@ -79,6 +70,11 @@ _Itens sem critério de pronto claro ainda._
 ---
 
 ## ✅ Concluídos recentemente
+
+### 2026-05-25
+- [claude-pastel 2026-05-25 background] Fix PRAGMA journal_mode = WAL: `$executeRawUnsafe` → `$queryRawUnsafe` em `lib/prisma.ts` (retorna 1 row, não void)
+- [claude-pastel 2026-05-25 background] Doc `docs/UPGRADE-NEXT-15.md`: breaking changes (params async, fetch caching, React 19, next-pwa), 13 arquivos afetados, codemod, estimativa 3,5–5h
+- [claude-pastel 2026-05-25 background] E2E `e2e/order-flow.spec.ts`: fluxo completo PEDIDO_FEITO→ENTREGUE, INVALID_TRANSITION, 423 sem caixa aberto (3/3 verdes). Fix PIN Gil em api-smoke.spec.ts (1234→2699)
 
 ### 2026-05-22
 - [claude-pastel 2026-05-22] Promotions via SSR — `app/atendente/page.tsx` passa `initialPromotions`, eliminado useEffect+fetch no mount. TODO antigo resolvido.

@@ -2,8 +2,8 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-05-22
-**Atualizado por:** `claude-pastel`
+**Última atualização:** 2026-05-25
+**Atualizado por:** `claude-pastel` (background routine)
 
 ---
 
@@ -13,6 +13,7 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## O que rolou desde a última sessão
 
+- Routine background 2026-05-25: 3 itens BACKLOG — fix PRAGMA WAL log, doc UPGRADE-NEXT-15, e2e order-flow (PR aberto)
 - Auditoria UX crítica (4º pass) — Fases A (5/5 críticos), B (9/14 importantes), C (4/5 polish + a11y) shipped em 18 commits
 - Follow-ups do audit externo: preview comprovante 80mm, atalhos teclado cozinha, áudio escalonado, PDF com delta vs período anterior, TV breathe intermitente
 - Página `/guia` criada — manual por papel (atendente/cozinha/admin/geral) com tabs, busca, accordion, hero gradient, steps numerados, callouts. Reescrito 2x: primeiro inspirado no `Help.tsx` do cultivo-server, depois sem jargão técnico pra família ler
@@ -31,7 +32,7 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## Próximo passo recomendado
 
-João: mergear PR #4 (backup) + planejar janela pro redeploy Coolify (P1 do BACKLOG).
+João: mergear PR #4 (backup) + PR routine (fix PRAGMA, doc Next 15, e2e) + planejar janela pro redeploy Coolify (P1 do BACKLOG).
 
 ---
 
@@ -51,7 +52,7 @@ João: mergear PR #4 (backup) + planejar janela pro redeploy Coolify (P1 do BACK
 | PWA (next-pwa, manifest, service worker) | 🟢 | Standalone, splash, install prompts. |
 | Auth (iron-session) | 🟢 | PIN único por role, identificação por {role + PIN}. |
 | Testes Vitest | 🟢 | 57/57 passando. |
-| Testes Playwright e2e | 🟡 | Suite existe mas falta cobrir fluxo completo de pedido (item no BACKLOG). |
+| Testes Playwright e2e | 🟡 | order-flow.spec.ts adicionado (3 testes verdes local). Auth UI tests precisam de browser instalado (npx playwright install). |
 
 ---
 
@@ -83,6 +84,12 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 - Estoque numérico removido — só toggle "Disponível / Esgotou" (decisão de produto: meio pastel de cada recheio inviabiliza contagem)
 - Toggle de produto também filtra no atendente (bug encontrado e corrigido)
 - **PR #4 aberto:** backup automático diário do dev.db (instrumentation hook do Next 14, WAL checkpoint, retenção 14 dias, scheduler in-process)
+
+### 2026-05-25 (background routine)
+- Fix PRAGMA journal_mode WAL: `$executeRawUnsafe` → `$queryRawUnsafe` (log silencioso)
+- `docs/UPGRADE-NEXT-15.md` criado: 13 arquivos afetados, passos de migração, estimativa 3,5–5h
+- `e2e/order-flow.spec.ts` adicionado: 3 testes cobrindo fluxo completo PEDIDO_FEITO→ENTREGUE
+- Fix PIN Gil em `e2e/api-smoke.spec.ts` (1234→2699 — stale após PIN reset)
 
 ### 2026-05-22 (instalação)
 - Sistema STATUS/BACKLOG/PLAYBOOK instalado pelo claude-orchestrator (Cowork).
