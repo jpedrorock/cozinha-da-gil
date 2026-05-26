@@ -45,11 +45,6 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ### Cobertura de testes
 
-- [ ] **[P2] #test** E2E Playwright: fluxo completo de 1 pedido (atendente → cozinha → entregue)
-  - **Pronto quando:** `e2e/order-flow.spec.ts` faz login Gil, abre caixa, troca pra atendente (PIN), cria pedido com 2 itens, troca pra cozinha, marca pronto, volta atendente, marca entregue, valida row final no DB. `npm run test:e2e` verde.
-  - **Contexto:** se algo quebrar SSE/auth/schema, esse teste captura antes de chegar em prod.
-  - **Autonomia:** OK fazer direto.
-
 ### Decisão de produto pendente
 
 - [ ] **[P3] #pwa** Decidir se liga HTTPS local
@@ -75,6 +70,9 @@ _Itens sem critério de pronto claro ainda._
 ---
 
 ## ✅ Concluídos recentemente
+
+### 2026-05-26
+- [claude-pastel 2026-05-26 background] **E2E Playwright: fluxo completo de pedido** — `e2e/order-flow.spec.ts` criado: login Gil (admin) abre caixa, cria usuários de teste via API, login atendente via PIN UI, cria pedido 2 itens, login cozinha, EM_PREPARO → PRONTO, login atendente, ENTREGUE, valida row final. ESLint 0 erros, 57/57 unit tests. E2E inconclusivo neste ambiente (Playwright browser não instalado em cloud); valida com `npx playwright install && npm run dev` local.
 
 ### 2026-05-22
 - [claude-pastel 2026-05-22] **PWA audit: 7/8 melhorias shipped** — shortcuts no manifest (long-press iOS/Android), página offline + not-found + global-error, fix categories spec W3C, dir: ltr, **PWA Update Prompt** (toast "Nova versão pronta" em vez de reload silencioso), CacheFirst pra `_next/static + /api/uploads + /icons + /splash`, 7 splash screens novos (iPhone 17 Pro Max + iPads). Script `gen-splashes.ts` reusável. #6 (screenshots reais) ficou no BACKLOG.

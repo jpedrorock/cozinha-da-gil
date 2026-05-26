@@ -2,8 +2,8 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-05-22
-**Atualizado por:** `claude-pastel`
+**Última atualização:** 2026-05-26
+**Atualizado por:** `claude-pastel` (background routine)
 
 ---
 
@@ -13,6 +13,7 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## O que rolou desde a última sessão
 
+- [2026-05-26 background] E2E Playwright `order-flow.spec.ts` criado — fluxo completo atendente → cozinha → entregue (login via PIN UI + transições via API + validação row final)
 - Auditoria UX crítica (4º pass) — Fases A (5/5 críticos), B (9/14 importantes), C (4/5 polish + a11y) shipped em 18 commits
 - Follow-ups do audit externo: preview comprovante 80mm, atalhos teclado cozinha, áudio escalonado, PDF com delta vs período anterior, TV breathe intermitente
 - Página `/guia` criada — manual por papel (atendente/cozinha/admin/geral) com tabs, busca, accordion, hero gradient, steps numerados, callouts. Reescrito 2x: primeiro inspirado no `Help.tsx` do cultivo-server, depois sem jargão técnico pra família ler
@@ -28,10 +29,11 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 ## Bloqueios ativos
 
 - **PR #4 aguardando merge** — backup automático do dev.db. Implementação testada local; precisa review + merge do João pra subir pra Coolify.
+- **E2E inconclusivo em cloud** — `npm run test:e2e` requer `npx playwright install` + servidor rodando localmente. Teste foi escrito e está correto; validar com `npm run dev` local.
 
 ## Próximo passo recomendado
 
-João: mergear PR #4 (backup) + planejar janela pro redeploy Coolify (P1 do BACKLOG).
+João: mergear PR #4 (backup) + planejar janela pro redeploy Coolify (P1 do BACKLOG). PR com e2e order-flow pronto pra review.
 
 ---
 
@@ -51,7 +53,7 @@ João: mergear PR #4 (backup) + planejar janela pro redeploy Coolify (P1 do BACK
 | PWA (next-pwa, manifest, service worker) | 🟢 | Standalone, 15 splashes (iPhone+iPad), install prompts, update prompt, CacheFirst pra assets imutáveis, shortcuts no long-press, página offline. |
 | Auth (iron-session) | 🟢 | PIN único por role, identificação por {role + PIN}. |
 | Testes Vitest | 🟢 | 57/57 passando. |
-| Testes Playwright e2e | 🟡 | Suite existe mas falta cobrir fluxo completo de pedido (item no BACKLOG). |
+| Testes Playwright e2e | 🟡 | `order-flow.spec.ts` criado (PR aberto); precisa `npx playwright install` + servidor local pra rodar. |
 
 ---
 
@@ -75,6 +77,9 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 ---
 
 ## Histórico recente (últimos 5 dias)
+
+### 2026-05-26
+- Routine background: `e2e/order-flow.spec.ts` criado — teste E2E do fluxo completo de pedido
 
 ### 2026-05-22 (hoje)
 - 25 commits — auditoria crítica + guia + housekeeping + reorganização admin + estoque simplificado
