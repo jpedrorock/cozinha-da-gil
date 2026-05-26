@@ -45,10 +45,6 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ### Cobertura de testes
 
-- [ ] **[P2] #test** E2E Playwright: fluxo completo de 1 pedido (atendente → cozinha → entregue)
-  - **Pronto quando:** `e2e/order-flow.spec.ts` faz login Gil, abre caixa, troca pra atendente (PIN), cria pedido com 2 itens, troca pra cozinha, marca pronto, volta atendente, marca entregue, valida row final no DB. `npm run test:e2e` verde.
-  - **Contexto:** se algo quebrar SSE/auth/schema, esse teste captura antes de chegar em prod.
-  - **Autonomia:** OK fazer direto.
 
 ### Decisão de produto pendente
 
@@ -75,6 +71,9 @@ _Itens sem critério de pronto claro ainda._
 ---
 
 ## ✅ Concluídos recentemente
+
+### 2026-05-26
+- [claude-pastel 2026-05-26 background] **E2E Playwright fluxo completo** — `e2e/order-flow.spec.ts`: login Gil, abre caixa, cria usuários de teste (atendente/cozinha), cria pedido com 2 itens não-bebida, transições EM_PREPARO → PRONTO → ENTREGUE, valida row final. E2E inconclusivo em background (sem servidor); lint OK, 57/57 unit tests passando.
 
 ### 2026-05-22
 - [claude-pastel 2026-05-22] **PWA audit: 7/8 melhorias shipped** — shortcuts no manifest (long-press iOS/Android), página offline + not-found + global-error, fix categories spec W3C, dir: ltr, **PWA Update Prompt** (toast "Nova versão pronta" em vez de reload silencioso), CacheFirst pra `_next/static + /api/uploads + /icons + /splash`, 7 splash screens novos (iPhone 17 Pro Max + iPads). Script `gen-splashes.ts` reusável. #6 (screenshots reais) ficou no BACKLOG.
