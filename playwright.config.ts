@@ -18,7 +18,15 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      use: {
+        ...devices["Desktop Chrome"],
+        // Usa o binário headless_shell disponível no ambiente (pode divergir
+        // da versão que o playwright baixaria com `npx playwright install`).
+        // Se ausente, playwright usa a versão instalada via install.
+        ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH
+          ? { launchOptions: { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH } }
+          : {}),
+      },
     },
   ],
 

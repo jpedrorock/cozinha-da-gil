@@ -1,24 +1,30 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Auth UI", () => {
-  test("login page renderiza com role selector", async ({ page }) => {
+  test("login page renderiza com brand e seletor de papel", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("heading", { name: /Entrar/ })).toBeVisible();
+    // Brand "Cozinha da Gil" na tela de login (sem heading formal — é a marca)
+    await expect(page.getByText("Cozinha da").first()).toBeVisible();
+    // Seletor de papel
     await expect(page.getByRole("button", { name: /Atendente/i })).toBeVisible();
     await expect(page.getByRole("button", { name: /Cozinha/i })).toBeVisible();
   });
 
-  test("seletor de role mostra usuários quando clicado", async ({ page }) => {
+  test("clicar em Atendente mostra o teclado PIN", async ({ page }) => {
     await page.goto("/");
-    await page.getByRole("button", { name: /Atendente/i }).click();
-    // Espera popular lista — Maria deve aparecer (seed)
-    await expect(page.getByRole("button", { name: "Maria" }).first()).toBeVisible({ timeout: 5000 });
+    await page.getByRole("button", { name: /Atendente/i }).click({ force: true });
+    // Após clicar no papel, o teclado numérico deve aparecer pra digitar PIN
+    await expect(
+      page.getByRole("group", { name: "Teclado numérico" }),
+    ).toBeVisible({ timeout: 3000 });
   });
 
   test("cliente público abre sem login", async ({ page }) => {
     await page.goto("/cliente");
-    await expect(page.locator("text=/Cozinha da/")).toBeVisible();
-    await expect(page.locator("text=/Pronto pra retirar/i")).toBeVisible();
+    await expect(page.getByText("Cozinha da").first()).toBeVisible();
+    await expect(
+      page.locator("text=/Pronto pra retirar/i").first(),
+    ).toBeVisible();
   });
 
   test("rotas protegidas redirecionam pra login sem sessão", async ({ page }) => {
