@@ -2,8 +2,8 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-05-22
-**Atualizado por:** `claude-pastel`
+**Última atualização:** 2026-05-26
+**Atualizado por:** `claude-pastel` (routine background)
 
 ---
 
@@ -13,6 +13,7 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## O que rolou desde a última sessão
 
+- **[2026-05-26 routine]** E2E Playwright `order-flow.spec.ts` — 4 specs: golden path (atendente→cozinha→entrega), bypass bebida, transição inválida, pedido terminal. PR aberto pra review.
 - Auditoria UX crítica (4º pass) — Fases A (5/5 críticos), B (9/14 importantes), C (4/5 polish + a11y) shipped em 18 commits
 - Follow-ups do audit externo: preview comprovante 80mm, atalhos teclado cozinha, áudio escalonado, PDF com delta vs período anterior, TV breathe intermitente
 - Página `/guia` criada — manual por papel (atendente/cozinha/admin/geral) com tabs, busca, accordion, hero gradient, steps numerados, callouts. Reescrito 2x: primeiro inspirado no `Help.tsx` do cultivo-server, depois sem jargão técnico pra família ler
@@ -31,7 +32,7 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## Próximo passo recomendado
 
-João: mergear PR #4 (backup) + planejar janela pro redeploy Coolify (P1 do BACKLOG).
+João: mergear PR #4 (backup) + **revisar PR routine-pastel** (novo E2E order-flow) + planejar janela pro redeploy Coolify (P1 do BACKLOG).
 
 ---
 
@@ -70,13 +71,19 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 - ESLint: **0 erros** ✅ (check ativo no build)
 - DB schema: **sincronizado** ✅ (imageUrl adicionado)
 - PWA: **instalável** ✅ (iOS Safari + Android Chrome)
+- E2E Playwright: **4 specs escritos** (order-flow) — rodar `npm run test:e2e` com servidor ativo pra validar
 - Vulns npm audit: 10 (Next 14.x — não aplicam aos patterns atuais, plano de upgrade no BACKLOG)
 
 ---
 
 ## Histórico recente (últimos 5 dias)
 
-### 2026-05-22 (hoje)
+### 2026-05-26 (hoje — routine background)
+- E2E `order-flow.spec.ts`: 4 specs — golden path + bypass bebida + transição inválida + pedido terminal
+- Lint OK, Vitest 57/57
+- PR aberto em `routine-pastel-20260526-0104`
+
+### 2026-05-22
 - 25 commits — auditoria crítica + guia + housekeeping + reorganização admin + estoque simplificado
 - BACKLOG replanejado: 9 itens novos aprovados; 1 fechado (sincronizar STATUS); 1 em PR (backup #4)
 - PIN do Gil resetado pra 2699
