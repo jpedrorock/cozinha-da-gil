@@ -32,7 +32,7 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## Próximo passo recomendado
 
-João: (1) trocar PIN do Gil em prod via UI (login com 1234 → Admin → Usuários → 2699). (2) mergear PR #4 + os 2 PRs P3 quando tiver tempo. (3) BACKLOG "Próximos" tá vazio — próxima sessão começa pelo `🔮 Backlog vago` (precisa refinar critérios) ou novas ideias.
+João: (1) trocar PIN do Gil em prod via UI (login com 1234 → Admin → Usuários → 2699). (2) mergear PR #4 + os 2 PRs P3 quando tiver tempo. (3) BACKLOG "Próximos" tem 2 itens P3 refinados prontos pra pegar — Dashboard `/admin/monitor` mobile e Screenshots manifest. 2 itens em "🔮 Backlog" bloqueados por dependência (impressora térmica real + migração next-pwa).
 
 ---
 

@@ -33,30 +33,32 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ## ⏭️ Próximos (prontos pra executar)
 
-### Deploy & ops
+### UX / monitoramento
 
-### Tech debt com critério
+- [ ] **[P3] #admin #pwa** Dashboard `/admin/monitor` — view mobile pra Gil acompanhar evento de longe
+  - **Pronto quando:** rota `/admin/monitor` mostra em viewport mobile (≤ 480px) os **KPIs gigantes** ao vivo: receita do caixa atual, contagem de pedidos ativos, ticket médio, tempo médio de preparo (últimos 5). Abaixo, lista compacta dos pedidos em PREPARO (nome cliente + minutos esperando). Atualiza via SSE (mesmo canal de `lib/sse.ts`). Sem chrome/sidebar — tela cheia, fonte enorme, otimizado pra Gil dar um pulo no celular durante o evento sem precisar abrir admin completo. Acessível só pra role `admin`. Link no header do admin: ícone 📊 que abre `/admin/monitor` numa aba/PWA shortcut.
+  - **Contexto:** Caixa do admin já tem kanban + Stats mas requer entrar no admin completo (login + navegação). Monitor é um sub-dash isolado pra glance rápido durante operação. Bom uso pra celular pessoal da Gil enquanto cozinha tá ocupada.
+  - **Autonomia:** OK fazer direto.
 
-### Cobertura de testes
+### PWA
 
-### Hardening pra barraca real
-
-### UX / desktop & cardápio
+- [ ] **[P3] #pwa** Screenshots no manifest pra rich install UI no Chrome Android
+  - **Pronto quando:** 2-3 screenshots reais em `/public/screenshots/` (atendente, cozinha, cliente), declarados em `app/manifest.ts` com `form_factor: "narrow"` e/ou `"wide"`. Manifest passa validação `pwa-asset-generator` / Chrome Lighthouse.
+  - **Contexto:** rodar `npm run dev`, abrir cada tela em viewport mobile, capturar via DevTools, otimizar com sharp. Audit PWA #6.
+  - **Autonomia:** OK fazer direto.
 
 ---
 
 ## 🔮 Backlog (precisa refinar antes de executar)
 
-_Itens sem critério de pronto claro ainda._
+_Itens com critério vago OU bloqueados por dependência externa._
 
-- [ ] **[P2] #impressora** Melhorar layout do comprovante térmico (margens cortando)
-- [ ] **[P2] #pwa** Resolver bug do background sync em offline prolongado (ver docs/BACKGROUND-SYNC.md — decisão atual é NÃO implementar)
-- [ ] **[P3] #admin** Dashboard de vendas em tempo real durante evento
-- [ ] **[P3] #pwa** Screenshots no manifest pra rich install UI no Chrome Android
-  - **Pronto quando:** 2-3 screenshots reais em `/public/screenshots/` (atendente, cozinha, cliente), declarados em `app/manifest.ts` com `form_factor: "narrow"` e/ou `"wide"`.
-  - **Contexto:** rodar `npm run dev`, abrir cada tela em viewport mobile, capturar via DevTools, otimizar com sharp. Audit PWA #6.
+- [ ] **[P2] #impressora** Comprovante térmico — checar margens / overflow com impressora real
+  - **Blocked:** precisa impressora térmica 80mm pra testar. Hoje `@page size: 80mm auto; margin: 0` + CSS print rules já está implementado em `app/comprovante/[id]/ComprovanteClient.tsx`. Sem hardware, não dá pra confirmar se algo corta.
+  - **Próximo passo quando hardware existir:** imprimir 5 pedidos variados (curto/longo, com/sem nota, com/sem promo) → verificar se nome cliente longo, lista grande de toppings ou rodapé do total cortam → ajustar `max-width`/`padding` específicos.
+
 - [ ] **[P3] #pwa #sw** Reativar `fallbacks: { document: "/offline" }` quando migrar pro `@ducanh2912/next-pwa`
-  - **Contexto:** next-pwa@5.6.0 tem bug que quebra build com runtimeCaching customizado + fallbacks. Hoje `/offline` existe mas só serve navegação manual.
+  - **Blocked:** depende da migração de `next-pwa@5.6.0` → `@ducanh2912/next-pwa` (plano em `docs/UPGRADE-NEXT-15.md`). Hoje next-pwa@5.6.0 tem bug que quebra build com runtimeCaching customizado + fallbacks; `/offline` existe mas só serve navegação manual.
 - [ ] **[P3] #pwa #admin** Cachear `api.iconify.design` no Service Worker pra ícones já vistos renderizarem offline
   - **Pronto quando:** `next.config.mjs` ganha regra de runtimeCaching `CacheFirst` (ou `StaleWhileRevalidate`) pro domínio `api.iconify.design`; após visitar admin Cardápio com wifi e voltar pra revisitar offline, os ícones já vistos no IconPicker e nas linhas de ingrediente renderizam normalmente.
   - **Contexto:** Hoje sem rede o `<Icon icon="...">` do `@iconify/react` exibe placeholder vazio (fetch falha no client). Esse cache deixa "memória" dos ícones vistos. PR conforme PLAYBOOK (mexe em PWA config).
