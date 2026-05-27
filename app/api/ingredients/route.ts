@@ -4,28 +4,17 @@ import type { Ingredient } from "@prisma/client";
 import { requireRole } from "@/lib/session";
 import { broadcast } from "@/lib/sse";
 import { saveIngredientImage } from "@/lib/uploads";
+import {
+  ALLOWED_CATEGORIES,
+  isAllowedCategory,
+  validateIngredientName,
+  parseIconValue,
+} from "@/lib/ingredients";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export type IngredientsByCategory = Record<string, Ingredient[]>;
-
-// Categorias permitidas — coincide com seed.ts e com a referência no
-// schema (Ingredient.category). Adicionar nova categoria aqui também
-// exige seed/admin UI saberem dela. `bebida_extra` reservado mas não
-// seedado hoje — admin pode usar quando quiser.
-const ALLOWED_CATEGORIES = [
-  "topping",
-  "doce",
-  "molho",
-  "macarrao_topping",
-  "macarrao_molho",
-  "bebida_extra",
-] as const;
-type AllowedCategory = (typeof ALLOWED_CATEGORIES)[number];
-function isAllowedCategory(v: unknown): v is AllowedCategory {
-  return typeof v === "string" && (ALLOWED_CATEGORIES as readonly string[]).includes(v);
-}
 
 export async function GET() {
   const all = await prisma.ingredient.findMany({
@@ -67,10 +56,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "JSON inválido." }, { status: 400 });
   }
 
-  const name = typeof body.name === "string" ? body.name.trim() : "";
-  if (name.length < 1 || name.length > 60) {
-    return NextResponse.json({ error: "Nome deve ter 1–60 caracteres." }, { status: 400 });
+  const nameResult = validateIngredientName(body.name);
+  if (!nameResult.ok) {
+    return NextResponse.json({ error: nameResult.error }, { status: 400 });
   }
+  const name = nameResult.name;
 
   if (!isAllowedCategory(body.category)) {
     return NextResponse.json(
@@ -81,27 +71,20 @@ export async function POST(request: Request) {
 
   // Resolve ícone — pode virar arquivo se for data URI.
   let iconValue: string | null = null;
-  if (body.icon === null || body.icon === undefined || body.icon === "") {
-    iconValue = null;
-  } else if (typeof body.icon === "string") {
-    const trimmed = body.icon.trim();
-    if (trimmed.startsWith("data:image/")) {
-      const url = await saveIngredientImage(trimmed, null);
-      if (!url) {
-        return NextResponse.json(
-          { error: "Imagem inválida — use SVG ou PNG até alguns MB." },
-          { status: 400 },
-        );
-      }
-      iconValue = url;
-    } else if (trimmed.startsWith("/api/uploads/ingredients/")) {
-      // Já é path; aceita como está
-      iconValue = trimmed;
-    } else if (/^[a-z0-9-]+:[a-z0-9-]+$/i.test(trimmed) && trimmed.length <= 80) {
-      iconValue = trimmed;
-    } else {
-      return NextResponse.json({ error: "Formato de ícone inválido." }, { status: 400 });
+  const iconParsed = parseIconValue(body.icon);
+  if (iconParsed.kind === "invalid") {
+    return NextResponse.json({ error: "Formato de ícone inválido." }, { status: 400 });
+  } else if (iconParsed.kind === "data-uri") {
+    const url = await saveIngredientImage(iconParsed.value, null);
+    if (!url) {
+      return NextResponse.json(
+        { error: "Imagem inválida — use SVG ou PNG até alguns MB." },
+        { status: 400 },
+      );
     }
+    iconValue = url;
+  } else if (iconParsed.kind === "iconify" || iconParsed.kind === "upload-path") {
+    iconValue = iconParsed.value;
   }
 
   // Calcula posição = última + 1 dentro da categoria

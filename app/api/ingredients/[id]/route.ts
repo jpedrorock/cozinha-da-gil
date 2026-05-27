@@ -7,21 +7,15 @@ import {
   isUploadedIngredientIcon,
   saveIngredientImage,
 } from "@/lib/uploads";
+import {
+  ALLOWED_CATEGORIES,
+  isAllowedCategory,
+  validateIngredientName,
+  parseIconValue,
+} from "@/lib/ingredients";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-
-const ALLOWED_CATEGORIES = [
-  "topping",
-  "doce",
-  "molho",
-  "macarrao_topping",
-  "macarrao_molho",
-  "bebida_extra",
-] as const;
-function isAllowedCategory(v: unknown): boolean {
-  return typeof v === "string" && (ALLOWED_CATEGORIES as readonly string[]).includes(v);
-}
 
 function asNullableInt(v: unknown): number | null | undefined {
   if (v === undefined) return undefined;
@@ -74,12 +68,12 @@ export async function PATCH(
   }
 
   // Nome — rename inline
-  if (typeof body.name === "string") {
-    const trimmed = body.name.trim();
-    if (trimmed.length < 1 || trimmed.length > 60) {
-      return NextResponse.json({ error: "Nome deve ter 1–60 caracteres." }, { status: 400 });
+  if (body.name !== undefined) {
+    const nameResult = validateIngredientName(body.name);
+    if (!nameResult.ok) {
+      return NextResponse.json({ error: nameResult.error }, { status: 400 });
     }
-    data.name = trimmed;
+    data.name = nameResult.name;
   }
 
   // Categoria — mover ingrediente entre categorias
@@ -107,31 +101,24 @@ export async function PATCH(
       oldUploadedIcon = existing.icon;
     }
 
-    if (body.icon === null) {
+    const iconParsed = parseIconValue(body.icon);
+    if (iconParsed.kind === "invalid") {
+      return NextResponse.json({ error: "Formato de ícone inválido." }, { status: 400 });
+    } else if (iconParsed.kind === "none") {
       data.icon = null;
-    } else if (typeof body.icon === "string") {
-      const trimmed = body.icon.trim();
-      if (trimmed === "") {
-        data.icon = null;
-      } else if (trimmed.startsWith("data:image/")) {
-        const url = await saveIngredientImage(trimmed, oldUploadedIcon);
-        if (!url) {
-          return NextResponse.json(
-            { error: "Imagem inválida — use SVG ou PNG." },
-            { status: 400 },
-          );
-        }
-        data.icon = url;
-        // Já deletou o antigo dentro de saveIngredientImage — limpa flag
-        // pra não tentar deletar de novo no finalizer.
-        oldUploadedIcon = null;
-      } else if (trimmed.startsWith("/api/uploads/ingredients/")) {
-        data.icon = trimmed;
-      } else if (/^[a-z0-9-]+:[a-z0-9-]+$/i.test(trimmed) && trimmed.length <= 80) {
-        data.icon = trimmed;
-      } else {
-        return NextResponse.json({ error: "Formato de ícone inválido." }, { status: 400 });
+    } else if (iconParsed.kind === "data-uri") {
+      const url = await saveIngredientImage(iconParsed.value, oldUploadedIcon);
+      if (!url) {
+        return NextResponse.json(
+          { error: "Imagem inválida — use SVG ou PNG." },
+          { status: 400 },
+        );
       }
+      data.icon = url;
+      oldUploadedIcon = null;
+    } else {
+      // iconify or upload-path
+      data.icon = iconParsed.value;
     }
   }
 
