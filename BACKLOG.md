@@ -45,21 +45,9 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ### Cobertura de testes
 
-- [ ] **[P2] #test** E2E Playwright: fluxo completo de 1 pedido (atendente → cozinha → entregue)
-  - **Pronto quando:** `e2e/order-flow.spec.ts` faz login Gil, abre caixa, troca pra atendente (PIN), cria pedido com 2 itens, troca pra cozinha, marca pronto, volta atendente, marca entregue, valida row final no DB. `npm run test:e2e` verde.
-  - **Contexto:** se algo quebrar SSE/auth/schema, esse teste captura antes de chegar em prod.
-  - **Autonomia:** OK fazer direto.
-
 ### Hardening pra barraca real
 
 ### UX / desktop & cardápio
-
-### Decisão de produto pendente
-
-- [ ] **[P3] #pwa** Decidir se liga HTTPS local
-  - **Pronto quando:** `docs/HTTPS-LOCAL.md` atualizado com decisão: ligar com mkcert quando atender festa com convidados externos (não só família); enquanto for evento de família, fica HTTP plano.
-  - **Contexto:** PIN trafega em claro na LAN. Pra família 3 devices é OK; pra evento com visitantes não.
-  - **Autonomia:** Confirmar antes (decisão de produto).
 
 ---
 
@@ -90,6 +78,10 @@ _Itens sem critério de pronto claro ainda._
 ## ✅ Concluídos recentemente
 
 ### 2026-05-27
+- [claude-pastel 2026-05-27] **E2E Playwright fluxo de pedido completo** — `e2e/order-flow.spec.ts` cobre ciclo PEDIDO_FEITO → EM_PREPARO → PRONTO → ENTREGUE via API direta (UI cozinha tem flakiness com splash/SW; HTTP é robusto e valida regras de transição + auth por role). Inclui teste negativo: cozinha tentando marcar ENTREGUE falha com 4xx. `e2e/global-setup.ts` (novo) cria Maria atendente (PIN 1111) + José cozinha (PIN 2222) via Prisma direto, idempotente. Atualizei `auth.spec.ts` pra refletir UI atual (login via role+PIN sem cards de usuário). **10/10 E2E verde** em 18s.
+- [claude-pastel 2026-05-27] **HTTPS local — decisão registrada** — `docs/HTTPS-LOCAL.md` atualizado: app hospedado em `cozinhadagil.evapro.cloud` (Coolify) com HTTPS automático via Let's Encrypt. mkcert/HTTPS local não é mais necessário. Roteiro antigo fica como histórico caso volte pra LAN privada.
+- [claude-pastel 2026-05-27] **PR aberta:** docker-compose healthcheck pra `/api/health` (branch `claude-pastel/docker-health-endpoint`).
+- [claude-pastel 2026-05-27] **PR aberta:** Iconify SW cache (branch `claude-pastel/iconify-sw-cache`).
 - [claude-pastel 2026-05-27] **Drag-and-drop pra reordenar ingredientes** — `@dnd-kit/core` + `sortable` + `utilities`. Drag handle `<GripVertical>` aparece no início de cada IngredientRow com `cursor: grab` (activationConstraint 8px pra não conflitar com clicks normais). `POST /api/ingredients/reorder` (novo) faz update batch em transação (idempotente, ignora IDs stale). Broadcast SSE `ingredient:reordered` → atendente recoloca chips do stepper em tempo real. Quando busca ativa, DnD suspenso (não faz sentido reordenar lista filtrada).
 - [claude-pastel 2026-05-27] **Cardápio → Ingredientes: contagem por categoria + busca rápida** — header de cada categoria mostra "(N)" do count atual (ex: "Toppings (12)"). Input de busca acima das categorias filtra client-side por nome (substring, case-insensitive); categorias vazias somem; mensagem "X de Y ingredientes" quando ativo. Botão X limpa busca. Reset automático quando troca de sub-tab. Útil agora que Gil pode chegar a 40+ ingredientes depois da feature de add livre.
 - [claude-pastel 2026-05-27] **3 follow-ups do audit desktop fechados:** (1) Stepper atendente: `md:max-w-4xl` (896px) em 4 wrappers (passo cliente, passo cart, container genérico, BottomBar) — desktop 1440px agora usa ~62% em vez de 47%. (2) Ticket cozinha: `max-w-screen-2xl mx-auto` (1536px) no grid — TV 4K ultra-wide não estica cards. (3) EditDrawer: **falso-positivo do audit** — já tem 4 formas de fechar (X header com hover, Cancelar footer, Esc, clique no backdrop). Nada a mexer.

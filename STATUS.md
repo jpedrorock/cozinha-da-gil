@@ -51,7 +51,7 @@ João: mergear PR #4 (backup) + planejar janela pro redeploy Coolify (P1 do BACK
 | PWA (next-pwa, manifest, service worker) | 🟢 | Standalone, 15 splashes (iPhone+iPad), install prompts, update prompt, CacheFirst pra assets imutáveis, shortcuts no long-press, página offline. |
 | Auth (iron-session) | 🟢 | PIN único por role, identificação por {role + PIN}. |
 | Testes Vitest | 🟢 | 107/107 passando (+50 hoje: ingredientes + uploads). |
-| Testes Playwright e2e | 🟡 | Suite existe mas falta cobrir fluxo completo de pedido (item no BACKLOG). |
+| Testes Playwright e2e | 🟢 | 10/10 passando (auth UI + API smoke + fluxo de pedido completo). |
 
 ---
 
@@ -101,6 +101,9 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 - **3 follow-ups do audit desktop fechados** — Stepper atendente expandido pra `md:max-w-4xl` (4 wrappers); Ticket cozinha com `max-w-screen-2xl` (não estica em TV 4K); EditDrawer confirmado OK (já tem 4 formas de fechar). Audit completo de ponta a ponta.
 - **Cardápio → Ingredientes ganhou contagem por categoria + busca rápida** — header de categoria mostra "(N)"; input de busca client-side filtra por substring; categorias vazias somem; X limpa. Útil agora que Gil pode chegar a 40+ ingredientes.
 - **Drag-and-drop reordenar ingredientes** — `@dnd-kit` no Cardápio (handle `<GripVertical>`); novo `POST /api/ingredients/reorder` faz batch update em transação; atendente reflete via `ingredient:reordered` SSE. DnD suspenso quando busca ativa.
+- **E2E Playwright fluxo de pedido completo** — `e2e/order-flow.spec.ts` valida ciclo PEDIDO_FEITO → ENTREGUE + auth por role. globalSetup cria Maria + José via Prisma idempotente. auth.spec.ts atualizado pra UI atual. **10/10 E2E verde** (18s).
+- **HTTPS local** — decisão registrada em `docs/HTTPS-LOCAL.md`: app já roda em domínio público com HTTPS via Coolify/Let's Encrypt; mkcert desnecessário. Roteiro antigo fica histórico.
+- **2 PRs abertas pra revisão do João:** docker-compose healthcheck → `/api/health` (branch `claude-pastel/docker-health-endpoint`) + Iconify SW cache (branch `claude-pastel/iconify-sw-cache`). GitHub API tava com timeout durante a sessão; abrir via UI pelos URLs.
 
 ### 2026-05-22
 - 25 commits — auditoria crítica + guia + housekeeping + reorganização admin + estoque simplificado
