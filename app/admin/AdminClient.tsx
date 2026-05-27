@@ -17,7 +17,6 @@ import {
   Coffee,
   Contact,
   Download,
-  History as HistoryIcon,
   Image as ImageIcon,
   KeyRound,
   Lock,
@@ -30,13 +29,14 @@ import {
   Trophy,
   UserPlus,
   Users as UsersIcon,
+  X,
   Utensils,
   UtensilsCrossed,
 } from "lucide-react";
-import { Icon } from "@iconify/react";
 import { useBodyScrollLock } from "@/lib/use-body-scroll-lock";
 import { useConfirmDialog } from "@/components/ConfirmDialog";
 import { useToast } from "@/components/Toast";
+import { IngredientIcon } from "@/components/IngredientIcon";
 import { Clientes } from "./Clientes";
 import { AppHeader } from "@/components/AppHeader";
 import { BrandIcon, PastelIcon, DoceIcon } from "@/components/icons";
@@ -59,7 +59,7 @@ import type { PromotionView } from "@/lib/promotions";
 import { isStaleEventSession, type EventSessionStatus } from "@/lib/event-session-shared";
 import type { Ingredient } from "@prisma/client";
 
-type Tab = "vendas" | "operacao" | "historico" | "cardapio" | "promocoes" | "clientes" | "usuarios";
+type Tab = "vendas" | "operacao" | "cardapio" | "promocoes" | "clientes" | "usuarios";
 
 type AdminUser = {
   id: string;
@@ -251,15 +251,17 @@ export function AdminClient({
         <Vendas
           todayOrders={todayOrders}
           eventStatus={eventStatus}
-          onOpenEvent={openEvent}
-          onCloseEvent={closeEvent}
+          recentOrders={recentOrders}
+          events={events}
         />
       )}
       {tab === "operacao" && (
-        <Operacao orders={todayOrders} eventStatus={eventStatus} />
-      )}
-      {tab === "historico" && (
-        <Historico orders={recentOrders} events={events} />
+        <Operacao
+          orders={todayOrders}
+          eventStatus={eventStatus}
+          onOpenEvent={openEvent}
+          onCloseEvent={closeEvent}
+        />
       )}
       {tab === "cardapio" && (
         <Cardapio
@@ -267,6 +269,8 @@ export function AdminClient({
           setProducts={setProducts}
           ingredients={ingredients}
           onToggle={async (id, available) => {
+            // Optimistic — toggle ativo já dispara o filtro no atendente via
+            // SSE, então UI local pode atualizar antes do server confirmar.
             setIngredients((prev) => prev.map((i) => (i.id === id ? { ...i, available } : i)));
             await fetch(`/api/ingredients/${id}`, {
               method: "PATCH",
@@ -275,12 +279,57 @@ export function AdminClient({
             });
           }}
           onIconChange={async (id, icon) => {
-            setIngredients((prev) => prev.map((i) => (i.id === id ? { ...i, icon } : i)));
-            await fetch(`/api/ingredients/${id}`, {
+            // Icon pode ser data URI (vai virar path no server) — usar resposta
+            // pra refletir o path real, não o data URI. Otimismo só pra Iconify.
+            const isDataUrl = typeof icon === "string" && icon.startsWith("data:");
+            if (!isDataUrl) {
+              setIngredients((prev) => prev.map((i) => (i.id === id ? { ...i, icon } : i)));
+            }
+            const res = await fetch(`/api/ingredients/${id}`, {
               method: "PATCH",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ icon }),
             });
+            if (res.ok) {
+              const updated = (await res.json()) as Ingredient;
+              setIngredients((prev) => prev.map((i) => (i.id === updated.id ? updated : i)));
+            }
+          }}
+          onCreate={async (payload) => {
+            const res = await fetch(`/api/ingredients`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            });
+            if (!res.ok) {
+              const err = await res.json().catch(() => ({ error: "Falha." }));
+              throw new Error(err.error ?? "Falha ao criar ingrediente.");
+            }
+            const created = (await res.json()) as Ingredient;
+            setIngredients((prev) => [...prev, created]);
+            return created;
+          }}
+          onUpdate={async (id, partial) => {
+            const res = await fetch(`/api/ingredients/${id}`, {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(partial),
+            });
+            if (!res.ok) {
+              const err = await res.json().catch(() => ({ error: "Falha." }));
+              throw new Error(err.error ?? "Falha ao atualizar.");
+            }
+            const updated = (await res.json()) as Ingredient;
+            setIngredients((prev) => prev.map((i) => (i.id === updated.id ? updated : i)));
+            return updated;
+          }}
+          onDelete={async (id) => {
+            const res = await fetch(`/api/ingredients/${id}`, { method: "DELETE" });
+            if (!res.ok && res.status !== 404) {
+              const err = await res.json().catch(() => ({ error: "Falha." }));
+              throw new Error(err.error ?? "Falha ao remover.");
+            }
+            setIngredients((prev) => prev.filter((i) => i.id !== id));
           }}
         />
       )}
@@ -319,12 +368,13 @@ type TabMeta = {
 //   4º+ Mais — clientes, histórico, promo, usuários no menu "Mais"
 // Operação renomeada pra Caixa porque é o que Gil chama. Conteúdo segue
 // o mesmo (status do caixa atual + Abrir/Fechar + board ao vivo).
+// Vendas inclui sub-tab "Pedidos" (antiga aba Histórico). Menu cuts down
+// de 7 → 6 itens. Caixa fica primeiro como ponto de entrada do dia.
 const ADMIN_TABS: TabMeta[] = [
   { id: "operacao", label: "Caixa", icon: <Activity size={22} strokeWidth={2} />, priority: 0 },
   { id: "vendas", label: "Vendas", icon: <ChartBar size={22} strokeWidth={2} />, priority: 1 },
   { id: "cardapio", label: "Cardápio", icon: <UtensilsCrossed size={22} strokeWidth={2} />, priority: 2 },
   { id: "clientes", label: "Clientes", icon: <Contact size={22} strokeWidth={2} />, priority: 4 },
-  { id: "historico", label: "Histórico", icon: <HistoryIcon size={22} strokeWidth={2} />, priority: 5 },
   { id: "promocoes", label: "Promoções", icon: <Tag size={22} strokeWidth={2} />, priority: 6 },
   { id: "usuarios", label: "Usuários", icon: <UsersIcon size={22} strokeWidth={2} />, priority: 7 },
 ];
@@ -661,17 +711,37 @@ function rangeLabel(range: Range, from: string, to: string): string {
   return `${from} → ${to}`;
 }
 
+/**
+ * VENDAS — dois ângulos do mesmo dado:
+ *   - "Resumo" (agregado): KPIs, gráficos, top toppings, fechamento
+ *   - "Pedidos" (detalhe): lista paginada com busca e filtro por evento
+ *
+ * Antes "Pedidos" era uma aba separada chamada Histórico, distante da Vendas
+ * no menu. Causava confusão ("pra ver quem comprou vou em Histórico, mas
+ * pra ver quanto vendi vou em Vendas — é a mesma pergunta!"). Unificado
+ * com sub-tabs (mesmo padrão do Cardápio). Persiste em localStorage.
+ */
 function Vendas({
   todayOrders,
   eventStatus,
-  onOpenEvent,
-  onCloseEvent,
+  recentOrders,
+  events,
 }: {
   todayOrders: OrderView[];
   eventStatus: EventSessionStatus;
-  onOpenEvent: (name: string | null, eventDate: string | null) => void;
-  onCloseEvent: () => void;
+  recentOrders: OrderView[];
+  events: EventListEntry[];
 }) {
+  const [subTab, setSubTab] = useState<"resumo" | "pedidos">("resumo");
+  useEffect(() => {
+    const stored = localStorage.getItem("pdg:vendas-tab");
+    if (stored === "resumo" || stored === "pedidos") setSubTab(stored);
+  }, []);
+  function changeSubTab(t: "resumo" | "pedidos") {
+    setSubTab(t);
+    localStorage.setItem("pdg:vendas-tab", t);
+  }
+
   const [range, setRange] = useState<Range>("today");
   const [customFrom, setCustomFrom] = useState("");
   const [customTo, setCustomTo] = useState("");
@@ -681,6 +751,9 @@ function Vendas({
   const dates = useMemo(() => computeRangeDates(range, customFrom, customTo), [range, customFrom, customTo]);
 
   useEffect(() => {
+    // Resumo é o único que precisa do report — pedidos sub-tab tem seus
+    // próprios filtros e dados locais. Evita fetch desnecessário.
+    if (subTab !== "resumo") return;
     let cancelled = false;
     setLoading(true);
     fetch(`/api/reports/today?from=${dates.from}&to=${dates.to}`)
@@ -694,17 +767,42 @@ function Vendas({
     return () => {
       cancelled = true;
     };
-  }, [dates.from, dates.to, todayOrders.length]);
+  }, [dates.from, dates.to, todayOrders.length, subTab]);
 
   const isToday = range === "today";
 
   return (
     <div className="flex flex-col gap-6">
       <header>
-        <h1 className="t-h1 mb-1">{isToday ? "Vendas do dia" : "Vendas"}</h1>
-        <p className="t-body-sm">{rangeLabel(range, dates.from, dates.to)}</p>
+        <h1 className="t-h1 mb-1">Vendas</h1>
+        <p className="t-body-sm">
+          {subTab === "resumo"
+            ? "Números do período (faturamento, top toppings, gráficos)"
+            : "Lista de cada pedido (busca por nome, telefone ou número)"}
+        </p>
       </header>
 
+      {/* Sub-tabs Resumo / Pedidos — padrão do Cardápio. Estado persistido
+          em localStorage pra Gil voltar onde tava ao sair e voltar. */}
+      <div className="inline-flex bg-surface-sunken rounded-lg p-1 self-start">
+        <SubTabButton
+          active={subTab === "resumo"}
+          label="Resumo"
+          count={null}
+          onClick={() => changeSubTab("resumo")}
+        />
+        <SubTabButton
+          active={subTab === "pedidos"}
+          label="Pedidos"
+          count={null}
+          onClick={() => changeSubTab("pedidos")}
+        />
+      </div>
+
+      {subTab === "pedidos" ? (
+        <HistoricoBody orders={recentOrders} events={events} />
+      ) : (
+      <>
       <div className="flex gap-2 overflow-x-auto no-scrollbar">
         {(
           [
@@ -730,6 +828,10 @@ function Vendas({
           );
         })}
       </div>
+
+      <p className="t-caption text-ink-3 -mt-3">
+        {rangeLabel(range, dates.from, dates.to)}
+      </p>
 
       {range === "custom" && (
         <div className="flex flex-wrap gap-3 items-end">
@@ -821,89 +923,77 @@ function Vendas({
         </>
       )}
 
-      <CaixaSection
-        eventStatus={eventStatus}
-        onOpen={onOpenEvent}
-        onClose={onCloseEvent}
-        revenueCents={report?.revenueCents ?? 0}
-        activeCount={report?.counts.active ?? 0}
-      />
-
       <RelatoriosSection eventStatus={eventStatus} />
+      </>
+      )}
     </div>
   );
 }
 
 /* ============================================================
-   CAIXA — função-chave do dia. Destaque grande, separado de tudo.
-   Atendente não pode lançar pedido sem caixa aberto, então essa
-   tela é o coração da operação da Gil quando começa um evento.
+   CAIXA — função-chave do dia.
+   Estado FECHADO: card grande com CTA "Abrir caixa" (foco principal).
+   Estado ABERTO: barra slim no topo, só status + botão pequeno de
+   fechar, pra não competir com o Trello operacional abaixo.
    ============================================================ */
 function CaixaSection({
   eventStatus,
   onOpen,
   onClose,
-  revenueCents,
-  activeCount,
 }: {
   eventStatus: EventSessionStatus;
   onOpen: (name: string | null, eventDate: string | null) => void;
   onClose: () => void;
-  revenueCents: number;
-  activeCount: number;
 }) {
   const [openName, setOpenName] = useState("");
   const [openDate, setOpenDate] = useState("");
   const openedAt = eventStatus.openedAt ? new Date(eventStatus.openedAt) : null;
   const eventDate = eventStatus.eventDate ? new Date(eventStatus.eventDate) : null;
 
-  // ESTADO ABERTO: card escuro com info do evento + botão grande de fechar
+  // ESTADO ABERTO: barra slim — só status + botão pequeno de fechar.
+  // Antes era um card grande que tomava 1/3 da tela e competia com o Trello;
+  // agora é uma faixa fina que apenas confirma "tá aberto" sem atrapalhar.
+  // Faturamento/Pedidos saíram daqui porque o grid de Stats logo abaixo já
+  // mostra (e ainda traz Cancelados). Data do evento entra como pílula
+  // discreta no lado direito quando tem.
   if (eventStatus.open && openedAt) {
     return (
       <section
         key="open"
-        className="rounded-lg bg-ink text-ink-inverse p-6 md:p-8 flex flex-col gap-5 animate-state-swap-in shadow-lg border-l-8 border-status-ready"
+        aria-label="Caixa aberto"
+        className="rounded-lg bg-ink text-ink-inverse px-4 md:px-5 py-3 flex items-center gap-3 animate-state-swap-in shadow-sm border-l-4 border-status-ready"
       >
-        <div>
-          <div className="t-label tracking-[0.1em] text-status-ready mb-2 inline-flex items-center gap-1.5">
-            <LockOpen size={14} strokeWidth={2.5} className="animate-lock-unlock" />
-            Caixa aberto
-          </div>
-          <h2 className="t-display mb-2">
-            {eventStatus.name ?? "Sem nome"}
-          </h2>
-          {eventDate && (
-            <div className="text-base text-brand-yellow font-bold t-num mb-3">
-              {eventDate.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long", year: "numeric" })}
-            </div>
-          )}
-          <div className="text-sm text-ink-3">
-            Aberto por <span className="font-bold text-ink-inverse">{eventStatus.openedBy}</span> às{" "}
+        {/* Status dot pulsa pra reforçar "vivo / ao vivo" */}
+        <span className="relative shrink-0 inline-flex items-center justify-center">
+          <span className="absolute inline-flex size-2.5 rounded-full bg-status-ready opacity-60 animate-ping" />
+          <span className="relative inline-flex size-2.5 rounded-full bg-status-ready" />
+        </span>
+
+        {/* Bloco de texto — flex-1 pra empurrar o botão pra direita.
+            min-w-0 + truncate evitam overflow quando o nome é longo. */}
+        <div className="flex-1 min-w-0 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+          <span className="t-label tracking-[0.08em] text-status-ready">Caixa aberto</span>
+          <span className="font-bold text-[15px] truncate">{eventStatus.name ?? "Sem nome"}</span>
+          <span className="text-xs text-ink-3">
+            por <span className="font-semibold text-ink-inverse">{eventStatus.openedBy}</span> às{" "}
             {openedAt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
-          </div>
+          </span>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div className="rounded-md bg-surface-elevated text-ink px-4 py-3">
-            <div className="t-label">
-              Faturamento
-            </div>
-            <div className="text-2xl font-bold t-num">{formatBRL(revenueCents)}</div>
-          </div>
-          <div className="rounded-md bg-surface-elevated text-ink px-4 py-3">
-            <div className="t-label">
-              Pedidos
-            </div>
-            <div className="text-2xl font-bold t-num">{activeCount}</div>
-          </div>
-        </div>
+        {/* Data do evento — pílula discreta, só desktop pra não estourar mobile */}
+        {eventDate && (
+          <span className="hidden md:inline-flex shrink-0 items-center px-2.5 py-1 rounded-full bg-surface-elevated text-ink text-xs font-bold t-num">
+            {eventDate.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}
+          </span>
+        )}
 
         <button
           onClick={onClose}
-          className="inline-flex items-center justify-center gap-2 h-14 px-5 rounded-md bg-danger text-white font-bold text-[15px] hover:brightness-110 transition active:scale-[0.98]"
+          aria-label="Fechar caixa do evento"
+          className="shrink-0 inline-flex items-center justify-center gap-1.5 h-9 px-3 rounded-md bg-danger text-white font-bold text-xs hover:brightness-110 transition active:scale-[0.98]"
         >
-          <Lock size={20} strokeWidth={2.5} />
-          Fechar caixa do evento
+          <Lock size={14} strokeWidth={2.5} />
+          <span className="hidden xs:inline">Fechar caixa</span>
         </button>
       </section>
     );
@@ -1274,7 +1364,7 @@ function TopList({
    HISTÓRICO
    ============================================================ */
 
-function Historico({ orders: initialOrders, events }: { orders: OrderView[]; events: EventListEntry[] }) {
+function HistoricoBody({ orders: initialOrders, events }: { orders: OrderView[]; events: EventListEntry[] }) {
   type Range = "today" | "yesterday" | "7d" | "all";
   const [range, setRange] = useState<Range>("today");
   // Filtro por evento — string vazia = todos (usa range por data)
@@ -1353,7 +1443,8 @@ function Historico({ orders: initialOrders, events }: { orders: OrderView[]; eve
   return (
     <div className="flex flex-col gap-5">
       <header>
-        <h1 className="t-h1 mb-3">Histórico</h1>
+        {/* Sem <h1> aqui — o título "Vendas" já tá no header da aba mãe;
+            essa sub-tab é só lista de pedidos. */}
 
         {/* Busca por nome / telefone / #pedido (audit P3 #27) */}
         <div className="mb-3 relative">
@@ -1647,7 +1738,22 @@ const CATEGORY_LABEL: Record<string, string> = {
   topping: "Toppings (salgados)",
   doce: "Doces (receitas)",
   molho: "Molhos extras",
+  macarrao_topping: "Toppings (macarrão)",
+  macarrao_molho: "Molhos (macarrão)",
+  bebida_extra: "Bebidas (extras)",
 };
+
+// Lista canônica das categorias permitidas — usada no select do modal
+// "Novo ingrediente" e no dropdown de mudar categoria. Mesmo set do
+// allow-list da API em app/api/ingredients/route.ts.
+const INGREDIENT_CATEGORIES = [
+  "topping",
+  "doce",
+  "molho",
+  "macarrao_topping",
+  "macarrao_molho",
+  "bebida_extra",
+] as const;
 
 function Cardapio({
   products,
@@ -1655,14 +1761,25 @@ function Cardapio({
   ingredients,
   onToggle,
   onIconChange,
+  onCreate,
+  onUpdate,
+  onDelete,
 }: {
   products: ProductView[];
   setProducts: React.Dispatch<React.SetStateAction<ProductView[]>>;
   ingredients: Ingredient[];
   onToggle: (id: string, available: boolean) => void;
   onIconChange: (id: string, icon: string | null) => void;
+  onCreate: (payload: { name: string; category: string; icon?: string | null }) => Promise<Ingredient>;
+  onUpdate: (id: string, partial: { name?: string; category?: string }) => Promise<Ingredient>;
+  onDelete: (id: string) => Promise<void>;
 }) {
   const [editingProduct, setEditingProduct] = useState<ProductView | "new" | null>(null);
+  // Estado pra modal de novo ingrediente. Se aberta com categoria pré-
+  // selecionada (clique no botão "+" da seção), vem aqui.
+  const [creatingIngredient, setCreatingIngredient] = useState<string | "any" | null>(null);
+  const { confirm, node: confirmDialogNode } = useConfirmDialog();
+  const { showToast, node: toastNode } = useToast();
 
   const grouped = useMemo(() => {
     const g: Record<string, Ingredient[]> = {};
@@ -1766,13 +1883,31 @@ function Cardapio({
 
       {subTab === "ingredientes" && (
         <section>
-          <p className="t-body-sm mb-3">
-            Toppings, molhos e sabores que entram nos produtos. Clique no quadrado pra escolher um ícone.
-          </p>
+          <div className="flex items-center justify-between mb-3">
+            <p className="t-body-sm">
+              Toppings, molhos e sabores. Quadrado abre o ícone; lápis renomeia; lixeira apaga.
+            </p>
+            <button
+              onClick={() => setCreatingIngredient("any")}
+              className="inline-flex items-center gap-1.5 h-9 px-3 rounded-md bg-ink text-brand-yellow text-sm font-semibold hover:brightness-110 shrink-0 ml-3"
+            >
+              <UserPlus size={14} strokeWidth={2.5} />
+              Novo ingrediente
+            </button>
+          </div>
           {Object.entries(grouped).map(([category, items]) => (
             <div key={category} className="mb-4">
-              <div className="t-label tracking-[0.06em] mb-2">
-                {CATEGORY_LABEL[category] ?? category}
+              <div className="flex items-center justify-between mb-2">
+                <div className="t-label tracking-[0.06em]">
+                  {CATEGORY_LABEL[category] ?? category}
+                </div>
+                <button
+                  onClick={() => setCreatingIngredient(category)}
+                  className="t-caption text-ink-3 hover:text-ink font-semibold inline-flex items-center gap-1 -mr-1 px-2 py-1 rounded hover:bg-surface-sunken"
+                  title={`Adicionar ${(CATEGORY_LABEL[category] ?? category).toLowerCase()}`}
+                >
+                  + Adicionar
+                </button>
               </div>
               <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 {items.map((ing) => (
@@ -1781,6 +1916,34 @@ function Cardapio({
                     ing={ing}
                     onToggle={onToggle}
                     onIconChange={onIconChange}
+                    onRename={async (newName) => {
+                      try {
+                        await onUpdate(ing.id, { name: newName });
+                      } catch (e) {
+                        showToast(
+                          e instanceof Error ? e.message : "Falha ao renomear.",
+                          "error",
+                        );
+                      }
+                    }}
+                    onDelete={async () => {
+                      const ok = await confirm({
+                        title: `Remover "${ing.name}"?`,
+                        message: "Pedidos antigos com esse ingrediente continuam intactos (o nome ficou gravado neles). Só some das opções novas.",
+                        confirmLabel: "Remover",
+                        destructive: true,
+                      });
+                      if (!ok) return;
+                      try {
+                        await onDelete(ing.id);
+                        showToast(`"${ing.name}" removido.`, "success");
+                      } catch (e) {
+                        showToast(
+                          e instanceof Error ? e.message : "Falha ao remover.",
+                          "error",
+                        );
+                      }
+                    }}
                   />
                 ))}
               </ul>
@@ -1799,6 +1962,29 @@ function Cardapio({
           }}
         />
       )}
+
+      {creatingIngredient && (
+        <IngredientCreateModal
+          initialCategory={creatingIngredient === "any" ? null : creatingIngredient}
+          onClose={() => setCreatingIngredient(null)}
+          onCreate={async (payload) => {
+            try {
+              await onCreate(payload);
+              showToast(`"${payload.name}" adicionado.`, "success");
+              setCreatingIngredient(null);
+            } catch (e) {
+              showToast(
+                e instanceof Error ? e.message : "Falha ao criar.",
+                "error",
+              );
+              // não fecha o modal, deixa Gil tentar de novo com nome corrigido
+            }
+          }}
+        />
+      )}
+
+      {confirmDialogNode}
+      {toastNode}
     </div>
   );
 }
@@ -1811,7 +1997,9 @@ function SubTabButton({
 }: {
   active: boolean;
   label: string;
-  count: number;
+  // count opcional — null esconde o badge (usado em Vendas onde
+  // "Resumo" / "Pedidos" não tem contagem natural).
+  count: number | null;
   onClick: () => void;
 }) {
   return (
@@ -1824,13 +2012,15 @@ function SubTabButton({
       }`}
     >
       <span>{label}</span>
-      <span
-        className={`text-[10px] font-bold tabular-nums px-1.5 py-0.5 rounded ${
-          active ? "bg-brand-yellow text-ink" : "bg-line text-ink-3"
-        }`}
-      >
-        {count}
-      </span>
+      {count !== null && (
+        <span
+          className={`text-[10px] font-bold tabular-nums px-1.5 py-0.5 rounded ${
+            active ? "bg-brand-yellow text-ink" : "bg-line text-ink-3"
+          }`}
+        >
+          {count}
+        </span>
+      )}
     </button>
   );
 }
@@ -2771,12 +2961,37 @@ function IngredientRow({
   ing,
   onToggle,
   onIconChange,
+  onRename,
+  onDelete,
 }: {
   ing: Ingredient;
   onToggle: (id: string, available: boolean) => void;
   onIconChange: (id: string, icon: string | null) => void;
+  onRename: (newName: string) => Promise<void>;
+  onDelete: () => Promise<void>;
 }) {
   const [iconPickerOpen, setIconPickerOpen] = useState(false);
+  // Rename inline: click no lápis → input toma lugar do <span>; Enter
+  // salva, Esc cancela. Mantém UX rápida sem modal pra mexer só no nome.
+  const [editingName, setEditingName] = useState(false);
+  const [nameDraft, setNameDraft] = useState(ing.name);
+  const [renaming, setRenaming] = useState(false);
+
+  async function commitRename() {
+    const trimmed = nameDraft.trim();
+    if (trimmed === "" || trimmed === ing.name) {
+      setEditingName(false);
+      setNameDraft(ing.name);
+      return;
+    }
+    setRenaming(true);
+    try {
+      await onRename(trimmed);
+      setEditingName(false);
+    } finally {
+      setRenaming(false);
+    }
+  }
 
   return (
     <li
@@ -2797,25 +3012,64 @@ function IngredientRow({
             }`}
           >
             {ing.icon ? (
-              <Icon icon={ing.icon} width={22} height={22} />
+              <IngredientIcon icon={ing.icon} size={22} alt={ing.name} />
             ) : (
               <ImageIcon size={16} strokeWidth={2} />
             )}
           </button>
-          <span
-            className={`text-base font-semibold truncate ${
-              ing.available ? "text-ink" : "text-ink-3 line-through"
-            }`}
-          >
-            {ing.name}
-          </span>
+
+          {editingName ? (
+            <input
+              type="text"
+              autoFocus
+              value={nameDraft}
+              disabled={renaming}
+              onChange={(e) => setNameDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") commitRename();
+                if (e.key === "Escape") {
+                  setEditingName(false);
+                  setNameDraft(ing.name);
+                }
+              }}
+              onBlur={commitRename}
+              className="input h-8 text-base font-semibold flex-1 min-w-0"
+              aria-label={`Renomear ${ing.name}`}
+              maxLength={60}
+            />
+          ) : (
+            <button
+              onClick={() => {
+                setNameDraft(ing.name);
+                setEditingName(true);
+              }}
+              className={`text-base font-semibold truncate text-left hover:underline decoration-dotted underline-offset-4 ${
+                ing.available ? "text-ink" : "text-ink-3 line-through"
+              }`}
+              title="Clique pra renomear"
+            >
+              {ing.name}
+            </button>
+          )}
         </div>
-        <Toggle
-          on={ing.available}
-          onChange={(v) => onToggle(ing.id, v)}
-          labelOn="Disponível"
-          labelOff="Esgotou"
-        />
+        <div className="flex items-center gap-2 shrink-0">
+          <Toggle
+            on={ing.available}
+            onChange={(v) => onToggle(ing.id, v)}
+            labelOn="Disponível"
+            labelOff="Esgotou"
+          />
+          {/* Botão de remover discreto — escondido em hover desktop, sempre
+              visível em touch (mobile). Wrap em flex-shrink-0 pra não comprimir. */}
+          <button
+            onClick={onDelete}
+            title={`Remover ${ing.name}`}
+            aria-label={`Remover ${ing.name}`}
+            className="inline-flex items-center justify-center w-9 h-9 rounded-md text-ink-3 hover:text-danger hover:bg-danger/10 transition-colors"
+          >
+            <Trash2 size={16} strokeWidth={2.25} />
+          </button>
+        </div>
       </div>
 
       <IconPicker
@@ -2826,6 +3080,167 @@ function IngredientRow({
         onSelect={(icon) => onIconChange(ing.id, icon)}
       />
     </li>
+  );
+}
+
+/**
+ * Modal de criação de ingrediente novo.
+ *
+ * Fluxo:
+ *   1. Gil digita o nome (obrigatório), escolhe categoria (dropdown)
+ *   2. Opcionalmente escolhe ícone — abre IconPicker que aceita Iconify
+ *      OU upload de SVG/PNG (data URI)
+ *   3. Salvar chama onCreate; modal só fecha se sucesso (toast cuida do
+ *      feedback, erro mantém modal aberto pra Gil corrigir)
+ *
+ * Não usa react-hook-form/Zod pra manter consistente com ProductModal —
+ * validação fica no servidor + checagem básica aqui (nome trim+1char).
+ */
+function IngredientCreateModal({
+  initialCategory,
+  onClose,
+  onCreate,
+}: {
+  initialCategory: string | null;
+  onClose: () => void;
+  onCreate: (payload: { name: string; category: string; icon?: string | null }) => Promise<void> | void;
+}) {
+  const [name, setName] = useState("");
+  const [category, setCategory] = useState<string>(initialCategory ?? "topping");
+  const [icon, setIcon] = useState<string | null>(null);
+  const [iconPickerOpen, setIconPickerOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  useEscapeKey(onClose, !iconPickerOpen);
+  useBodyScrollLock(true);
+
+  const canSave = name.trim().length >= 1 && !saving;
+
+  async function handleSave() {
+    if (!canSave) return;
+    setSaving(true);
+    try {
+      await onCreate({ name: name.trim(), category, icon });
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-40 bg-ink/50 backdrop-blur-[3px] flex items-center justify-center p-4 animate-fade-in"
+      onClick={onClose}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Novo ingrediente"
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-md bg-surface-elevated rounded-xl shadow-xl flex flex-col animate-sheet-up"
+      >
+        <header className="flex items-center justify-between p-4 border-b border-line">
+          <h2 className="text-lg font-extrabold leading-none">Novo ingrediente</h2>
+          <button
+            onClick={onClose}
+            className="shrink-0 inline-flex items-center justify-center w-11 h-11 -mr-2 rounded-md text-ink-3 hover:text-ink hover:bg-surface-sunken"
+            aria-label="Fechar"
+          >
+            <X size={20} strokeWidth={2.5} />
+          </button>
+        </header>
+
+        <div className="p-4 flex flex-col gap-4">
+          {/* Ícone — opcional, mas visualmente proeminente porque carrega
+              o reconhecimento do ingrediente no admin. */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIconPickerOpen(true)}
+              className={`shrink-0 w-16 h-16 rounded-md border-2 flex items-center justify-center transition-colors ${
+                icon
+                  ? "border-line bg-surface hover:border-ink-3"
+                  : "border-dashed border-line-strong bg-surface text-ink-3 hover:border-ink-3 hover:text-ink"
+              }`}
+              title={icon ? "Trocar ícone" : "Escolher ícone"}
+            >
+              {icon ? (
+                <IngredientIcon icon={icon} size={40} alt={name || "Ícone"} />
+              ) : (
+                <ImageIcon size={22} strokeWidth={2} />
+              )}
+            </button>
+            <div className="flex flex-col gap-1">
+              <div className="text-sm font-semibold text-ink">
+                {icon ? "Ícone escolhido" : "Sem ícone (opcional)"}
+              </div>
+              <button
+                onClick={() => setIconPickerOpen(true)}
+                className="text-xs font-semibold text-ink-2 hover:text-ink hover:underline self-start"
+              >
+                {icon ? "Trocar ícone" : "Escolher ícone…"}
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label className="block t-label mb-1.5">
+              Nome <span className="text-danger normal-case tracking-normal">*</span>
+            </label>
+            <input
+              type="text"
+              autoFocus
+              className="input w-full"
+              placeholder="ex: Goiabada, Frango com requeijão…"
+              value={name}
+              maxLength={60}
+              onChange={(e) => setName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && canSave) handleSave();
+              }}
+            />
+          </div>
+
+          <div>
+            <label className="block t-label mb-1.5">Categoria</label>
+            <select
+              className="input w-full"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+            >
+              {INGREDIENT_CATEGORIES.map((cat) => (
+                <option key={cat} value={cat}>
+                  {CATEGORY_LABEL[cat] ?? cat}
+                </option>
+              ))}
+            </select>
+            <p className="t-caption text-ink-3 mt-1">
+              Topping vai pro pastel salgado; doce vai pro doce; molho aparece como extra.
+              Se errar dá pra mover depois.
+            </p>
+          </div>
+        </div>
+
+        <footer className="p-4 border-t border-line flex items-center justify-end gap-2">
+          <button onClick={onClose} className="btn btn-secondary btn-sm" disabled={saving}>
+            Cancelar
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={!canSave}
+            className="btn btn-primary btn-sm disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {saving ? "Salvando…" : "Criar ingrediente"}
+          </button>
+        </footer>
+
+        <IconPicker
+          open={iconPickerOpen}
+          initial={icon}
+          suggestion={name}
+          onClose={() => setIconPickerOpen(false)}
+          onSelect={setIcon}
+        />
+      </div>
+    </div>
   );
 }
 
@@ -2888,9 +3303,13 @@ const ROLE_ORDER = ["admin", "atendente", "cozinha"] as const;
 function Operacao({
   orders,
   eventStatus,
+  onOpenEvent,
+  onCloseEvent,
 }: {
   orders: OrderView[];
   eventStatus: EventSessionStatus;
+  onOpenEvent: (name: string | null, eventDate: string | null) => void;
+  onCloseEvent: () => void;
 }) {
   const [now, setNow] = useState<number | null>(null);
   useEffect(() => {
@@ -2988,6 +3407,15 @@ function Operacao({
             : "Sem caixa aberto — mostrando histórico de hoje"}
         </p>
       </header>
+
+      {/* CaixaSection ANTES de tudo — quando fechado, a CTA "Abrir caixa"
+          é o foco principal. Quando aberto, vira faixa slim no topo (só
+          status + botão pequeno de fechar) pra não roubar foco do Trello. */}
+      <CaixaSection
+        eventStatus={eventStatus}
+        onOpen={onOpenEvent}
+        onClose={onCloseEvent}
+      />
 
       <div className="grid grid-cols-3 gap-2 md:gap-3">
         <Stat label="Pedidos" value={String(totals.pedidos)} />
