@@ -52,11 +52,6 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ### Hardening pra barraca real
 
-- [ ] **[P2] #pwa #offline #admin** Iconify offline fallback no IconPicker
-  - **Pronto quando:** se fetch pra `api.iconify.design/search` falhar (offline, timeout), IconPicker mostra mensagem "Sem internet — só dá pra subir SVG/PNG ou usar ícone já escolhido"; aba "Subir arquivo" continua 100% funcional; ícones já renderizados antes continuam aparecendo (cache do SW). Detecta `navigator.onLine` pra UX preditiva.
-  - **Contexto:** barraca não tem wifi confiável; admin do Cardápio em pleno evento = fluxo congelado se Iconify cair.
-  - **Autonomia:** OK fazer direto.
-
 ### UX / desktop & cardápio
 
 - [ ] **[P2] #ux #admin #atendente #cozinha #cliente** Auditoria UX desktop — paridade com mobile + botões de voltar
@@ -100,6 +95,11 @@ _Itens sem critério de pronto claro ainda._
   - **Contexto:** rodar `npm run dev`, abrir cada tela em viewport mobile, capturar via DevTools, otimizar com sharp. Audit PWA #6.
 - [ ] **[P3] #pwa #sw** Reativar `fallbacks: { document: "/offline" }` quando migrar pro `@ducanh2912/next-pwa`
   - **Contexto:** next-pwa@5.6.0 tem bug que quebra build com runtimeCaching customizado + fallbacks. Hoje `/offline` existe mas só serve navegação manual.
+- [ ] **[P3] #pwa #admin** Cachear `api.iconify.design` no Service Worker pra ícones já vistos renderizarem offline
+  - **Pronto quando:** `next.config.mjs` ganha regra de runtimeCaching `CacheFirst` (ou `StaleWhileRevalidate`) pro domínio `api.iconify.design`; após visitar admin Cardápio com wifi e voltar pra revisitar offline, os ícones já vistos no IconPicker e nas linhas de ingrediente renderizam normalmente.
+  - **Contexto:** Hoje sem rede o `<Icon icon="...">` do `@iconify/react` exibe placeholder vazio (fetch falha no client). Esse cache deixa "memória" dos ícones vistos. PR conforme PLAYBOOK (mexe em PWA config).
+  - **Autonomia:** Abrir PR.
+
 - [ ] **[P3] #chore #infra** Apontar health check do `docker-compose.yml` pra `/api/health` em vez de `/`
   - **Pronto quando:** linha do healthcheck no docker-compose.yml usa `wget --spider http://localhost:3000/api/health` em vez de `/`; Coolify (que reusa o docker-compose) passa a detectar DB caído via 503 e reinicia container.
   - **Contexto:** PR conforme PLAYBOOK (mexer em docker-compose.yml é PR). Trivial mas precisa revisão de janela.
@@ -110,6 +110,7 @@ _Itens sem critério de pronto claro ainda._
 ## ✅ Concluídos recentemente
 
 ### 2026-05-27
+- [claude-pastel 2026-05-27] **Iconify offline fallback no IconPicker** — banner amarelo de `<WifiOff>` na aba "Buscar ícone" quando `navigator.onLine = false` OU quando último fetch pra `api.iconify.design` falhou (network error, captive portal). Banner inclui link rápido pra "Subir arquivo" (100% local, funciona offline). Input de busca disabled + opacity-50 quando offline. Listeners pra `online`/`offline` events refletem retorno de wifi ao vivo (limpa o erro). Quando o modal abre offline, default já vai pra aba "Subir arquivo" pra não frustrar. Follow-up P3 criado pra adicionar regra de cache no SW (`api.iconify.design` em `next.config.mjs` PWA config — PR conforme PLAYBOOK) que permitiria render de ícones já vistos mesmo após reload offline.
 - [claude-pastel 2026-05-27] **Health check `/api/health` retorna 503 quando DB cai** — endpoint já existia mas sempre retornava 200 mesmo com DB inacessível. Agora retorna HTTP 503 + lista de `problems[]` quando DB falha, mantendo 200 + `problems: []` no caso saudável. Shape do response preservado (`ok`, `dbOk`, `dbLatencyMs`, `sse`, `session`, `uptimeSec`) pra não quebrar `e2e/api-smoke.spec.ts` nem o bookmark da Gil. README atualizado com sugestão de Coolify config (interval 30s, timeout 5s, restart em 3× 503). Follow-up P3 criado pra apontar health check do `docker-compose.yml` pra `/api/health` em vez de `/` (PR per PLAYBOOK).
 - [claude-pastel 2026-05-27] **Smoke test pré-evento** — `scripts/smoke-test.ts` + `npm run smoke`. Valida em ~60ms: DB acessível (5 queries em paralelo), admin existe, servidor HTTP responde, status do caixa (info), backup recente. Exit 0 = OK; exit 1 = erro; warnings (⚠️) não bloqueiam. Saída colorida ANSI. Cheatsheet de evento no README atualizado. **Bug regressão consertado:** `import "server-only"` no `lib/prisma.ts` quebrava TODOS os scripts (`reset-users`, `cleanup-orphan-images`, etc) — split em `lib/prisma-client.ts` (lógica + tuning, sem guard) e `lib/prisma.ts` (re-export com `server-only`). Bonus fix: PRAGMAs `busy_timeout` e `synchronous` também retornam linha no SQLite — trocados pra `$queryRawUnsafe`, sumiu o erro barulhento no console.
 - [claude-pastel 2026-05-27] **Testes unitários endpoints de ingrediente** — extraído `lib/ingredients.ts` (novo, helpers puros: `INGREDIENT_CATEGORIES`, `isAllowedCategory`, `parseIngredientName`, `parseIconValue`) das validações inline em `app/api/ingredients/*`. `tests/ingredients.test.ts` (29 testes) cobre validação de nome/categoria/icon. `tests/uploads-ingredients.test.ts` (21 testes) cobre `saveIngredientImage`/`deleteIngredientImage`/`readIngredientImage`/`isUploadedIngredientIcon` com tmp dir via `UPLOADS_DIR` env. Hardening implícito: POST/PATCH agora retornam 400 em tipos inválidos em `name`/`icon` em vez de ignorar silenciosamente (admin UI normal só manda string, sem impacto prático). Total: 57 → 107 testes (+50).

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Search, Trash2, Upload, X } from "lucide-react";
+import { Search, Trash2, Upload, WifiOff, X } from "lucide-react";
 import { Icon } from "@iconify/react";
 import { useEscapeKey } from "@/lib/use-escape-key";
 import { useBodyScrollLock } from "@/lib/use-body-scroll-lock";
@@ -51,22 +51,50 @@ export function IconPicker({
   const [uploadPreview, setUploadPreview] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
+  // Status de rede + última falha de fetch. Quando offline (ou último
+  // fetch falhou com erro de rede), a aba "Buscar ícone" vira read-only
+  // com mensagem clara e auto-foca em "Subir arquivo". Iconify só
+  // funciona online — a API + os pacotes de ícones vêm de api.iconify.design.
+  // Em barraca wifi cai o tempo todo; sem esse fallback, IconPicker congela.
+  const [online, setOnline] = useState(
+    typeof navigator !== "undefined" ? navigator.onLine : true,
+  );
+  const [searchError, setSearchError] = useState<string | null>(null);
 
   useEscapeKey(onClose, open);
   useBodyScrollLock(open);
 
-  // Reset state ao abrir
+  // Escuta eventos online/offline do browser pra refletir ao vivo
+  // quando wifi vai e volta no meio do uso.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handleOnline = () => {
+      setOnline(true);
+      setSearchError(null); // limpa erro pra re-tentar busca
+    };
+    const handleOffline = () => setOnline(false);
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
+
+  // Reset state ao abrir. Se está offline, default já é "upload" porque
+  // a busca não vai funcionar; usuário não fica frustrado tentando.
   useEffect(() => {
     if (open) {
-      setMode("search");
+      setMode(online ? "search" : "upload");
       setQuery(suggestion ?? "");
       setResults([]);
       setUploadPreview(null);
       setUploadError(null);
+      setSearchError(null);
       // foco no input depois do render
       setTimeout(() => inputRef.current?.focus(), 50);
     }
-  }, [open, suggestion]);
+  }, [open, suggestion, online]);
 
   /** Lê arquivo SVG/PNG, valida, devolve data URI ou seta erro. */
   function handleFile(file: File) {
@@ -91,37 +119,57 @@ export function IconPicker({
   // Busca debounced — traduz PT→EN antes de chamar a API
   useEffect(() => {
     if (!open) return;
+    // Não tenta buscar se offline — banner já avisou.
+    if (!online) {
+      setResults([]);
+      setTotal(0);
+      setLoading(false);
+      return;
+    }
     const term = query.trim();
     if (term.length < 2) {
       setResults([]);
       setTotal(0);
       setTranslated(null);
+      setSearchError(null);
       return;
     }
     const { translated: en, source } = translateForIconSearch(term);
     setTranslated(source === "dict" && en.toLowerCase() !== term.toLowerCase() ? en : null);
     setLoading(true);
+    setSearchError(null);
     const ctrl = new AbortController();
     const t = setTimeout(() => {
       // Iconify search API — sem auth, free, ~200k icons agregados
       fetch(`https://api.iconify.design/search?query=${encodeURIComponent(en)}&limit=64`, {
         signal: ctrl.signal,
       })
-        .then((r) => r.json() as Promise<SearchResult>)
+        .then((r) => {
+          if (!r.ok) throw new Error(`HTTP ${r.status}`);
+          return r.json() as Promise<SearchResult>;
+        })
         .then((data) => {
           setResults(data.icons ?? []);
           setTotal(data.total ?? 0);
           setLoading(false);
         })
         .catch((err) => {
-          if (err.name !== "AbortError") setLoading(false);
+          if (err.name !== "AbortError") {
+            setLoading(false);
+            // "fetch failed" / "NetworkError" / timeouts → trata como offline
+            // (mesmo que navigator.onLine ainda esteja true — algumas redes
+            // capturadas mantêm "online" mas bloqueiam saída).
+            setSearchError(
+              err instanceof Error ? err.message : "Falha de rede",
+            );
+          }
         });
     }, 250);
     return () => {
       clearTimeout(t);
       ctrl.abort();
     };
-  }, [query, open]);
+  }, [query, open, online]);
 
   if (!open) return null;
 
@@ -187,6 +235,37 @@ export function IconPicker({
 
         {mode === "search" ? (
         <>
+        {/* Banner offline / falha de rede — substitui input quando não
+            tem como buscar. Empurra usuário pra aba "Subir arquivo" que
+            funciona 100% local. Ícones já renderizados antes (cache HTTP
+            do browser) continuam aparecendo nos chips do Cardápio. */}
+        {(!online || searchError) && (
+          <div className="p-4 border-b border-line">
+            <div className="rounded-md border border-yellow-300 bg-yellow-50 text-ink p-4 flex items-start gap-3">
+              <WifiOff size={20} strokeWidth={2.5} className="shrink-0 mt-0.5 text-yellow-700" />
+              <div className="flex-1 min-w-0">
+                <div className="font-bold text-sm mb-1">
+                  {!online ? "Sem internet" : "Não consegui falar com a Iconify"}
+                </div>
+                <div className="text-xs text-ink-2 leading-snug">
+                  A busca de ícones precisa de rede. Você ainda pode{" "}
+                  <button
+                    onClick={() => setMode("upload")}
+                    className="underline font-semibold text-ink hover:text-ink-2"
+                  >
+                    subir um SVG ou PNG próprio
+                  </button>
+                  {" "}ou usar um ícone que já estava escolhido.
+                </div>
+                {searchError && online && (
+                  <div className="text-[11px] text-ink-3 mt-1.5 font-mono">
+                    {searchError}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
         <div className="p-4 border-b border-line">
           <div className="relative">
             <Search
@@ -200,7 +279,8 @@ export function IconPicker({
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="ex: frango, bacon, queijo, pizza…"
-              className="input h-11 text-base pl-10"
+              disabled={!online}
+              className="input h-11 text-base pl-10 disabled:opacity-50 disabled:cursor-not-allowed"
             />
           </div>
           {/* Chips de categorias — clicar preenche o campo de busca.
