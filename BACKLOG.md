@@ -37,11 +37,6 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ### PWA
 
-- [ ] **[P3] #pwa** Screenshots no manifest pra rich install UI no Chrome Android
-  - **Pronto quando:** 2-3 screenshots reais em `/public/screenshots/` (atendente, cozinha, cliente), declarados em `app/manifest.ts` com `form_factor: "narrow"` e/ou `"wide"`. Manifest passa validação `pwa-asset-generator` / Chrome Lighthouse.
-  - **Contexto:** rodar `npm run dev`, abrir cada tela em viewport mobile, capturar via DevTools, otimizar com sharp. Audit PWA #6.
-  - **Autonomia:** OK fazer direto.
-
 ---
 
 ## 🔮 Backlog (precisa refinar antes de executar)
@@ -69,6 +64,7 @@ _Itens com critério vago OU bloqueados por dependência externa._
 ## ✅ Concluídos recentemente
 
 ### 2026-05-27
+- [claude-pastel 2026-05-27] **Screenshots PWA manifest shipados** — `scripts/gen-screenshots.ts` (novo, usa Playwright) gera 3 PNGs 780×1688 em `/public/screenshots/`: atendente (com fila autenticada como Maria), cozinha (com pedidos via José), cliente (TV pública). Script abre caixa + cria 2 pedidos demo automaticamente pra cenas terem contexto realista. `app/manifest.ts` declara as 3 screenshots com `form_factor: "narrow"` e labels. Chrome Android usa no rich install dialog (mostra prévia em vez de só ícone). Idempotente. Cast `as unknown as MetadataRoute.Manifest["screenshots"]` porque Next 14 type não tem `form_factor` ainda, mas spec W3C aceita e Chrome respeita.
 - [claude-pastel 2026-05-27] **Dashboard `/admin/monitor` shipado** — view mobile-first (fundo escuro pra menos brilho à distância) com header curto + 4 KPIs gigantes (Receita / Pedidos / Ticket médio / Preparo médio dos últimos 5) + 2 seções live (Em preparo / Novos) ordenadas por urgência. Pedidos em preparo > 15min ganham ring vermelho. Indicador SSE no header. Link adicionado na sidebar admin + atalho no AppHeader mobile. Auth: admin only.
 - [claude-pastel 2026-05-27] **Redeploy Coolify reavaliado — não é mais necessário** — debug em produção mostrou app saudável: schema atualizado (`Ingredient.icon`/`stock`/`lowStockThreshold` presentes), produtos+ingredientes seedados (criados 20/05), `/api/health` retorna 200 com `dbOk: true`. Único ajuste pendente: trocar PIN do Gil de **1234** (legado do seed antigo) pra **2699** — feito via UI Admin → Usuários, sem precisar de reset destrutivo do volume.
 - [claude-pastel 2026-05-27] **E2E Playwright fluxo de pedido completo** — `e2e/order-flow.spec.ts` cobre ciclo PEDIDO_FEITO → EM_PREPARO → PRONTO → ENTREGUE via API direta (UI cozinha tem flakiness com splash/SW; HTTP é robusto e valida regras de transição + auth por role). Inclui teste negativo: cozinha tentando marcar ENTREGUE falha com 4xx. `e2e/global-setup.ts` (novo) cria Maria atendente (PIN 1111) + José cozinha (PIN 2222) via Prisma direto, idempotente. Atualizei `auth.spec.ts` pra refletir UI atual (login via role+PIN sem cards de usuário). **10/10 E2E verde** em 18s.

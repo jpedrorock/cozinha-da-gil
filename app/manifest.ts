@@ -88,5 +88,41 @@ export default function manifest(): MetadataRoute.Manifest {
         purpose: "any",
       },
     ],
+    // Screenshots pra rich install dialog do Chrome Android — quando
+    // banner de install aparece, Chrome usa esses pra mostrar prévias
+    // do app em vez de só nome + ícone. PWA audit #6.
+    //
+    // form_factor "narrow" = mobile (Chrome usa em telas pequenas).
+    // Capturados via scripts/gen-screenshots.ts: viewport 390x844 com
+    // deviceScaleFactor 2 → arquivos 780x1688 (proporção iPhone Pro).
+    //
+    // Cast: o type do Next 14 (`MetadataRoute.Manifest`) ainda não
+    // expõe `form_factor` / `label` no shape de screenshots, embora
+    // sejam válidos na spec W3C atual (e necessários pro Chrome usar
+    // o rich install dialog). Cast pra unknown pra escapar a checagem
+    // sem perder validade do JSON gerado.
+    screenshots: [
+      {
+        src: "/screenshots/01-atendente.png",
+        sizes: "780x1688",
+        type: "image/png",
+        form_factor: "narrow",
+        label: "Atendente — fila + novo pedido",
+      },
+      {
+        src: "/screenshots/02-cozinha.png",
+        sizes: "780x1688",
+        type: "image/png",
+        form_factor: "narrow",
+        label: "Cozinha — pedidos em tempo real",
+      },
+      {
+        src: "/screenshots/03-cliente.png",
+        sizes: "780x1688",
+        type: "image/png",
+        form_factor: "narrow",
+        label: "Painel cliente — TV pública",
+      },
+    ] as unknown as MetadataRoute.Manifest["screenshots"],
   };
 }

@@ -50,7 +50,7 @@ João: (1) trocar PIN do Gil em prod via UI (login com 1234 → Admin → Usuár
 | `app/api` (endpoints + SSE) | 🟢 | Codes estruturados (DUPLICATE_SUSPECTED, CAIXA_FECHADO, INVALID_TRANSITION, ORDER_LOCKED). |
 | `prisma/schema` | 🟢 | imageUrl + imageDataUrl (legacy) coexistem; migração roda no boot. |
 | Impressora térmica | 🟡 | window.print() funcional; integração ESC/POS espera hardware. |
-| PWA (next-pwa, manifest, service worker) | 🟢 | Standalone, 15 splashes (iPhone+iPad), install prompts, update prompt, CacheFirst pra assets imutáveis, shortcuts no long-press, página offline. |
+| PWA (next-pwa, manifest, service worker) | 🟢 | Standalone, 15 splashes (iPhone+iPad), install prompts, update prompt, CacheFirst pra assets imutáveis, shortcuts no long-press, página offline, **3 screenshots no manifest** pra rich install UI. |
 | Auth (iron-session) | 🟢 | PIN único por role, identificação por {role + PIN}. |
 | Testes Vitest | 🟢 | 107/107 passando (+50 hoje: ingredientes + uploads). |
 | Testes Playwright e2e | 🟢 | 10/10 passando (auth UI + API smoke + fluxo de pedido completo). |
