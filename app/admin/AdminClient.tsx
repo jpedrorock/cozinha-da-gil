@@ -17,6 +17,7 @@ import {
   Coffee,
   Contact,
   Download,
+  GripVertical,
   Image as ImageIcon,
   KeyRound,
   Lock,
@@ -38,6 +39,23 @@ import { useBodyScrollLock } from "@/lib/use-body-scroll-lock";
 import { useConfirmDialog } from "@/components/ConfirmDialog";
 import { useToast } from "@/components/Toast";
 import { IngredientIcon } from "@/components/IngredientIcon";
+import {
+  DndContext,
+  type DragEndEvent,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { Clientes } from "./Clientes";
 import { AppHeader } from "@/components/AppHeader";
 import { BrandIcon, PastelIcon, DoceIcon } from "@/components/icons";
@@ -331,6 +349,34 @@ export function AdminClient({
               throw new Error(err.error ?? "Falha ao remover.");
             }
             setIngredients((prev) => prev.filter((i) => i.id !== id));
+          }}
+          onReorder={async (category, orderedIds) => {
+            // Optimistic: aplica nova ordem local imediatamente;
+            // back-end re-numera as posições (0..N) e broadcast pro
+            // atendente refletir as chips em tempo real.
+            setIngredients((prev) => {
+              const byId = new Map(prev.map((i) => [i.id, i]));
+              const reordered: Ingredient[] = [];
+              orderedIds.forEach((id, index) => {
+                const ing = byId.get(id);
+                if (ing) {
+                  reordered.push({ ...ing, position: index });
+                  byId.delete(id);
+                }
+              });
+              // Items de OUTRAS categorias mantêm como estavam
+              const rest = Array.from(byId.values());
+              return [...reordered, ...rest];
+            });
+            const res = await fetch(`/api/ingredients/reorder`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ category, orderedIds }),
+            });
+            if (!res.ok) {
+              const err = await res.json().catch(() => ({ error: "Falha." }));
+              throw new Error(err.error ?? "Falha ao reordenar.");
+            }
           }}
         />
       )}
@@ -1765,6 +1811,7 @@ function Cardapio({
   onCreate,
   onUpdate,
   onDelete,
+  onReorder,
 }: {
   products: ProductView[];
   setProducts: React.Dispatch<React.SetStateAction<ProductView[]>>;
@@ -1774,6 +1821,7 @@ function Cardapio({
   onCreate: (payload: { name: string; category: string; icon?: string | null }) => Promise<Ingredient>;
   onUpdate: (id: string, partial: { name?: string; category?: string }) => Promise<Ingredient>;
   onDelete: (id: string) => Promise<void>;
+  onReorder: (category: string, orderedIds: string[]) => Promise<void>;
 }) {
   const [editingProduct, setEditingProduct] = useState<ProductView | "new" | null>(null);
   // Estado pra modal de novo ingrediente. Se aberta com categoria pré-
@@ -1959,59 +2007,20 @@ function Cardapio({
           )}
 
           {Object.entries(filteredGrouped).map(([category, items]) => (
-            <div key={category} className="mb-4">
-              <div className="flex items-center justify-between mb-2">
-                <div className="t-label tracking-[0.06em]">
-                  {CATEGORY_LABEL[category] ?? category}{" "}
-                  <span className="text-ink-3 font-normal tabular-nums">({items.length})</span>
-                </div>
-                <button
-                  onClick={() => setCreatingIngredient(category)}
-                  className="t-caption text-ink-3 hover:text-ink font-semibold inline-flex items-center gap-1 -mr-1 px-2 py-1 rounded hover:bg-surface-sunken"
-                  title={`Adicionar ${(CATEGORY_LABEL[category] ?? category).toLowerCase()}`}
-                >
-                  + Adicionar
-                </button>
-              </div>
-              <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                {items.map((ing) => (
-                  <IngredientRow
-                    key={ing.id}
-                    ing={ing}
-                    onToggle={onToggle}
-                    onIconChange={onIconChange}
-                    onRename={async (newName) => {
-                      try {
-                        await onUpdate(ing.id, { name: newName });
-                      } catch (e) {
-                        showToast(
-                          e instanceof Error ? e.message : "Falha ao renomear.",
-                          "error",
-                        );
-                      }
-                    }}
-                    onDelete={async () => {
-                      const ok = await confirm({
-                        title: `Remover "${ing.name}"?`,
-                        message: "Pedidos antigos com esse ingrediente continuam intactos (o nome ficou gravado neles). Só some das opções novas.",
-                        confirmLabel: "Remover",
-                        destructive: true,
-                      });
-                      if (!ok) return;
-                      try {
-                        await onDelete(ing.id);
-                        showToast(`"${ing.name}" removido.`, "success");
-                      } catch (e) {
-                        showToast(
-                          e instanceof Error ? e.message : "Falha ao remover.",
-                          "error",
-                        );
-                      }
-                    }}
-                  />
-                ))}
-              </ul>
-            </div>
+            <IngredientsCategoryList
+              key={category}
+              category={category}
+              items={items}
+              dragEnabled={!ingredientSearch.trim()}
+              onAddClick={() => setCreatingIngredient(category)}
+              onToggle={onToggle}
+              onIconChange={onIconChange}
+              onUpdate={onUpdate}
+              onDelete={onDelete}
+              onReorder={onReorder}
+              confirm={confirm}
+              showToast={showToast}
+            />
           ))}
         </section>
       )}
@@ -3021,18 +3030,255 @@ function ProductModal({
   );
 }
 
+/**
+ * Lista de ingredientes de UMA categoria, com drag-and-drop de reorder
+ * dentro da categoria. Quando dragEnabled=false (busca ativa), o DnD é
+ * suspenso — não faz sentido reordenar uma lista filtrada (apaga itens
+ * que sumiram do filtro).
+ *
+ * Optimistic update local + chamada POST /api/ingredients/reorder pra
+ * persistir; backend broadcastará `ingredient:reordered` pro atendente.
+ */
+type ConfirmFn = (opts: {
+  title: string;
+  message?: string;
+  confirmLabel?: string;
+  destructive?: boolean;
+}) => Promise<boolean>;
+type ShowToastFn = (text: string, tone?: "info" | "success" | "error") => void;
+
+function IngredientsCategoryList({
+  category,
+  items,
+  dragEnabled,
+  onAddClick,
+  onToggle,
+  onIconChange,
+  onUpdate,
+  onDelete,
+  onReorder,
+  confirm,
+  showToast,
+}: {
+  category: string;
+  items: Ingredient[];
+  dragEnabled: boolean;
+  onAddClick: () => void;
+  onToggle: (id: string, available: boolean) => void;
+  onIconChange: (id: string, icon: string | null) => void;
+  onUpdate: (id: string, partial: { name?: string; category?: string }) => Promise<Ingredient>;
+  onDelete: (id: string) => Promise<void>;
+  onReorder: (category: string, orderedIds: string[]) => Promise<void>;
+  confirm: ConfirmFn;
+  showToast: ShowToastFn;
+}) {
+  // Snapshot local pra optimistic update durante o drag — backend confirma
+  // depois. Se falhar, revert pro `items` do prop (re-render natural via SSE).
+  const [order, setOrder] = useState<Ingredient[]>(items);
+  useEffect(() => {
+    setOrder(items);
+  }, [items]);
+
+  const sensors = useSensors(
+    // PointerSensor com `activationConstraint` de 8px evita conflito
+    // com clicks normais (toggle, lápis, lixeira) — só inicia drag se
+    // o pointer moveu pelo menos 8px após o mousedown.
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
+  async function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = order.findIndex((i) => i.id === active.id);
+    const newIndex = order.findIndex((i) => i.id === over.id);
+    if (oldIndex === -1 || newIndex === -1) return;
+    const next = arrayMove(order, oldIndex, newIndex);
+    setOrder(next);
+    try {
+      await onReorder(category, next.map((i) => i.id));
+    } catch (e) {
+      // Reverte local; SSE depois traz a verdade do servidor.
+      setOrder(items);
+      showToast(
+        e instanceof Error ? e.message : "Falha ao reordenar.",
+        "error",
+      );
+    }
+  }
+
+  const ids = useMemo(() => order.map((i) => i.id), [order]);
+
+  return (
+    <div className="mb-4">
+      <div className="flex items-center justify-between mb-2">
+        <div className="t-label tracking-[0.06em]">
+          {CATEGORY_LABEL[category] ?? category}{" "}
+          <span className="text-ink-3 font-normal tabular-nums">({items.length})</span>
+        </div>
+        <button
+          onClick={onAddClick}
+          className="t-caption text-ink-3 hover:text-ink font-semibold inline-flex items-center gap-1 -mr-1 px-2 py-1 rounded hover:bg-surface-sunken"
+          title={`Adicionar ${(CATEGORY_LABEL[category] ?? category).toLowerCase()}`}
+        >
+          + Adicionar
+        </button>
+      </div>
+
+      {dragEnabled ? (
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={ids} strategy={verticalListSortingStrategy}>
+            <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              {order.map((ing) => (
+                <SortableIngredientRow
+                  key={ing.id}
+                  ing={ing}
+                  onToggle={onToggle}
+                  onIconChange={onIconChange}
+                  onUpdate={onUpdate}
+                  onDelete={onDelete}
+                  confirm={confirm}
+                  showToast={showToast}
+                />
+              ))}
+            </ul>
+          </SortableContext>
+        </DndContext>
+      ) : (
+        // Busca ativa — sem drag, lista estática
+        <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          {items.map((ing) => (
+            <IngredientRow
+              key={ing.id}
+              ing={ing}
+              onToggle={onToggle}
+              onIconChange={onIconChange}
+              onRename={async (newName) => {
+                try {
+                  await onUpdate(ing.id, { name: newName });
+                } catch (e) {
+                  showToast(e instanceof Error ? e.message : "Falha ao renomear.", "error");
+                }
+              }}
+              onDelete={async () => {
+                const ok = await confirm({
+                  title: `Remover "${ing.name}"?`,
+                  message:
+                    "Pedidos antigos com esse ingrediente continuam intactos (o nome ficou gravado neles). Só some das opções novas.",
+                  confirmLabel: "Remover",
+                  destructive: true,
+                });
+                if (!ok) return;
+                try {
+                  await onDelete(ing.id);
+                  showToast(`"${ing.name}" removido.`, "success");
+                } catch (e) {
+                  showToast(e instanceof Error ? e.message : "Falha ao remover.", "error");
+                }
+              }}
+            />
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Wrapper de IngredientRow que injeta drag handle + estilo de drag via
+ * `useSortable`. Posiciona o handle como primeiro elemento da row.
+ */
+function SortableIngredientRow({
+  ing,
+  onToggle,
+  onIconChange,
+  onUpdate,
+  onDelete,
+  confirm,
+  showToast,
+}: {
+  ing: Ingredient;
+  onToggle: (id: string, available: boolean) => void;
+  onIconChange: (id: string, icon: string | null) => void;
+  onUpdate: (id: string, partial: { name?: string; category?: string }) => Promise<Ingredient>;
+  onDelete: (id: string) => Promise<void>;
+  confirm: ConfirmFn;
+  showToast: ShowToastFn;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: ing.id,
+  });
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 10 : "auto",
+  };
+
+  const handle = (
+    <button
+      ref={setNodeRef as unknown as React.Ref<HTMLButtonElement>}
+      {...attributes}
+      {...listeners}
+      className="shrink-0 inline-flex items-center justify-center w-7 h-9 -ml-1.5 rounded text-ink-3 hover:text-ink hover:bg-surface-sunken cursor-grab active:cursor-grabbing touch-none"
+      aria-label={`Arrastar ${ing.name} pra reordenar`}
+      title="Arrastar pra reordenar"
+    >
+      <GripVertical size={16} strokeWidth={2} />
+    </button>
+  );
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      <IngredientRow
+        ing={ing}
+        onToggle={onToggle}
+        onIconChange={onIconChange}
+        onRename={async (newName) => {
+          try {
+            await onUpdate(ing.id, { name: newName });
+          } catch (e) {
+            showToast(e instanceof Error ? e.message : "Falha ao renomear.", "error");
+          }
+        }}
+        onDelete={async () => {
+          const ok = await confirm({
+            title: `Remover "${ing.name}"?`,
+            message:
+              "Pedidos antigos com esse ingrediente continuam intactos (o nome ficou gravado neles). Só some das opções novas.",
+            confirmLabel: "Remover",
+            destructive: true,
+          });
+          if (!ok) return;
+          try {
+            await onDelete(ing.id);
+            showToast(`"${ing.name}" removido.`, "success");
+          } catch (e) {
+            showToast(e instanceof Error ? e.message : "Falha ao remover.", "error");
+          }
+        }}
+        dragHandle={handle}
+      />
+    </div>
+  );
+}
+
 function IngredientRow({
   ing,
   onToggle,
   onIconChange,
   onRename,
   onDelete,
+  dragHandle,
 }: {
   ing: Ingredient;
   onToggle: (id: string, available: boolean) => void;
   onIconChange: (id: string, icon: string | null) => void;
   onRename: (newName: string) => Promise<void>;
   onDelete: () => Promise<void>;
+  // Handle de drag injetado pelo wrapper Sortable. Quando undefined,
+  // o row é estático (busca ativa ou contexto sem dnd).
+  dragHandle?: React.ReactNode;
 }) {
   const [iconPickerOpen, setIconPickerOpen] = useState(false);
   // Rename inline: click no lápis → input toma lugar do <span>; Enter
@@ -3065,6 +3311,8 @@ function IngredientRow({
     >
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2 min-w-0 flex-1">
+          {/* Drag handle injetado pelo wrapper Sortable (Cardapio). */}
+          {dragHandle}
           {/* Botão de ícone: clica e abre picker. Mostra ícone se houver, senão placeholder. */}
           <button
             onClick={() => setIconPickerOpen(true)}

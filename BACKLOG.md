@@ -54,11 +54,6 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ### UX / desktop & cardápio
 
-- [ ] **[P3] #admin** Drag-and-drop pra reordenar ingredientes dentro de categoria
-  - **Pronto quando:** arrastar ingrediente reordena dentro da categoria; nova ordem persiste em `Ingredient.position` via PATCH em batch; atendente reflete via SSE (`ingredient:updated`). Usa `@dnd-kit`.
-  - **Contexto:** hoje ordem vem do seed e admin não controla. Útil pra Gil botar topping mais popular no topo do stepper.
-  - **Autonomia:** OK fazer direto.
-
 ### Decisão de produto pendente
 
 - [ ] **[P3] #pwa** Decidir se liga HTTPS local
@@ -95,6 +90,7 @@ _Itens sem critério de pronto claro ainda._
 ## ✅ Concluídos recentemente
 
 ### 2026-05-27
+- [claude-pastel 2026-05-27] **Drag-and-drop pra reordenar ingredientes** — `@dnd-kit/core` + `sortable` + `utilities`. Drag handle `<GripVertical>` aparece no início de cada IngredientRow com `cursor: grab` (activationConstraint 8px pra não conflitar com clicks normais). `POST /api/ingredients/reorder` (novo) faz update batch em transação (idempotente, ignora IDs stale). Broadcast SSE `ingredient:reordered` → atendente recoloca chips do stepper em tempo real. Quando busca ativa, DnD suspenso (não faz sentido reordenar lista filtrada).
 - [claude-pastel 2026-05-27] **Cardápio → Ingredientes: contagem por categoria + busca rápida** — header de cada categoria mostra "(N)" do count atual (ex: "Toppings (12)"). Input de busca acima das categorias filtra client-side por nome (substring, case-insensitive); categorias vazias somem; mensagem "X de Y ingredientes" quando ativo. Botão X limpa busca. Reset automático quando troca de sub-tab. Útil agora que Gil pode chegar a 40+ ingredientes depois da feature de add livre.
 - [claude-pastel 2026-05-27] **3 follow-ups do audit desktop fechados:** (1) Stepper atendente: `md:max-w-4xl` (896px) em 4 wrappers (passo cliente, passo cart, container genérico, BottomBar) — desktop 1440px agora usa ~62% em vez de 47%. (2) Ticket cozinha: `max-w-screen-2xl mx-auto` (1536px) no grid — TV 4K ultra-wide não estica cards. (3) EditDrawer: **falso-positivo do audit** — já tem 4 formas de fechar (X header com hover, Cancelar footer, Esc, clique no backdrop). Nada a mexer.
 - [claude-pastel 2026-05-27] **Auditoria UX Desktop** — relatório em `docs/AUDIT-DESKTOP-2026-05.md` cobrindo 4 telas (atendente, cozinha, cliente, admin). Achados: 2 gaps críticos (stepper `max-w-2xl` espremido em desktop; ticket cozinha sem `max-w` em TV), 1 menor (verificar EditDrawer close button), 3 padrões transversais OK (header sticky, sem breadcrumb intencional, hovers em ~85%). 3 items P3 criados pra fixes (stepper width, ticket max-w, EditDrawer close). Estado geral OK — sprint mobile-first não deixou regressões críticas, só "espremidas" em desktop large.

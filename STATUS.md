@@ -100,6 +100,7 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 - **Auditoria UX Desktop (5/8)** — relatório em `docs/AUDIT-DESKTOP-2026-05.md`. 2 gaps críticos (stepper espremido, ticket cozinha sem max-w em TV) + 1 menor + observações OK. 3 items P3 abertos pros fixes. Sprint mobile-first não deixou regressões críticas, só "espremidas" em desktop large.
 - **3 follow-ups do audit desktop fechados** — Stepper atendente expandido pra `md:max-w-4xl` (4 wrappers); Ticket cozinha com `max-w-screen-2xl` (não estica em TV 4K); EditDrawer confirmado OK (já tem 4 formas de fechar). Audit completo de ponta a ponta.
 - **Cardápio → Ingredientes ganhou contagem por categoria + busca rápida** — header de categoria mostra "(N)"; input de busca client-side filtra por substring; categorias vazias somem; X limpa. Útil agora que Gil pode chegar a 40+ ingredientes.
+- **Drag-and-drop reordenar ingredientes** — `@dnd-kit` no Cardápio (handle `<GripVertical>`); novo `POST /api/ingredients/reorder` faz batch update em transação; atendente reflete via `ingredient:reordered` SSE. DnD suspenso quando busca ativa.
 
 ### 2026-05-22
 - 25 commits — auditoria crítica + guia + housekeeping + reorganização admin + estoque simplificado

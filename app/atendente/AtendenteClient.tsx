@@ -374,6 +374,28 @@ export function AtendenteClient({
         return { ...prev, [ing.category]: next };
       });
     },
+    // Admin arrastou ingredientes pra nova ordem — chips do stepper
+    // reordenam em tempo real sem reload. Items que sumiram do array
+    // (deletados em paralelo) ficam onde estavam até o próximo refresh.
+    "ingredient:reordered": (data) => {
+      const evt = data as { category: string; orderedIds: string[] };
+      setIngredients((prev) => {
+        const list = prev[evt.category];
+        if (!list) return prev;
+        const byId = new Map(list.map((i) => [i.id, i]));
+        const reordered: Ingredient[] = [];
+        evt.orderedIds.forEach((id) => {
+          const i = byId.get(id);
+          if (i) {
+            reordered.push(i);
+            byId.delete(id);
+          }
+        });
+        // Items não mencionados (stale local) ficam no fim
+        const rest = Array.from(byId.values());
+        return { ...prev, [evt.category]: [...reordered, ...rest] };
+      });
+    },
     "product:updated": (data) => {
       const p = data as {
         id: string;
