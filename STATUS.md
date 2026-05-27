@@ -98,6 +98,7 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 - **`/api/health` retorna 503 quando DB cai (3/8)** — endpoint que já existia agora distingue saudável (200) de DB inacessível (503), permitindo Coolify monitorar e reiniciar automaticamente. Campo `problems[]` lista descritores legíveis. Shape do response preservado pra não quebrar consumers. README sugere config Coolify (3× 503 = restart). Follow-up P3 criado pra apontar `docker-compose.yml` healthcheck pra `/api/health` (PR por PLAYBOOK).
 - **Iconify offline fallback (4/8)** — banner amarelo `<WifiOff>` no IconPicker quando offline ou fetch falha; input de busca disabled; default já vai pra aba "Subir arquivo" (que funciona 100% local). Listeners de `online`/`offline` events refletem retorno de wifi ao vivo. Follow-up P3 criado pra cachear `api.iconify.design` no SW (PR — PWA config).
 - **Auditoria UX Desktop (5/8)** — relatório em `docs/AUDIT-DESKTOP-2026-05.md`. 2 gaps críticos (stepper espremido, ticket cozinha sem max-w em TV) + 1 menor + observações OK. 3 items P3 abertos pros fixes. Sprint mobile-first não deixou regressões críticas, só "espremidas" em desktop large.
+- **3 follow-ups do audit desktop fechados** — Stepper atendente expandido pra `md:max-w-4xl` (4 wrappers); Ticket cozinha com `max-w-screen-2xl` (não estica em TV 4K); EditDrawer confirmado OK (já tem 4 formas de fechar). Audit completo de ponta a ponta.
 
 ### 2026-05-22
 - 25 commits — auditoria crítica + guia + housekeeping + reorganização admin + estoque simplificado

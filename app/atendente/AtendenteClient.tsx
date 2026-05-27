@@ -1187,7 +1187,7 @@ function NovoPedido({
   if (phase === "client") {
     return (
       <div className="flex-1 flex flex-col">
-        <div className="flex-1 px-4 md:px-8 pt-6 md:pt-10 max-w-2xl w-full mx-auto">
+        <div className="flex-1 px-4 md:px-8 pt-6 md:pt-10 max-w-2xl md:max-w-4xl w-full mx-auto">
           <h1 className="t-h1 mb-1">Novo pedido</h1>
           <p className="t-body-sm mb-5">Quem é o cliente?</p>
 
@@ -1289,7 +1289,7 @@ function NovoPedido({
     const total = Math.max(0, subtotal - discount);
     return (
       <div className="flex-1 flex flex-col">
-        <div className="flex-1 overflow-y-auto px-4 md:px-8 pt-6 max-w-2xl w-full mx-auto">
+        <div className="flex-1 overflow-y-auto px-4 md:px-8 pt-6 max-w-2xl md:max-w-4xl w-full mx-auto">
           <div className="flex items-baseline justify-between mb-1">
             <h1 className="t-h1">{editing ? "Editar pedido" : "Resumo"}</h1>
             <div className="flex flex-col items-end gap-0.5">
@@ -1577,7 +1577,7 @@ function NovoPedido({
           // o gesto horizontal antes do iOS Safari triggerar swipe-back
           // (margem esquerda → arrastar direita = página anterior).
           style={{ touchAction: "pan-y" }}
-          className="flex-1 overflow-y-auto px-4 md:px-8 pt-5 pb-6 max-w-2xl w-full mx-auto"
+          className="flex-1 overflow-y-auto px-4 md:px-8 pt-5 pb-6 max-w-2xl md:max-w-4xl w-full mx-auto"
         >
           <div key={phase} className="animate-step-in">
             {phase === "product" && (
@@ -3114,7 +3114,9 @@ function CouponInput({
 function BottomBar({ children }: { children: React.ReactNode }) {
   return (
     <div className="sticky bottom-0 bg-surface-elevated border-t border-line px-4 py-3 pb-[max(env(safe-area-inset-bottom),12px)] flex gap-2 md:px-6">
-      <div className="max-w-2xl w-full mx-auto flex gap-2">{children}</div>
+      {/* Alinha com a largura do stepper acima: max-w-2xl no mobile,
+          max-w-4xl no desktop (audit UX desktop 2026-05-27). */}
+      <div className="max-w-2xl md:max-w-4xl w-full mx-auto flex gap-2">{children}</div>
     </div>
   );
 }

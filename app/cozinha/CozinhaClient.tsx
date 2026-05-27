@@ -547,7 +547,9 @@ export function CozinhaClient({
             <EmptyState />
           )
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4 max-w-screen-2xl mx-auto">
+            {/* max-w-screen-2xl evita ticket cards esticarem em TV ultra-wide
+                (>1536px), mantendo legível à distância. Audit UX desktop 2026-05-27. */}
             {queue.map((o) => {
               const stage: Stage = o.status === "PEDIDO_FEITO" ? "PEDIDO_FEITO" : "EM_PREPARO";
               const next: OrderStatus = stage === "PEDIDO_FEITO" ? "EM_PREPARO" : "PRONTO";

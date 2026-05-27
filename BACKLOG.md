@@ -69,23 +69,6 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
   - **Contexto:** se Gil chegar a 40+ ingredientes (provável após a feature de add), scroll fica chato.
   - **Autonomia:** OK fazer direto.
 
-### Follow-ups da Auditoria UX Desktop (docs/AUDIT-DESKTOP-2026-05.md)
-
-- [ ] **[P3] #ux #atendente** Stepper: aproveitar largura desktop (≥1024px)
-  - **Pronto quando:** `max-w-2xl` (672px) trocado por `md:max-w-4xl` (896px) ou removido em md+ nos containers do stepper (AtendenteClient.tsx ~1190, 1292). Em desktop 1440px o stepper ocupa pelo menos 60% da largura útil em vez dos 47% atuais.
-  - **Contexto:** sprint mobile-first deixou cards "espremidos" no desktop. Aproveitamento é trivial.
-  - **Autonomia:** OK fazer direto.
-
-- [ ] **[P3] #ux #cozinha** Ticket cozinha: max-w em telas muito largas
-  - **Pronto quando:** quando há 1 item só na fila, ticket não estica até 1920px na TV — wrapper com `max-w-2xl` em md+ ou volta a 1 coluna constrained em xl+ (CozinhaClient.tsx ~550).
-  - **Contexto:** cozinha em TV grande com 1 pedido fica estranho (ticket gigantesco horizontal).
-  - **Autonomia:** OK fazer direto.
-
-- [ ] **[P3] #ux #atendente** EditDrawer: confirmar close button visível
-  - **Pronto quando:** EditDrawer do atendente tem botão "X" ou "Cancelar" com hover state claro pra fechar sem salvar (afford ado em mobile + desktop). Se já tem, marcar concluído.
-  - **Contexto:** audit não confirmou affordance — vale checar caso a caso.
-  - **Autonomia:** OK fazer direto.
-
 ### Decisão de produto pendente
 
 - [ ] **[P3] #pwa** Decidir se liga HTTPS local
@@ -122,6 +105,7 @@ _Itens sem critério de pronto claro ainda._
 ## ✅ Concluídos recentemente
 
 ### 2026-05-27
+- [claude-pastel 2026-05-27] **3 follow-ups do audit desktop fechados:** (1) Stepper atendente: `md:max-w-4xl` (896px) em 4 wrappers (passo cliente, passo cart, container genérico, BottomBar) — desktop 1440px agora usa ~62% em vez de 47%. (2) Ticket cozinha: `max-w-screen-2xl mx-auto` (1536px) no grid — TV 4K ultra-wide não estica cards. (3) EditDrawer: **falso-positivo do audit** — já tem 4 formas de fechar (X header com hover, Cancelar footer, Esc, clique no backdrop). Nada a mexer.
 - [claude-pastel 2026-05-27] **Auditoria UX Desktop** — relatório em `docs/AUDIT-DESKTOP-2026-05.md` cobrindo 4 telas (atendente, cozinha, cliente, admin). Achados: 2 gaps críticos (stepper `max-w-2xl` espremido em desktop; ticket cozinha sem `max-w` em TV), 1 menor (verificar EditDrawer close button), 3 padrões transversais OK (header sticky, sem breadcrumb intencional, hovers em ~85%). 3 items P3 criados pra fixes (stepper width, ticket max-w, EditDrawer close). Estado geral OK — sprint mobile-first não deixou regressões críticas, só "espremidas" em desktop large.
 - [claude-pastel 2026-05-27] **Iconify offline fallback no IconPicker** — banner amarelo de `<WifiOff>` na aba "Buscar ícone" quando `navigator.onLine = false` OU quando último fetch pra `api.iconify.design` falhou (network error, captive portal). Banner inclui link rápido pra "Subir arquivo" (100% local, funciona offline). Input de busca disabled + opacity-50 quando offline. Listeners pra `online`/`offline` events refletem retorno de wifi ao vivo (limpa o erro). Quando o modal abre offline, default já vai pra aba "Subir arquivo" pra não frustrar. Follow-up P3 criado pra adicionar regra de cache no SW (`api.iconify.design` em `next.config.mjs` PWA config — PR conforme PLAYBOOK) que permitiria render de ícones já vistos mesmo após reload offline.
 - [claude-pastel 2026-05-27] **Health check `/api/health` retorna 503 quando DB cai** — endpoint já existia mas sempre retornava 200 mesmo com DB inacessível. Agora retorna HTTP 503 + lista de `problems[]` quando DB falha, mantendo 200 + `problems: []` no caso saudável. Shape do response preservado (`ok`, `dbOk`, `dbLatencyMs`, `sse`, `session`, `uptimeSec`) pra não quebrar `e2e/api-smoke.spec.ts` nem o bookmark da Gil. README atualizado com sugestão de Coolify config (interval 30s, timeout 5s, restart em 3× 503). Follow-up P3 criado pra apontar health check do `docker-compose.yml` pra `/api/health` em vez de `/` (PR per PLAYBOOK).
