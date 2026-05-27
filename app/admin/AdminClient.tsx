@@ -20,6 +20,7 @@ import {
   GripVertical,
   Image as ImageIcon,
   KeyRound,
+  Monitor as MonitorIcon,
   Lock,
   LockOpen,
   Menu as MenuIcon,
@@ -484,6 +485,21 @@ function AdminShell({
             />
           ))}
         </nav>
+        {/* Monitor — view minimalista pra acompanhar evento de longe
+            (celular pessoal). Fora da nav principal pra não competir
+            com Caixa/Vendas; sempre visível pra um pulo rápido. */}
+        <Link
+          href="/admin/monitor"
+          className={`border-t border-line px-3 py-3 inline-flex items-center gap-2 text-ink-2 hover:text-ink hover:bg-surface-sunken transition ${
+            sidebarExpanded ? "" : "justify-center"
+          }`}
+          title="Monitor (KPIs ao vivo)"
+        >
+          <MonitorIcon size={18} strokeWidth={2.25} />
+          {sidebarExpanded && (
+            <span className="text-sm font-semibold">Monitor</span>
+          )}
+        </Link>
         {/* Link pro guia — sempre visível embaixo, fora da nav de abas.
             Acesso de referência rápida sem ocupar slot de tab principal. */}
         <Link
@@ -515,9 +531,20 @@ function AdminShell({
         </button>
       </aside>
 
-      {/* === BrandHeader no mobile only === */}
+      {/* === BrandHeader no mobile only — link rápido pro Monitor à direita === */}
       <div className="lg:hidden">
-        <AppHeader />
+        <AppHeader
+          right={
+            <Link
+              href="/admin/monitor"
+              className="inline-flex items-center justify-center w-10 h-10 rounded-md text-ink-2 hover:text-ink hover:bg-surface-sunken"
+              title="Monitor (KPIs ao vivo)"
+              aria-label="Abrir monitor"
+            >
+              <MonitorIcon size={20} strokeWidth={2.25} />
+            </Link>
+          }
+        />
       </div>
 
       {/* === MAIN === */}

@@ -35,11 +35,6 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ### UX / monitoramento
 
-- [ ] **[P3] #admin #pwa** Dashboard `/admin/monitor` — view mobile pra Gil acompanhar evento de longe
-  - **Pronto quando:** rota `/admin/monitor` mostra em viewport mobile (≤ 480px) os **KPIs gigantes** ao vivo: receita do caixa atual, contagem de pedidos ativos, ticket médio, tempo médio de preparo (últimos 5). Abaixo, lista compacta dos pedidos em PREPARO (nome cliente + minutos esperando). Atualiza via SSE (mesmo canal de `lib/sse.ts`). Sem chrome/sidebar — tela cheia, fonte enorme, otimizado pra Gil dar um pulo no celular durante o evento sem precisar abrir admin completo. Acessível só pra role `admin`. Link no header do admin: ícone 📊 que abre `/admin/monitor` numa aba/PWA shortcut.
-  - **Contexto:** Caixa do admin já tem kanban + Stats mas requer entrar no admin completo (login + navegação). Monitor é um sub-dash isolado pra glance rápido durante operação. Bom uso pra celular pessoal da Gil enquanto cozinha tá ocupada.
-  - **Autonomia:** OK fazer direto.
-
 ### PWA
 
 - [ ] **[P3] #pwa** Screenshots no manifest pra rich install UI no Chrome Android
@@ -74,6 +69,7 @@ _Itens com critério vago OU bloqueados por dependência externa._
 ## ✅ Concluídos recentemente
 
 ### 2026-05-27
+- [claude-pastel 2026-05-27] **Dashboard `/admin/monitor` shipado** — view mobile-first (fundo escuro pra menos brilho à distância) com header curto + 4 KPIs gigantes (Receita / Pedidos / Ticket médio / Preparo médio dos últimos 5) + 2 seções live (Em preparo / Novos) ordenadas por urgência. Pedidos em preparo > 15min ganham ring vermelho. Indicador SSE no header. Link adicionado na sidebar admin + atalho no AppHeader mobile. Auth: admin only.
 - [claude-pastel 2026-05-27] **Redeploy Coolify reavaliado — não é mais necessário** — debug em produção mostrou app saudável: schema atualizado (`Ingredient.icon`/`stock`/`lowStockThreshold` presentes), produtos+ingredientes seedados (criados 20/05), `/api/health` retorna 200 com `dbOk: true`. Único ajuste pendente: trocar PIN do Gil de **1234** (legado do seed antigo) pra **2699** — feito via UI Admin → Usuários, sem precisar de reset destrutivo do volume.
 - [claude-pastel 2026-05-27] **E2E Playwright fluxo de pedido completo** — `e2e/order-flow.spec.ts` cobre ciclo PEDIDO_FEITO → EM_PREPARO → PRONTO → ENTREGUE via API direta (UI cozinha tem flakiness com splash/SW; HTTP é robusto e valida regras de transição + auth por role). Inclui teste negativo: cozinha tentando marcar ENTREGUE falha com 4xx. `e2e/global-setup.ts` (novo) cria Maria atendente (PIN 1111) + José cozinha (PIN 2222) via Prisma direto, idempotente. Atualizei `auth.spec.ts` pra refletir UI atual (login via role+PIN sem cards de usuário). **10/10 E2E verde** em 18s.
 - [claude-pastel 2026-05-27] **HTTPS local — decisão registrada** — `docs/HTTPS-LOCAL.md` atualizado: app hospedado em `cozinhadagil.evapro.cloud` (Coolify) com HTTPS automático via Let's Encrypt. mkcert/HTTPS local não é mais necessário. Roteiro antigo fica como histórico caso volte pra LAN privada.
