@@ -52,6 +52,7 @@ next-env.d.ts
 /prisma/dev.db-wal
 /prisma/dev.db-shm
 /prisma/backups/
+/prisma/prisma/
 
 # Volume de dados em dev (uploads de imagens de produto). Em produção
 # (Coolify), bate em /app/data — volume nomeado no docker-compose.yml.
