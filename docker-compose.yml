@@ -46,10 +46,14 @@ services:
       # Path interno bate com DATABASE_URL acima.
       - cozinha-data:/app/data
 
+    # Health check aponta pro endpoint dedicado /api/health (commit 7baafcb):
+    # ele retorna 503 quando DB tá inacessível, fazendo Coolify reiniciar
+    # automaticamente. A raiz "/" sempre devolve 200 (login redirect) mesmo
+    # com DB caído — não detecta o problema crítico.
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
       interval: 30s
-      timeout: 3s
+      timeout: 5s
       retries: 3
       start_period: 30s
 
