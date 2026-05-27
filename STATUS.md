@@ -2,8 +2,8 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-05-26
-**Atualizado por:** `claude-pastel`
+**Última atualização:** 2026-05-27
+**Atualizado por:** `claude-pastel` (routine background)
 
 ---
 
@@ -12,6 +12,16 @@
 Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## O que rolou desde a última sessão
+
+### 2026-05-27 (routine background)
+- `lib/ingredients.ts` criado com funções puras de validação (extraídas dos endpoints); `tests/ingredients-api.test.ts` com 25 casos — testes sobem de 57 → 82
+- `scripts/smoke-test.ts` — checklist pré-evento objetivo (DB, auth, servidor, caixa, backup)
+- `GET /api/health` corrigido: retorna 503 + `problems[]` quando DB falha; shape alinhado ao critério
+- `IconPicker` com offline fallback: detecta `navigator.onLine`, banner de aviso, input desabilitado offline
+- Contagem de itens por categoria no header de Ingredientes no admin (`"Toppings (4)"`)
+- Branch `routine-pastel-20260527-1611` → PR aberto
+
+
 
 - Auditoria UX crítica (4º pass) — Fases A (5/5 críticos), B (9/14 importantes), C (4/5 polish + a11y) shipped em 18 commits
 - Follow-ups do audit externo: preview comprovante 80mm, atalhos teclado cozinha, áudio escalonado, PDF com delta vs período anterior, TV breathe intermitente
@@ -31,7 +41,7 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## Próximo passo recomendado
 
-João: mergear PR #4 (backup) + planejar janela pro redeploy Coolify (P1 do BACKLOG).
+João: mergear PR #4 (backup) + PR routine (5 melhorias de hardening/tests/UX) + planejar janela pro redeploy Coolify (P1 do BACKLOG).
 
 ---
 
@@ -50,7 +60,7 @@ João: mergear PR #4 (backup) + planejar janela pro redeploy Coolify (P1 do BACK
 | Impressora térmica | 🟡 | window.print() funcional; integração ESC/POS espera hardware. |
 | PWA (next-pwa, manifest, service worker) | 🟢 | Standalone, 15 splashes (iPhone+iPad), install prompts, update prompt, CacheFirst pra assets imutáveis, shortcuts no long-press, página offline. |
 | Auth (iron-session) | 🟢 | PIN único por role, identificação por {role + PIN}. |
-| Testes Vitest | 🟢 | 57/57 passando. |
+| Testes Vitest | 🟢 | 82/82 passando (25 novos: ingredientes). |
 | Testes Playwright e2e | 🟡 | Suite existe mas falta cobrir fluxo completo de pedido (item no BACKLOG). |
 
 ---
@@ -65,7 +75,7 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 
 ## Métricas vivas
 
-- Tests passando: **57/57** ✅
+- Tests passando: **82/82** ✅
 - Type-check: **ok** ✅
 - ESLint: **0 erros** ✅ (check ativo no build)
 - DB schema: **sincronizado** ✅ (imageUrl adicionado)

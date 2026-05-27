@@ -1899,7 +1899,8 @@ function Cardapio({
             <div key={category} className="mb-4">
               <div className="flex items-center justify-between mb-2">
                 <div className="t-label tracking-[0.06em]">
-                  {CATEGORY_LABEL[category] ?? category}
+                  {CATEGORY_LABEL[category] ?? category}{" "}
+                  <span className="font-normal normal-case text-ink-3">({items.length})</span>
                 </div>
                 <button
                   onClick={() => setCreatingIngredient(category)}

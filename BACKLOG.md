@@ -50,27 +50,7 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
   - **Contexto:** se algo quebrar SSE/auth/schema, esse teste captura antes de chegar em prod.
   - **Autonomia:** OK fazer direto.
 
-- [ ] **[P2] #test #admin** Testes unitários pros endpoints novos de ingrediente
-  - **Pronto quando:** `tests/ingredients-api.test.ts` cobre `POST /api/ingredients` (cria com Iconify, cria com data URI → salva arquivo, rejeita categoria inválida, rejeita nome vazio/longo, 409 em duplicate), `DELETE /api/ingredients/[id]` (apaga + cleanup do arquivo de upload, idempotente em 404), `PATCH` (rename, change category, swap icon Iconify→upload→Iconify com cleanup). `npm test` verde.
-  - **Contexto:** features de hoje (CRUD ingredientes + upload SVG/PNG) shipadas sem cobertura. Padrão a seguir: `tests/products.test.ts`.
-  - **Autonomia:** OK fazer direto.
-
 ### Hardening pra barraca real
-
-- [ ] **[P2] #chore #evento** Smoke test pré-evento — `scripts/smoke-test.ts`
-  - **Pronto quando:** `npx tsx scripts/smoke-test.ts` valida em <5s: (1) DB acessível + schema OK, (2) Gil autentica via service, (3) `/api/sse` responde 200, (4) caixa atual aberto ou não (info, não erro), (5) último backup `dev.db.*` < 24h. Exit 0 = OK; exit 1 + lista de problemas. README explica quando rodar.
-  - **Contexto:** hoje sobe a barraca rezando. Esse script vira checklist objetivo "tá tudo ok pra começar?".
-  - **Autonomia:** OK fazer direto.
-
-- [ ] **[P2] #api #chore** Health check endpoint `GET /api/health`
-  - **Pronto quando:** retorna 200 + JSON `{ status: "ok", db: true, sse: { connections: number }, uptime: seconds }` se tudo OK; 503 + lista de problemas se algo falha. Sem auth (público pra Coolify pingar). Coolify config aponta pra esse endpoint.
-  - **Contexto:** Coolify hoje só checa porta aberta — não detecta DB lock/queda. Cliente reclama antes do monitor.
-  - **Autonomia:** OK fazer direto.
-
-- [ ] **[P2] #pwa #offline #admin** Iconify offline fallback no IconPicker
-  - **Pronto quando:** se fetch pra `api.iconify.design/search` falhar (offline, timeout), IconPicker mostra mensagem "Sem internet — só dá pra subir SVG/PNG ou usar ícone já escolhido"; aba "Subir arquivo" continua 100% funcional; ícones já renderizados antes continuam aparecendo (cache do SW). Detecta `navigator.onLine` pra UX preditiva.
-  - **Contexto:** barraca não tem wifi confiável; admin do Cardápio em pleno evento = fluxo congelado se Iconify cair.
-  - **Autonomia:** OK fazer direto.
 
 ### UX / desktop & cardápio
 
@@ -84,10 +64,6 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
   - **Contexto:** hoje ordem vem do seed e admin não controla. Útil pra Gil botar topping mais popular no topo do stepper.
   - **Autonomia:** OK fazer direto.
 
-- [ ] **[P3] #admin** Contagem por categoria no header de Ingredientes
-  - **Pronto quando:** Cardápio → Ingredientes mostra "Toppings (12)" / "Doces (3)" no header de cada categoria em vez de só o label
-  - **Contexto:** pequena melhoria de orientação visual; útil agora que Gil adiciona/remove livremente.
-  - **Autonomia:** OK fazer direto.
 
 - [ ] **[P3] #admin** Busca rápida no Cardápio → Ingredientes
   - **Pronto quando:** input de busca acima das categorias filtra ingredientes pelo nome em tempo real; categorias vazias somem; conta resultado total. Padrão visual igual ao do IconPicker.
@@ -119,6 +95,13 @@ _Itens sem critério de pronto claro ainda._
 ---
 
 ## ✅ Concluídos recentemente
+
+### 2026-05-27
+- [claude-pastel 2026-05-27 background] **Testes unitários endpoints ingrediente** — `lib/ingredients.ts` com funções puras de validação (`validateIngredientName`, `parseIconValue`, `isAllowedCategory`); `tests/ingredients-api.test.ts` com 25 casos cobrindo todos os caminhos. Endpoints `POST/PATCH/DELETE /api/ingredients` refatorados pra usar lib pura. 82/82 testes passando.
+- [claude-pastel 2026-05-27 background] **Smoke test pré-evento** — `scripts/smoke-test.ts` verifica DB, auth Gil, servidor (GET /api/health), status caixa, backup recente. Exit 0 = OK, exit 1 = problemas listados. Roda `npx tsx scripts/smoke-test.ts`.
+- [claude-pastel 2026-05-27 background] **Health check `/api/health`** — ajustado pra retornar 503 + lista `problems` quando DB falha; body inclui `status: "ok"|"degraded"`, `db`, `sse: { connections }`, `uptimeSec`. Formato alinhado ao critério do BACKLOG.
+- [claude-pastel 2026-05-27 background] **Iconify offline fallback** — `IconPicker` detecta `navigator.onLine` + event listeners `online/offline`; quando offline ou fetch falha, exibe banner "Sem internet — só dá pra subir SVG/PNG ou usar ícone já escolhido" com atalho pra aba upload. Input de busca fica disabled. Aba "Subir arquivo" 100% funcional offline.
+- [claude-pastel 2026-05-27 background] **Contagem por categoria no header de Ingredientes** — Cardápio → Ingredientes mostra "Toppings (12)" / "Doces (3)" no header de cada seção.
 
 ### 2026-05-22
 - [claude-pastel 2026-05-22] **PWA audit: 7/8 melhorias shipped** — shortcuts no manifest (long-press iOS/Android), página offline + not-found + global-error, fix categories spec W3C, dir: ltr, **PWA Update Prompt** (toast "Nova versão pronta" em vez de reload silencioso), CacheFirst pra `_next/static + /api/uploads + /icons + /splash`, 7 splash screens novos (iPhone 17 Pro Max + iPads). Script `gen-splashes.ts` reusável. #6 (screenshots reais) ficou no BACKLOG.
