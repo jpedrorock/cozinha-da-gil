@@ -28,10 +28,11 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 ## Bloqueios ativos
 
 - **PR #4 aguardando merge** — backup automático do dev.db. Implementação testada local; precisa review + merge do João pra subir pra Coolify.
+- **2 PRs abertas pendentes review** (P3): `claude-pastel/iconify-sw-cache` + `claude-pastel/docker-health-endpoint`.
 
 ## Próximo passo recomendado
 
-João: mergear PR #4 (backup) + planejar janela pro redeploy Coolify (P1 do BACKLOG).
+João: (1) trocar PIN do Gil em prod via UI (login com 1234 → Admin → Usuários → 2699). (2) mergear PR #4 + os 2 PRs P3 quando tiver tempo. (3) BACKLOG "Próximos" tá vazio — próxima sessão começa pelo `🔮 Backlog vago` (precisa refinar critérios) ou novas ideias.
 
 ---
 

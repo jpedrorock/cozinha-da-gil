@@ -35,12 +35,6 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ### Deploy & ops
 
-- [ ] **[P1] #chore #evento** Redeploy Coolify com volume resetado + `SEED_ON_BOOT=true`
-  - **Pronto quando:** prod responde em `cozinhadagil.evapro.cloud` com schema novo (imageUrl, dedup, etc), Gil consegue logar com PIN 2699, primeiro caixa pode ser aberto.
-  - **Contexto:** depois das mudanças de schema dos commits recentes, volume antigo do Coolify pode ter rows incompatíveis.
-  - **Autonomia:** Confirmar antes (mexe em produção real).
-
-
 ### Tech debt com critério
 
 ### Cobertura de testes
@@ -78,6 +72,7 @@ _Itens sem critério de pronto claro ainda._
 ## ✅ Concluídos recentemente
 
 ### 2026-05-27
+- [claude-pastel 2026-05-27] **Redeploy Coolify reavaliado — não é mais necessário** — debug em produção mostrou app saudável: schema atualizado (`Ingredient.icon`/`stock`/`lowStockThreshold` presentes), produtos+ingredientes seedados (criados 20/05), `/api/health` retorna 200 com `dbOk: true`. Único ajuste pendente: trocar PIN do Gil de **1234** (legado do seed antigo) pra **2699** — feito via UI Admin → Usuários, sem precisar de reset destrutivo do volume.
 - [claude-pastel 2026-05-27] **E2E Playwright fluxo de pedido completo** — `e2e/order-flow.spec.ts` cobre ciclo PEDIDO_FEITO → EM_PREPARO → PRONTO → ENTREGUE via API direta (UI cozinha tem flakiness com splash/SW; HTTP é robusto e valida regras de transição + auth por role). Inclui teste negativo: cozinha tentando marcar ENTREGUE falha com 4xx. `e2e/global-setup.ts` (novo) cria Maria atendente (PIN 1111) + José cozinha (PIN 2222) via Prisma direto, idempotente. Atualizei `auth.spec.ts` pra refletir UI atual (login via role+PIN sem cards de usuário). **10/10 E2E verde** em 18s.
 - [claude-pastel 2026-05-27] **HTTPS local — decisão registrada** — `docs/HTTPS-LOCAL.md` atualizado: app hospedado em `cozinhadagil.evapro.cloud` (Coolify) com HTTPS automático via Let's Encrypt. mkcert/HTTPS local não é mais necessário. Roteiro antigo fica como histórico caso volte pra LAN privada.
 - [claude-pastel 2026-05-27] **PR aberta:** docker-compose healthcheck pra `/api/health` (branch `claude-pastel/docker-health-endpoint`).
