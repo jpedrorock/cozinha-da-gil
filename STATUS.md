@@ -32,7 +32,9 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## Próximo passo recomendado
 
-João: (1) trocar PIN do Gil em prod via UI (login com 1234 → Admin → Usuários → 2699). (2) mergear PR #4 + os 2 PRs P3 quando tiver tempo. (3) BACKLOG "Próximos" tem 2 itens P3 refinados prontos pra pegar — Dashboard `/admin/monitor` mobile e Screenshots manifest. 2 itens em "🔮 Backlog" bloqueados por dependência (impressora térmica real + migração next-pwa).
+João: mergear PR #4 (backup dev.db) + 2 PRs P3 abertas (iconify-sw-cache, docker-health-endpoint) quando tiver tempo. BACKLOG "Próximos" vazio; tudo o que sobra é review humano e 2 itens 🔮 blocked por dependência externa (impressora térmica + migração next-pwa).
+
+**Cleanup pendente** (não urgente): deletar `app/api/admin/bootstrap-reset/` — endpoint criado durante incidente em prod, já desligado (sem env var), tech debt declarado.
 
 ---
 
