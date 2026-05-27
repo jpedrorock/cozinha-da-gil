@@ -33,9 +33,17 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ## ⏭️ Próximos (prontos pra executar)
 
-### UX / monitoramento
+### Fase 6 — Lote 2 (melhorias autônomas)
 
-### PWA
+- [ ] **[P3] #cozinha #admin #chore** FASE-6 / 6.B — Instrumentar latência DB ↔ cozinha
+  - **Pronto quando:** timestamps logados em `POST /api/orders` (entrada, saída handler, antes do broadcast) + no `useSSE` handler da cozinha. Console mostra `[SSE-LAT]` com lag em ms. Análise feita; recomendação gravada em STATUS.
+  - **Contexto:** `docs/FASE-6.md#6.B`. Logs já existem parcialmente na cozinha. Completar e documentar. Não otimizar antes de medir.
+  - **Autonomia:** OK fazer direto (só logs, sem mudança de comportamento).
+
+- [ ] **[P3] #db #admin** FASE-6 / 6.E — EventSession: historico por evento, não por data
+  - **Pronto quando:** model `EventSession` no schema + backfill + admin filtra por evento no histórico.
+  - **Contexto:** `docs/FASE-6.md#6.E`. Toca em schema → **Abrir PR**.
+  - **Autonomia:** Abrir PR.
 
 ---
 
@@ -49,19 +57,15 @@ _Itens com critério vago OU bloqueados por dependência externa._
 
 - [ ] **[P3] #pwa #sw** Reativar `fallbacks: { document: "/offline" }` quando migrar pro `@ducanh2912/next-pwa`
   - **Blocked:** depende da migração de `next-pwa@5.6.0` → `@ducanh2912/next-pwa` (plano em `docs/UPGRADE-NEXT-15.md`). Hoje next-pwa@5.6.0 tem bug que quebra build com runtimeCaching customizado + fallbacks; `/offline` existe mas só serve navegação manual.
-- [ ] **[P3] #pwa #admin** Cachear `api.iconify.design` no Service Worker pra ícones já vistos renderizarem offline
-  - **Pronto quando:** `next.config.mjs` ganha regra de runtimeCaching `CacheFirst` (ou `StaleWhileRevalidate`) pro domínio `api.iconify.design`; após visitar admin Cardápio com wifi e voltar pra revisitar offline, os ícones já vistos no IconPicker e nas linhas de ingrediente renderizam normalmente.
-  - **Contexto:** Hoje sem rede o `<Icon icon="...">` do `@iconify/react` exibe placeholder vazio (fetch falha no client). Esse cache deixa "memória" dos ícones vistos. PR conforme PLAYBOOK (mexe em PWA config).
-  - **Autonomia:** Abrir PR.
-
-- [ ] **[P3] #chore #infra** Apontar health check do `docker-compose.yml` pra `/api/health` em vez de `/`
-  - **Pronto quando:** linha do healthcheck no docker-compose.yml usa `wget --spider http://localhost:3000/api/health` em vez de `/`; Coolify (que reusa o docker-compose) passa a detectar DB caído via 503 e reinicia container.
-  - **Contexto:** PR conforme PLAYBOOK (mexer em docker-compose.yml é PR). Trivial mas precisa revisão de janela.
-  - **Autonomia:** Abrir PR.
 
 ---
 
 ## ✅ Concluídos recentemente
+
+### 2026-05-27 (routine background)
+- [claude-pastel 2026-05-27 background] **FASE-6 / 6.A — Emoji `⚠` → `AlertTriangle` lucide** — 5 ocorrências em 4 arquivos substituídas por `<AlertTriangle>` do lucide-react: `CozinhaClient.tsx` (banner "Atendente alterou" + bloco de notas negativas), `OrderCard.tsx` (badge SEM na visão atendente), `MonitorClient.tsx` (aviso caixa stale), `ClientesBroadcast.tsx` (heading "Como funciona"). Consistência visual entre plataformas + sem degradação em fontes que não suportam emoji de warning.
+- [claude-pastel 2026-05-27 background] **FASE-6 / 6.C e 6.D — já implementados** — Auditoria confirmou: `ClienteClient.tsx` já mostra só `#ID + nome` (sem badge de item); `CozinhaClient.tsx` já usa `flatMap` pra expandir items por unidade (badge ×N removido). Itens fechados sem novas mudanças.
+- [claude-pastel 2026-05-27 background] **Housekeeping BACKLOG** — Itens `#pwa #admin` (Iconify SW cache) e `#chore #infra` (docker-compose healthcheck) removidos do 🔮 Backlog (PRs já abertos por sessão anterior estão em Concluídos). FASE-6 Lote 2 refinado: 6.B e 6.E adicionados a Próximos; 6.C/6.D confirmados como já feitos.
 
 ### 2026-05-27
 - [claude-pastel 2026-05-27] **Screenshots PWA manifest shipados** — `scripts/gen-screenshots.ts` (novo, usa Playwright) gera 3 PNGs 780×1688 em `/public/screenshots/`: atendente (com fila autenticada como Maria), cozinha (com pedidos via José), cliente (TV pública). Script abre caixa + cria 2 pedidos demo automaticamente pra cenas terem contexto realista. `app/manifest.ts` declara as 3 screenshots com `form_factor: "narrow"` e labels. Chrome Android usa no rich install dialog (mostra prévia em vez de só ícone). Idempotente. Cast `as unknown as MetadataRoute.Manifest["screenshots"]` porque Next 14 type não tem `form_factor` ainda, mas spec W3C aceita e Chrome respeita.

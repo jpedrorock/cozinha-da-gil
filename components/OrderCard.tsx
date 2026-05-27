@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Check, Coffee, HandPlatter, MessageCircle, Package, Pencil, Utensils, X } from "lucide-react";
+import { AlertTriangle, Check, Coffee, HandPlatter, MessageCircle, Package, Pencil, Utensils, X } from "lucide-react";
 import { StatusBadge } from "./StatusBadge";
 import { PastelIcon, DoceIcon } from "./icons";
 import type { OrderView, OrderItemView } from "@/lib/orders";
@@ -177,7 +177,7 @@ export function OrderCard({
           <div className="flex flex-col gap-1">
             {negatives.length > 0 && (
               <div className="text-xs bg-danger text-white rounded-sm px-2.5 py-1.5 font-bold uppercase tracking-wide leading-snug inline-flex items-start gap-1.5">
-                <span className="leading-none">⚠</span>
+                <AlertTriangle size={14} strokeWidth={2.5} className="shrink-0 mt-px" aria-hidden />
                 <span>{negatives.join(" · ")}</span>
               </div>
             )}

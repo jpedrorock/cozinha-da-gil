@@ -2,7 +2,7 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-05-26
+**Última atualização:** 2026-05-27 (routine background)
 **Atualizado por:** `claude-pastel`
 
 ---
@@ -12,6 +12,10 @@
 Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## O que rolou desde a última sessão
+
+- **Routine background 2026-05-27:** FASE-6 / 6.A emoji → AlertTriangle em 4 arquivos; housekeeping BACKLOG (PRs cleanup + FASE-6 Lote 2 triado).
+
+## O que rolou antes
 
 - Auditoria UX crítica (4º pass) — Fases A (5/5 críticos), B (9/14 importantes), C (4/5 polish + a11y) shipped em 18 commits
 - Follow-ups do audit externo: preview comprovante 80mm, atalhos teclado cozinha, áudio escalonado, PDF com delta vs período anterior, TV breathe intermitente
@@ -32,7 +36,7 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## Próximo passo recomendado
 
-João: (1) trocar PIN do Gil em prod via UI (login com 1234 → Admin → Usuários → 2699). (2) mergear PR #4 + os 2 PRs P3 quando tiver tempo. (3) BACKLOG "Próximos" tem 2 itens P3 refinados prontos pra pegar — Dashboard `/admin/monitor` mobile e Screenshots manifest. 2 itens em "🔮 Backlog" bloqueados por dependência (impressora térmica real + migração next-pwa).
+João: (1) trocar PIN do Gil em prod via UI (login com 1234 → Admin → Usuários → 2699). (2) mergear PR #4 + os 2 PRs P3 quando tiver tempo (docker-health-endpoint, iconify-sw-cache). (3) BACKLOG "Próximos" agora tem 2 itens FASE-6 prontos: 6.B (instrumentar latência SSE — OK fazer direto) e 6.E (EventSession — abre PR, toca schema).
 
 ---
 
