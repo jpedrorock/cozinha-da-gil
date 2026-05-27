@@ -24,6 +24,7 @@ import {
   Menu as MenuIcon,
   Package,
   Receipt,
+  Search,
   Tag,
   Trash2,
   Trophy,
@@ -1819,6 +1820,33 @@ function Cardapio({
     localStorage.setItem("pdg:cardapio-tab", t);
   }
 
+  // Busca rápida no Ingredientes — filtro client-side pelo nome.
+  // Reset quando troca sub-tab pra não ficar com filtro órfão.
+  const [ingredientSearch, setIngredientSearch] = useState("");
+  useEffect(() => {
+    if (subTab !== "ingredientes") setIngredientSearch("");
+  }, [subTab]);
+
+  const filteredGrouped = useMemo(() => {
+    const q = ingredientSearch.trim().toLowerCase();
+    if (!q) return grouped;
+    const result: Record<string, Ingredient[]> = {};
+    for (const [cat, items] of Object.entries(grouped)) {
+      // Match no nome — case-insensitive, substring.
+      // Procurar também na categoria seria útil mas confunde se Gil
+      // digitar "doce" e ver tudo que tá em categoria=doce e nada
+      // que TEM "doce" no nome. Match só por nome é mais previsível.
+      const matches = items.filter((i) => i.name.toLowerCase().includes(q));
+      if (matches.length > 0) result[cat] = matches;
+    }
+    return result;
+  }, [grouped, ingredientSearch]);
+
+  const filteredTotal = useMemo(
+    () => Object.values(filteredGrouped).reduce((sum, items) => sum + items.length, 0),
+    [filteredGrouped],
+  );
+
   const productCount = products.length;
   const ingredientCount = ingredients.length;
 
@@ -1885,7 +1913,7 @@ function Cardapio({
         <section>
           <div className="flex items-center justify-between mb-3">
             <p className="t-body-sm">
-              Toppings, molhos e sabores. Quadrado abre o ícone; lápis renomeia; lixeira apaga.
+              Toppings, molhos e sabores. Clica no nome pra renomear; lixeira apaga.
             </p>
             <button
               onClick={() => setCreatingIngredient("any")}
@@ -1895,11 +1923,47 @@ function Cardapio({
               Novo ingrediente
             </button>
           </div>
-          {Object.entries(grouped).map(([category, items]) => (
+
+          {/* Busca rápida — útil agora que Gil pode chegar a 40+ ingredientes
+              depois de adicionar livremente. Filtro client-side, sem fetch. */}
+          <div className="relative mb-1">
+            <Search
+              size={18}
+              strokeWidth={2.25}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-3 pointer-events-none"
+            />
+            <input
+              type="search"
+              value={ingredientSearch}
+              onChange={(e) => setIngredientSearch(e.target.value)}
+              placeholder={`Buscar entre ${ingredientCount} ingredientes…`}
+              className="input pl-10"
+              aria-label="Buscar ingrediente"
+            />
+            {ingredientSearch.trim() && (
+              <button
+                onClick={() => setIngredientSearch("")}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-ink-3 hover:text-ink p-1.5 rounded"
+                aria-label="Limpar busca"
+              >
+                <X size={14} strokeWidth={2.5} />
+              </button>
+            )}
+          </div>
+          {ingredientSearch.trim() && (
+            <p className="t-caption text-ink-3 mb-3">
+              {filteredTotal === 0
+                ? "Nenhum ingrediente encontrado."
+                : `${filteredTotal} de ${ingredientCount} ingredientes`}
+            </p>
+          )}
+
+          {Object.entries(filteredGrouped).map(([category, items]) => (
             <div key={category} className="mb-4">
               <div className="flex items-center justify-between mb-2">
                 <div className="t-label tracking-[0.06em]">
-                  {CATEGORY_LABEL[category] ?? category}
+                  {CATEGORY_LABEL[category] ?? category}{" "}
+                  <span className="text-ink-3 font-normal tabular-nums">({items.length})</span>
                 </div>
                 <button
                   onClick={() => setCreatingIngredient(category)}
