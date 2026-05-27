@@ -114,7 +114,8 @@ Não dá direto — Next.js precisa de Node. Possível com **Termux** (Android) 
 
 ## Saúde do servidor
 
-`GET /api/health` retorna:
+`GET /api/health` retorna **HTTP 200** se saudável, **HTTP 503** se DB inacessível (Coolify pode reiniciar automaticamente baseado no status). Sem auth — público pra monitor externo pingar.
+
 ```json
 {
   "ok": true,
@@ -122,11 +123,14 @@ Não dá direto — Next.js precisa de Node. Possível com **Termux** (Android) 
   "dbLatencyMs": 1,
   "sse": { "count": 3, "oldestAgeMs": 1234, "maxAgeMs": 21600000 },
   "session": { "id": "...", "name": "Festa Junina", "openedBy": "Gil" },
-  "uptimeSec": 12345
+  "uptimeSec": 12345,
+  "problems": []
 }
 ```
 
 Gil pode bookmarkar no celular dela. Se travar mid-evento, ela abre essa URL pra ver se servidor tá vivo.
+
+**Coolify health check:** aponta pra `/api/health`, intervalo 30s, timeout 5s, retries 3. Se ver 3× 503 consecutivos, restart automático do container.
 
 ---
 

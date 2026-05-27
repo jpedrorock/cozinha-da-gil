@@ -10,19 +10,34 @@ const startupTime = Date.now();
 
 /**
  * GET /api/health — ping leve pro Gil bookmarkar no celular dela e
- * confirmar "o servidor tá vivo?" durante o evento.
+ * confirmar "o servidor tá vivo?" durante o evento. Também é o endpoint
+ * que o Coolify (ou qualquer monitor externo) consulta pra saber se
+ * deve reiniciar o container.
  *
- * Retorna:
- * - ok: tudo bem
- * - dbOk: SQLite respondeu uma query
- * - sse: stats dos clientes conectados
- * - session: caixa aberto?
+ * Status code:
+ *   200 → app saudável (DB respondendo)
+ *   503 → algo crítico tá quebrado (DB inacessível). Lista de problemas
+ *         em `problems[]`. Coolify configurado pra fazer health check
+ *         neste endpoint vai reiniciar automaticamente quando ver 503.
+ *
+ * Body (sempre o mesmo shape, mesmo em 503 — facilita debugging):
+ * - ok: boolean (espelha o status)
+ * - dbOk, dbLatencyMs: SQLite respondeu? Quanto demorou?
+ * - sse: { count, oldestAgeMs, maxAgeMs } — clientes conectados
+ * - session: { id, name, openedBy, openedAt } | null — caixa aberto
  * - uptimeSec: quanto tempo o servidor tá rodando
+ * - serverTime: ISO timestamp atual
+ * - problems: string[] — vazio se ok; descrições legíveis se !ok
  *
- * Pública (sem auth) — é só info de saúde.
+ * Pública (sem auth) — é só info de saúde, sem dados sensíveis.
+ *
+ * Coolify config: aponta health check pra `/api/health` com intervalo
+ * 30s, timeout 5s, retries 3. Documentado em README "Deploy" + "Saúde".
  */
 export async function GET() {
   const now = Date.now();
+  const problems: string[] = [];
+
   let dbOk = false;
   let dbLatencyMs = -1;
   try {
@@ -30,8 +45,11 @@ export async function GET() {
     await prisma.$queryRawUnsafe("SELECT 1;");
     dbLatencyMs = Math.round(performance.now() - t);
     dbOk = true;
-  } catch {
+  } catch (err) {
     dbOk = false;
+    problems.push(
+      `DB inacessível: ${err instanceof Error ? err.message : String(err)}`,
+    );
   }
 
   const sse = sseStats();
@@ -46,17 +64,30 @@ export async function GET() {
         openedAt: s.openedAt.toISOString(),
       };
     }
-  } catch {
-    // ignora — health não deve falhar inteiro por isso
+  } catch (err) {
+    // Não trata como crítico — health continua "ok" se só essa query falhou.
+    // Mas registra problema pra Gil ver no body.
+    problems.push(
+      `Falha ao ler caixa atual: ${err instanceof Error ? err.message : String(err)}`,
+    );
   }
 
-  return NextResponse.json({
-    ok: dbOk,
-    dbOk,
-    dbLatencyMs,
-    sse,
-    session,
-    uptimeSec: Math.floor((now - startupTime) / 1000),
-    serverTime: new Date(now).toISOString(),
-  });
+  // Critério de saúde: DB acessível é o único hard requirement. Se cair,
+  // app não consegue gravar pedidos → cliente vai embora. Coolify deve
+  // restart. Tudo o resto é informativo.
+  const status = dbOk ? 200 : 503;
+
+  return NextResponse.json(
+    {
+      ok: dbOk,
+      dbOk,
+      dbLatencyMs,
+      sse,
+      session,
+      uptimeSec: Math.floor((now - startupTime) / 1000),
+      serverTime: new Date(now).toISOString(),
+      problems,
+    },
+    { status },
+  );
 }
