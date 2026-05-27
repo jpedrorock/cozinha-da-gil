@@ -44,6 +44,9 @@ export function IconPicker({
   // Termo realmente enviado pra API (após tradução PT→EN). Quando difere
   // do `query` mostramos um hint pra Gil saber que traduzimos.
   const [translated, setTranslated] = useState<string | null>(null);
+  const [networkError, setNetworkError] = useState(false);
+  // navigator.onLine pode ser false já ao abrir (barraca sem wifi)
+  const [isOffline, setIsOffline] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   // Upload: preview do data URI antes de confirmar; mensagem de erro
@@ -55,12 +58,27 @@ export function IconPicker({
   useEscapeKey(onClose, open);
   useBodyScrollLock(open);
 
+  // Detecta online/offline em tempo real
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setIsOffline(!window.navigator.onLine);
+    const goOnline = () => { setIsOffline(false); setNetworkError(false); };
+    const goOffline = () => setIsOffline(true);
+    window.addEventListener("online", goOnline);
+    window.addEventListener("offline", goOffline);
+    return () => {
+      window.removeEventListener("online", goOnline);
+      window.removeEventListener("offline", goOffline);
+    };
+  }, []);
+
   // Reset state ao abrir
   useEffect(() => {
     if (open) {
       setMode("search");
       setQuery(suggestion ?? "");
       setResults([]);
+      setNetworkError(false);
       setUploadPreview(null);
       setUploadError(null);
       // foco no input depois do render
@@ -98,6 +116,7 @@ export function IconPicker({
       setTranslated(null);
       return;
     }
+    if (isOffline) return;
     const { translated: en, source } = translateForIconSearch(term);
     setTranslated(source === "dict" && en.toLowerCase() !== term.toLowerCase() ? en : null);
     setLoading(true);
@@ -111,17 +130,21 @@ export function IconPicker({
         .then((data) => {
           setResults(data.icons ?? []);
           setTotal(data.total ?? 0);
+          setNetworkError(false);
           setLoading(false);
         })
         .catch((err) => {
-          if (err.name !== "AbortError") setLoading(false);
+          if (err.name !== "AbortError") {
+            setNetworkError(true);
+            setLoading(false);
+          }
         });
     }, 250);
     return () => {
       clearTimeout(t);
       ctrl.abort();
     };
-  }, [query, open]);
+  }, [query, open, isOffline]);
 
   if (!open) return null;
 
@@ -187,6 +210,19 @@ export function IconPicker({
 
         {mode === "search" ? (
         <>
+        {(isOffline || networkError) && (
+          <div className="mx-4 mt-4 flex items-start gap-2 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+            <span className="shrink-0 font-bold">Sem internet</span>
+            <span>— só dá pra subir SVG/PNG ou usar ícone já escolhido.</span>
+            <button
+              type="button"
+              onClick={() => setMode("upload")}
+              className="ml-auto shrink-0 font-bold underline hover:no-underline"
+            >
+              Subir arquivo
+            </button>
+          </div>
+        )}
         <div className="p-4 border-b border-line">
           <div className="relative">
             <Search
@@ -201,6 +237,7 @@ export function IconPicker({
               onChange={(e) => setQuery(e.target.value)}
               placeholder="ex: frango, bacon, queijo, pizza…"
               className="input h-11 text-base pl-10"
+              disabled={isOffline || networkError}
             />
           </div>
           {/* Chips de categorias — clicar preenche o campo de busca.
