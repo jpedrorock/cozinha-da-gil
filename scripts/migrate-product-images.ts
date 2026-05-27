@@ -11,7 +11,7 @@
  * Audit #63.
  */
 
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/prisma-client";
 import { saveProductImage } from "@/lib/uploads";
 
 async function main() {

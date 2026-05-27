@@ -52,11 +52,6 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ### Hardening pra barraca real
 
-- [ ] **[P2] #chore #evento** Smoke test pré-evento — `scripts/smoke-test.ts`
-  - **Pronto quando:** `npx tsx scripts/smoke-test.ts` valida em <5s: (1) DB acessível + schema OK, (2) Gil autentica via service, (3) `/api/sse` responde 200, (4) caixa atual aberto ou não (info, não erro), (5) último backup `dev.db.*` < 24h. Exit 0 = OK; exit 1 + lista de problemas. README explica quando rodar.
-  - **Contexto:** hoje sobe a barraca rezando. Esse script vira checklist objetivo "tá tudo ok pra começar?".
-  - **Autonomia:** OK fazer direto.
-
 - [ ] **[P2] #api #chore** Health check endpoint `GET /api/health`
   - **Pronto quando:** retorna 200 + JSON `{ status: "ok", db: true, sse: { connections: number }, uptime: seconds }` se tudo OK; 503 + lista de problemas se algo falha. Sem auth (público pra Coolify pingar). Coolify config aponta pra esse endpoint.
   - **Contexto:** Coolify hoje só checa porta aberta — não detecta DB lock/queda. Cliente reclama antes do monitor.
@@ -116,6 +111,7 @@ _Itens sem critério de pronto claro ainda._
 ## ✅ Concluídos recentemente
 
 ### 2026-05-27
+- [claude-pastel 2026-05-27] **Smoke test pré-evento** — `scripts/smoke-test.ts` + `npm run smoke`. Valida em ~60ms: DB acessível (5 queries em paralelo), admin existe, servidor HTTP responde, status do caixa (info), backup recente. Exit 0 = OK; exit 1 = erro; warnings (⚠️) não bloqueiam. Saída colorida ANSI. Cheatsheet de evento no README atualizado. **Bug regressão consertado:** `import "server-only"` no `lib/prisma.ts` quebrava TODOS os scripts (`reset-users`, `cleanup-orphan-images`, etc) — split em `lib/prisma-client.ts` (lógica + tuning, sem guard) e `lib/prisma.ts` (re-export com `server-only`). Bonus fix: PRAGMAs `busy_timeout` e `synchronous` também retornam linha no SQLite — trocados pra `$queryRawUnsafe`, sumiu o erro barulhento no console.
 - [claude-pastel 2026-05-27] **Testes unitários endpoints de ingrediente** — extraído `lib/ingredients.ts` (novo, helpers puros: `INGREDIENT_CATEGORIES`, `isAllowedCategory`, `parseIngredientName`, `parseIconValue`) das validações inline em `app/api/ingredients/*`. `tests/ingredients.test.ts` (29 testes) cobre validação de nome/categoria/icon. `tests/uploads-ingredients.test.ts` (21 testes) cobre `saveIngredientImage`/`deleteIngredientImage`/`readIngredientImage`/`isUploadedIngredientIcon` com tmp dir via `UPLOADS_DIR` env. Hardening implícito: POST/PATCH agora retornam 400 em tipos inválidos em `name`/`icon` em vez de ignorar silenciosamente (admin UI normal só manda string, sem impacto prático). Total: 57 → 107 testes (+50).
 
 ### 2026-05-22

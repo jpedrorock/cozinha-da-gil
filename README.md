@@ -23,7 +23,8 @@ npm run dev                  # localhost:3000
 |---|---|
 | `npm run dev` | dev server com HMR |
 | `npm run build && npm start` | build + servidor de produção |
-| `npm test` | roda os 51 testes do Vitest |
+| `npm test` | roda os 107 testes do Vitest |
+| `npm run smoke` | smoke test pré-evento (DB + admin + servidor + caixa + backup, ~100ms) |
 | `npm run db:seed` | recria produtos/usuários default |
 | `npm run db:studio` | Prisma Studio (browser) |
 | `npx tsx prisma/backfill-fase6.ts` | reaplica backfill se precisar |
@@ -182,6 +183,7 @@ logs/                   gitignored — append do logger
 
 ## Comandos de evento (cheatsheet pra Gil)
 
-1. **Início do dia:** `pm2 status` (servidor rodando?) → abrir admin → "Abrir caixa" → bookmark `/api/health` no celular
-2. **Durante:** monitorar fila na cozinha + saúde no celular
-3. **Fim:** "Fechar caixa" (backup é automático) → baixar CSV se quiser → `pm2 stop cozinha`
+1. **Antes de subir a barraca:** `npm run smoke` (~100ms) → confere DB, admin, servidor, caixa e backup. Se tudo verde, pode começar; se vermelho, conserta antes do cliente chegar.
+2. **Início do dia:** `pm2 status` (servidor rodando?) → abrir admin → "Abrir caixa" → bookmark `/api/health` no celular
+3. **Durante:** monitorar fila na cozinha + saúde no celular
+4. **Fim:** "Fechar caixa" (backup é automático) → baixar CSV se quiser → `pm2 stop cozinha`

@@ -94,6 +94,7 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
   - Guia atualizado pra refletir nova hierarquia
 - **BACKLOG replanejado: 8 novos itens aprovados** — auditoria UX desktop, testes unitários endpoints ingrediente, smoke test pré-evento, health check `/api/health`, Iconify offline fallback, drag-and-drop reordenar ingredientes, contagem por categoria, busca rápida no Cardápio. Detalhes no BACKLOG.
 - **Testes ingredientes shipados (1/8 do replanejamento)** — `lib/ingredients.ts` (helpers puros extraídos), `tests/ingredients.test.ts` (29), `tests/uploads-ingredients.test.ts` (21). Suite Vitest: 57 → 107. Hardening implícito: POST/PATCH rejeitam tipos não-string em `name`/`icon`.
+- **Smoke test pré-evento shipado (2/8)** — `npm run smoke` (~60ms) valida DB+admin+servidor+caixa+backup com saída colorida. Cheatsheet do README atualizado. **Bug regressão consertado:** `import "server-only"` em `lib/prisma.ts` quebrava todos os scripts; split em `lib/prisma-client.ts` (sem guard, pra scripts) + `lib/prisma.ts` (com guard, pra app code). Bonus: PRAGMAs `busy_timeout`/`synchronous` no init do Prisma trocados pra `$queryRawUnsafe` (sumiu o erro "Execute returned results" que aparecia em dev).
 
 ### 2026-05-22
 - 25 commits — auditoria crítica + guia + housekeeping + reorganização admin + estoque simplificado
