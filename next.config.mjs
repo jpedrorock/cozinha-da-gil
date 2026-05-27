@@ -86,6 +86,23 @@ const withPWA = nextPWA({
       },
     },
     {
+      // Iconify: API pública de ícones usada pelo IconPicker e renderer
+      // de Ingredient.icon. Em barraca com wifi instável, queremos que
+      // ícones JÁ VISTOS continuem aparecendo offline. StaleWhileRevalidate
+      // serve cache na hora + atualiza em background — UX fluida sem
+      // sacrificar updates quando Iconify atualiza pacotes.
+      urlPattern: /^https:\/\/api\.iconify\.design\/.+/,
+      handler: "StaleWhileRevalidate",
+      options: {
+        cacheName: "iconify",
+        expiration: {
+          maxEntries: 500,
+          maxAgeSeconds: 60 * 60 * 24 * 30, // 30 dias
+        },
+        cacheableResponse: { statuses: [0, 200] },
+      },
+    },
+    {
       // Páginas/HTML: stale-while-revalidate (catch-all final)
       urlPattern: /^https?.*/,
       handler: "StaleWhileRevalidate",
