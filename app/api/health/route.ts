@@ -50,13 +50,19 @@ export async function GET() {
     // ignora — health não deve falhar inteiro por isso
   }
 
-  return NextResponse.json({
-    ok: dbOk,
-    dbOk,
+  const problems: string[] = [];
+  if (!dbOk) problems.push("db_unavailable");
+
+  const body = {
+    status: problems.length === 0 ? "ok" : "degraded",
+    db: dbOk,
     dbLatencyMs,
-    sse,
+    sse: { connections: sse.count },
     session,
     uptimeSec: Math.floor((now - startupTime) / 1000),
     serverTime: new Date(now).toISOString(),
-  });
+    ...(problems.length > 0 ? { problems } : {}),
+  };
+
+  return NextResponse.json(body, { status: problems.length === 0 ? 200 : 503 });
 }
