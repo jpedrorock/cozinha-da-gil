@@ -50,7 +50,7 @@ João: mergear PR #4 (backup) + planejar janela pro redeploy Coolify (P1 do BACK
 | Impressora térmica | 🟡 | window.print() funcional; integração ESC/POS espera hardware. |
 | PWA (next-pwa, manifest, service worker) | 🟢 | Standalone, 15 splashes (iPhone+iPad), install prompts, update prompt, CacheFirst pra assets imutáveis, shortcuts no long-press, página offline. |
 | Auth (iron-session) | 🟢 | PIN único por role, identificação por {role + PIN}. |
-| Testes Vitest | 🟢 | 57/57 passando. |
+| Testes Vitest | 🟢 | 107/107 passando (+50 hoje: ingredientes + uploads). |
 | Testes Playwright e2e | 🟡 | Suite existe mas falta cobrir fluxo completo de pedido (item no BACKLOG). |
 
 ---
@@ -65,7 +65,7 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 
 ## Métricas vivas
 
-- Tests passando: **57/57** ✅
+- Tests passando: **107/107** ✅
 - Type-check: **ok** ✅
 - ESLint: **0 erros** ✅ (check ativo no build)
 - DB schema: **sincronizado** ✅ (imageUrl adicionado)
@@ -93,6 +93,7 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
   - Menu admin cai de 7 → 6 itens
   - Guia atualizado pra refletir nova hierarquia
 - **BACKLOG replanejado: 8 novos itens aprovados** — auditoria UX desktop, testes unitários endpoints ingrediente, smoke test pré-evento, health check `/api/health`, Iconify offline fallback, drag-and-drop reordenar ingredientes, contagem por categoria, busca rápida no Cardápio. Detalhes no BACKLOG.
+- **Testes ingredientes shipados (1/8 do replanejamento)** — `lib/ingredients.ts` (helpers puros extraídos), `tests/ingredients.test.ts` (29), `tests/uploads-ingredients.test.ts` (21). Suite Vitest: 57 → 107. Hardening implícito: POST/PATCH rejeitam tipos não-string em `name`/`icon`.
 
 ### 2026-05-22
 - 25 commits — auditoria crítica + guia + housekeeping + reorganização admin + estoque simplificado

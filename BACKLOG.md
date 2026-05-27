@@ -50,11 +50,6 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
   - **Contexto:** se algo quebrar SSE/auth/schema, esse teste captura antes de chegar em prod.
   - **Autonomia:** OK fazer direto.
 
-- [ ] **[P2] #test #admin** Testes unitários pros endpoints novos de ingrediente
-  - **Pronto quando:** `tests/ingredients-api.test.ts` cobre `POST /api/ingredients` (cria com Iconify, cria com data URI → salva arquivo, rejeita categoria inválida, rejeita nome vazio/longo, 409 em duplicate), `DELETE /api/ingredients/[id]` (apaga + cleanup do arquivo de upload, idempotente em 404), `PATCH` (rename, change category, swap icon Iconify→upload→Iconify com cleanup). `npm test` verde.
-  - **Contexto:** features de hoje (CRUD ingredientes + upload SVG/PNG) shipadas sem cobertura. Padrão a seguir: `tests/products.test.ts`.
-  - **Autonomia:** OK fazer direto.
-
 ### Hardening pra barraca real
 
 - [ ] **[P2] #chore #evento** Smoke test pré-evento — `scripts/smoke-test.ts`
@@ -119,6 +114,9 @@ _Itens sem critério de pronto claro ainda._
 ---
 
 ## ✅ Concluídos recentemente
+
+### 2026-05-27
+- [claude-pastel 2026-05-27] **Testes unitários endpoints de ingrediente** — extraído `lib/ingredients.ts` (novo, helpers puros: `INGREDIENT_CATEGORIES`, `isAllowedCategory`, `parseIngredientName`, `parseIconValue`) das validações inline em `app/api/ingredients/*`. `tests/ingredients.test.ts` (29 testes) cobre validação de nome/categoria/icon. `tests/uploads-ingredients.test.ts` (21 testes) cobre `saveIngredientImage`/`deleteIngredientImage`/`readIngredientImage`/`isUploadedIngredientIcon` com tmp dir via `UPLOADS_DIR` env. Hardening implícito: POST/PATCH agora retornam 400 em tipos inválidos em `name`/`icon` em vez de ignorar silenciosamente (admin UI normal só manda string, sem impacto prático). Total: 57 → 107 testes (+50).
 
 ### 2026-05-22
 - [claude-pastel 2026-05-22] **PWA audit: 7/8 melhorias shipped** — shortcuts no manifest (long-press iOS/Android), página offline + not-found + global-error, fix categories spec W3C, dir: ltr, **PWA Update Prompt** (toast "Nova versão pronta" em vez de reload silencioso), CacheFirst pra `_next/static + /api/uploads + /icons + /splash`, 7 splash screens novos (iPhone 17 Pro Max + iPads). Script `gen-splashes.ts` reusável. #6 (screenshots reais) ficou no BACKLOG.
