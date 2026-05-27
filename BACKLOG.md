@@ -50,6 +50,50 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
   - **Contexto:** se algo quebrar SSE/auth/schema, esse teste captura antes de chegar em prod.
   - **Autonomia:** OK fazer direto.
 
+- [ ] **[P2] #test #admin** Testes unitários pros endpoints novos de ingrediente
+  - **Pronto quando:** `tests/ingredients-api.test.ts` cobre `POST /api/ingredients` (cria com Iconify, cria com data URI → salva arquivo, rejeita categoria inválida, rejeita nome vazio/longo, 409 em duplicate), `DELETE /api/ingredients/[id]` (apaga + cleanup do arquivo de upload, idempotente em 404), `PATCH` (rename, change category, swap icon Iconify→upload→Iconify com cleanup). `npm test` verde.
+  - **Contexto:** features de hoje (CRUD ingredientes + upload SVG/PNG) shipadas sem cobertura. Padrão a seguir: `tests/products.test.ts`.
+  - **Autonomia:** OK fazer direto.
+
+### Hardening pra barraca real
+
+- [ ] **[P2] #chore #evento** Smoke test pré-evento — `scripts/smoke-test.ts`
+  - **Pronto quando:** `npx tsx scripts/smoke-test.ts` valida em <5s: (1) DB acessível + schema OK, (2) Gil autentica via service, (3) `/api/sse` responde 200, (4) caixa atual aberto ou não (info, não erro), (5) último backup `dev.db.*` < 24h. Exit 0 = OK; exit 1 + lista de problemas. README explica quando rodar.
+  - **Contexto:** hoje sobe a barraca rezando. Esse script vira checklist objetivo "tá tudo ok pra começar?".
+  - **Autonomia:** OK fazer direto.
+
+- [ ] **[P2] #api #chore** Health check endpoint `GET /api/health`
+  - **Pronto quando:** retorna 200 + JSON `{ status: "ok", db: true, sse: { connections: number }, uptime: seconds }` se tudo OK; 503 + lista de problemas se algo falha. Sem auth (público pra Coolify pingar). Coolify config aponta pra esse endpoint.
+  - **Contexto:** Coolify hoje só checa porta aberta — não detecta DB lock/queda. Cliente reclama antes do monitor.
+  - **Autonomia:** OK fazer direto.
+
+- [ ] **[P2] #pwa #offline #admin** Iconify offline fallback no IconPicker
+  - **Pronto quando:** se fetch pra `api.iconify.design/search` falhar (offline, timeout), IconPicker mostra mensagem "Sem internet — só dá pra subir SVG/PNG ou usar ícone já escolhido"; aba "Subir arquivo" continua 100% funcional; ícones já renderizados antes continuam aparecendo (cache do SW). Detecta `navigator.onLine` pra UX preditiva.
+  - **Contexto:** barraca não tem wifi confiável; admin do Cardápio em pleno evento = fluxo congelado se Iconify cair.
+  - **Autonomia:** OK fazer direto.
+
+### UX / desktop & cardápio
+
+- [ ] **[P2] #ux #admin #atendente #cozinha #cliente** Auditoria UX desktop — paridade com mobile + botões de voltar
+  - **Pronto quando:** revisar as 4 telas (atendente, cozinha, cliente, admin) no desktop (>= 1024px) e gerar relatório com gaps: (1) botões de voltar presentes onde mobile tem (header, drawer, dialogs), (2) navegação consistente, (3) hierarquia visual proporcional pra telas maiores (largura cards, hover states, atalhos de teclado), (4) sem regressões do mobile-first audit recente. Gaps viram itens P3 separados se >5.
+  - **Contexto:** sprint recente focou mobile-first; design ficou ótimo mobile mas pode ter ficado órfão no desktop. Algumas telas tinham botão voltar antes que sumiu na refatoração.
+  - **Autonomia:** OK fazer direto (auditoria-relatório; correções viram outros items).
+
+- [ ] **[P3] #admin** Drag-and-drop pra reordenar ingredientes dentro de categoria
+  - **Pronto quando:** arrastar ingrediente reordena dentro da categoria; nova ordem persiste em `Ingredient.position` via PATCH em batch; atendente reflete via SSE (`ingredient:updated`). Usa `@dnd-kit`.
+  - **Contexto:** hoje ordem vem do seed e admin não controla. Útil pra Gil botar topping mais popular no topo do stepper.
+  - **Autonomia:** OK fazer direto.
+
+- [ ] **[P3] #admin** Contagem por categoria no header de Ingredientes
+  - **Pronto quando:** Cardápio → Ingredientes mostra "Toppings (12)" / "Doces (3)" no header de cada categoria em vez de só o label
+  - **Contexto:** pequena melhoria de orientação visual; útil agora que Gil adiciona/remove livremente.
+  - **Autonomia:** OK fazer direto.
+
+- [ ] **[P3] #admin** Busca rápida no Cardápio → Ingredientes
+  - **Pronto quando:** input de busca acima das categorias filtra ingredientes pelo nome em tempo real; categorias vazias somem; conta resultado total. Padrão visual igual ao do IconPicker.
+  - **Contexto:** se Gil chegar a 40+ ingredientes (provável após a feature de add), scroll fica chato.
+  - **Autonomia:** OK fazer direto.
+
 ### Decisão de produto pendente
 
 - [ ] **[P3] #pwa** Decidir se liga HTTPS local

@@ -474,11 +474,15 @@ export const GUIDE: GuideTab[] = [
         ],
       },
       {
-        id: "historico",
+        id: "pedidos",
         title: "Pedidos antigos",
         icon: "History",
-        description: "Buscar qualquer pedido já feito.",
+        description: "Buscar qualquer pedido já feito (dentro de Vendas → aba 'Pedidos').",
         topics: [
+          {
+            title: "Como abrir",
+            body: "Vai em Vendas no menu, depois clica na aba 'Pedidos' lá em cima. 'Resumo' é números, 'Pedidos' é a lista de cada um.",
+          },
           {
             title: "Filtrar por período",
             body: "Botões 'Hoje', 'Ontem', '7 dias' ou 'Tudo'. Pode também filtrar por uma festa específica.",

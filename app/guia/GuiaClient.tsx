@@ -638,6 +638,6 @@ function tabHeroSubtitle(id: GuideTab["id"]): string {
     case "cozinha":
       return "Receber, preparar no tempo certo, achar pedido rápido, ligar/desligar som de alarme.";
     case "admin":
-      return "Vendas do dia, cardápio, clientes, histórico, promoções, funcionários. Tudo que Gil precisa.";
+      return "Caixa do dia, vendas (resumo + pedidos), cardápio, clientes, promoções e funcionários. Tudo que Gil precisa.";
   }
 }
