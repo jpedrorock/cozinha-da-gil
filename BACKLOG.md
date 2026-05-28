@@ -33,7 +33,17 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ## ⏭️ Próximos (prontos pra executar)
 
-_Vazio — fila zerada. Rodar `/planejar` pra reabastecer._
+### Manutenção / infra
+
+- [ ] **[P2] #chore #pwa** Migração Next 14 → 15 + `@ducanh2912/next-pwa` [claude-pastel 2026-05-28]
+  - **Por quê:** os **10 vulns do `npm audit` são todos do `next-pwa@5.6.0`** (workbox desatualizado); a migração resolve segurança e desbloqueia `fallbacks: { document: "/offline" }`. Janela ideal: **sem evento agendado** (STATUS).
+  - **Plano:** `docs/UPGRADE-NEXT-15.md` (14 arquivos afetados, ~3-6h, rollback plan).
+  - **Sub-itens:**
+    - (a) Codemod oficial de `params` async nas 14 rotas `app/api/*/[id]/route.ts` + 1 page.
+    - (b) Trocar `next-pwa@5.6.0` → `@ducanh2912/next-pwa` no `next.config.mjs` (preservar runtimeCaching atual + reativar `fallbacks`).
+    - (c) `npm run build` + e2e **contra `npm run dev`** (auth UI quebra em build prod por SW — ver nota nos módulos) verdes; `npm audit` zerado.
+  - **Pronto quando:** build limpo, e2e 12/12 em dev, `npm audit` sem high/moderate, `/offline` servindo como fallback de navegação.
+  - **Autonomia:** **Confirmar antes** de começar (risco alto) + **Abrir PR** (toca `next.config.mjs` + 14 rotas + deps major). Não mergear sem revisão do João.
 
 ### UX / monitoramento
 

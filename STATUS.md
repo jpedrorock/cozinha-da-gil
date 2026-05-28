@@ -32,9 +32,9 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## Próximo passo recomendado
 
-BACKLOG "Próximos" **zerado** — os 2 itens do replanejamento de 28/05 foram entregues (cobertura de libs puras + e2e bypass de bebida). Rodar `/planejar` pra reabastecer quando quiser novo trabalho.
+BACKLOG "Próximos" tem **1 item: migração Next 14 → 15 + next-pwa** (P2, resolve os 10 vulns + desbloqueia offline). É **"Confirmar antes"** — aguarda João dar o ok pra começar (risco alto, ~3-6h, PR). Plano em `docs/UPGRADE-NEXT-15.md`.
 
-João: mergear PR #4 (backup dev.db) + 2 PRs P3 abertas (iconify-sw-cache, docker-health-endpoint) quando tiver tempo. Também: disparar **Redeploy manual no Coolify** pra prod receber os 5 ajustes de UX que já estão no `main` (Coolify não tem auto-deployado de forma confiável).
+João: (1) dar ok (ou não) pra iniciar a migração Next 15; (2) mergear PR #4 (backup dev.db) + 2 PRs P3 (iconify-sw-cache, docker-health-endpoint); (3) **Redeploy manual no Coolify** pra prod receber os 5 ajustes de UX + testes que já estão no `main` (Coolify não auto-deploya confiável).
 
 ---
 
@@ -81,6 +81,7 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 ## Histórico recente (últimos 5 dias)
 
 ### 2026-05-28
+- **Backlog replanejado de novo: 1 item aprovado** (`/planejar` 2º) — migração Next 14 → 15 + `@ducanh2912/next-pwa` [P2, Confirmar antes + PR]. Resolve os 10 vulns do `npm audit` (todos do next-pwa) e desbloqueia fallback offline. Propostos mas não escolhidos: instrumentar latência SSE, doc FASE-6 entregue, bump lucide 1.17 (seguem válidos). Diagnóstico: gaps de teste já fechados; sem TODO/bug real; app 🟢.
 - **[P3] E2E bypass de bebida shipado (2/2 do replanejamento — fila zerada)** — `e2e/beverage-bypass.spec.ts`: pedido só-de-bebida nasce PRONTO (pula cozinha), pedido misto NÃO bypassa. E2E 10 → **12**. Descoberta colateral: as 4 falhas de `auth.spec.ts` só aparecem rodando e2e contra build de **produção** (`next start`, service worker do next-pwa ativo); em `npm run dev` passam 12/12. Registrado na tabela de módulos.
 - **[P2] Cobertura de testes pra libs puras shipada (1/2 do replanejamento)** — 4 arquivos novos, suite 125 → **163** (+38): `isStaleEventSession` (caixa órfão, fake timers no limite 12h), cache de idempotency (TTL 10min via `setSystemTime`, `isValidIdempotencyKey`), `translateForIconSearch` (case/acent-insensitive + fallback), `formatBRL`/`SIZE_LABEL` (normaliza NBSP do Intl). tsc + eslint limpos. Resta o item [P3] e2e de bypass de bebida.
 - **Backlog replanejado: 2 novos itens aprovados** (`/planejar`) — (1) [P2] ampliar cobertura de libs puras não testadas: `isStaleEventSession` (caixa órfão), cache de idempotency (dedup de pedido), `ingredient-i18n` (PT→EN normalize), `formatBRL`/`SIZE_LABEL` (dinheiro); (2) [P3] e2e do bypass de bebida (vai direto pra PRONTO, não passa pela cozinha). Diagnóstico: app em ótimo estado (125 testes, módulos 🟢, sem evento agendado, fase = hardening). Sem TODOs reais no código. 10 vulns do `npm audit` são todas do next-pwa (já cobertas pelo plano `docs/UPGRADE-NEXT-15.md`). Itens propostos mas NÃO aprovados agora: instrumentar latência SSE, marcar FASE-6.md entregue, bump lucide 1.17.
