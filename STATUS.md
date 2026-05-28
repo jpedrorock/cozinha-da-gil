@@ -3,7 +3,7 @@
 > Atualizar este arquivo no fim de toda sessão.
 
 **Última atualização:** 2026-05-28
-**Atualizado por:** `claude-pastel` (routine background)
+**Atualizado por:** `claude-pastel`
 
 ---
 
@@ -32,11 +32,9 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## Próximo passo recomendado
 
-João: mergear PR #4 (backup dev.db) + 2 PRs P3 abertas (iconify-sw-cache, docker-health-endpoint) quando tiver tempo. BACKLOG "Próximos" vazio; tudo o que sobra é review humano e 2 itens 🔮 blocked por dependência externa (impressora térmica + migração next-pwa).
+`claude-pastel`: executar BACKLOG "Próximos" — **2 itens de hardening/testes** aprovados no replanejamento de 28/05 (cobertura de libs puras P2 + e2e bypass de bebida P3). Ambos OK fazer direto.
 
-Para avançar a Fase 6: responder as 6 perguntas pra Gil (bebidas/macarrão/combo/promoções) em `docs/FASE-6.md` e mover itens aprovados pra "Próximos" do BACKLOG.
-
-**Routine 2026-05-28:** Encerrada sem trabalho — BACKLOG "Próximos" vazio. Nenhum item qualificou para execução autônoma em background.
+João: mergear PR #4 (backup dev.db) + 2 PRs P3 abertas (iconify-sw-cache, docker-health-endpoint) quando tiver tempo. Também: disparar **Redeploy manual no Coolify** pra prod receber os 5 ajustes de UX que já estão no `main` (Coolify não tem auto-deployado de forma confiável).
 
 ---
 
@@ -56,7 +54,7 @@ Para avançar a Fase 6: responder as 6 perguntas pra Gil (bebidas/macarrão/comb
 | Impressora térmica | 🟡 | window.print() funcional; integração ESC/POS espera hardware. |
 | PWA (next-pwa, manifest, service worker) | 🟢 | Standalone, 15 splashes (iPhone+iPad), install prompts, update prompt, CacheFirst pra assets imutáveis, shortcuts no long-press, página offline, **3 screenshots no manifest** pra rich install UI. |
 | Auth (iron-session) | 🟢 | PIN único por role, identificação por {role + PIN}. |
-| Testes Vitest | 🟢 | 125/125 passando (ingredientes, uploads, kitchen-display smart, whatsapp URLs). |
+| Testes Vitest | 🟢 | 163/163 passando (ingredientes, uploads, kitchen-display, whatsapp URLs, + caixa órfão, idempotency/TTL, i18n de ícones, formatBRL). |
 | Testes Playwright e2e | 🟢 | 10/10 passando (auth UI + API smoke + fluxo de pedido completo). |
 
 ---
@@ -71,7 +69,7 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 
 ## Métricas vivas
 
-- Tests passando: **107/107** ✅
+- Tests passando: **163/163** ✅
 - Type-check: **ok** ✅
 - ESLint: **0 erros** ✅ (check ativo no build)
 - DB schema: **sincronizado** ✅ (imageUrl adicionado)
@@ -82,7 +80,13 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 
 ## Histórico recente (últimos 5 dias)
 
-### 2026-05-26 (hoje)
+### 2026-05-28
+- **[P2] Cobertura de testes pra libs puras shipada (1/2 do replanejamento)** — 4 arquivos novos, suite 125 → **163** (+38): `isStaleEventSession` (caixa órfão, fake timers no limite 12h), cache de idempotency (TTL 10min via `setSystemTime`, `isValidIdempotencyKey`), `translateForIconSearch` (case/acent-insensitive + fallback), `formatBRL`/`SIZE_LABEL` (normaliza NBSP do Intl). tsc + eslint limpos. Resta o item [P3] e2e de bypass de bebida.
+- **Backlog replanejado: 2 novos itens aprovados** (`/planejar`) — (1) [P2] ampliar cobertura de libs puras não testadas: `isStaleEventSession` (caixa órfão), cache de idempotency (dedup de pedido), `ingredient-i18n` (PT→EN normalize), `formatBRL`/`SIZE_LABEL` (dinheiro); (2) [P3] e2e do bypass de bebida (vai direto pra PRONTO, não passa pela cozinha). Diagnóstico: app em ótimo estado (125 testes, módulos 🟢, sem evento agendado, fase = hardening). Sem TODOs reais no código. 10 vulns do `npm audit` são todas do next-pwa (já cobertas pelo plano `docs/UPGRADE-NEXT-15.md`). Itens propostos mas NÃO aprovados agora: instrumentar latência SSE, marcar FASE-6.md entregue, bump lucide 1.17.
+- **5 ajustes de UX shipados** (commits `d9d3d26` + `c90ab67`) — "Adicionar novo item" (não só pastel); "Marcar todos" some no pastel pequeno; cozinha smart checklist (`lib/kitchen-display.ts` — "Vai tudo, menos: X"); drawer "Prontos" na cozinha; fix WhatsApp recibo (`window.open` → `<a href>`). Cobertura nova: `tests/kitchen-display.test.ts` (11) + `tests/whatsapp-templates.test.ts` (7). Suite 107 → 125.
+- **Fix: botão "Sair" na sidebar admin desktop** (`9b9bcd9`) — admin ficava preso logado no desktop (≥1024px usa sidebar, AppHeader com sair fica `lg:hidden`).
+
+### 2026-05-26
 - Caixa (admin) — `CaixaSection` (abrir/fechar evento) movido pro topo da aba "Caixa" (`Operacao`). Antes ficava enterrado embaixo dos KPIs da Vendas; agora é a primeira coisa que aparece. Stats + kanban Trello (Novos → Em preparo → Prontos → Entregues) continuam abaixo, sempre visíveis.
 - Caixa aberto vira **faixa slim** (1 linha, ~52px) com bolinha pulsando + nome + operador + botão "Fechar caixa" pequeno no canto. Antes era card preto grande que tomava 1/3 da tela e competia com o Trello.
 - **Gestão completa de ingredientes** (CRUD + upload SVG/PNG):

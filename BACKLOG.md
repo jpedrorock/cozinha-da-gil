@@ -33,6 +33,12 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ## ⏭️ Próximos (prontos pra executar)
 
+### Testes / hardening
+
+- [ ] **[P3] #test** E2E: bebida vai direto pra PRONTO (bypass cozinha)
+  - **Pronto quando:** `e2e/` cobre que pedido só-de-bebida não passa pela cozinha (status pula EM_PREPARO conforme regra em `app/api/orders/route.ts:306`). O teste antigo de Coca foi trocado por pastel justamente porque bebida bypassa — o caminho do bypass ficou sem cobertura.
+  - **Autonomia:** OK fazer direto.
+
 ### UX / monitoramento
 
 ### PWA
@@ -65,6 +71,9 @@ _Itens com critério vago OU bloqueados por dependência externa._
 ---
 
 ## ✅ Concluídos recentemente
+
+### 2026-05-28
+- [claude-pastel 2026-05-28] **[P2] Cobertura de testes pra libs puras (hardening)** — 4 novos arquivos, suite 125 → **163** (+38). `tests/event-session-shared.test.ts` (10): `isStaleEventSession` com fake timers — limite 12h exato (>=), 11h/13h, string ISO vs Date, data inválida, futuro, `staleHours` custom. `tests/idempotency.test.ts` (13): roundtrip set/get, miss, expiração TTL 10min (fake timers via `setSystemTime`), preserva status de erro, `isValidIdempotencyKey` (16–64 chars, UUID, regex). `tests/ingredient-i18n.test.ts` (12): `translateForIconSearch` case/acent-insensitive, frase inteira vs palavra-a-palavra, fallback raw, `ICON_CATEGORIES`. `tests/pricing.test.ts` (8): `formatBRL` (normaliza NBSP/NNBSP do Intl), separador de milhar, negativo, `SIZE_LABEL`/`PRICE`/`MAX_TOPPINGS_PEQUENO`. tsc + eslint limpos.
 
 ### 2026-05-27
 - [claude-pastel 2026-05-27] **5 ajustes de UX (atendente/cozinha/recibo)** — (1) Resumo do atendente: "+ Adicionar outro **pastel**" → "+ Adicionar outro **item**" (vende macarrão/bebida/combo também). (2) "Marcar todos" some no pastel pequeno (legacyMax ≤ 2 não economiza — esconde). (3) **Cozinha smart checklist**: pastel grande adapta — maioria vai → mostra só "Vai tudo, menos: X" (laranja atenção); minoria vai → mostra só os ✓; todos → "Tudo (N)". Ticket nunca infla com 12 toppings riscados. (4) **Drawer "Prontos"** na cozinha: 4º botão na botnav, fetch on-demand dos finalizados de hoje (PRONTO+ENTREGUE), read-only — cook confere sem refazer por engano. (5) **🐛 Fix WhatsApp**: `handleWhatsApp` usava `window.open()` (bloqueado em PWA/popup) → trocado por `<a href>` com `wa.me`. Telefone já vinha normalizado +55; o problema era só o método de abertura.
