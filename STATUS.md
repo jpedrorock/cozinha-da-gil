@@ -34,8 +34,6 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 João: mergear PR #4 (backup dev.db) + 2 PRs P3 abertas (iconify-sw-cache, docker-health-endpoint) quando tiver tempo. BACKLOG "Próximos" vazio; tudo o que sobra é review humano e 2 itens 🔮 blocked por dependência externa (impressora térmica + migração next-pwa).
 
-**Cleanup pendente** (não urgente): deletar `app/api/admin/bootstrap-reset/` — endpoint criado durante incidente em prod, já desligado (sem env var), tech debt declarado.
-
 ---
 
 ## Saúde dos módulos
