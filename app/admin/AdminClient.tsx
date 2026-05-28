@@ -20,6 +20,7 @@ import {
   GripVertical,
   Image as ImageIcon,
   KeyRound,
+  LogOut,
   Monitor as MonitorIcon,
   Lock,
   LockOpen,
@@ -37,7 +38,7 @@ import {
   UtensilsCrossed,
 } from "lucide-react";
 import { useBodyScrollLock } from "@/lib/use-body-scroll-lock";
-import { useConfirmDialog } from "@/components/ConfirmDialog";
+import { ConfirmDialog, useConfirmDialog } from "@/components/ConfirmDialog";
 import { useToast } from "@/components/Toast";
 import { IngredientIcon } from "@/components/IngredientIcon";
 import {
@@ -436,6 +437,13 @@ function AdminShell({
   setTab: (t: Tab) => void;
   children: React.ReactNode;
 }) {
+  const router = useRouter();
+  const { operator, clear } = useOperator();
+  const [confirmingExit, setConfirmingExit] = useState(false);
+  function doExit() {
+    clear();
+    router.replace("/");
+  }
   const [moreOpen, setMoreOpen] = useState(false);
   // Sidebar default EXPANDIDA quando localStorage está vazio (primeiro
   // acesso) — atalho pra power user existe, mas discoverability dos labels
@@ -514,6 +522,24 @@ function AdminShell({
             <span className="text-sm font-semibold">Guia do app</span>
           )}
         </Link>
+        {/* Sair — no desktop o AppHeader (que tem o botão trocar operador)
+            fica lg:hidden, então sem isso a Gil ficava presa no admin sem
+            jeito de deslogar. Mostra operador logado quando expandido. */}
+        <button
+          onClick={() => setConfirmingExit(true)}
+          className={`border-t border-line px-3 py-3 inline-flex items-center gap-2 text-ink-2 hover:text-danger hover:bg-danger/10 transition ${
+            sidebarExpanded ? "" : "justify-center"
+          }`}
+          aria-label="Sair"
+          title={operator ? `Sair (${operator.name})` : "Sair"}
+        >
+          <LogOut size={18} strokeWidth={2.25} />
+          {sidebarExpanded && (
+            <span className="text-sm font-semibold truncate">
+              Sair{operator ? ` · ${operator.name}` : ""}
+            </span>
+          )}
+        </button>
         <button
           onClick={toggleSidebar}
           className="border-t border-line px-3 py-3 inline-flex items-center gap-2 text-ink-3 hover:text-ink transition"
@@ -530,6 +556,16 @@ function AdminShell({
           )}
         </button>
       </aside>
+
+      {/* Confirmação de sair — compartilhada (sidebar desktop). */}
+      <ConfirmDialog
+        open={confirmingExit}
+        title="Sair do admin?"
+        message={operator ? `Sair como "${operator.name}" e voltar pra tela de login.` : "Voltar pra tela de login."}
+        confirmLabel="Sair"
+        onConfirm={() => { setConfirmingExit(false); doExit(); }}
+        onClose={() => setConfirmingExit(false)}
+      />
 
       {/* === BrandHeader no mobile only — link rápido pro Monitor à direita === */}
       <div className="lg:hidden">

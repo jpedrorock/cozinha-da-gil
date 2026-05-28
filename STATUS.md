@@ -43,7 +43,7 @@ João: mergear PR #4 (backup dev.db) + 2 PRs P3 abertas (iconify-sw-cache, docke
 | `app/atendente` | 🟢 | Stepper completo, dedup server-side, undo, banner caixa órfão. 1 TODO conhecido (promotions via SSR). |
 | `app/cozinha` (SSE) | 🟢 | Busca + ordenação + alarme escalonado + botnav + atalhos teclado. |
 | `app/cliente` | 🟢 | TV breathe intermitente, painel ao vivo. |
-| `app/admin` | 🟢 | Caixa primeiro, Vendas com revenue por ingrediente, comparativo no PDF, sidebar com Guia + Monitor. |
+| `app/admin` | 🟢 | Caixa primeiro, Vendas com revenue por ingrediente, comparativo no PDF, sidebar com Guia + Monitor + **Sair**. |
 | `app/admin/monitor` | 🟢 | KPIs gigantes ao vivo (Receita/Pedidos/Ticket/Preparo) + lista live de pedidos em preparo. Mobile-first, fundo escuro. |
 | `app/comprovante` (PDF) | 🟢 | Preview 80mm inline + impressão térmica. |
 | `app/guia` | 🟢 | Manual completo por papel. |
