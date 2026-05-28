@@ -11,10 +11,8 @@ export const dynamic = "force-dynamic";
  * Retorna o customer + últimos 20 pedidos (mais recentes).
  * Auth: admin.
  */
-export async function GET(
-  _request: Request,
-  { params }: { params: { id: string } },
-) {
+export async function GET(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const auth = await requireRole(["admin"]);
   if (auth instanceof NextResponse) return auth;
 
@@ -38,10 +36,8 @@ export async function GET(
  * Atualiza name, notes, optInMarketing, optInNotifications.
  * Outros campos (phone, agregados) são imutáveis via API — derivados de pedidos.
  */
-export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } },
-) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const auth = await requireRole(["admin"]);
   if (auth instanceof NextResponse) return auth;
 
@@ -97,10 +93,8 @@ export async function PATCH(
  * Soft delete — seta deletedAt. Mantém Order.customerId pra histórico.
  * Cliente fica oculto da lista CRM mas aparece em relatórios.
  */
-export async function DELETE(
-  _request: Request,
-  { params }: { params: { id: string } },
-) {
+export async function DELETE(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const auth = await requireRole(["admin"]);
   if (auth instanceof NextResponse) return auth;
 

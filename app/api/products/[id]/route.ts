@@ -55,10 +55,8 @@ function asBool(v: unknown): boolean | undefined {
   return typeof v === "boolean" ? v : undefined;
 }
 
-export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } },
-) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const auth = await requireRole(["admin"]);
   if (auth instanceof NextResponse) return auth;
 
@@ -150,10 +148,8 @@ export async function PATCH(
  * DELETE — só permitido se não tem OrderItem referenciando.
  * Caso contrário, soft-disable com PATCH { available: false }.
  */
-export async function DELETE(
-  _request: Request,
-  { params }: { params: { id: string } },
-) {
+export async function DELETE(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const auth = await requireRole(["admin"]);
   if (auth instanceof NextResponse) return auth;
 

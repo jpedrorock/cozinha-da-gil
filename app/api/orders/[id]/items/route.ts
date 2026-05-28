@@ -73,10 +73,8 @@ async function resolveProduct(item: RawItem): Promise<{
   return { product, productSize };
 }
 
-export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } },
-) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const auth = await requireRole(["atendente", "admin"]);
   if (auth instanceof NextResponse) return auth;
 
