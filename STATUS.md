@@ -2,14 +2,25 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-05-26
-**Atualizado por:** `claude-pastel`
+**Última atualização:** 2026-05-28
+**Atualizado por:** `claude-pastel` (routine background)
 
 ---
 
 ## Fase atual
 
 Fase 6 entregue. Pós-fase: hardening + observabilidade.
+
+## Routine 2026-05-28
+
+Rotina agendada executada em modo background. Nenhum item qualificou para execução:
+- BACKLOG "Próximos" vazio (sem itens na fila)
+- Itens em "Backlog": 2 bloqueados por dependência externa (hardware impressora, migração next-pwa), 2 marcados "Abrir PR" (skipped em background per PLAYBOOK)
+- Em progresso: PR #4 aguardando merge humano
+
+**Ação recomendada para João:** mergear PR #4 + 2 PRs P3 abertas, e adicionar novos itens P2/P3 ao BACKLOG "Próximos" quando houver trabalho pra routine executar.
+
+---
 
 ## O que rolou desde a última sessão
 
