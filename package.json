@@ -51,5 +51,8 @@
     "tsx": "^4.22.3",
     "typescript": "^5",
     "vitest": "^4.1.7"
+  },
+  "overrides": {
+    "serialize-javascript": "7.0.5"
   }
 }
