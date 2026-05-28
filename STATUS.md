@@ -2,14 +2,20 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-05-26
-**Atualizado por:** `claude-pastel`
+**Última atualização:** 2026-05-28
+**Atualizado por:** `claude-pastel` (routine background)
 
 ---
 
 ## Fase atual
 
 Fase 6 entregue. Pós-fase: hardening + observabilidade.
+
+## Routine background 2026-05-28
+
+- Rotina automática executada: nenhum item em "Próximos" qualificava para execução background.
+- "Próximos" está vazio. Itens em 🔮 Backlog são todos blocked (hardware) ou exigem PR (tocam em `next.config.mjs` / `docker-compose.yml` — NEVER list da rotina).
+- Routine encerrada — fila vazia.
 
 ## O que rolou desde a última sessão
 
