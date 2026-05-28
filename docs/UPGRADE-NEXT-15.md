@@ -1,7 +1,23 @@
 # Upgrade Plano — Next 14 → 15
 
-> **Status:** plano. Não executar sem janela dedicada (ver §5).
+> **Status:** ✅ **EXECUTADO 2026-05-28** na branch `claude-pastel/next15-pwa` (PR). Abaixo vira registro do que foi feito.
 > **Última revisão:** 2026-05-22 — Next 14.2.35 atual, Next 15.x latest.
+
+---
+
+## ✅ Execução (2026-05-28) — `claude-pastel/next15-pwa`
+
+**Feito:**
+- `next` 14.2.35 → **15.5.18**; `react`/`react-dom` 18 → **19.2.6**; `eslint-config-next` → 15.5.18; `@types/react(-dom)` → 19.
+- `next-pwa@5.6` → **`@ducanh2912/next-pwa@10.2.9`**. Config migrada: `runtimeCaching` + `skipWaiting:false` → dentro de `workboxOptions`; `serverExternalPackages` (pdfkit) na raiz; **`fallbacks: { document: "/offline" }` reativado** (bug do 5.6 sumiu no fork).
+- Codemod oficial `next-async-request-api` aplicado nas **14 rotas dinâmicas** (`params` → `Promise<>` + `await`). Padrão `const params = await props.params`.
+- Override `serialize-javascript@7.0.5` pra fechar a vuln **high** do `workbox-build`.
+
+**Validação:** `tsc` 0 erros · `eslint` limpo · `vitest` 163/163 · `next build` OK · **e2e 12/12 em `npm run dev`** · SW gerado correto (precache `/offline`, `self.skipWaiting()` só via msg `SKIP_WAITING` → `PWAUpdatePrompt` intacto).
+
+**Residual (não-bloqueante):** `npm audit` caiu de **10 (9 high) → 3 moderate**. As 3 restantes são `postcss@8.4.31` **interno do Next** (advisory de XSS no stringify de CSS — build-time, input confiável: nosso próprio CSS). Não forçadas via override porque mexer no postcss interno do Next é arriscado pra ~zero ganho prático. Some quando o Next bumpar o postcss bundlado.
+
+**Pendente de teste manual antes do merge em prod (§4.8):** instalar a PWA no celular + abrir offline (testar splash + cache + fallback `/offline`); SSE cross-screen (3 abas, criar pedido, ver propagar). E2E de UI roda só em `npm run dev` (em build de prod o service worker derruba os testes de `auth.spec.ts` — conhecido).
 
 ---
 

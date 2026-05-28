@@ -28,22 +28,15 @@
 _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 - [ ] **[P1] #chore** Backup automático do `dev.db` no volume Coolify — **PR #4 aberto, aguardando merge** [claude-pastel 2026-05-22]
+- [ ] **[P2] #chore #pwa** Migração Next 14 → 15 + `@ducanh2912/next-pwa` — **PR aberto (branch `claude-pastel/next15-pwa`), aguardando review + teste manual de PWA/SSE em device** [claude-pastel 2026-05-28]
+  - Feito + validado: next 15.5.18, react 19.2.6, fork PWA, codemod async params (14 rotas), override serialize-javascript. tsc/lint/163 testes/build/12 e2e em dev verdes. `fallbacks: /offline` reativado. `npm audit` 10 (9 high) → 3 moderate (postcss interno do Next, build-time, não-bloqueante).
+  - Antes do merge em prod: teste manual da PWA (install/offline/splash) + SSE 3 abas (§4.8 de `docs/UPGRADE-NEXT-15.md`). Rollback: Coolify 1-clique ou `git revert`.
 
 ---
 
 ## ⏭️ Próximos (prontos pra executar)
 
-### Manutenção / infra
-
-- [ ] **[P2] #chore #pwa** Migração Next 14 → 15 + `@ducanh2912/next-pwa` [claude-pastel 2026-05-28]
-  - **Por quê:** os **10 vulns do `npm audit` são todos do `next-pwa@5.6.0`** (workbox desatualizado); a migração resolve segurança e desbloqueia `fallbacks: { document: "/offline" }`. Janela ideal: **sem evento agendado** (STATUS).
-  - **Plano:** `docs/UPGRADE-NEXT-15.md` (14 arquivos afetados, ~3-6h, rollback plan).
-  - **Sub-itens:**
-    - (a) Codemod oficial de `params` async nas 14 rotas `app/api/*/[id]/route.ts` + 1 page.
-    - (b) Trocar `next-pwa@5.6.0` → `@ducanh2912/next-pwa` no `next.config.mjs` (preservar runtimeCaching atual + reativar `fallbacks`).
-    - (c) `npm run build` + e2e **contra `npm run dev`** (auth UI quebra em build prod por SW — ver nota nos módulos) verdes; `npm audit` zerado.
-  - **Pronto quando:** build limpo, e2e 12/12 em dev, `npm audit` sem high/moderate, `/offline` servindo como fallback de navegação.
-  - **Autonomia:** **Confirmar antes** de começar (risco alto) + **Abrir PR** (toca `next.config.mjs` + 14 rotas + deps major). Não mergear sem revisão do João.
+_Vazio — fila zerada. Rodar `/planejar` pra reabastecer._
 
 ### UX / monitoramento
 

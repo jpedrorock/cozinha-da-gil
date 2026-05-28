@@ -32,9 +32,11 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## Próximo passo recomendado
 
-BACKLOG "Próximos" tem **1 item: migração Next 14 → 15 + next-pwa** (P2, resolve os 10 vulns + desbloqueia offline). É **"Confirmar antes"** — aguarda João dar o ok pra começar (risco alto, ~3-6h, PR). Plano em `docs/UPGRADE-NEXT-15.md`.
+**Migração Next 15 + next-pwa EXECUTADA** na branch `claude-pastel/next15-pwa` — validada (tsc/lint/163 testes/build/12 e2e em dev). **PR aberto, aguardando review.**
 
-João: (1) dar ok (ou não) pra iniciar a migração Next 15; (2) mergear PR #4 (backup dev.db) + 2 PRs P3 (iconify-sw-cache, docker-health-endpoint); (3) **Redeploy manual no Coolify** pra prod receber os 5 ajustes de UX + testes que já estão no `main` (Coolify não auto-deploya confiável).
+João, antes de mergear em prod: (1) **teste manual da PWA** — instalar no celular, abrir offline, ver splash/cache/fallback `/offline`; SSE em 3 abas (§4.8 do doc); (2) confirmar `dev.db` com backup (PR #4). Depois: mergear → Coolify rebuilda → smoke test em prod.
+
+Outros pendentes do João: mergear PR #4 (backup) + 2 PRs P3 (iconify-sw-cache, docker-health-endpoint); **Redeploy Coolify** pros 5 ajustes de UX + testes que já estão no `main`.
 
 ---
 
@@ -52,7 +54,7 @@ João: (1) dar ok (ou não) pra iniciar a migração Next 15; (2) mergear PR #4 
 | `app/api` (endpoints + SSE) | 🟢 | Codes estruturados (DUPLICATE_SUSPECTED, CAIXA_FECHADO, INVALID_TRANSITION, ORDER_LOCKED). |
 | `prisma/schema` | 🟢 | imageUrl + imageDataUrl (legacy) coexistem; migração roda no boot. |
 | Impressora térmica | 🟡 | window.print() funcional; integração ESC/POS espera hardware. |
-| PWA (next-pwa, manifest, service worker) | 🟢 | Standalone, 15 splashes (iPhone+iPad), install prompts, update prompt, CacheFirst pra assets imutáveis, shortcuts no long-press, página offline, **3 screenshots no manifest** pra rich install UI. |
+| PWA (@ducanh2912/next-pwa, manifest, service worker) | 🟢 | Standalone, 15 splashes (iPhone+iPad), install prompts, update prompt, CacheFirst pra assets imutáveis, shortcuts no long-press, **fallback offline automático** (`fallbacks: document` reativado no fork), 3 screenshots no manifest. _Migrado pra fork na branch `claude-pastel/next15-pwa` (PR)._ |
 | Auth (iron-session) | 🟢 | PIN único por role, identificação por {role + PIN}. |
 | Testes Vitest | 🟢 | 163/163 passando (ingredientes, uploads, kitchen-display, whatsapp URLs, + caixa órfão, idempotency/TTL, i18n de ícones, formatBRL). |
 | Testes Playwright e2e | 🟢 | 12/12 passando em `npm run dev` (auth UI + API smoke + fluxo de pedido + bypass de bebida). Nota: auth UI falha em build de produção por causa do service worker — rodar e2e contra `npm run dev`. |
@@ -74,13 +76,15 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 - ESLint: **0 erros** ✅ (check ativo no build)
 - DB schema: **sincronizado** ✅ (imageUrl adicionado)
 - PWA: **instalável** ✅ (iOS Safari + Android Chrome)
-- Vulns npm audit: 10 (Next 14.x — não aplicam aos patterns atuais, plano de upgrade no BACKLOG)
+- Vulns npm audit: **3 moderate** (postcss interno do Next, build-time) na branch Next 15 — era 10 (9 high) no main Next 14. PR aberto.
+- Next/React: **15.5.18 / 19.2.6** na branch `claude-pastel/next15-pwa` (main ainda 14.2.35 até merge)
 
 ---
 
 ## Histórico recente (últimos 5 dias)
 
 ### 2026-05-28
+- **Migração Next 14 → 15 + `@ducanh2912/next-pwa` EXECUTADA** (branch `claude-pastel/next15-pwa`, PR) — next 14.2.35→15.5.18, react 18→19.2.6, fork PWA (10.2.9), codemod async `params` nas 14 rotas dinâmicas, override `serialize-javascript@7.0.5`. **`fallbacks: document:/offline` reativado** (bug do 5.6 sumiu no fork). Validação: tsc 0 erros, lint limpo, vitest 163/163, build OK, **e2e 12/12 em dev**, SW gerado certo (precache /offline + skipWaiting:false preservado p/ PWAUpdatePrompt). **npm audit 10 (9 high) → 3 moderate** (postcss interno do Next, build-time, input confiável — não-bloqueante). Falta teste manual de PWA/SSE em device antes do merge em prod. Registro completo em `docs/UPGRADE-NEXT-15.md`.
 - **Backlog replanejado de novo: 1 item aprovado** (`/planejar` 2º) — migração Next 14 → 15 + `@ducanh2912/next-pwa` [P2, Confirmar antes + PR]. Resolve os 10 vulns do `npm audit` (todos do next-pwa) e desbloqueia fallback offline. Propostos mas não escolhidos: instrumentar latência SSE, doc FASE-6 entregue, bump lucide 1.17 (seguem válidos). Diagnóstico: gaps de teste já fechados; sem TODO/bug real; app 🟢.
 - **[P3] E2E bypass de bebida shipado (2/2 do replanejamento — fila zerada)** — `e2e/beverage-bypass.spec.ts`: pedido só-de-bebida nasce PRONTO (pula cozinha), pedido misto NÃO bypassa. E2E 10 → **12**. Descoberta colateral: as 4 falhas de `auth.spec.ts` só aparecem rodando e2e contra build de **produção** (`next start`, service worker do next-pwa ativo); em `npm run dev` passam 12/12. Registrado na tabela de módulos.
 - **[P2] Cobertura de testes pra libs puras shipada (1/2 do replanejamento)** — 4 arquivos novos, suite 125 → **163** (+38): `isStaleEventSession` (caixa órfão, fake timers no limite 12h), cache de idempotency (TTL 10min via `setSystemTime`, `isValidIdempotencyKey`), `translateForIconSearch` (case/acent-insensitive + fallback), `formatBRL`/`SIZE_LABEL` (normaliza NBSP do Intl). tsc + eslint limpos. Resta o item [P3] e2e de bypass de bebida.
