@@ -1510,7 +1510,7 @@ function NovoPedido({
             onClick={onAddAnother}
             className="mt-3 w-full h-14 rounded-md border-2 border-dashed border-line-strong text-ink-2 font-semibold hover:border-brand-orange hover:text-brand-orange transition-colors"
           >
-            + Adicionar outro pastel
+            + Adicionar outro item
           </button>
 
           <button
@@ -2142,8 +2142,12 @@ function StepIngredients({
   else if (min > 0) helper = `Pelo menos ${min}.`;
 
   // Quando faz sentido "Marcar todos": só pra modos onde pode escolher
-  // quantos quiser (não single, não exact). Caso clássico: "tudo menos cebola".
-  const allowBulk = !isSingle && !isExact;
+  // quantos quiser (não single, não exact) E sem limite baixo. Caso
+  // clássico de uso: pastel GRANDE "tudo menos cebola". No pastel pequeno
+  // (máx 2 de 12), marcar todos não economiza nada — é mais rápido tocar
+  // nos 2 que quer. Esconde quando legacyMax ≤ 2 (feedback Gil).
+  const hasLowCap = legacyMax !== null && legacyMax !== undefined && legacyMax <= 2;
+  const allowBulk = !isSingle && !isExact && !hasLowCap;
   const allAvailable = ingredients.filter((i) => i.stock !== 0);
   const allMarked = allAvailable.length > 0 && allAvailable.every((i) => current.ingredients.includes(i.name));
 

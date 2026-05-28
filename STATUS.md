@@ -40,12 +40,12 @@ João: mergear PR #4 (backup dev.db) + 2 PRs P3 abertas (iconify-sw-cache, docke
 
 | Módulo | Status | Notas |
 |---|---|---|
-| `app/atendente` | 🟢 | Stepper completo, dedup server-side, undo, banner caixa órfão. 1 TODO conhecido (promotions via SSR). |
-| `app/cozinha` (SSE) | 🟢 | Busca + ordenação + alarme escalonado + botnav + atalhos teclado. |
+| `app/atendente` | 🟢 | Stepper completo, dedup server-side, undo, banner caixa órfão. "Adicionar outro item" (não só pastel). "Marcar todos" some no pastel pequeno. |
+| `app/cozinha` (SSE) | 🟢 | Busca + ordenação + alarme escalonado + botnav + atalhos teclado + **smart checklist** (mostra "menos X" quando maioria vai) + **drawer Prontos** (histórico do dia). |
 | `app/cliente` | 🟢 | TV breathe intermitente, painel ao vivo. |
 | `app/admin` | 🟢 | Caixa primeiro, Vendas com revenue por ingrediente, comparativo no PDF, sidebar com Guia + Monitor + **Sair**. |
 | `app/admin/monitor` | 🟢 | KPIs gigantes ao vivo (Receita/Pedidos/Ticket/Preparo) + lista live de pedidos em preparo. Mobile-first, fundo escuro. |
-| `app/comprovante` (PDF) | 🟢 | Preview 80mm inline + impressão térmica. |
+| `app/comprovante` (PDF) | 🟢 | Preview 80mm inline + impressão térmica. WhatsApp via `<a>` deep link (fix window.open bloqueado em PWA). |
 | `app/guia` | 🟢 | Manual completo por papel. |
 | `app/api` (endpoints + SSE) | 🟢 | Codes estruturados (DUPLICATE_SUSPECTED, CAIXA_FECHADO, INVALID_TRANSITION, ORDER_LOCKED). |
 | `prisma/schema` | 🟢 | imageUrl + imageDataUrl (legacy) coexistem; migração roda no boot. |

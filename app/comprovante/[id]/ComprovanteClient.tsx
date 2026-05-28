@@ -21,11 +21,14 @@ export function ComprovanteClient({ order }: { order: OrderView }) {
     window.print();
   }
 
-  function handleWhatsApp() {
-    const text = templateReceipt(order);
-    const url = buildWaUrl(order.clientPhone, text);
-    window.open(url, "_blank");
-  }
+  // WhatsApp via <a href> em vez de window.open(): window.open é
+  // bloqueado por popup-blocker e em PWA standalone (iOS/Android) abre
+  // numa webview interna inútil — era a causa do "não abre" reportado.
+  // Anchor com target=_blank deixa o OS resolver o link (abre o app
+  // WhatsApp se instalado). wa.me é universal: mobile abre app, desktop
+  // abre WhatsApp Web/Desktop. Telefone já vem normalizado (+55...) do
+  // POST de pedido, então a conversa abre direto no número certo.
+  const waUrl = buildWaUrl(order.clientPhone, templateReceipt(order));
 
   return (
     <div
@@ -214,10 +217,15 @@ export function ComprovanteClient({ order }: { order: OrderView }) {
             </>
           )}
         </button>
-        <button onClick={handleWhatsApp} className="btn btn-secondary w-full">
+        <a
+          href={waUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn btn-secondary w-full"
+        >
           <MessageCircle size={18} strokeWidth={2.5} />
           Enviar no WhatsApp
-        </button>
+        </a>
       </div>
 
       <style jsx global>{`
