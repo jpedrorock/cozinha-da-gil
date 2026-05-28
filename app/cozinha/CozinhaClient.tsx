@@ -13,6 +13,7 @@ import { useToast } from "@/components/Toast";
 import { PastelIcon, DoceIcon } from "@/components/icons";
 import type { OrderView, OrderItemView } from "@/lib/orders";
 import { SIZE_LABEL } from "@/lib/pricing";
+import { summarizeChecklist } from "@/lib/kitchen-display";
 import type { OrderStatus } from "@prisma/client";
 
 const PREP_TARGET_MIN = 20;
@@ -1371,18 +1372,17 @@ function Checklist({
   }
 
   if (mode === "smart") {
-    const outItems = all.filter((n) => !selectedSet.has(n));
-    // Nenhum selecionado → sem toppings
-    if (inItems.length === 0) {
+    // Regra pura em lib/kitchen-display.ts (testada). Aqui só renderiza.
+    const display = summarizeChecklist(all, selected);
+    if (display.kind === "empty") {
       return <div className="text-sm text-ink-3 italic">{emptyLabel}</div>;
     }
-    // Todos selecionados → "Tudo" sem listar 12 itens
-    if (outItems.length === 0) {
+    if (display.kind === "all") {
       return (
         <div className="flex items-center gap-2">
           <CheckIcon />
           <span className={`${compact ? "text-sm" : "text-base"} font-bold text-ink`}>
-            Tudo ({all.length})
+            Tudo ({display.total})
           </span>
         </div>
       );
@@ -1391,14 +1391,14 @@ function Checklist({
     // "Esquecer de NÃO pôr" é o erro caro (cozinha põe sem querer), então
     // os "menos X" ganham peso visual — laranja de atenção (não vermelho
     // sólido, que fica reservado pros modificadores manuais "sem X").
-    if (inItems.length >= outItems.length) {
+    if (display.kind === "most-going") {
       return (
         <div className="rounded-sm bg-[#FFF4C2] px-2.5 py-1.5">
           <div className={`${compact ? "text-[10px]" : "t-label"} uppercase tracking-[0.06em] text-[#8a5a00] mb-1`}>
             Vai tudo, menos:
           </div>
           <ul className="flex flex-wrap gap-x-3 gap-y-0.5">
-            {outItems.map((n) => (
+            {display.missing.map((n) => (
               <li key={n} className="flex items-center gap-1.5">
                 <X size={compact ? 14 : 16} strokeWidth={3} className="shrink-0 text-brand-orange" />
                 <span className={`${compact ? "text-[13px]" : "text-[15px]"} font-bold text-[#8a5a00]`}>{n}</span>
@@ -1411,7 +1411,7 @@ function Checklist({
     // Minoria vai → mostra só os que vão (✓)
     return (
       <ul className="flex flex-col gap-1">
-        {inItems.map((n) => (
+        {display.going.map((n) => (
           <li key={n} className="flex items-center gap-2">
             <CheckIcon />
             <span className={`${compact ? "text-sm" : "text-base"} font-bold text-ink`}>{n}</span>

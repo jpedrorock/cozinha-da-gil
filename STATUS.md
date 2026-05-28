@@ -52,7 +52,7 @@ João: mergear PR #4 (backup dev.db) + 2 PRs P3 abertas (iconify-sw-cache, docke
 | Impressora térmica | 🟡 | window.print() funcional; integração ESC/POS espera hardware. |
 | PWA (next-pwa, manifest, service worker) | 🟢 | Standalone, 15 splashes (iPhone+iPad), install prompts, update prompt, CacheFirst pra assets imutáveis, shortcuts no long-press, página offline, **3 screenshots no manifest** pra rich install UI. |
 | Auth (iron-session) | 🟢 | PIN único por role, identificação por {role + PIN}. |
-| Testes Vitest | 🟢 | 107/107 passando (+50 hoje: ingredientes + uploads). |
+| Testes Vitest | 🟢 | 125/125 passando (ingredientes, uploads, kitchen-display smart, whatsapp URLs). |
 | Testes Playwright e2e | 🟢 | 10/10 passando (auth UI + API smoke + fluxo de pedido completo). |
 
 ---
