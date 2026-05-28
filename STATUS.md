@@ -2,8 +2,8 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-05-26
-**Atualizado por:** `claude-pastel`
+**Última atualização:** 2026-05-28
+**Atualizado por:** `claude-pastel` (routine background)
 
 ---
 
@@ -33,6 +33,10 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 ## Próximo passo recomendado
 
 João: mergear PR #4 (backup dev.db) + 2 PRs P3 abertas (iconify-sw-cache, docker-health-endpoint) quando tiver tempo. BACKLOG "Próximos" vazio; tudo o que sobra é review humano e 2 itens 🔮 blocked por dependência externa (impressora térmica + migração next-pwa).
+
+Para avançar a Fase 6: responder as 6 perguntas pra Gil (bebidas/macarrão/combo/promoções) em `docs/FASE-6.md` e mover itens aprovados pra "Próximos" do BACKLOG.
+
+**Routine 2026-05-28:** Encerrada sem trabalho — BACKLOG "Próximos" vazio. Nenhum item qualificou para execução autônoma em background.
 
 ---
 
