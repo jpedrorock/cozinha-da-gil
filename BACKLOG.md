@@ -59,6 +59,9 @@ _Itens com critério vago OU bloqueados por dependência externa._
   - **Contexto:** PR conforme PLAYBOOK (mexer em docker-compose.yml é PR). Trivial mas precisa revisão de janela.
   - **Autonomia:** Abrir PR.
 
+- [ ] **[P3] #auth** (idea — baixa prio) Login desambiguar por nome quando PIN duplicado em vez de travar 409
+  - **Contexto:** o incidente de 27/05 (Gil + João admin mesmo PIN) travou com 409 cego — admin não conseguia entrar pra corrigir. Prevenção na CRIAÇÃO de user já existe (POST/PATCH validam via `isPinDuplicateInRole`), então duplicata só surge de users legados (pré-validação) ou de mudança de role sem reenviar senha (gap conhecido no PATCH linha 60-62). Decisão consciente 27/05: NÃO implementar agora — caso é raro e o código atual previve no caminho normal. SE voltar a acontecer: quando login acha N>1 matches, retornar `{ ambiguous: true, names: [...] }` e a UI mostra "qual é você?" pra desambiguar (em vez de 409). Resolve o catch-22 do admin travado.
+
 ---
 
 ## ✅ Concluídos recentemente
