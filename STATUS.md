@@ -32,7 +32,7 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## Próximo passo recomendado
 
-`claude-pastel`: executar BACKLOG "Próximos" — **2 itens de hardening/testes** aprovados no replanejamento de 28/05 (cobertura de libs puras P2 + e2e bypass de bebida P3). Ambos OK fazer direto.
+BACKLOG "Próximos" **zerado** — os 2 itens do replanejamento de 28/05 foram entregues (cobertura de libs puras + e2e bypass de bebida). Rodar `/planejar` pra reabastecer quando quiser novo trabalho.
 
 João: mergear PR #4 (backup dev.db) + 2 PRs P3 abertas (iconify-sw-cache, docker-health-endpoint) quando tiver tempo. Também: disparar **Redeploy manual no Coolify** pra prod receber os 5 ajustes de UX que já estão no `main` (Coolify não tem auto-deployado de forma confiável).
 
@@ -55,7 +55,7 @@ João: mergear PR #4 (backup dev.db) + 2 PRs P3 abertas (iconify-sw-cache, docke
 | PWA (next-pwa, manifest, service worker) | 🟢 | Standalone, 15 splashes (iPhone+iPad), install prompts, update prompt, CacheFirst pra assets imutáveis, shortcuts no long-press, página offline, **3 screenshots no manifest** pra rich install UI. |
 | Auth (iron-session) | 🟢 | PIN único por role, identificação por {role + PIN}. |
 | Testes Vitest | 🟢 | 163/163 passando (ingredientes, uploads, kitchen-display, whatsapp URLs, + caixa órfão, idempotency/TTL, i18n de ícones, formatBRL). |
-| Testes Playwright e2e | 🟢 | 10/10 passando (auth UI + API smoke + fluxo de pedido completo). |
+| Testes Playwright e2e | 🟢 | 12/12 passando em `npm run dev` (auth UI + API smoke + fluxo de pedido + bypass de bebida). Nota: auth UI falha em build de produção por causa do service worker — rodar e2e contra `npm run dev`. |
 
 ---
 
@@ -81,6 +81,7 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 ## Histórico recente (últimos 5 dias)
 
 ### 2026-05-28
+- **[P3] E2E bypass de bebida shipado (2/2 do replanejamento — fila zerada)** — `e2e/beverage-bypass.spec.ts`: pedido só-de-bebida nasce PRONTO (pula cozinha), pedido misto NÃO bypassa. E2E 10 → **12**. Descoberta colateral: as 4 falhas de `auth.spec.ts` só aparecem rodando e2e contra build de **produção** (`next start`, service worker do next-pwa ativo); em `npm run dev` passam 12/12. Registrado na tabela de módulos.
 - **[P2] Cobertura de testes pra libs puras shipada (1/2 do replanejamento)** — 4 arquivos novos, suite 125 → **163** (+38): `isStaleEventSession` (caixa órfão, fake timers no limite 12h), cache de idempotency (TTL 10min via `setSystemTime`, `isValidIdempotencyKey`), `translateForIconSearch` (case/acent-insensitive + fallback), `formatBRL`/`SIZE_LABEL` (normaliza NBSP do Intl). tsc + eslint limpos. Resta o item [P3] e2e de bypass de bebida.
 - **Backlog replanejado: 2 novos itens aprovados** (`/planejar`) — (1) [P2] ampliar cobertura de libs puras não testadas: `isStaleEventSession` (caixa órfão), cache de idempotency (dedup de pedido), `ingredient-i18n` (PT→EN normalize), `formatBRL`/`SIZE_LABEL` (dinheiro); (2) [P3] e2e do bypass de bebida (vai direto pra PRONTO, não passa pela cozinha). Diagnóstico: app em ótimo estado (125 testes, módulos 🟢, sem evento agendado, fase = hardening). Sem TODOs reais no código. 10 vulns do `npm audit` são todas do next-pwa (já cobertas pelo plano `docs/UPGRADE-NEXT-15.md`). Itens propostos mas NÃO aprovados agora: instrumentar latência SSE, marcar FASE-6.md entregue, bump lucide 1.17.
 - **5 ajustes de UX shipados** (commits `d9d3d26` + `c90ab67`) — "Adicionar novo item" (não só pastel); "Marcar todos" some no pastel pequeno; cozinha smart checklist (`lib/kitchen-display.ts` — "Vai tudo, menos: X"); drawer "Prontos" na cozinha; fix WhatsApp recibo (`window.open` → `<a href>`). Cobertura nova: `tests/kitchen-display.test.ts` (11) + `tests/whatsapp-templates.test.ts` (7). Suite 107 → 125.

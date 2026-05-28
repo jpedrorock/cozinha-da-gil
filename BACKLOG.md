@@ -33,11 +33,7 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ## ⏭️ Próximos (prontos pra executar)
 
-### Testes / hardening
-
-- [ ] **[P3] #test** E2E: bebida vai direto pra PRONTO (bypass cozinha)
-  - **Pronto quando:** `e2e/` cobre que pedido só-de-bebida não passa pela cozinha (status pula EM_PREPARO conforme regra em `app/api/orders/route.ts:306`). O teste antigo de Coca foi trocado por pastel justamente porque bebida bypassa — o caminho do bypass ficou sem cobertura.
-  - **Autonomia:** OK fazer direto.
+_Vazio — fila zerada. Rodar `/planejar` pra reabastecer._
 
 ### UX / monitoramento
 
@@ -73,6 +69,7 @@ _Itens com critério vago OU bloqueados por dependência externa._
 ## ✅ Concluídos recentemente
 
 ### 2026-05-28
+- [claude-pastel 2026-05-28] **[P3] E2E: bypass de bebida** — `e2e/beverage-bypass.spec.ts` (2 testes) cobre a regra `allBebida ? "PRONTO" : "PEDIDO_FEITO"` (`app/api/orders/route.ts`): (1) pedido só de bebida nasce **PRONTO** (pula a cozinha — atendente pega da geladeira); (2) pedido **misto** (pastel + bebida) NÃO bypassa → nasce PEDIDO_FEITO. Via API direta, mesmo padrão robusto do `order-flow.spec.ts`. Caminho tinha perdido cobertura quando o teste de Coca foi trocado por pastel. **E2E 10 → 12** (validado em `npm run dev`; as 4 falhas de `auth.spec.ts` no build de produção são o service worker do next-pwa, não regressão — passam em dev).
 - [claude-pastel 2026-05-28] **[P2] Cobertura de testes pra libs puras (hardening)** — 4 novos arquivos, suite 125 → **163** (+38). `tests/event-session-shared.test.ts` (10): `isStaleEventSession` com fake timers — limite 12h exato (>=), 11h/13h, string ISO vs Date, data inválida, futuro, `staleHours` custom. `tests/idempotency.test.ts` (13): roundtrip set/get, miss, expiração TTL 10min (fake timers via `setSystemTime`), preserva status de erro, `isValidIdempotencyKey` (16–64 chars, UUID, regex). `tests/ingredient-i18n.test.ts` (12): `translateForIconSearch` case/acent-insensitive, frase inteira vs palavra-a-palavra, fallback raw, `ICON_CATEGORIES`. `tests/pricing.test.ts` (8): `formatBRL` (normaliza NBSP/NNBSP do Intl), separador de milhar, negativo, `SIZE_LABEL`/`PRICE`/`MAX_TOPPINGS_PEQUENO`. tsc + eslint limpos.
 
 ### 2026-05-27
