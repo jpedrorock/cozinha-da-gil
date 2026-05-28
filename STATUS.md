@@ -2,14 +2,20 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-05-28
-**Atualizado por:** `claude-pastel`
+**Última atualização:** 2026-05-28 (rotina automática 21:10)
+**Atualizado por:** `claude-pastel` (background)
 
 ---
 
 ## Fase atual
 
 Fase 6 entregue. Pós-fase: hardening + observabilidade.
+
+## Rotina automática — último resultado
+
+- **2026-05-28 21:10** — Routine encerrada sem trabalho. Único item em "Próximos": P2 Next 15 migration, marcado "Confirmar antes" → não elegível em modo background. Backlog section: 2 itens "Abrir PR" (Iconify SW + docker-compose), 1 bloqueado por hardware, 1 bloqueado por dependência, 1 com critério vago. Nada qualificava. Aguardando João para: (1) dar ok pra migração Next 15; (2) mergear PRs P3 abertas.
+
+---
 
 ## O que rolou desde a última sessão
 
