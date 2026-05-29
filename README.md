@@ -2,7 +2,7 @@
 
 App de pedidos pra barraca da família. Atendente, cozinha e admin em tempo real.
 
-**Stack:** Next.js 14 · TypeScript · Prisma + SQLite · Tailwind · SSE pra real-time · PWA com next-pwa · iron-session pra auth.
+**Stack:** Next.js 15 · React 19 · TypeScript · Prisma + SQLite · Tailwind · SSE pra real-time · PWA com @ducanh2912/next-pwa · iron-session pra auth.
 
 ---
 
