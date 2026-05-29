@@ -3,9 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSwipeable } from "react-swipeable";
-import { AlertTriangle, Check, Lock, Minus, Pencil, Plus, RotateCcw, Tag, X } from "lucide-react";
+import { AlertTriangle, Calculator, Check, Lock, Minus, Pencil, Plus, RotateCcw, Tag, X } from "lucide-react";
 import type { Ingredient, OrderStatus } from "@prisma/client";
 import { AppHeader } from "@/components/AppHeader";
+import { TrocoCalculator } from "@/components/TrocoCalculator";
 import { OrderCard } from "@/components/OrderCard";
 import { CancelDialog } from "@/components/CancelDialog";
 import { useConfirmDialog } from "@/components/ConfirmDialog";
@@ -876,9 +877,24 @@ export function AtendenteClient({
     }).catch(() => {});
   }
 
+  const [trocoOpen, setTrocoOpen] = useState(false);
+
   return (
     <div className="min-h-dvh flex flex-col">
-      <AppHeader />
+      <AppHeader
+        right={
+          <button
+            type="button"
+            onClick={() => setTrocoOpen(true)}
+            aria-label="Calculadora de troco"
+            title="Troco"
+            className="inline-flex items-center justify-center h-9 w-9 rounded-full border border-line-strong text-ink-2 hover:border-ink-3 hover:text-ink"
+          >
+            <Calculator size={18} strokeWidth={2} />
+          </button>
+        }
+      />
+      <TrocoCalculator open={trocoOpen} onClose={() => setTrocoOpen(false)} />
 
       {caixaFechado && !creating && (
         <div className="bg-danger text-white px-4 py-3 flex items-center gap-2 sticky top-16 z-20 shadow-md">
