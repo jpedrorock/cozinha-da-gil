@@ -2,8 +2,8 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-05-28
-**Atualizado por:** `claude-pastel`
+**Última atualização:** 2026-05-29
+**Atualizado por:** `claude-pastel` (routine background)
 
 ---
 
@@ -12,6 +12,11 @@
 Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## O que rolou desde a última sessão
+
+### 2026-05-29
+- Routine background executada — BACKLOG "Próximos" tem 1 item: migração Next 14 → 15 marcado "Confirmar antes". Sem itens qualificados para background. Nenhum commit de código realizado.
+
+
 
 - Auditoria UX crítica (4º pass) — Fases A (5/5 críticos), B (9/14 importantes), C (4/5 polish + a11y) shipped em 18 commits
 - Follow-ups do audit externo: preview comprovante 80mm, atalhos teclado cozinha, áudio escalonado, PDF com delta vs período anterior, TV breathe intermitente
