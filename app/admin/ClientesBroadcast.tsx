@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { ArrowLeft, ChevronRight, MessageCircle, Send, SkipForward, X } from "lucide-react";
+import { AlertTriangle, ArrowLeft, CheckCircle2, ChevronRight, MessageCircle, Send, SkipForward, X } from "lucide-react";
 import type { Customer } from "@prisma/client";
 import { formatPhoneDisplay } from "@/lib/orders";
 import { buildWaUrl, templatePromo } from "@/lib/whatsapp-templates";
@@ -196,7 +196,10 @@ export function ClientesBroadcast({ onBack }: { onBack: () => void }) {
         </div>
 
         <div className="card p-4 bg-status-preparing-bg border-status-preparing">
-          <div className="t-h3 mb-1">⚠️ Como funciona</div>
+          <div className="t-h3 mb-1 flex items-center gap-1.5">
+            <AlertTriangle size={16} strokeWidth={2.5} className="shrink-0" aria-hidden />
+            Como funciona
+          </div>
           <ul className="t-body-sm flex flex-col gap-1 list-disc pl-5">
             <li>
               Próxima tela mostra <span className="font-bold">um cliente por vez</span>.
@@ -225,7 +228,10 @@ export function ClientesBroadcast({ onBack }: { onBack: () => void }) {
   if (!current) {
     return (
       <div className="text-center py-10">
-        <div className="t-h2 mb-2">Tudo enviado! 🎉</div>
+        <div className="t-h2 mb-2 flex items-center justify-center gap-2">
+          <CheckCircle2 size={24} strokeWidth={2} className="text-status-ready shrink-0" aria-hidden />
+          Tudo enviado!
+        </div>
         <button onClick={onBack} className="btn btn-secondary">
           Voltar
         </button>

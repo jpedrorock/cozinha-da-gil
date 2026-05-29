@@ -405,7 +405,7 @@ export const GUIDE: GuideTab[] = [
             title: "O que vende mais",
             body: "Lista dos recheios, sabores e molhos mais pedidos no período. Tem coluna 'Receita' mostrando quanto cada um trouxe de dinheiro.",
             tips: [
-              "Quando o período não é 'Hoje', aparece troféu 🏆 no campeão.",
+              "Quando o período não é 'Hoje', aparece um troféu ao lado do campeão.",
             ],
           },
           {

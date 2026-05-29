@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowDownUp, Check, CheckCheck, Coffee, Package, Play, Search, Utensils, Volume2, VolumeX, WifiOff, X } from "lucide-react";
+import { AlertTriangle, ArrowDownUp, Check, CheckCheck, Coffee, Package, Play, Search, Utensils, Volume2, VolumeX, WifiOff, X } from "lucide-react";
 import { useIdleLogout } from "@/lib/use-idle-logout";
 import { useSSE } from "@/lib/use-sse";
 import { useOperator } from "@/lib/use-operator";
@@ -942,7 +942,7 @@ function Ticket({
     >
       {flashEdited && !leaving && (
         <div className="-mx-5 -mt-5 px-5 py-2 rounded-t-md bg-danger text-white t-label !text-white inline-flex items-center gap-2 animate-flash-ring-once">
-          <span className="text-xl leading-none">⚠</span>
+          <AlertTriangle size={18} strokeWidth={2.5} className="shrink-0" aria-hidden />
           <span>Atendente alterou — revise os itens</span>
         </div>
       )}
@@ -1317,7 +1317,7 @@ function TicketItem({
           <div className="mt-1 flex flex-col gap-1">
             {negatives.length > 0 && (
               <div className="bg-danger text-white rounded-sm px-3 py-2 flex gap-2 items-center font-extrabold uppercase tracking-wide">
-                <span className="text-lg leading-none">⚠</span>
+                <AlertTriangle size={16} strokeWidth={2.5} className="shrink-0" aria-hidden />
                 <span className="text-[16px] leading-tight">
                   {negatives.join(" · ")}
                 </span>
