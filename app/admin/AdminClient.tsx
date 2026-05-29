@@ -59,6 +59,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Clientes } from "./Clientes";
+import { ComparativoEventos } from "./ComparativoEventos";
 import { AppHeader } from "@/components/AppHeader";
 import { BrandIcon, PastelIcon, DoceIcon } from "@/components/icons";
 // IconPicker carrega Iconify (~200k icons em memória ao buscar) e só serve
@@ -842,12 +843,12 @@ function Vendas({
   recentOrders: OrderView[];
   events: EventListEntry[];
 }) {
-  const [subTab, setSubTab] = useState<"resumo" | "pedidos">("resumo");
+  const [subTab, setSubTab] = useState<"resumo" | "pedidos" | "eventos">("resumo");
   useEffect(() => {
     const stored = localStorage.getItem("pdg:vendas-tab");
-    if (stored === "resumo" || stored === "pedidos") setSubTab(stored);
+    if (stored === "resumo" || stored === "pedidos" || stored === "eventos") setSubTab(stored);
   }, []);
-  function changeSubTab(t: "resumo" | "pedidos") {
+  function changeSubTab(t: "resumo" | "pedidos" | "eventos") {
     setSubTab(t);
     localStorage.setItem("pdg:vendas-tab", t);
   }
@@ -888,6 +889,8 @@ function Vendas({
         <p className="t-body-sm">
           {subTab === "resumo"
             ? "Números do período (faturamento, top toppings, gráficos)"
+            : subTab === "eventos"
+            ? "Comparativo entre eventos (faturamento, pico, mais pedido)"
             : "Lista de cada pedido (busca por nome, telefone ou número)"}
         </p>
       </header>
@@ -907,10 +910,18 @@ function Vendas({
           count={null}
           onClick={() => changeSubTab("pedidos")}
         />
+        <SubTabButton
+          active={subTab === "eventos"}
+          label="Eventos"
+          count={null}
+          onClick={() => changeSubTab("eventos")}
+        />
       </div>
 
       {subTab === "pedidos" ? (
         <HistoricoBody orders={recentOrders} events={events} />
+      ) : subTab === "eventos" ? (
+        <ComparativoEventos />
       ) : (
       <>
       <div className="flex gap-2 overflow-x-auto no-scrollbar">
