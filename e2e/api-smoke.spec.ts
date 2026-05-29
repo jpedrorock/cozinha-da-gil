@@ -22,9 +22,9 @@ test.describe("API smoke", () => {
   });
 
   test("login + abrir caixa + criar pedido + fechar caixa", async ({ request }) => {
-    // 1. Login Gil
+    // 1. Login Gil (PIN atualizado 2026-05-22: 2699)
     const login = await request.post("/api/auth/login", {
-      data: { name: "Gil", password: "1234", role: "admin" },
+      data: { name: "Gil", password: "2699", role: "admin" },
     });
     expect(login.ok()).toBe(true);
 

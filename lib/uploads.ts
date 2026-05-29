@@ -1,11 +1,11 @@
 /**
- * Helpers pra storage de imagens de produto.
+ * Helpers pra storage de imagens (produtos e ingredientes).
  *
  * Diretório: $UPLOADS_DIR ou ./data/uploads (dev) — em produção (Coolify),
  * `/app/data/uploads` cai no mesmo volume montado pro SQLite.
  *
- * Servido via /api/uploads/products/<filename>. URLs salvas no DB são
- * apenas relativas pra serem portáveis entre domínios (dev, produção,
+ * Servido via /api/uploads/{products,ingredients}/<filename>. URLs salvas no
+ * DB são apenas relativas pra serem portáveis entre domínios (dev, produção,
  * preview, etc).
  */
 
@@ -20,6 +20,10 @@ export function getUploadsRoot(): string {
 
 export function getProductsDir(): string {
   return path.join(getUploadsRoot(), "products");
+}
+
+export function getIngredientsDir(): string {
+  return path.join(getUploadsRoot(), "ingredients");
 }
 
 async function ensureDir(dir: string) {
@@ -110,4 +114,85 @@ function filenameFromUrl(url: string): string | null {
   const filename = url.slice(prefix.length);
   if (!/^[A-Za-z0-9._-]+$/.test(filename)) return null;
   return filename;
+}
+
+// ============================================================
+// INGREDIENTES — espelho do fluxo de produtos.
+// Diferença: filename usa hash do conteúdo (sem id prefixo) porque
+// no fluxo de CRIAÇÃO o ingrediente ainda não tem ID. Cleanup
+// best-effort quando admin troca/remove a imagem.
+// ============================================================
+
+/**
+ * Salva data URI de ícone de ingrediente no filesystem. Retorna URL
+ * relativa `/api/uploads/ingredients/<hash>.<ext>` ou null se inválido.
+ *
+ * Se `oldUrl` informado e hash diferente, deleta o arquivo antigo
+ * (best-effort, ignora erro).
+ */
+export async function saveIngredientImage(
+  dataUrl: string,
+  oldUrl: string | null = null,
+): Promise<string | null> {
+  const decoded = decodeDataUrl(dataUrl);
+  if (!decoded) return null;
+  const { ext, bytes } = decoded;
+  // Hash do conteúdo é suficiente — não tem productId pra prefixar.
+  // Mesmos bytes = mesmo arquivo (dedupe automático entre ingredientes).
+  const hash = crypto.createHash("sha1").update(bytes).digest("hex").slice(0, 12);
+  const filename = `${hash}.${ext}`;
+  const dir = getIngredientsDir();
+  await ensureDir(dir);
+  const filePath = path.join(dir, filename);
+  await fs.writeFile(filePath, bytes);
+  if (oldUrl) {
+    const oldFile = ingredientFilenameFromUrl(oldUrl);
+    if (oldFile && oldFile !== filename) {
+      await fs.unlink(path.join(dir, oldFile)).catch(() => {});
+    }
+  }
+  return `/api/uploads/ingredients/${filename}`;
+}
+
+/** Deleta o arquivo associado a URL de ingrediente (best-effort). */
+export async function deleteIngredientImage(url: string | null) {
+  if (!url) return;
+  const filename = ingredientFilenameFromUrl(url);
+  if (!filename) return;
+  await fs.unlink(path.join(getIngredientsDir(), filename)).catch(() => {});
+}
+
+/** Lê arquivo do uploads/ingredients/. Retorna null se não existir. */
+export async function readIngredientImage(
+  filename: string,
+): Promise<{ bytes: Buffer; contentType: string } | null> {
+  if (!/^[A-Za-z0-9._-]+$/.test(filename)) return null;
+  const filePath = path.join(getIngredientsDir(), filename);
+  const resolved = path.resolve(filePath);
+  const root = path.resolve(getIngredientsDir());
+  if (!resolved.startsWith(root + path.sep) && resolved !== root) return null;
+  try {
+    const bytes = await fs.readFile(filePath);
+    const contentType = filename.endsWith(".svg")
+      ? "image/svg+xml"
+      : filename.endsWith(".png")
+        ? "image/png"
+        : "application/octet-stream";
+    return { bytes, contentType };
+  } catch {
+    return null;
+  }
+}
+
+function ingredientFilenameFromUrl(url: string): string | null {
+  const prefix = "/api/uploads/ingredients/";
+  if (!url.startsWith(prefix)) return null;
+  const filename = url.slice(prefix.length);
+  if (!/^[A-Za-z0-9._-]+$/.test(filename)) return null;
+  return filename;
+}
+
+/** Detecta se um valor de `icon` é caminho pra arquivo no uploads. */
+export function isUploadedIngredientIcon(icon: string | null): icon is string {
+  return typeof icon === "string" && icon.startsWith("/api/uploads/ingredients/");
 }

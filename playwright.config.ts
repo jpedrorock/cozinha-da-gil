@@ -8,6 +8,10 @@ export default defineConfig({
   retries: 0,
   reporter: [["list"]],
 
+  // Setup global cria users de teste (Maria atendente + José cozinha)
+  // via Prisma direto, idempotente. Gil admin vem do seed normal.
+  globalSetup: "./e2e/global-setup.ts",
+
   use: {
     baseURL: process.env.PLAYWRIGHT_BASE_URL || "http://localhost:59574",
     headless: true,

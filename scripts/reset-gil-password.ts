@@ -8,7 +8,7 @@
  */
 
 import bcrypt from "bcryptjs";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/prisma-client";
 
 const NAME = "Gil";
 const ROLE = "admin";

@@ -3,9 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSwipeable } from "react-swipeable";
-import { AlertTriangle, Check, Lock, Minus, Pencil, Plus, RotateCcw, Tag, X } from "lucide-react";
+import { AlertTriangle, Calculator, Check, Lock, Minus, Pencil, Plus, RotateCcw, Tag, X } from "lucide-react";
 import type { Ingredient, OrderStatus } from "@prisma/client";
 import { AppHeader } from "@/components/AppHeader";
+import { TrocoCalculator } from "@/components/TrocoCalculator";
 import { OrderCard } from "@/components/OrderCard";
 import { CancelDialog } from "@/components/CancelDialog";
 import { useConfirmDialog } from "@/components/ConfirmDialog";
@@ -22,9 +23,10 @@ import {
 } from "@/components/icons";
 import { useIdleLogout } from "@/lib/use-idle-logout";
 import { useSSE } from "@/lib/use-sse";
+import { sseDebugEnabled } from "@/lib/sse-debug";
 import { useOperator } from "@/lib/use-operator";
 import type { OrderView } from "@/lib/orders";
-import { isStaleEventSession, type EventSessionStatus } from "@/lib/event-session";
+import { isStaleEventSession, type EventSessionStatus } from "@/lib/event-session-shared";
 import type { ProductView } from "@/lib/products";
 import { isExpressProduct } from "@/lib/products";
 import { computeDiscount, detectApplicable, findCouponMatch, type PromotionView } from "@/lib/promotions";
@@ -153,11 +155,13 @@ export function AtendenteClient({
   initialOrders,
   initialEventStatus,
   initialProducts,
+  initialPromotions,
 }: {
   ingredients: Record<string, Ingredient[]>;
   initialOrders: OrderView[];
   initialEventStatus: EventSessionStatus;
   initialProducts: ProductView[];
+  initialPromotions: PromotionView[];
 }) {
   const router = useRouter();
   const { operator, ready, clear } = useOperator();
@@ -192,16 +196,11 @@ export function AtendenteClient({
   const macarraoToppings = allMacarraoToppings.filter((i) => i.available);
   const macarraoMolhos = allMacarraoMolhos.filter((i) => i.available);
 
-  // Promoções ativas — vem vazio no SSR por enquanto; busca uma vez no mount.
-  // TODO: receber via initialPromotions no SSR pra eliminar esse fetch também.
-  const [promotions, setPromotions] = useState<PromotionView[]>([]);
+  // Promoções ativas — vêm do SSR (page.tsx faz query no boot).
+  // Sem useEffect+fetch — atende o critério do backlog (eliminação do
+  // round-trip extra após mount, mesma latência do produto/orders).
+  const [promotions] = useState<PromotionView[]>(initialPromotions);
   const [selectedPromoId, setSelectedPromoId] = useState<string | null>(null);
-  useEffect(() => {
-    fetch("/api/promotions?active=true")
-      .then((r) => r.json())
-      .then((data) => Array.isArray(data) && setPromotions(data))
-      .catch(() => {});
-  }, []);
 
   const [creating, setCreating] = useState(false);
   const [editingOrderId, setEditingOrderId] = useState<number | null>(null);
@@ -375,6 +374,28 @@ export function AtendenteClient({
             : i,
         );
         return { ...prev, [ing.category]: next };
+      });
+    },
+    // Admin arrastou ingredientes pra nova ordem — chips do stepper
+    // reordenam em tempo real sem reload. Items que sumiram do array
+    // (deletados em paralelo) ficam onde estavam até o próximo refresh.
+    "ingredient:reordered": (data) => {
+      const evt = data as { category: string; orderedIds: string[] };
+      setIngredients((prev) => {
+        const list = prev[evt.category];
+        if (!list) return prev;
+        const byId = new Map(list.map((i) => [i.id, i]));
+        const reordered: Ingredient[] = [];
+        evt.orderedIds.forEach((id) => {
+          const i = byId.get(id);
+          if (i) {
+            reordered.push(i);
+            byId.delete(id);
+          }
+        });
+        // Items não mencionados (stale local) ficam no fim
+        const rest = Array.from(byId.values());
+        return { ...prev, [evt.category]: [...reordered, ...rest] };
       });
     },
     "product:updated": (data) => {
@@ -667,7 +688,9 @@ export function AtendenteClient({
         return;
       }
       const order = (await res.json()) as OrderView;
-      console.log(`[SSE-LAT] atendente ${method} id=${order.id} fetch=${(tResp - tFetch).toFixed(0)}ms`);
+      if (sseDebugEnabled()) {
+        console.log(`[SSE-LAT] atendente ${method} id=${order.id} fetch=${(tResp - tFetch).toFixed(0)}ms`);
+      }
       showToast(
         isEditing
           ? `Pedido #${String(order.id).padStart(3, "0")} atualizado.`
@@ -857,9 +880,24 @@ export function AtendenteClient({
     }).catch(() => {});
   }
 
+  const [trocoOpen, setTrocoOpen] = useState(false);
+
   return (
     <div className="min-h-dvh flex flex-col">
-      <AppHeader />
+      <AppHeader
+        right={
+          <button
+            type="button"
+            onClick={() => setTrocoOpen(true)}
+            aria-label="Calculadora de troco"
+            title="Troco"
+            className="inline-flex items-center justify-center h-9 w-9 rounded-full border border-line-strong text-ink-2 hover:border-ink-3 hover:text-ink"
+          >
+            <Calculator size={18} strokeWidth={2} />
+          </button>
+        }
+      />
+      <TrocoCalculator open={trocoOpen} onClose={() => setTrocoOpen(false)} />
 
       {caixaFechado && !creating && (
         <div className="bg-danger text-white px-4 py-3 flex items-center gap-2 sticky top-16 z-20 shadow-md">
@@ -1190,7 +1228,7 @@ function NovoPedido({
   if (phase === "client") {
     return (
       <div className="flex-1 flex flex-col">
-        <div className="flex-1 px-4 md:px-8 pt-6 md:pt-10 max-w-2xl w-full mx-auto">
+        <div className="flex-1 px-4 md:px-8 pt-6 md:pt-10 max-w-2xl md:max-w-4xl w-full mx-auto">
           <h1 className="t-h1 mb-1">Novo pedido</h1>
           <p className="t-body-sm mb-5">Quem é o cliente?</p>
 
@@ -1292,7 +1330,7 @@ function NovoPedido({
     const total = Math.max(0, subtotal - discount);
     return (
       <div className="flex-1 flex flex-col">
-        <div className="flex-1 overflow-y-auto px-4 md:px-8 pt-6 max-w-2xl w-full mx-auto">
+        <div className="flex-1 overflow-y-auto px-4 md:px-8 pt-6 max-w-2xl md:max-w-4xl w-full mx-auto">
           <div className="flex items-baseline justify-between mb-1">
             <h1 className="t-h1">{editing ? "Editar pedido" : "Resumo"}</h1>
             <div className="flex flex-col items-end gap-0.5">
@@ -1491,7 +1529,7 @@ function NovoPedido({
             onClick={onAddAnother}
             className="mt-3 w-full h-14 rounded-md border-2 border-dashed border-line-strong text-ink-2 font-semibold hover:border-brand-orange hover:text-brand-orange transition-colors"
           >
-            + Adicionar outro pastel
+            + Adicionar outro item
           </button>
 
           <button
@@ -1580,7 +1618,7 @@ function NovoPedido({
           // o gesto horizontal antes do iOS Safari triggerar swipe-back
           // (margem esquerda → arrastar direita = página anterior).
           style={{ touchAction: "pan-y" }}
-          className="flex-1 overflow-y-auto px-4 md:px-8 pt-5 pb-6 max-w-2xl w-full mx-auto"
+          className="flex-1 overflow-y-auto px-4 md:px-8 pt-5 pb-6 max-w-2xl md:max-w-4xl w-full mx-auto"
         >
           <div key={phase} className="animate-step-in">
             {phase === "product" && (
@@ -2123,8 +2161,12 @@ function StepIngredients({
   else if (min > 0) helper = `Pelo menos ${min}.`;
 
   // Quando faz sentido "Marcar todos": só pra modos onde pode escolher
-  // quantos quiser (não single, não exact). Caso clássico: "tudo menos cebola".
-  const allowBulk = !isSingle && !isExact;
+  // quantos quiser (não single, não exact) E sem limite baixo. Caso
+  // clássico de uso: pastel GRANDE "tudo menos cebola". No pastel pequeno
+  // (máx 2 de 12), marcar todos não economiza nada — é mais rápido tocar
+  // nos 2 que quer. Esconde quando legacyMax ≤ 2 (feedback Gil).
+  const hasLowCap = legacyMax !== null && legacyMax !== undefined && legacyMax <= 2;
+  const allowBulk = !isSingle && !isExact && !hasLowCap;
   const allAvailable = ingredients.filter((i) => i.stock !== 0);
   const allMarked = allAvailable.length > 0 && allAvailable.every((i) => current.ingredients.includes(i.name));
 
@@ -3117,7 +3159,9 @@ function CouponInput({
 function BottomBar({ children }: { children: React.ReactNode }) {
   return (
     <div className="sticky bottom-0 bg-surface-elevated border-t border-line px-4 py-3 pb-[max(env(safe-area-inset-bottom),12px)] flex gap-2 md:px-6">
-      <div className="max-w-2xl w-full mx-auto flex gap-2">{children}</div>
+      {/* Alinha com a largura do stepper acima: max-w-2xl no mobile,
+          max-w-4xl no desktop (audit UX desktop 2026-05-27). */}
+      <div className="max-w-2xl md:max-w-4xl w-full mx-auto flex gap-2">{children}</div>
     </div>
   );
 }

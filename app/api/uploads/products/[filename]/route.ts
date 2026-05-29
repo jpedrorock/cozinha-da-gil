@@ -16,10 +16,8 @@ export const dynamic = "force-dynamic";
  * Cache-Control: 1 ano + immutable. Quando admin troca imagem, o filename
  * vira outro hash, então URL muda e browser baixa de novo.
  */
-export async function GET(
-  _request: Request,
-  { params }: { params: { filename: string } },
-) {
+export async function GET(_request: Request, props: { params: Promise<{ filename: string }> }) {
+  const params = await props.params;
   const filename = params.filename;
   const image = await readProductImage(filename);
   if (!image) {

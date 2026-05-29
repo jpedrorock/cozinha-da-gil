@@ -19,8 +19,9 @@ function asInt(v: unknown): number | null | undefined {
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string; sizeId: string } },
+  props: { params: Promise<{ id: string; sizeId: string }> }
 ) {
+  const params = await props.params;
   const auth = await requireRole(["admin"]);
   if (auth instanceof NextResponse) return auth;
 
@@ -58,8 +59,9 @@ export async function PATCH(
 
 export async function DELETE(
   _request: Request,
-  { params }: { params: { id: string; sizeId: string } },
+  props: { params: Promise<{ id: string; sizeId: string }> }
 ) {
+  const params = await props.params;
   const auth = await requireRole(["admin"]);
   if (auth instanceof NextResponse) return auth;
 

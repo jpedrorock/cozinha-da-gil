@@ -17,11 +17,40 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: "#FFD600",
     orientation: "portrait-primary",
     lang: "pt-BR",
-    // Categories ajudam launchers a indexar; "food" pelo domínio, "business"
-    // e "productivity" pela natureza POS.
-    categories: ["food", "business", "productivity"],
+    // dir: direção de leitura — ajuda acessibilidade (RTL screen readers
+    // pulam interpretação). Sempre LTR pro pt-BR.
+    dir: "ltr",
+    // Categories — só valores da spec W3C (food não está na lista oficial).
+    // business + productivity + utilities batem com a natureza do POS.
+    categories: ["business", "productivity", "utilities"],
     // Não sugere busca de app nativo — somos a versão definitiva.
     prefer_related_applications: false,
+    // Shortcuts no long-press do ícone (Android) / 3D-touch (iOS).
+    // Cada role tem atalho que cai DIRETO na tela operacional, pulando
+    // a tela de login. Maria/José/Gil ganham 1 tap a menos toda manhã.
+    shortcuts: [
+      {
+        name: "Atendente",
+        short_name: "Atendente",
+        description: "Anotar pedidos novos",
+        url: "/atendente",
+        icons: [{ src: "/icon-192.png", sizes: "192x192", type: "image/png" }],
+      },
+      {
+        name: "Cozinha",
+        short_name: "Cozinha",
+        description: "Ver pedidos pra preparar",
+        url: "/cozinha",
+        icons: [{ src: "/icon-192.png", sizes: "192x192", type: "image/png" }],
+      },
+      {
+        name: "Admin",
+        short_name: "Admin",
+        description: "Caixa, cardápio, vendas",
+        url: "/admin",
+        icons: [{ src: "/icon-192.png", sizes: "192x192", type: "image/png" }],
+      },
+    ],
     icons: [
       // PNGs pro iOS (Add to Home Screen) e Android (Install Banner).
       // iOS Safari não renderiza SVG no apple-touch-icon — exige PNG 180×180.
@@ -59,5 +88,41 @@ export default function manifest(): MetadataRoute.Manifest {
         purpose: "any",
       },
     ],
+    // Screenshots pra rich install dialog do Chrome Android — quando
+    // banner de install aparece, Chrome usa esses pra mostrar prévias
+    // do app em vez de só nome + ícone. PWA audit #6.
+    //
+    // form_factor "narrow" = mobile (Chrome usa em telas pequenas).
+    // Capturados via scripts/gen-screenshots.ts: viewport 390x844 com
+    // deviceScaleFactor 2 → arquivos 780x1688 (proporção iPhone Pro).
+    //
+    // Cast: o type do Next 14 (`MetadataRoute.Manifest`) ainda não
+    // expõe `form_factor` / `label` no shape de screenshots, embora
+    // sejam válidos na spec W3C atual (e necessários pro Chrome usar
+    // o rich install dialog). Cast pra unknown pra escapar a checagem
+    // sem perder validade do JSON gerado.
+    screenshots: [
+      {
+        src: "/screenshots/01-atendente.png",
+        sizes: "780x1688",
+        type: "image/png",
+        form_factor: "narrow",
+        label: "Atendente — fila + novo pedido",
+      },
+      {
+        src: "/screenshots/02-cozinha.png",
+        sizes: "780x1688",
+        type: "image/png",
+        form_factor: "narrow",
+        label: "Cozinha — pedidos em tempo real",
+      },
+      {
+        src: "/screenshots/03-cliente.png",
+        sizes: "780x1688",
+        type: "image/png",
+        form_factor: "narrow",
+        label: "Painel cliente — TV pública",
+      },
+    ] as unknown as MetadataRoute.Manifest["screenshots"],
   };
 }

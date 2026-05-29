@@ -1,6 +1,22 @@
-# HTTPS local na barraca — opções
+# HTTPS — decisão e estado atual
 
-> P2 do audit de segurança. Em rede 100% local com 3 devices da família, **rate-limit + cookie HttpOnly já é proteção suficiente** contra o threat model real ("primo curioso na wifi"). Este doc descreve quando vale ligar HTTPS e como.
+> **DECIDIDO 2026-05-27 (João/Gil):** app hospedado em domínio público `cozinhadagil.evapro.cloud` via Coolify. **HTTPS já é nativo via Let's Encrypt** — não precisa de mkcert/HTTPS local. Este doc fica como referência caso um dia volte pra rodar em LAN.
+
+## Estado atual ✅
+
+- **Hospedagem:** Coolify (self-hosted PaaS) em domínio público
+- **HTTPS:** **ativo**, cert Let's Encrypt renovado automaticamente pelo Coolify
+- **PINs e cookies de sessão:** sempre encriptados em trânsito
+- **Devices conectam via:** `https://cozinhadagil.evapro.cloud` (HTTPS público), não LAN
+- **Wifi da barraca:** só precisa de internet pra acessar o site — não há tráfego sensível na LAN local
+
+Decisão: usar o app em família, mas sempre via web pública. Não precisa setup de cert local.
+
+---
+
+## (Histórico) HTTPS local na barraca — opções
+
+> Esse roteiro fica como referência caso um dia o app volte a rodar em LAN privada (laptop offline, sem internet). Em rede 100% local com 3 devices da família, **rate-limit + cookie HttpOnly já seria proteção suficiente** contra o threat model real ("primo curioso na wifi"). Mas com HTTPS público no Coolify, isso virou histórico.
 
 ## Por que considerar HTTPS
 
@@ -84,9 +100,8 @@ Aceita risco de sniff na LAN. Mitigações já em vigor:
 
 Pro threat model real ("família + 1–2 convidados no roteador"), isso basta.
 
-## Recomendação
+## Recomendação histórica
 
-**Hoje:** opção C. Não ligue HTTPS.
-**Quando virar negócio formal (recebe estranhos, atende festa pública grande, LGPD relevante):** opção A. ~2h pra setup + 5min/device.
-
-Não Opção B até ter internet redundante na barraca.
+**Hoje (atual):** N/A — HTTPS já ativo via Coolify/Let's Encrypt em produção.
+**Se um dia voltar pra LAN privada (app offline-first):** opção A (Caddy + tls internal).
+**Não Opção B** (Tailscale/ngrok) até ter internet redundante na barraca — anti-objetivo.

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowDownUp, Check, Coffee, Package, Play, Search, Utensils, Volume2, VolumeX, WifiOff, X } from "lucide-react";
+import { ArrowDownUp, Check, CheckCheck, Coffee, Package, Play, Search, Utensils, Volume2, VolumeX, WifiOff, X } from "lucide-react";
 import { useIdleLogout } from "@/lib/use-idle-logout";
 import { useSSE } from "@/lib/use-sse";
 import { useOperator } from "@/lib/use-operator";
@@ -13,6 +13,8 @@ import { useToast } from "@/components/Toast";
 import { PastelIcon, DoceIcon } from "@/components/icons";
 import type { OrderView, OrderItemView } from "@/lib/orders";
 import { SIZE_LABEL } from "@/lib/pricing";
+import { summarizeChecklist } from "@/lib/kitchen-display";
+import { sseDebugEnabled } from "@/lib/sse-debug";
 import type { OrderStatus } from "@prisma/client";
 
 const PREP_TARGET_MIN = 20;
@@ -281,8 +283,10 @@ export function CozinhaClient({
       const order = data as OrderView;
       // [LATÊNCIA] Mede tempo desde createdAt (server) até chegar aqui.
       // Inclui: db commit + serialize + broadcast + rede + parse client.
-      const lagMs = Date.now() - new Date(order.createdAt).getTime();
-      console.log(`[SSE-LAT] cozinha order:created id=${order.id} lag=${lagMs}ms status=${order.status}`);
+      if (sseDebugEnabled()) {
+        const lagMs = Date.now() - new Date(order.createdAt).getTime();
+        console.log(`[SSE-LAT] cozinha order:created id=${order.id} lag=${lagMs}ms status=${order.status}`);
+      }
       if (order.status === "PEDIDO_FEITO" || order.status === "EM_PREPARO") {
         setOrders((prev) => [...prev.filter((o) => o.id !== order.id), order]);
         markArrived(order.id);
@@ -292,8 +296,10 @@ export function CozinhaClient({
     "order:updated": (data) => {
       const raw = data as OrderView & { _editedInPreparation?: boolean };
       const order: OrderView = raw;
-      const lagMs = Date.now() - new Date(order.updatedAt).getTime();
-      console.log(`[SSE-LAT] cozinha order:updated id=${order.id} lag=${lagMs}ms status=${order.status}`);
+      if (sseDebugEnabled()) {
+        const lagMs = Date.now() - new Date(order.updatedAt).getTime();
+        console.log(`[SSE-LAT] cozinha order:updated id=${order.id} lag=${lagMs}ms status=${order.status}`);
+      }
       setOrders((prev) => {
         const without = prev.filter((o) => o.id !== order.id);
         if (order.status === "PEDIDO_FEITO" || order.status === "EM_PREPARO") {
@@ -391,6 +397,30 @@ export function CozinhaClient({
   const [search, setSearch] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [sortMode, setSortMode] = useState<"chegada" | "urgencia">("chegada");
+
+  // Histórico de prontos — drawer read-only pra cook conferir o que já
+  // finalizou hoje (evita refazer pedido por engano). Fetch on-demand ao
+  // abrir, não pesa o realtime. Feedback Gil.
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [historyOrders, setHistoryOrders] = useState<OrderView[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  async function openHistory() {
+    setHistoryOpen(true);
+    setHistoryLoading(true);
+    try {
+      const res = await fetch("/api/orders?scope=today");
+      const data = (await res.json()) as OrderView[];
+      // Só finalizados (PRONTO + ENTREGUE), mais recentes primeiro.
+      const done = data
+        .filter((o) => o.status === "PRONTO" || o.status === "ENTREGUE")
+        .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+      setHistoryOrders(done);
+    } catch {
+      setHistoryOrders([]);
+    } finally {
+      setHistoryLoading(false);
+    }
+  }
 
   // Restore preferência
   useEffect(() => {
@@ -547,7 +577,9 @@ export function CozinhaClient({
             <EmptyState />
           )
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4 max-w-screen-2xl mx-auto">
+            {/* max-w-screen-2xl evita ticket cards esticarem em TV ultra-wide
+                (>1536px), mantendo legível à distância. Audit UX desktop 2026-05-27. */}
             {queue.map((o) => {
               const stage: Stage = o.status === "PEDIDO_FEITO" ? "PEDIDO_FEITO" : "EM_PREPARO";
               const next: OrderStatus = stage === "PEDIDO_FEITO" ? "EM_PREPARO" : "PRONTO";
@@ -653,6 +685,16 @@ export function CozinhaClient({
               {soundOn ? "Som" : "Mudo"}
             </span>
           </button>
+
+          <button
+            onClick={openHistory}
+            className="flex-1 flex flex-col items-center justify-center gap-0.5 py-2 min-h-[60px] text-ink-2 hover:text-ink hover:bg-surface-sunken transition-colors"
+            aria-label="Ver pedidos prontos de hoje"
+            title="Histórico de prontos hoje (read-only)"
+          >
+            <CheckCheck size={22} strokeWidth={2.25} aria-hidden />
+            <span className="text-[11px] font-semibold leading-none">Prontos</span>
+          </button>
         </div>
       </nav>
 
@@ -691,6 +733,83 @@ export function CozinhaClient({
             >
               Fechar
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Drawer "Prontos" — histórico read-only dos finalizados de hoje.
+          Slide-up modal; click fora ou botão fecha. Cook confere o que já
+          saiu pra não refazer por engano. */}
+      {historyOpen && (
+        <div
+          className="fixed inset-0 z-[100] bg-ink/60 backdrop-blur-[3px] flex items-end md:items-center justify-center md:p-4 animate-fade-in"
+          onClick={() => setHistoryOpen(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Pedidos prontos hoje"
+        >
+          <div
+            className="w-full md:max-w-lg bg-surface rounded-t-xl md:rounded-xl max-h-[85dvh] flex flex-col animate-sheet-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <header className="flex items-center justify-between p-4 border-b border-line bg-surface-elevated rounded-t-xl">
+              <div>
+                <div className="t-label">Histórico de hoje</div>
+                <h2 className="t-h2">
+                  Prontos{!historyLoading ? ` (${historyOrders.length})` : ""}
+                </h2>
+              </div>
+              <button
+                onClick={() => setHistoryOpen(false)}
+                className="shrink-0 inline-flex items-center justify-center w-11 h-11 -mr-2 rounded-md text-ink-3 hover:text-ink hover:bg-surface-sunken"
+                aria-label="Fechar"
+              >
+                <X size={22} strokeWidth={2.5} />
+              </button>
+            </header>
+
+            <div className="flex-1 overflow-y-auto p-4">
+              {historyLoading ? (
+                <div className="text-center py-12 text-ink-3">Carregando…</div>
+              ) : historyOrders.length === 0 ? (
+                <div className="text-center py-12 text-ink-3">
+                  Nenhum pedido finalizado hoje ainda.
+                </div>
+              ) : (
+                <ul className="flex flex-col gap-2">
+                  {historyOrders.map((o) => {
+                    const finished = new Date(o.updatedAt);
+                    const itemsSummary = o.items
+                      .map((it) => `${it.quantity > 1 ? `${it.quantity}× ` : ""}${it.productName || it.kind}`)
+                      .join(", ");
+                    return (
+                      <li
+                        key={o.id}
+                        className="rounded-md border border-line bg-surface-elevated px-3 py-2.5"
+                      >
+                        <div className="flex items-baseline justify-between gap-2">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="t-num text-xs text-ink-3 tabular-nums shrink-0">
+                              #{String(o.id).padStart(3, "0")}
+                            </span>
+                            <span className="font-bold truncate">{o.clientName}</span>
+                            {o.status === "ENTREGUE" && (
+                              <span className="shrink-0 text-[10px] font-bold uppercase tracking-wide text-status-ready border border-status-ready/40 rounded px-1.5 py-0.5">
+                                entregue
+                              </span>
+                            )}
+                          </div>
+                          <span className="t-num text-xs text-ink-3 tabular-nums shrink-0">
+                            {finished.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                          </span>
+                        </div>
+                        <div className="text-sm text-ink-2 mt-0.5 truncate">{itemsSummary}</div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
           </div>
         </div>
       )}
@@ -1143,7 +1262,7 @@ function TicketItem({
         <Checklist
           all={allToppings}
           selected={item.toppings}
-          mode={isPequeno ? "only-in" : "all"}
+          mode={isPequeno ? "only-in" : "smart"}
           emptyLabel="Sem toppings"
           compact={compact}
         />
@@ -1231,7 +1350,10 @@ function Checklist({
 }: {
   all: string[];
   selected: string[];
-  mode: "all" | "only-in";
+  // "only-in"  → só os que vão (pastel pequeno; sempre poucos)
+  // "smart"    → adapta: maioria vai → mostra "menos X"; minoria → mostra os que vão
+  // "all"      → todos com ✓/✗ (legado, mantido por compat)
+  mode: "all" | "only-in" | "smart";
   emptyLabel: string;
   compact?: boolean;
 }) {
@@ -1245,6 +1367,56 @@ function Checklist({
     return (
       <ul className="flex flex-col gap-1">
         {inItems.map((n) => (
+          <li key={n} className="flex items-center gap-2">
+            <CheckIcon />
+            <span className={`${compact ? "text-sm" : "text-base"} font-bold text-ink`}>{n}</span>
+          </li>
+        ))}
+      </ul>
+    );
+  }
+
+  if (mode === "smart") {
+    // Regra pura em lib/kitchen-display.ts (testada). Aqui só renderiza.
+    const display = summarizeChecklist(all, selected);
+    if (display.kind === "empty") {
+      return <div className="text-sm text-ink-3 italic">{emptyLabel}</div>;
+    }
+    if (display.kind === "all") {
+      return (
+        <div className="flex items-center gap-2">
+          <CheckIcon />
+          <span className={`${compact ? "text-sm" : "text-base"} font-bold text-ink`}>
+            Tudo ({display.total})
+          </span>
+        </div>
+      );
+    }
+    // Maioria vai (faltam poucos) → mostra só os que NÃO vão, em destaque.
+    // "Esquecer de NÃO pôr" é o erro caro (cozinha põe sem querer), então
+    // os "menos X" ganham peso visual — laranja de atenção (não vermelho
+    // sólido, que fica reservado pros modificadores manuais "sem X").
+    if (display.kind === "most-going") {
+      return (
+        <div className="rounded-sm bg-[#FFF4C2] px-2.5 py-1.5">
+          <div className={`${compact ? "text-[10px]" : "t-label"} uppercase tracking-[0.06em] text-[#8a5a00] mb-1`}>
+            Vai tudo, menos:
+          </div>
+          <ul className="flex flex-wrap gap-x-3 gap-y-0.5">
+            {display.missing.map((n) => (
+              <li key={n} className="flex items-center gap-1.5">
+                <X size={compact ? 14 : 16} strokeWidth={3} className="shrink-0 text-brand-orange" />
+                <span className={`${compact ? "text-[13px]" : "text-[15px]"} font-bold text-[#8a5a00]`}>{n}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      );
+    }
+    // Minoria vai → mostra só os que vão (✓)
+    return (
+      <ul className="flex flex-col gap-1">
+        {display.going.map((n) => (
           <li key={n} className="flex items-center gap-2">
             <CheckIcon />
             <span className={`${compact ? "text-sm" : "text-base"} font-bold text-ink`}>{n}</span>

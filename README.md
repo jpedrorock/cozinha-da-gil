@@ -2,7 +2,7 @@
 
 App de pedidos pra barraca da família. Atendente, cozinha e admin em tempo real.
 
-**Stack:** Next.js 14 · TypeScript · Prisma + SQLite · Tailwind · SSE pra real-time · PWA com next-pwa · iron-session pra auth.
+**Stack:** Next.js 15 · React 19 · TypeScript · Prisma + SQLite · Tailwind · SSE pra real-time · PWA com @ducanh2912/next-pwa · iron-session pra auth.
 
 ---
 
@@ -23,7 +23,8 @@ npm run dev                  # localhost:3000
 |---|---|
 | `npm run dev` | dev server com HMR |
 | `npm run build && npm start` | build + servidor de produção |
-| `npm test` | roda os 51 testes do Vitest |
+| `npm test` | roda os 107 testes do Vitest |
+| `npm run smoke` | smoke test pré-evento (DB + admin + servidor + caixa + backup, ~100ms) |
 | `npm run db:seed` | recria produtos/usuários default |
 | `npm run db:studio` | Prisma Studio (browser) |
 | `npx tsx prisma/backfill-fase6.ts` | reaplica backfill se precisar |
@@ -113,7 +114,8 @@ Não dá direto — Next.js precisa de Node. Possível com **Termux** (Android) 
 
 ## Saúde do servidor
 
-`GET /api/health` retorna:
+`GET /api/health` retorna **HTTP 200** se saudável, **HTTP 503** se DB inacessível (Coolify pode reiniciar automaticamente baseado no status). Sem auth — público pra monitor externo pingar.
+
 ```json
 {
   "ok": true,
@@ -121,11 +123,14 @@ Não dá direto — Next.js precisa de Node. Possível com **Termux** (Android) 
   "dbLatencyMs": 1,
   "sse": { "count": 3, "oldestAgeMs": 1234, "maxAgeMs": 21600000 },
   "session": { "id": "...", "name": "Festa Junina", "openedBy": "Gil" },
-  "uptimeSec": 12345
+  "uptimeSec": 12345,
+  "problems": []
 }
 ```
 
 Gil pode bookmarkar no celular dela. Se travar mid-evento, ela abre essa URL pra ver se servidor tá vivo.
+
+**Coolify health check:** aponta pra `/api/health`, intervalo 30s, timeout 5s, retries 3. Se ver 3× 503 consecutivos, restart automático do container.
 
 ---
 
@@ -182,6 +187,7 @@ logs/                   gitignored — append do logger
 
 ## Comandos de evento (cheatsheet pra Gil)
 
-1. **Início do dia:** `pm2 status` (servidor rodando?) → abrir admin → "Abrir caixa" → bookmark `/api/health` no celular
-2. **Durante:** monitorar fila na cozinha + saúde no celular
-3. **Fim:** "Fechar caixa" (backup é automático) → baixar CSV se quiser → `pm2 stop cozinha`
+1. **Antes de subir a barraca:** `npm run smoke` (~100ms) → confere DB, admin, servidor, caixa e backup. Se tudo verde, pode começar; se vermelho, conserta antes do cliente chegar.
+2. **Início do dia:** `pm2 status` (servidor rodando?) → abrir admin → "Abrir caixa" → bookmark `/api/health` no celular
+3. **Durante:** monitorar fila na cozinha + saúde no celular
+4. **Fim:** "Fechar caixa" (backup é automático) → baixar CSV se quiser → `pm2 stop cozinha`
