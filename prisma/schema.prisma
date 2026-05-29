@@ -279,3 +279,15 @@ model BroadcastLog {
   @@index([sentAt])
   @@index([campaignId])
 }
+
+// PaymentConfig — singleton com a config do PIX (Fase 7 #1). Gil preenche
+// pelo admin (Chave + Nome do recebedor + Cidade — campos exigidos pelo
+// BR Code EMV-MPM do PIX). Vazio → QR não aparece no comprovante.
+model PaymentConfig {
+  id           String   @id @default(cuid())
+  pixKey       String?  // CPF/CNPJ/email/telefone/chave aleatória
+  merchantName String?  // max 25 chars no QR (sanitizado pra ASCII no payload)
+  merchantCity String?  // max 15 chars no QR (sanitizado)
+  updatedAt    DateTime @updatedAt
+  updatedBy    String?
+}
