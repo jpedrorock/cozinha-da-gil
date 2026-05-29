@@ -2,8 +2,8 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-05-28
-**Atualizado por:** `claude-pastel`
+**Última atualização:** 2026-05-29
+**Atualizado por:** `claude-pastel` (routine background)
 
 ---
 
@@ -79,6 +79,9 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 ---
 
 ## Histórico recente (últimos 5 dias)
+
+### 2026-05-29
+- **Routine encerrada — sem itens qualificados.** Único item em "Próximos" é a migração Next 14 → 15 (P2, "Confirmar antes" + toca `next.config.mjs`). Itens em "Backlog" estão todos bloqueados: hardware real (impressora), dependência da migração Next 15, ou requerem PR para `next.config.mjs`/`docker-compose.yml`. Aguardando João para: (1) dar ok na migração Next 15, (2) mergear PRs #4 + iconify-sw-cache + docker-health-endpoint.
 
 ### 2026-05-28
 - **Backlog replanejado de novo: 1 item aprovado** (`/planejar` 2º) — migração Next 14 → 15 + `@ducanh2912/next-pwa` [P2, Confirmar antes + PR]. Resolve os 10 vulns do `npm audit` (todos do next-pwa) e desbloqueia fallback offline. Propostos mas não escolhidos: instrumentar latência SSE, doc FASE-6 entregue, bump lucide 1.17 (seguem válidos). Diagnóstico: gaps de teste já fechados; sem TODO/bug real; app 🟢.
