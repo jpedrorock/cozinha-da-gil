@@ -14,6 +14,7 @@ import { PastelIcon, DoceIcon } from "@/components/icons";
 import type { OrderView, OrderItemView } from "@/lib/orders";
 import { SIZE_LABEL } from "@/lib/pricing";
 import { summarizeChecklist } from "@/lib/kitchen-display";
+import { sseDebugEnabled } from "@/lib/sse-debug";
 import type { OrderStatus } from "@prisma/client";
 
 const PREP_TARGET_MIN = 20;
@@ -282,8 +283,10 @@ export function CozinhaClient({
       const order = data as OrderView;
       // [LATÊNCIA] Mede tempo desde createdAt (server) até chegar aqui.
       // Inclui: db commit + serialize + broadcast + rede + parse client.
-      const lagMs = Date.now() - new Date(order.createdAt).getTime();
-      console.log(`[SSE-LAT] cozinha order:created id=${order.id} lag=${lagMs}ms status=${order.status}`);
+      if (sseDebugEnabled()) {
+        const lagMs = Date.now() - new Date(order.createdAt).getTime();
+        console.log(`[SSE-LAT] cozinha order:created id=${order.id} lag=${lagMs}ms status=${order.status}`);
+      }
       if (order.status === "PEDIDO_FEITO" || order.status === "EM_PREPARO") {
         setOrders((prev) => [...prev.filter((o) => o.id !== order.id), order]);
         markArrived(order.id);
@@ -293,8 +296,10 @@ export function CozinhaClient({
     "order:updated": (data) => {
       const raw = data as OrderView & { _editedInPreparation?: boolean };
       const order: OrderView = raw;
-      const lagMs = Date.now() - new Date(order.updatedAt).getTime();
-      console.log(`[SSE-LAT] cozinha order:updated id=${order.id} lag=${lagMs}ms status=${order.status}`);
+      if (sseDebugEnabled()) {
+        const lagMs = Date.now() - new Date(order.updatedAt).getTime();
+        console.log(`[SSE-LAT] cozinha order:updated id=${order.id} lag=${lagMs}ms status=${order.status}`);
+      }
       setOrders((prev) => {
         const without = prev.filter((o) => o.id !== order.id);
         if (order.status === "PEDIDO_FEITO" || order.status === "EM_PREPARO") {
