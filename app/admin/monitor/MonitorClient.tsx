@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, RefreshCw, Wifi, WifiOff } from "lucide-react";
+import { AlertTriangle, ArrowLeft, RefreshCw, Wifi, WifiOff } from "lucide-react";
 import type { OrderView } from "@/lib/orders";
 import type { EventSessionStatus } from "@/lib/event-session-shared";
 import { isStaleEventSession } from "@/lib/event-session-shared";
@@ -154,8 +154,9 @@ export function MonitorClient({
 
       {/* Aviso de caixa stale (aberto >12h) — só se relevante */}
       {sessionStale && (
-        <div className="px-4 py-2 bg-brand-orange/20 text-brand-orange text-xs text-center font-semibold border-b border-brand-orange/40">
-          ⚠ Caixa aberto há muito tempo — talvez esquecido de fechar
+        <div className="px-4 py-2 bg-brand-orange/20 text-brand-orange text-xs font-semibold border-b border-brand-orange/40 flex items-center justify-center gap-1.5">
+          <AlertTriangle size={14} strokeWidth={2.5} className="shrink-0" aria-hidden />
+          Caixa aberto há muito tempo — talvez esquecido de fechar
         </div>
       )}
 

@@ -49,6 +49,12 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ### PWA
 
+### Chore / polish
+
+- [x] **[P3] #chore** Substituir emojis ⚠/🎉 por ícones lucide-react (6.A parcial) [claude-pastel 2026-05-29 background]
+  - Feito: `CozinhaClient.tsx` (×2), `ClientesBroadcast.tsx` (⚠️/🎉), `MonitorClient.tsx` (⚠), `OrderCard.tsx` (⚠), `guide-content.ts` (🏆 text).
+  - Restante da 6.A: auditoria completa pra confirmar que não há outros emoji no codebase.
+
 ---
 
 ## 🔮 Backlog (precisa refinar antes de executar)
@@ -77,6 +83,9 @@ _Itens com critério vago OU bloqueados por dependência externa._
 ---
 
 ## ✅ Concluídos recentemente
+
+### 2026-05-29
+- [claude-pastel 2026-05-29 background] **[P3] Substituição de emojis por ícones lucide-react (6.A parcial)** — `⚠` / `⚠️` em CozinhaClient, ClientesBroadcast, MonitorClient, OrderCard substituídos por `<AlertTriangle>`; `🎉` em ClientesBroadcast virou `<CheckCircle2>`. Texto `🏆` em guide-content.ts normalizado. Lint 0 erros, 163/163 testes.
 
 ### 2026-05-28
 - [claude-pastel 2026-05-28] **[P3] E2E: bypass de bebida** — `e2e/beverage-bypass.spec.ts` (2 testes) cobre a regra `allBebida ? "PRONTO" : "PEDIDO_FEITO"` (`app/api/orders/route.ts`): (1) pedido só de bebida nasce **PRONTO** (pula a cozinha — atendente pega da geladeira); (2) pedido **misto** (pastel + bebida) NÃO bypassa → nasce PEDIDO_FEITO. Via API direta, mesmo padrão robusto do `order-flow.spec.ts`. Caminho tinha perdido cobertura quando o teste de Coca foi trocado por pastel. **E2E 10 → 12** (validado em `npm run dev`; as 4 falhas de `auth.spec.ts` no build de produção são o service worker do next-pwa, não regressão — passam em dev).
