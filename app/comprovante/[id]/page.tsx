@@ -5,7 +5,8 @@ import { ComprovanteClient } from "./ComprovanteClient";
 
 export const dynamic = "force-dynamic";
 
-export default async function ComprovantePage({ params }: { params: { id: string } }) {
+export default async function ComprovantePage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const id = Number.parseInt(params.id, 10);
   if (Number.isNaN(id)) return notFound();
 

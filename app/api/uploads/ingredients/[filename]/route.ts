@@ -16,10 +16,8 @@ export const dynamic = "force-dynamic";
  * Cache-Control: 1 ano + immutable. Troca de imagem = novo hash =
  * URL nova, browser baixa de novo.
  */
-export async function GET(
-  _request: Request,
-  { params }: { params: { filename: string } },
-) {
+export async function GET(_request: Request, props: { params: Promise<{ filename: string }> }) {
+  const params = await props.params;
   const filename = params.filename;
   const image = await readIngredientImage(filename);
   if (!image) {

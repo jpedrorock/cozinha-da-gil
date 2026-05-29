@@ -1,7 +1,12 @@
 # Fase 6 — Cardápio expandido (bebidas, macarrão, combos, promoções)
 
-> Notas pro próximo ciclo. O usuário pediu pra deixar plano pronto.
-> Hoje o app só vende pastel (salgado/doce). Fase 6 abre o cardápio.
+> **Status: ✅ ENTREGUE.** Este doc é o **plano original** da Fase 6, mantido como
+> referência histórica. A fase está implementada: `Product`, `ProductSize`,
+> `Promotion`, `EventSession` e `Customer` estão no `prisma/schema.prisma`; o
+> cardápio é CRUD dirigido por dados (bebida/macarrão/combo/promoção), pricing
+> vem do banco (`computeUnitPrice`), bebida bypassa a cozinha, relatórios são por
+> evento (`EventSession`). Detalhes de implementação divergem do plano em pontos —
+> o código é a fonte de verdade.
 
 ---
 
@@ -124,7 +129,7 @@ A Gil já tem `Ingredient` cadastrado e (eventualmente) histórico de pedidos. M
 3. **Adicionar colunas novas** em `OrderItem`: `productId?`, `productSizeId?`, `productName`, `productType`, `sizeName?`, `ingredients`, `sauces` (mantém `toppings`, `flavor`, `sauces` antigas durante transição)
 4. **Backfill** dos items existentes: copiar `kind → productType`, `size → sizeName`, `toppings → ingredients`, etc. Olhar `productName` por lookup do tipo+tamanho
 5. **Deprecar** colunas antigas em migração futura quando código não usar mais
-6. **Pricing.ts vira dead code** — todo preço sai do banco. Manter como fallback inicial só pra ler legados, depois deletar
+6. **Pricing.ts** — todo preço de venda passou a sair do banco (`computeUnitPrice` em `lib/products.ts`). `lib/pricing.ts` **não virou dead code**: segue vivo pra display/legacy (`formatBRL`, `SIZE_LABEL`, `PRICE.sauce`, `MAX_TOPPINGS_PEQUENO`, tipos `Kind`/`Size`) — coberto por `tests/pricing.test.ts`.
 
 ---
 

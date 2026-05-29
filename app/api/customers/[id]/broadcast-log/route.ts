@@ -14,10 +14,8 @@ export const dynamic = "force-dynamic";
  *
  * Body: { message, campaignId?, operator }
  */
-export async function POST(
-  request: Request,
-  { params }: { params: { id: string } },
-) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const auth = await requireRole(["admin"]);
   if (auth instanceof NextResponse) return auth;
 

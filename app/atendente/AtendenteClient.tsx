@@ -22,6 +22,7 @@ import {
 } from "@/components/icons";
 import { useIdleLogout } from "@/lib/use-idle-logout";
 import { useSSE } from "@/lib/use-sse";
+import { sseDebugEnabled } from "@/lib/sse-debug";
 import { useOperator } from "@/lib/use-operator";
 import type { OrderView } from "@/lib/orders";
 import { isStaleEventSession, type EventSessionStatus } from "@/lib/event-session-shared";
@@ -686,7 +687,9 @@ export function AtendenteClient({
         return;
       }
       const order = (await res.json()) as OrderView;
-      console.log(`[SSE-LAT] atendente ${method} id=${order.id} fetch=${(tResp - tFetch).toFixed(0)}ms`);
+      if (sseDebugEnabled()) {
+        console.log(`[SSE-LAT] atendente ${method} id=${order.id} fetch=${(tResp - tFetch).toFixed(0)}ms`);
+      }
       showToast(
         isEditing
           ? `Pedido #${String(order.id).padStart(3, "0")} atualizado.`

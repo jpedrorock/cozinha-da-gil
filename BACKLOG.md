@@ -28,22 +28,15 @@
 _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 - [ ] **[P1] #chore** Backup automático do `dev.db` no volume Coolify — **PR #4 aberto, aguardando merge** [claude-pastel 2026-05-22]
+- [ ] **[P2] #chore #pwa** Migração Next 14 → 15 + `@ducanh2912/next-pwa` — **PR aberto (branch `claude-pastel/next15-pwa`), aguardando review + teste manual de PWA/SSE em device** [claude-pastel 2026-05-28]
+  - Feito + validado: next 15.5.18, react 19.2.6, fork PWA, codemod async params (14 rotas), override serialize-javascript. tsc/lint/163 testes/build/12 e2e em dev verdes. `fallbacks: /offline` reativado. `npm audit` 10 (9 high) → 3 moderate (postcss interno do Next, build-time, não-bloqueante).
+  - Antes do merge em prod: teste manual da PWA (install/offline/splash) + SSE 3 abas (§4.8 de `docs/UPGRADE-NEXT-15.md`). Rollback: Coolify 1-clique ou `git revert`.
 
 ---
 
 ## ⏭️ Próximos (prontos pra executar)
 
-### Manutenção / infra
-
-- [ ] **[P2] #chore #pwa** Migração Next 14 → 15 + `@ducanh2912/next-pwa` [claude-pastel 2026-05-28]
-  - **Por quê:** os **10 vulns do `npm audit` são todos do `next-pwa@5.6.0`** (workbox desatualizado); a migração resolve segurança e desbloqueia `fallbacks: { document: "/offline" }`. Janela ideal: **sem evento agendado** (STATUS).
-  - **Plano:** `docs/UPGRADE-NEXT-15.md` (14 arquivos afetados, ~3-6h, rollback plan).
-  - **Sub-itens:**
-    - (a) Codemod oficial de `params` async nas 14 rotas `app/api/*/[id]/route.ts` + 1 page.
-    - (b) Trocar `next-pwa@5.6.0` → `@ducanh2912/next-pwa` no `next.config.mjs` (preservar runtimeCaching atual + reativar `fallbacks`).
-    - (c) `npm run build` + e2e **contra `npm run dev`** (auth UI quebra em build prod por SW — ver nota nos módulos) verdes; `npm audit` zerado.
-  - **Pronto quando:** build limpo, e2e 12/12 em dev, `npm audit` sem high/moderate, `/offline` servindo como fallback de navegação.
-  - **Autonomia:** **Confirmar antes** de começar (risco alto) + **Abrir PR** (toca `next.config.mjs` + 14 rotas + deps major). Não mergear sem revisão do João.
+_Vazio — fila zerada. Rodar `/planejar` pra reabastecer._
 
 ### UX / monitoramento
 
@@ -79,6 +72,11 @@ _Itens com critério vago OU bloqueados por dependência externa._
 ## ✅ Concluídos recentemente
 
 ### 2026-05-28
+- [claude-pastel 2026-05-28] **[P3] #chore Limpeza de 20 branches `routine-pastel-*` obsoletas** — a routine de background criava uma branch por run e nunca limpava. Todas tinham commits não-mergeados, mas o trabalho real já estava no `main` por outro caminho (ex: features da `routine-20260527-1611` estão todas no Concluídos de 27/05) — superseded, não perdido. Confirmado com João antes (op destrutiva em refs não-mergeados). `git push -d` nas 20; origin ficou só com `main` + 4 feature branches.
+- [claude-pastel 2026-05-28] **[P2] Security review do PR #23 (migração Next 15)** — skill `security-review` no diff completo (deps major + 14 rotas async params + PWA config + sse-debug). **Nenhuma vuln nova introduzida** (confiança: sub-task de identificação retornou zero candidatos). Async params é byte-a-byte idêntico downstream (validação + `requireRole` intactos); path-traversal dos uploads é pré-existente (lib/uploads.ts não está no diff); regra de cache PWA só mudou de lugar; `sseDebugEnabled` só lê localStorage. Safe to merge.
+- [claude-pastel 2026-05-28] **[P3] #chore Gate logs `[SSE-LAT]` do client** — a instrumentação de latência SSE **já existia** (mede lag createdAt→cozinha + tempo de fetch no atendente), mas era `console.log` cru sempre-ligado → spammava o console do navegador em prod. Novo `lib/sse-debug.ts` (`sseDebugEnabled()` via `localStorage["pdg:sse-debug"]`); os 3 logs do client (CozinhaClient x2, AtendenteClient x1) agora são opt-in. Logs server-side (`orders/route.ts`, `lib/sse.ts`) ficam — são stdout/telemetria de ops, não spam. Feito no PR #23 pra não divergir.
+- [claude-pastel 2026-05-28] **[P3] #chore Bump `lucide-react` 1.16 → 1.17** — único minor seguro disponível. Feito no PR #23 (evita conflito de `package.json`). tsc/lint/163 testes/build verdes.
+- [claude-pastel 2026-05-28] **[P3] #docs Marcar `FASE-6.md` como entregue** — banner "✅ ENTREGUE" no topo (Fase 6 está no schema: Product/ProductSize/Promotion/EventSession/Customer + CRUD dirigido por dados + pricing do banco + bebida bypass + relatórios por evento) e corrigida a nota "pricing.ts vira dead code" (não é — `formatBRL`/`SIZE_LABEL`/`PRICE`/`MAX_TOPPINGS_PEQUENO` seguem usados, cobertos por `tests/pricing.test.ts`). Doc-only. Feito na branch da migração (`claude-pastel/next15-pwa`) pra não divergir do PR #23.
 - [claude-pastel 2026-05-28] **[P3] E2E: bypass de bebida** — `e2e/beverage-bypass.spec.ts` (2 testes) cobre a regra `allBebida ? "PRONTO" : "PEDIDO_FEITO"` (`app/api/orders/route.ts`): (1) pedido só de bebida nasce **PRONTO** (pula a cozinha — atendente pega da geladeira); (2) pedido **misto** (pastel + bebida) NÃO bypassa → nasce PEDIDO_FEITO. Via API direta, mesmo padrão robusto do `order-flow.spec.ts`. Caminho tinha perdido cobertura quando o teste de Coca foi trocado por pastel. **E2E 10 → 12** (validado em `npm run dev`; as 4 falhas de `auth.spec.ts` no build de produção são o service worker do next-pwa, não regressão — passam em dev).
 - [claude-pastel 2026-05-28] **[P2] Cobertura de testes pra libs puras (hardening)** — 4 novos arquivos, suite 125 → **163** (+38). `tests/event-session-shared.test.ts` (10): `isStaleEventSession` com fake timers — limite 12h exato (>=), 11h/13h, string ISO vs Date, data inválida, futuro, `staleHours` custom. `tests/idempotency.test.ts` (13): roundtrip set/get, miss, expiração TTL 10min (fake timers via `setSystemTime`), preserva status de erro, `isValidIdempotencyKey` (16–64 chars, UUID, regex). `tests/ingredient-i18n.test.ts` (12): `translateForIconSearch` case/acent-insensitive, frase inteira vs palavra-a-palavra, fallback raw, `ICON_CATEGORIES`. `tests/pricing.test.ts` (8): `formatBRL` (normaliza NBSP/NNBSP do Intl), separador de milhar, negativo, `SIZE_LABEL`/`PRICE`/`MAX_TOPPINGS_PEQUENO`. tsc + eslint limpos.
 

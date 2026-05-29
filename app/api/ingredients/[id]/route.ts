@@ -25,10 +25,8 @@ function asNullableInt(v: unknown): number | null | undefined {
   return Math.max(0, Math.floor(n));
 }
 
-export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } },
-) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const auth = await requireRole(["admin"]);
   if (auth instanceof NextResponse) return auth;
 
@@ -177,10 +175,8 @@ export async function PATCH(
  * Por segurança, deleta também o arquivo de upload se houver.
  * Retorna 404 se já não existe (idempotente).
  */
-export async function DELETE(
-  _request: Request,
-  { params }: { params: { id: string } },
-) {
+export async function DELETE(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const auth = await requireRole(["admin"]);
   if (auth instanceof NextResponse) return auth;
 
