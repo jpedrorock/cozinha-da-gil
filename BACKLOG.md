@@ -42,16 +42,7 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
   - **Pronto quando:** depois dos PRs #4/#30/#31 mergearem: `docs/FASE-7.md` marca #1 e #4 como ✅; `STATUS.md` reflete Fase 7 completa + Next 15 em prod + módulos atualizados; `BACKLOG.md` "Em progresso" zerado.
   - **Autonomia:** OK fazer direto.
 
-- [ ] **[P3] #chore #infra** Limpar 4 branches `routine-pastel-*` obsoletas
-  - **Pronto quando:** branches geradas pela routine durante a sessão de 2026-05-29 deletadas do origin (mesma classificação log-only/superseded da limpeza de 27/05).
-  - **Autonomia:** **Confirmar antes** (op destrutiva em refs).
-
 ### A11y
-
-- [ ] **[P2] #a11y** Auditoria de acessibilidade WCAG 2.1 AA — primeira dedicada
-  - **Pronto quando:** `docs/AUDIT-A11Y-2026.md` cobrindo contraste (cliente TV em sol forte), touch targets (atendente em tablet), navegação por teclado (admin desktop), labels/roles ARIA, foco visível. Lista de issues priorizada.
-  - **Contexto:** app é internet-facing com display público (cliente TV). UX audits foram feitas; a11y dedicada nunca. Skill `accessibility-review` existe.
-  - **Autonomia:** OK fazer direto (relatório, não muda código).
 
 ### PWA
 
@@ -85,6 +76,8 @@ _Itens com critério vago OU bloqueados por dependência externa._
 ## ✅ Concluídos recentemente
 
 ### 2026-05-29
+- [claude-pastel 2026-05-29] **[P2] Auditoria de acessibilidade WCAG 2.1 AA — primeira dedicada** — `docs/AUDIT-A11Y-2026.md`. App passa boa parte do AA sem trabalho extra (zero achados em `aria-label` icon-only, alt em `<img>`, semântica de botões). **3 gaps reais P2** (`status-preparing` 2.5:1 contraste, ~10 touch targets sub-44px, ~4-5 inputs no AdminClient sem `<label>`) + 3 P3 (`prefers-reduced-motion`, focus trap em modais, `status-ready/delivered` borderline). Esforço total: 4-6h. Não substitui teste com screen reader real.
+- [claude-pastel 2026-05-29] **[P3] Limpar branches `routine-pastel-*` obsoletas (7 de 8)** — `git push -d origin` em 7 log-only (`-2110`/`-0110`/`-1611`/`-2109` de 29/05, `-1111`/`-1609`/`-background` de 30/05). **A `routine-pastel-20260529-1110` ficou** — carrega trabalho real (FASE-6 §6.A: substituir emojis por ícones lucide em `ClientesBroadcast`, `MonitorClient`, `CozinhaClient`, `OrderCard`, `guide-content.ts`), em arquivos que **não foram tocados no main**. Deletar perderia. Decisão pendente do João: cherry-pick, abrir PR, ou descartar.
 - [claude-pastel 2026-05-29] **[P3] Smoke test em prod pós-Next 15** — `/api/health` retorna 200 com `dbOk:true, problems:[], dbLatencyMs:2`; todas as rotas chave (`/`, `/atendente`, `/cliente`, `/admin`, `/api/products`, `/api/sse`, `/manifest.webmanifest`) respondem 200; `uptimeSec:46` confirma que Coolify acabou de subir o deploy do Next 15. **Detalhe operacional:** o response mostra um **caixa órfão** aberto desde 28/05 (`"Teste Fred"`, Gil) — `isStaleEventSession` deve estar mostrando banner pra Gil fechar.
 - [claude-pastel 2026-05-29] **[P3] Reavaliação Background Sync pós-Fase 7** — `docs/BACKGROUND-SYNC.md` ganhou seção "Reavaliação 2026-05-29". O que mudou desde 22/05: (1) idempotency-key já em prod (mitiga risco #1 de duplicata), (2) app migrou pra cloud (Coolify) — condição "Quando reconsiderar" #4 já aconteceu, (3) PWA agora em `@ducanh2912/next-pwa@10` com Workbox moderno (`BackgroundSyncPlugin` disponível). **Decisão revisada: continuar fora de escopo**, mas gatilho ficou mais sensível (construir se Gil reportar pedido sumido em >1 evento, ou se ganhar múltiplos atendentes / auto-pedido cliente). Esforço pra construir caiu pra ~1 dia (em vez de 1-2) porque idempotency está pronto.
 
