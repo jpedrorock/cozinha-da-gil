@@ -2,8 +2,8 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-05-29
-**Atualizado por:** `claude-pastel`
+**Última atualização:** 2026-05-30
+**Atualizado por:** `claude-pastel` (background routine)
 
 ---
 
@@ -13,6 +13,7 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## O que rolou desde a última sessão
 
+- **Routine background 2026-05-30:** bookkeeping parcial — BACKLOG "Em progresso" limpo (Next 15 / PR #23 movido pra Concluídos); STATUS métricas atualizadas (179/179 testes, Next 15 em main); FASE-7.md itens 3 e 5 marcados ✅; PR #26 (emoji→lucide) registrado em bloqueios. Aguarda merge de PRs #4/#30/#31 pra fechar bookkeeping completo.
 - Auditoria UX crítica (4º pass) — Fases A (5/5 críticos), B (9/14 importantes), C (4/5 polish + a11y) shipped em 18 commits
 - Follow-ups do audit externo: preview comprovante 80mm, atalhos teclado cozinha, áudio escalonado, PDF com delta vs período anterior, TV breathe intermitente
 - Página `/guia` criada — manual por papel (atendente/cozinha/admin/geral) com tabs, busca, accordion, hero gradient, steps numerados, callouts. Reescrito 2x: primeiro inspirado no `Help.tsx` do cultivo-server, depois sem jargão técnico pra família ler
@@ -28,15 +29,18 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 ## Bloqueios ativos
 
 - **PR #4 aguardando merge** — backup automático do dev.db. Implementação testada local; precisa review + merge do João pra subir pra Coolify.
-- **2 PRs abertas pendentes review** (P3): `claude-pastel/iconify-sw-cache` + `claude-pastel/docker-health-endpoint`.
+- **PR #30 aguardando merge** — Config PIX + QR no comprovante (Fase 7 #1). Validado: tsc/lint/192 testes/build OK.
+- **PR #31 aguardando merge** — WhatsApp "tá pronto" auto-surface (Fase 7 #4). Validado: tsc/lint/179 testes/build OK.
+- **PR #26 aguardando merge/decisão** — Substituição de emojis por ícones `lucide-react` (6.A parcial, branch `routine-pastel-20260529-1110`). Itens afetados: `CozinhaClient`, `ClientesBroadcast`, `MonitorClient`, `OrderCard`, `guide-content.ts`. Decisão pendente do João: mergear, cherry-pick, ou descartar.
+- **2 PRs antigas pendentes review** (P3): `claude-pastel/iconify-sw-cache` + `claude-pastel/docker-health-endpoint`.
 
 ## Próximo passo recomendado
 
-**Fase 7 fechada (5/5)** — 3 itens mergeados (#23 Next 15 já no main, #28 troco, #29 comparativo), 3 PRs aguardando merge (**#4 backup desconflictado**, **#30 PIX**, **#31 WhatsApp auto-surface**), e #5 "Acabou" já existia. Coolify deployou Next 15 em prod na sessão de 29/05.
+**Fase 7 bloqueada em PRs** — 3 itens mergeados (#23 Next 15, #28 troco, #29 comparativo), 3 PRs aguardando merge (#4 backup, #30 PIX, #31 WhatsApp) + PR #26 (emoji→lucide, decisão pendente).
 
-João: (1) mergear **#4 + #30 + #31** (todos validados: tsc/lint/testes/build); (2) **configurar chave PIX** (admin → Caixa → "Pagamento (PIX)") — 1 vez só; (3) **teste manual da PWA no celular** (install/offline/splash) agora que Next 15 está em prod; rollback Coolify 1-clique se algo quebrar.
+João: (1) mergear **#4 + #30 + #31** (todos validados: tsc/lint/testes/build); (2) **decidir PR #26** (emoji→lucide: mergear ou descartar); (3) **configurar chave PIX** (admin → Caixa → "Pagamento (PIX)") após #30 mergear; (4) **teste manual da PWA no celular** (install/offline/splash) — Next 15 está em prod desde 29/05.
 
-BACKLOG "Próximos" reabastecido com **5 itens de manutenção pós-Fase 7** (replan 2026-05-29): bookkeeping, smoke prod, limpar 4 routine-* novas, auditoria a11y dedicada, reavaliar Background Sync.
+Após os merges: routine background pode fechar o bookkeeping (FASE-7.md itens #1/#4 como ✅, "Em progresso" zerado).
 
 ---
 
@@ -71,13 +75,13 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 
 ## Métricas vivas
 
-- Tests passando: **163/163** ✅
+- Tests passando: **179/179** ✅ (163 base + 9 troco + 7 comparativo — atualizados pós-merge #28/#29)
 - Type-check: **ok** ✅
 - ESLint: **0 erros** ✅ (check ativo no build)
 - DB schema: **sincronizado** ✅ (imageUrl adicionado)
 - PWA: **instalável** ✅ (iOS Safari + Android Chrome)
-- Vulns npm audit: **3 moderate** (postcss interno do Next, build-time) na branch Next 15 — era 10 (9 high) no main Next 14. PR aberto.
-- Next/React: **15.5.18 / 19.2.6** na branch `claude-pastel/next15-pwa` (main ainda 14.2.35 até merge)
+- Vulns npm audit: **3 moderate** (postcss interno do Next, build-time — não-bloqueante)
+- Next/React: **15.5.18 / 19.2.6** ✅ (PR #23 mergeado — main em Next 15 desde 2026-05-29)
 
 ---
 

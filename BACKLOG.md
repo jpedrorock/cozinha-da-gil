@@ -28,9 +28,9 @@
 _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 - [ ] **[P1] #chore** Backup automático do `dev.db` no volume Coolify — **PR #4 aberto, aguardando merge** [claude-pastel 2026-05-22]
-- [ ] **[P2] #chore #pwa** Migração Next 14 → 15 + `@ducanh2912/next-pwa` — **PR aberto (branch `claude-pastel/next15-pwa`), aguardando review + teste manual de PWA/SSE em device** [claude-pastel 2026-05-28]
-  - Feito + validado: next 15.5.18, react 19.2.6, fork PWA, codemod async params (14 rotas), override serialize-javascript. tsc/lint/163 testes/build/12 e2e em dev verdes. `fallbacks: /offline` reativado. `npm audit` 10 (9 high) → 3 moderate (postcss interno do Next, build-time, não-bloqueante).
-  - Antes do merge em prod: teste manual da PWA (install/offline/splash) + SSE 3 abas (§4.8 de `docs/UPGRADE-NEXT-15.md`). Rollback: Coolify 1-clique ou `git revert`.
+- [ ] **[P3] #chore #docs** Bookkeeping pós-merge de Fase 7 [claude-pastel 2026-05-30 background]
+  - **Em andamento (parcial):** Next 15 removido de "Em progresso" (PR #23 mergeado em main). STATUS métricas corrigidas. FASE-7.md itens 3 e 5 marcados ✅. PR #26 registrado em bloqueios.
+  - **Bloqueado:** zeragem de "Em progresso" e FASE-7.md #1/#4 aguardam merge dos PRs #4/#30/#31.
 
 ---
 
@@ -38,9 +38,7 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ### Pós-Fase 7 — manutenção
 
-- [ ] **[P3] #chore #docs** Bookkeeping pós-merge de Fase 7
-  - **Pronto quando:** depois dos PRs #4/#30/#31 mergearem: `docs/FASE-7.md` marca #1 e #4 como ✅; `STATUS.md` reflete Fase 7 completa + Next 15 em prod + módulos atualizados; `BACKLOG.md` "Em progresso" zerado.
-  - **Autonomia:** OK fazer direto.
+- _(item movido para "Em progresso" — veja acima)_
 
 ### A11y
 
@@ -76,6 +74,7 @@ _Itens com critério vago OU bloqueados por dependência externa._
 ## ✅ Concluídos recentemente
 
 ### 2026-05-29
+- [claude-pastel 2026-05-29] **[P2] #chore #pwa Migração Next 14 → 15 + `@ducanh2912/next-pwa`** — **Mergeada no main (PR #23) + Coolify deployou em prod.** next 15.5.18, react 19.2.6, fork PWA, codemod async params (14 rotas), override serialize-javascript. `fallbacks: /offline` reativado. `npm audit` 10 (9 high) → 3 moderate. tsc/lint/163 testes/build/12 e2e em dev verdes.
 - [claude-pastel 2026-05-29] **[P2] Auditoria de acessibilidade WCAG 2.1 AA — primeira dedicada** — `docs/AUDIT-A11Y-2026.md`. App passa boa parte do AA sem trabalho extra (zero achados em `aria-label` icon-only, alt em `<img>`, semântica de botões). **3 gaps reais P2** (`status-preparing` 2.5:1 contraste, ~10 touch targets sub-44px, ~4-5 inputs no AdminClient sem `<label>`) + 3 P3 (`prefers-reduced-motion`, focus trap em modais, `status-ready/delivered` borderline). Esforço total: 4-6h. Não substitui teste com screen reader real.
 - [claude-pastel 2026-05-29] **[P3] Limpar branches `routine-pastel-*` obsoletas (7 de 8)** — `git push -d origin` em 7 log-only (`-2110`/`-0110`/`-1611`/`-2109` de 29/05, `-1111`/`-1609`/`-background` de 30/05). **A `routine-pastel-20260529-1110` ficou** — carrega trabalho real (FASE-6 §6.A: substituir emojis por ícones lucide em `ClientesBroadcast`, `MonitorClient`, `CozinhaClient`, `OrderCard`, `guide-content.ts`), em arquivos que **não foram tocados no main**. Deletar perderia. Decisão pendente do João: cherry-pick, abrir PR, ou descartar.
 - [claude-pastel 2026-05-29] **[P3] Smoke test em prod pós-Next 15** — `/api/health` retorna 200 com `dbOk:true, problems:[], dbLatencyMs:2`; todas as rotas chave (`/`, `/atendente`, `/cliente`, `/admin`, `/api/products`, `/api/sse`, `/manifest.webmanifest`) respondem 200; `uptimeSec:46` confirma que Coolify acabou de subir o deploy do Next 15. **Detalhe operacional:** o response mostra um **caixa órfão** aberto desde 28/05 (`"Teste Fred"`, Gil) — `isStaleEventSession` deve estar mostrando banner pra Gil fechar.

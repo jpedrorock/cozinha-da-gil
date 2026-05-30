@@ -1,10 +1,9 @@
 # Fase 7 — Pagamento (PIX), dashboard de eventos e conveniências de operação
 
-> **Status:** roadmap. 5 features escolhidas pelo João + **decisões travadas em 2026-05-28**.
-> **Quando construir:** depois que o PR #23 (migração Next 15) mergear — evita divergência de
-> STATUS/BACKLOG e garante async-params em rotas novas. **Exceção:** a calculadora de troco é
-> 100% client, pode ir isolada a qualquer momento.
-> **Como:** cada feature vira PR própria (não empilhar tudo num PR só).
+> **Status:** 3/5 mergeados em prod · 2 PRs aguardando merge.
+> - ✅ #2 Troco (PR #28 mergeado) · ✅ #3 Comparativo (PR #29 mergeado) · ✅ #5 "Acabou" (já existia, verificado 29/05)
+> - ⏳ #1 PIX (PR #30 aberto) · ⏳ #4 WhatsApp auto-surface (PR #31 aberto)
+> - PR #23 (Next 15) mergeado e em prod desde 2026-05-29.
 
 ---
 
@@ -23,8 +22,9 @@
 - **Como:** bottom-sheet de **uma mão só** — numpad grande (reusa o teclado do PIN), digita "recebi R$" + total → mostra o troco. Standalone (funciona sem pedido aberto).
 - **Escopo:** puro client, sem API, sem schema. **Pode ser feita já**, independente do PR #23.
 
-## 3. Comparativo entre eventos (admin)
+## 3. Comparativo entre eventos (admin) — ✅ FEITA (PR #29 `claude-pastel/comparativo-eventos`)
 
+- **Entregue:** sub-aba "Comparativo" no admin Vendas — card por `EventSession` (faturamento, pedidos, ticket médio, hora de pico, topping campeão). Comparação lado a lado. Read-only, sem schema novo.
 - **Como:** nova sub-aba no admin Vendas: card por `EventSession` (faturamento, nº pedidos, ticket médio) + **hora de pico** + **topping campeão do evento**. Comparação lado a lado.
 - **Escopo:** read-only, reusa a agregação existente. Sem schema. Endpoint estático novo (sem `[id]` → sem questão de async-params).
 
@@ -34,8 +34,9 @@
 - **Como:** reusa `notify-ready` + CRM + template já existentes. Só dispara se o cliente tiver telefone cadastrado.
 - **Fora de escopo:** envio 100% sem toque exigiria WhatsApp Business + Cloud API (conta paga + template aprovado) — overkill pra barraca.
 
-## 5. "Acabou" — propagação ao vivo (admin marca)
+## 5. "Acabou" — propagação ao vivo (admin marca) — ✅ JÁ EXISTIA
 
+- **Verificado 2026-05-29:** toggle "esgotou" do admin já propagava via SSE (`ingredient:updated` broadcast → atendente aplica `available` ao vivo, chip fica cinza na hora, sem refresh). Nada a implementar.
 - **Decisão travada:** **só admin marca** esgotado (mantém restrito ao Cardápio). O atendente **não** ganha o toggle.
 - **Logo a feature encolheu:** garantir que o toggle "esgotou" do admin **propague AO VIVO via SSE** pro atendente (chip fica cinza na hora, sem refresh).
 - **Próximo passo:** **verificar primeiro** se já propaga ao vivo. Se sim → item já está pronto, nada a fazer. Se não → adicionar broadcast SSE de disponibilidade de ingrediente (PR — toca SSE, roda e2e).
