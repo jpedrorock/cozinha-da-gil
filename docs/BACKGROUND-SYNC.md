@@ -59,6 +59,33 @@ A mensagem "Sem conexão. Tente de novo" — já implementada — funciona bem n
 
 Nesses casos, vale o investimento.
 
+---
+
+## Reavaliação 2026-05-29 — pós Next 15 + Fase 7
+
+O cenário mudou desde a decisão original (22/05). Atualizando o tradeoff:
+
+**O que melhorou:**
+- ✅ **Idempotency key já está em produção** (Fase1-#20, ver `lib/idempotency.ts` + `tests/idempotency.test.ts`). O risco #1 da decisão original (pedido duplicado) está **mitigado no backend**: cliente manda `Idempotency-Key`, servidor dedupea em janela de 10min. A pré-condição §1 deste doc está cumprida.
+- ✅ **App agora roda em cloud** (`cozinhadagil.evapro.cloud` via Coolify). A condição "Migração pra cloud" da seção "Quando reconsiderar" **já aconteceu** — mais latência, mais janelas de falha de rede.
+- ✅ **PWA migrou pro fork `@ducanh2912/next-pwa@10` + Workbox moderno** (PR #23 mergeado). `BackgroundSyncPlugin` está disponível e estável (antes era next-pwa@5.6 stale).
+
+**O que continua valendo do contra:**
+- Timestamps: `createdAt` é gerado no server. Sem `clientCreatedAt`, fila offline confunde histórico/ordenação. Trabalho pendente.
+- UI "enfileirado offline": precisa indicador claro pra atendente não chamar o cliente antes do request sair de fato. Trabalho pendente.
+- Pra operação atual (1 atendente, 1 cozinha, wifi local de barraca), os outages reais hoje são raros (segundos, auto-reconnect).
+
+**Decisão revisada: continuar fora de escopo, mas o gatilho ficou mais sensível.**
+
+Construir quando algum desses ocorrer:
+- Gil reportar "perdi um pedido" / "sumiu" / "confirmei e não chegou na cozinha" em **mais de 1 evento**.
+- App ganhar **múltiplos atendentes simultâneos** (raio de wifi maior, instabilidade local maior).
+- App ganhar fluxo de **auto-pedido pelo celular do cliente** (variabilidade muito maior de rede).
+
+Esforço estimado quando for a hora (atualizado): **~1 dia** (em vez de 1-2), porque idempotency já está pronto. Falta só `clientCreatedAt` no schema + plugin no `workboxOptions.runtimeCaching` (POST `/api/orders` — `NetworkOnly + BackgroundSyncPlugin`) + UI de fila.
+
+---
+
 ## Como implementar quando for hora
 
 ### 1. Idempotency key no POST `/api/orders`

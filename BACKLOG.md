@@ -42,11 +42,6 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
   - **Pronto quando:** depois dos PRs #4/#30/#31 mergearem: `docs/FASE-7.md` marca #1 e #4 como ✅; `STATUS.md` reflete Fase 7 completa + Next 15 em prod + módulos atualizados; `BACKLOG.md` "Em progresso" zerado.
   - **Autonomia:** OK fazer direto.
 
-- [ ] **[P3] #chore** Smoke test em prod pós-Next 15
-  - **Pronto quando:** `curl https://cozinhadagil.evapro.cloud/api/health` retorna 200 + `dbOk:true`; login admin via API funciona; logs do Coolify pós-deploy sem erros novos.
-  - **Contexto:** Coolify deployou Next 15 em 2026-05-29. Read-only, só confirma que rodou.
-  - **Autonomia:** OK fazer direto.
-
 - [ ] **[P3] #chore #infra** Limpar 4 branches `routine-pastel-*` obsoletas
   - **Pronto quando:** branches geradas pela routine durante a sessão de 2026-05-29 deletadas do origin (mesma classificação log-only/superseded da limpeza de 27/05).
   - **Autonomia:** **Confirmar antes** (op destrutiva em refs).
@@ -59,11 +54,6 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
   - **Autonomia:** OK fazer direto (relatório, não muda código).
 
 ### PWA
-
-- [ ] **[P3] #pwa** Reavaliar Background Sync offline (decisão, não build)
-  - **Pronto quando:** `docs/BACKGROUND-SYNC.md` atualizado com pros/contras revistos: Next 15 + fork PWA + idempotency-key consolidada vs risco de pedido duplicado. Decisão registrada: construir / continuar fora de escopo / construir parcialmente.
-  - **Contexto:** doc decidiu "fora de escopo" em 2026-05-22 por risco. Cenário mudou pós-migração.
-  - **Autonomia:** OK fazer direto (atualiza só o doc, não constrói).
 
 ---
 
@@ -93,6 +83,10 @@ _Itens com critério vago OU bloqueados por dependência externa._
 ---
 
 ## ✅ Concluídos recentemente
+
+### 2026-05-29
+- [claude-pastel 2026-05-29] **[P3] Smoke test em prod pós-Next 15** — `/api/health` retorna 200 com `dbOk:true, problems:[], dbLatencyMs:2`; todas as rotas chave (`/`, `/atendente`, `/cliente`, `/admin`, `/api/products`, `/api/sse`, `/manifest.webmanifest`) respondem 200; `uptimeSec:46` confirma que Coolify acabou de subir o deploy do Next 15. **Detalhe operacional:** o response mostra um **caixa órfão** aberto desde 28/05 (`"Teste Fred"`, Gil) — `isStaleEventSession` deve estar mostrando banner pra Gil fechar.
+- [claude-pastel 2026-05-29] **[P3] Reavaliação Background Sync pós-Fase 7** — `docs/BACKGROUND-SYNC.md` ganhou seção "Reavaliação 2026-05-29". O que mudou desde 22/05: (1) idempotency-key já em prod (mitiga risco #1 de duplicata), (2) app migrou pra cloud (Coolify) — condição "Quando reconsiderar" #4 já aconteceu, (3) PWA agora em `@ducanh2912/next-pwa@10` com Workbox moderno (`BackgroundSyncPlugin` disponível). **Decisão revisada: continuar fora de escopo**, mas gatilho ficou mais sensível (construir se Gil reportar pedido sumido em >1 evento, ou se ganhar múltiplos atendentes / auto-pedido cliente). Esforço pra construir caiu pra ~1 dia (em vez de 1-2) porque idempotency está pronto.
 
 ### 2026-05-28
 - [claude-pastel 2026-05-28] **[P3] #chore Limpeza de 20 branches `routine-pastel-*` obsoletas** — a routine de background criava uma branch por run e nunca limpava. Todas tinham commits não-mergeados, mas o trabalho real já estava no `main` por outro caminho (ex: features da `routine-20260527-1611` estão todas no Concluídos de 27/05) — superseded, não perdido. Confirmado com João antes (op destrutiva em refs não-mergeados). `git push -d` nas 20; origin ficou só com `main` + 4 feature branches.
