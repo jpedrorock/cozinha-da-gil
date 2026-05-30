@@ -2,7 +2,7 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-05-28
+**Última atualização:** 2026-05-29
 **Atualizado por:** `claude-pastel`
 
 ---
@@ -32,11 +32,11 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## Próximo passo recomendado
 
-**Migração Next 15 + next-pwa EXECUTADA** na branch `claude-pastel/next15-pwa` — validada (tsc/lint/163 testes/build/12 e2e em dev). **PR aberto, aguardando review.**
+**Fase 7 fechada (5/5)** — 3 itens mergeados (#23 Next 15 já no main, #28 troco, #29 comparativo), 3 PRs aguardando merge (**#4 backup desconflictado**, **#30 PIX**, **#31 WhatsApp auto-surface**), e #5 "Acabou" já existia. Coolify deployou Next 15 em prod na sessão de 29/05.
 
-João, antes de mergear em prod: (1) **teste manual da PWA** — instalar no celular, abrir offline, ver splash/cache/fallback `/offline`; SSE em 3 abas (§4.8 do doc); (2) confirmar `dev.db` com backup (PR #4). Depois: mergear → Coolify rebuilda → smoke test em prod.
+João: (1) mergear **#4 + #30 + #31** (todos validados: tsc/lint/testes/build); (2) **configurar chave PIX** (admin → Caixa → "Pagamento (PIX)") — 1 vez só; (3) **teste manual da PWA no celular** (install/offline/splash) agora que Next 15 está em prod; rollback Coolify 1-clique se algo quebrar.
 
-Outros pendentes do João: mergear PR #4 (backup) + 2 PRs P3 (iconify-sw-cache, docker-health-endpoint); **Redeploy Coolify** pros 5 ajustes de UX + testes que já estão no `main`.
+BACKLOG "Próximos" reabastecido com **5 itens de manutenção pós-Fase 7** (replan 2026-05-29): bookkeeping, smoke prod, limpar 4 routine-* novas, auditoria a11y dedicada, reavaliar Background Sync.
 
 ---
 
@@ -82,6 +82,12 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 ---
 
 ## Histórico recente (últimos 5 dias)
+
+### 2026-05-29
+- **Backlog replanejado: 5 novos itens aprovados** (`/planejar`) — bookkeeping pós-merge, smoke test prod pós-Next 15, limpar 4 branches routine-* novas, **auditoria a11y WCAG dedicada (P2)** e reavaliar Background Sync. Detalhes no BACKLOG.
+- **Fase 7 fechada (5/5)** — sessão maratona: (1) mergei #23 Next 15, #28 troco, #29 comparativo no main; (2) construí o **#1 PIX (PR #30)** — schema `PaymentConfig`, `lib/pix.ts` (BR Code EMV-MPM + CRC16 + 13 testes), endpoints `/api/settings/payment`, card admin `PagamentoSettings`, `<PixCheckout>` no comprovante com QR offline + copia-e-cola; (3) construí o **#4 WhatsApp auto-surface (PR #31)** — banner fixed-bottom 1-toque quando vira PRONTO + tem telefone, reusa `notifyReady()` existente; (4) **destravei PR #4** (backup dev.db) — conflito só em `next.config.mjs` (flag `instrumentationHook` virou obsoleto no Next 15); (5) **#5 "Acabou"** verificado — já existia (PATCH ingrediente → broadcast `ingredient:updated` → atendente aplica `available` ao vivo).
+- **Coolify deployou Next 15 em prod** (auto-deploy após merge do #23). Pendente: teste manual de PWA no celular (rollback 1-clique se necessário).
+- Testes neste branch (whatsapp-pronto): 179/179. Suite cresce conforme PRs mergeiam (PR #30 adiciona +13 do PIX).
 
 ### 2026-05-28
 - **[P2] Security review do PR #23** — skill `security-review` no diff da migração: **nenhuma vuln nova** (async params idêntico downstream + auth intacta; path-traversal dos uploads é pré-existente; cache PWA só mudou de lugar; sse-debug só lê localStorage). Safe to merge.

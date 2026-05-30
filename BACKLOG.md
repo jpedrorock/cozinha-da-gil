@@ -36,11 +36,34 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ## ⏭️ Próximos (prontos pra executar)
 
-_Vazio — fila zerada. Rodar `/planejar` pra reabastecer._
+### Pós-Fase 7 — manutenção
 
-### UX / monitoramento
+- [ ] **[P3] #chore #docs** Bookkeeping pós-merge de Fase 7
+  - **Pronto quando:** depois dos PRs #4/#30/#31 mergearem: `docs/FASE-7.md` marca #1 e #4 como ✅; `STATUS.md` reflete Fase 7 completa + Next 15 em prod + módulos atualizados; `BACKLOG.md` "Em progresso" zerado.
+  - **Autonomia:** OK fazer direto.
+
+- [ ] **[P3] #chore** Smoke test em prod pós-Next 15
+  - **Pronto quando:** `curl https://cozinhadagil.evapro.cloud/api/health` retorna 200 + `dbOk:true`; login admin via API funciona; logs do Coolify pós-deploy sem erros novos.
+  - **Contexto:** Coolify deployou Next 15 em 2026-05-29. Read-only, só confirma que rodou.
+  - **Autonomia:** OK fazer direto.
+
+- [ ] **[P3] #chore #infra** Limpar 4 branches `routine-pastel-*` obsoletas
+  - **Pronto quando:** branches geradas pela routine durante a sessão de 2026-05-29 deletadas do origin (mesma classificação log-only/superseded da limpeza de 27/05).
+  - **Autonomia:** **Confirmar antes** (op destrutiva em refs).
+
+### A11y
+
+- [ ] **[P2] #a11y** Auditoria de acessibilidade WCAG 2.1 AA — primeira dedicada
+  - **Pronto quando:** `docs/AUDIT-A11Y-2026.md` cobrindo contraste (cliente TV em sol forte), touch targets (atendente em tablet), navegação por teclado (admin desktop), labels/roles ARIA, foco visível. Lista de issues priorizada.
+  - **Contexto:** app é internet-facing com display público (cliente TV). UX audits foram feitas; a11y dedicada nunca. Skill `accessibility-review` existe.
+  - **Autonomia:** OK fazer direto (relatório, não muda código).
 
 ### PWA
+
+- [ ] **[P3] #pwa** Reavaliar Background Sync offline (decisão, não build)
+  - **Pronto quando:** `docs/BACKGROUND-SYNC.md` atualizado com pros/contras revistos: Next 15 + fork PWA + idempotency-key consolidada vs risco de pedido duplicado. Decisão registrada: construir / continuar fora de escopo / construir parcialmente.
+  - **Contexto:** doc decidiu "fora de escopo" em 2026-05-22 por risco. Cenário mudou pós-migração.
+  - **Autonomia:** OK fazer direto (atualiza só o doc, não constrói).
 
 ---
 
