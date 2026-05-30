@@ -2,8 +2,8 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-05-28
-**Atualizado por:** `claude-pastel`
+**Última atualização:** 2026-05-30
+**Atualizado por:** `claude-pastel` (routine background)
 
 ---
 
@@ -82,6 +82,9 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 ---
 
 ## Histórico recente (últimos 5 dias)
+
+### 2026-05-30
+- **Routine background encerrada — fila `Próximos` vazia.** Nenhum item qualificou pra execução autônoma: (1) impressora bloqueada por hardware; (2) pwa/sw fallbacks bloqueado pelo PR #23 (Next 15); (3) Iconify SW cache + docker-compose healthcheck marcados "Abrir PR" → pulados per regra de background; (4) auth desambiguar PIN toca em auth → pulado. PRs pendentes aguardam review do João: PR #4 (backup dev.db), PR #23 (Next 15), docker-health-endpoint, iconify-sw-cache. **Próxima ação: João mergear PRs OU rodar `/planejar` pra reabastecer fila com novos itens.**
 
 ### 2026-05-28
 - **[P2] Security review do PR #23** — skill `security-review` no diff da migração: **nenhuma vuln nova** (async params idêntico downstream + auth intacta; path-traversal dos uploads é pré-existente; cache PWA só mudou de lugar; sse-debug só lê localStorage). Safe to merge.
