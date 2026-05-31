@@ -2,7 +2,7 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-05-29
+**Última atualização:** 2026-05-31
 **Atualizado por:** `claude-pastel`
 
 ---
@@ -13,6 +13,10 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## O que rolou desde a última sessão
 
+### 2026-05-31
+- **Routine background encerrada — nenhum item qualificou.** PRs #4 (backup), #30 (PIX) e #31 (WhatsApp) ainda aguardam merge do João. O único item em "Próximos" (Bookkeeping pós-merge) está bloqueado por esse prerequisito. Itens restantes no Backlog tocam em `next.config.mjs`, `docker-compose.yml` ou auth — todos proibidos em background. Sem evento agendado (modo normal, não congelamento).
+
+### 2026-05-29 (e anteriores)
 - Auditoria UX crítica (4º pass) — Fases A (5/5 críticos), B (9/14 importantes), C (4/5 polish + a11y) shipped em 18 commits
 - Follow-ups do audit externo: preview comprovante 80mm, atalhos teclado cozinha, áudio escalonado, PDF com delta vs período anterior, TV breathe intermitente
 - Página `/guia` criada — manual por papel (atendente/cozinha/admin/geral) com tabs, busca, accordion, hero gradient, steps numerados, callouts. Reescrito 2x: primeiro inspirado no `Help.tsx` do cultivo-server, depois sem jargão técnico pra família ler
