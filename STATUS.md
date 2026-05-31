@@ -2,7 +2,7 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-05-29
+**Última atualização:** 2026-05-31
 **Atualizado por:** `claude-pastel`
 
 ---
@@ -13,30 +13,29 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## O que rolou desde a última sessão
 
-- Auditoria UX crítica (4º pass) — Fases A (5/5 críticos), B (9/14 importantes), C (4/5 polish + a11y) shipped em 18 commits
-- Follow-ups do audit externo: preview comprovante 80mm, atalhos teclado cozinha, áudio escalonado, PDF com delta vs período anterior, TV breathe intermitente
-- Página `/guia` criada — manual por papel (atendente/cozinha/admin/geral) com tabs, busca, accordion, hero gradient, steps numerados, callouts. Reescrito 2x: primeiro inspirado no `Help.tsx` do cultivo-server, depois sem jargão técnico pra família ler
-- Header com nome do operador sempre visível (mobile + desktop)
-- Cozinha em 2 colunas quando pedido tem qty>1 + botnav inferior com labels (acessibilidade)
-- ESLint cleanup completa: 115 erros → 0, reativado check no build
-- Migração `Product.imageDataUrl` base64 → filesystem (`/api/uploads/products/<file>`), com script idempotente no entrypoint Docker
-- Caixa virou primeiro item do menu admin (rename "Operação" → "Caixa", default tab também)
-- Bump de patches/minors (`lucide-react`, `tsx`, `vitest`, `@types/react`) — majors deferidos com razão
-- PIN do Gil resetado pra 2699 (local) + script `scripts/reset-gil-password.ts` reusável
-- Backlog replanejado: 9 novos itens aprovados pelo João
+- **Routine background 2026-05-31** — a11y follow-up do audit de 29/05:
+  - **[fix] A11Y-02**: `AdminClient:1096` "Caixa aberto" usava `text-status-ready` (#1F9B4A, 3.7:1) em texto `t-label` 11px — falha WCAG AA. Corrigido pra `text-status-ready-ink` (#0F5A29, ~8:1 AAA).
+  - **[verificado] A11Y-01**: `text-status-preparing` não existe no app — amarelo só como background. Não era gap real.
+  - **[verificado] A11Y-06**: `prefers-reduced-motion` já em `app/globals.css` L47-56. Não era gap.
+  - **[docs]** `docs/AUDIT-A11Y-2026.md` atualizado com vereditos finais; tabela de priorização revisada.
+  - **[backlog]** Seção A11y em BACKLOG "Próximos" populada com A11Y-05 (labels) e A11Y-03 (touch targets) — 2 itens P2 aguardando confirmação de João.
+  - **[bloqueado]** PRs #4/#30/#31 ainda pendentes → bookkeeping completo ainda bloqueado. PR #34 (bookkeeping parcial de 30/05) ainda aguarda merge.
 
 ## Bloqueios ativos
 
 - **PR #4 aguardando merge** — backup automático do dev.db. Implementação testada local; precisa review + merge do João pra subir pra Coolify.
-- **2 PRs abertas pendentes review** (P3): `claude-pastel/iconify-sw-cache` + `claude-pastel/docker-health-endpoint`.
+- **PR #30 aguardando merge** — PIX (schema `PaymentConfig` + lib/pix.ts + QR no comprovante). 192 testes verdes na branch.
+- **PR #31 aguardando merge** — WhatsApp auto-surface "Caixa aberto" 1-toque. 179 testes verdes na branch.
+- **PR #34 aguardando merge** — bookkeeping parcial (docs/BACKLOG/STATUS), criado pela routine de 30/05.
+- **PR #26 aguardando merge** — emoji → lucide (branch `routine-pastel-20260529-1110`); decisão pendente do João.
+- **2 PRs (P3) sem revisão**: `claude-pastel/iconify-sw-cache` + `claude-pastel/docker-health-endpoint`.
+- **Bookkeeping completo** bloqueado até #4/#30/#31 mergearem.
 
 ## Próximo passo recomendado
 
-**Fase 7 fechada (5/5)** — 3 itens mergeados (#23 Next 15 já no main, #28 troco, #29 comparativo), 3 PRs aguardando merge (**#4 backup desconflictado**, **#30 PIX**, **#31 WhatsApp auto-surface**), e #5 "Acabou" já existia. Coolify deployou Next 15 em prod na sessão de 29/05.
+**Fase 7 fechada (5/5)** — Next 15 em prod. 5 PRs abertos aguardando João.
 
-João: (1) mergear **#4 + #30 + #31** (todos validados: tsc/lint/testes/build); (2) **configurar chave PIX** (admin → Caixa → "Pagamento (PIX)") — 1 vez só; (3) **teste manual da PWA no celular** (install/offline/splash) agora que Next 15 está em prod; rollback Coolify 1-clique se algo quebrar.
-
-BACKLOG "Próximos" reabastecido com **5 itens de manutenção pós-Fase 7** (replan 2026-05-29): bookkeeping, smoke prod, limpar 4 routine-* novas, auditoria a11y dedicada, reavaliar Background Sync.
+João: (1) mergear **#4 + #30 + #31** (todos validados: tsc/lint/testes/build); (2) mergear **#34** (bookkeeping docs-only, sem risco); (3) decidir sobre **#26** (emoji→lucide, cherry-pick ou descartar); (4) **configurar chave PIX** (admin → Caixa → "Pagamento (PIX)"); (5) **aprovar** 2 novos itens P2 a11y no BACKLOG (labels + touch targets) — ou marcar "Confirmar antes" → routine pode pegar nos próximos runs.
 
 ---
 
@@ -71,17 +70,20 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 
 ## Métricas vivas
 
-- Tests passando: **163/163** ✅
+- Tests passando: **179/179** ✅ (main; 192/192 em PR #30)
 - Type-check: **ok** ✅
 - ESLint: **0 erros** ✅ (check ativo no build)
 - DB schema: **sincronizado** ✅ (imageUrl adicionado)
 - PWA: **instalável** ✅ (iOS Safari + Android Chrome)
-- Vulns npm audit: **3 moderate** (postcss interno do Next, build-time) na branch Next 15 — era 10 (9 high) no main Next 14. PR aberto.
-- Next/React: **15.5.18 / 19.2.6** na branch `claude-pastel/next15-pwa` (main ainda 14.2.35 até merge)
+- Vulns npm audit: **3 moderate** (postcss interno do Next, build-time; não-bloqueante)
+- Next/React: **15.5.18 / 19.2.6** (em main desde merge do PR #23)
 
 ---
 
 ## Histórico recente (últimos 5 dias)
+
+### 2026-05-31
+- **Routine background** — a11y follow-up: corrigido `text-status-ready` → `text-status-ready-ink` em `AdminClient:1096` ("Caixa aberto", 11px, era 3.7:1 → agora ~8:1 AAA). Verificado que A11Y-01 (`status-preparing`) e A11Y-06 (`prefers-reduced-motion`) não eram gaps reais. Audit doc atualizado. BACKLOG A11y populado com 2 itens P2 (labels + touch targets) marcados "Confirmar antes". PRs #4/#30/#31/#34/#26 ainda aguardando merge.
 
 ### 2026-05-29
 - **`/trabalhar`: 4 itens pós-Fase 7 fechados** (smoke prod + reavaliação BG sync + limpeza de 7 routine branches + **a11y audit dedicada**). Detalhes: (a) a11y audit produziu `docs/AUDIT-A11Y-2026.md` — app passa boa parte do WCAG 2.1 AA; 3 gaps P2 (contraste `status-preparing`, ~10 touch targets sub-44px, ~4-5 inputs sem `<label>` no AdminClient) + 3 P3, esforço total 4-6h. (b) Limpeza de routine: 7/8 deletadas (log-only); **1 mantida** (`routine-pastel-20260529-1110`) — carrega trabalho de FASE-6 §6.A (emoji→lucide em 4-5 arquivos não-tocados no main), decisão pendente do João.

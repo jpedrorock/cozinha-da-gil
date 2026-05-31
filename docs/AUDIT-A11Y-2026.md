@@ -11,10 +11,14 @@
 
 A app **passa boa parte do WCAG 2.1 AA** sem trabalho extra. Há padrões maduros: `aria-label` em quase todos os botões icon-only (zero achados sem label), `useEscapeKey` em modais, `<label>` em forms novos (`PagamentoSettings`), `shadow-focus` token definido, `ink-3` foi escurecido pra passar contraste AA (4.55:1 — comentado em `tailwind.config.ts`).
 
-**Os gaps reais são 3:**
+**Os gaps reais são 2 (atualizado 2026-05-31):**
 1. **Touch targets a 32–36px** em ~10 sites (Apple HIG/Material recomendam 44×44; WCAG 2.5.5 AAA exige).
-2. **Inputs sem label explícito** em pelo menos 4 sites do `AdminClient` (WCAG 1.3.1, 3.3.2).
-3. **`status-preparing` (#E5B400)** tem contraste ~2.5:1 em fundo branco — não passa AA pra texto normal. Verificar onde é usado como texto.
+2. **Inputs sem `htmlFor`/`id`** em ~35 sites do `AdminClient` — labels visuais presentes mas não associados programaticamente (WCAG 1.3.1, 3.3.2).
+
+**Gaps verificados e resolvidos (routine 2026-05-31):**
+- ~~`status-preparing` em texto~~ → **verificado**: `text-status-preparing` não existe no app; amarelo só usado como background com texto `status-preparing-ink` (dark). Não é gap real.
+- ~~`prefers-reduced-motion`~~ → **verificado**: já implementado em `app/globals.css` L47-56 (desliga todas as animações).
+- `status-ready` em texto pequeno (`AdminClient:1096` — "Caixa aberto", 11px) → **corrigido**: `text-status-ready` (3.7:1, FAIL AA) → `text-status-ready-ink` (~8:1, AAA).
 
 **Não achei** problemas em: contraste de texto principal, alt em imagens (zero `<img>` sem alt), botões icon-only sem aria-label, semântica de botões (zero `<div onClick>` interativo).
 
@@ -42,8 +46,8 @@ A app **passa boa parte do WCAG 2.1 AA** sem trabalho extra. Há padrões maduro
 
 **Achados:**
 
-- **A11Y-01 [P2] Contraste `status-preparing` (#E5B400) sobre branco** — usado em texto? Confirmar no Trello dot/badge da cozinha. Se sim, usar `status-preparing-ink` (#4A3700) pro texto e manter amarelo só de fundo.
-- **A11Y-02 [P3] Contraste `status-ready` / `status-delivered`** — borderline. Verificar tamanho de texto onde aparecem (≥18px = "Large" passa).
+- ~~**A11Y-01 [P2] Contraste `status-preparing` (#E5B400) sobre branco**~~ — **FECHADO 2026-05-31**: verificado, `text-status-preparing` não existe. Amarelo só em `bg-`, texto sempre usa `-ink` variant. Não é gap.
+- **A11Y-02 [P3] Contraste `status-ready` em texto pequeno** — `AdminClient:1096` "Caixa aberto" (`t-label` 11px, 3.7:1 em branco) **CORRIGIDO** (→ `text-status-ready-ink` ~8:1). `status-delivered` só usado em `-ink`/`-bg` variants — não é gap.
 
 ### 2. Touch targets — vários sub-44px
 
@@ -94,7 +98,7 @@ O painel `/cliente` tem efeito breathe (animação de pulso) que já foi tornado
 
 **Achados:**
 
-- **A11Y-06 [P3] Respeitar `prefers-reduced-motion`** — checar se animações (breathe, fade-in, slide-up, animate-pulse) param quando o user tem `prefers-reduced-motion: reduce` nas configs do OS. Trivial (1 media query em `globals.css`), alto valor a11y.
+- ~~**A11Y-06 [P3] Respeitar `prefers-reduced-motion`**~~ — **FECHADO 2026-05-31**: já implementado em `app/globals.css` L47-56 (`animation-duration: 0.001ms`, `transition-duration: 0.001ms`, `scroll-behavior: auto`). Não é gap.
 
 ### 6. Atendente / Cozinha — operação operacional
 
@@ -105,18 +109,18 @@ O painel `/cliente` tem efeito breathe (animação de pulso) que já foi tornado
 
 ---
 
-## Priorização
+## Priorização (atualizado 2026-05-31)
 
-| ID | Sev | Tela/Componente | Esforço |
-|---|---|---|---|
-| **A11Y-01** | P2 | Cozinha kanban — confirmar uso de `status-preparing` em texto | 15min |
-| **A11Y-05** | P2 | AdminClient — `<label>` em ~4-5 inputs | 30min |
-| **A11Y-03** | P2 | Atendente + Cozinha — subir touch targets críticos a 44px | 1-2h |
-| **A11Y-02** | P3 | Cozinha — verificar `status-ready/delivered` em texto | 15min |
-| **A11Y-04** | P3 | Modais — focus trap (`inert` ou lib) | 1-2h |
-| **A11Y-06** | P3 | Globals — respeitar `prefers-reduced-motion` | 30min |
+| ID | Sev | Tela/Componente | Esforço | Estado |
+|---|---|---|---|---|
+| ~~A11Y-01~~ | P2 | `status-preparing` em texto | — | ✅ não é gap |
+| **A11Y-05** | P2 | AdminClient — 35 labels sem `htmlFor`/`id` | 2-3h | 🔴 aberto |
+| **A11Y-03** | P2 | Atendente + Cozinha — touch targets sub-44px | 1-2h | 🔴 aberto |
+| **A11Y-02** | P3 | `status-ready` em texto pequeno | — | ✅ corrigido (`AdminClient:1096`) |
+| **A11Y-04** | P3 | Modais — focus trap (`inert` ou lib) | 1-2h | 🔴 aberto |
+| ~~A11Y-06~~ | P3 | `prefers-reduced-motion` | — | ✅ já existia em `globals.css` |
 
-**Total estimado pra fechar os 3 P2 + 3 P3:** 4-6 horas distribuídas.
+**Restante real:** A11Y-05 + A11Y-03 + A11Y-04 ≈ 4-7h. A11Y-05 é o maior (AdminClient tem 4200+ linhas).
 
 ---
 

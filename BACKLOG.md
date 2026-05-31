@@ -44,6 +44,16 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ### A11y
 
+- [ ] **[P2] #admin #a11y** Associar `<label>` + `<input>` com `htmlFor`/`id` no `AdminClient`
+  - **Pronto quando:** todos os ~35 sites em `AdminClient.tsx` onde `<label>Text</label>` é sibling de `<input>` (sem `htmlFor`) passam a ter IDs únicos e `htmlFor` correspondente; `eslint-plugin-jsx-a11y` (ou inspeção manual) não mostra mais "label not associated". Checkbox em 2584 já está OK (wrapped). Novas formas (`PagamentoSettings`, `PinInput`) também OK.
+  - **Por que:** WCAG 1.3.1 + 3.3.2 — screen reader não captura relação label↔input sem associação programática. 35 inputs afetados (verificado 31/05).
+  - **Autonomia:** Confirmar antes — escopo grande (4200+ linhas), envolve adicionar IDs únicos por instância de modal.
+
+- [ ] **[P2] #atendente #cozinha #a11y** Subir touch targets críticos para ≥44px
+  - **Pronto quando:** os ~10 elementos de ação listados no `docs/AUDIT-A11Y-2026.md` §2 (A11Y-03) atingem h-11 (44px) ou têm padding compensatório via `min-h-[44px]`; testado em device mobile.
+  - **Por que:** Apple HIG + Material recomendado 44×44. Atendente usa tablet com pressa; cozinha usa com mãos sujas. Sub-44px = erros de toque em eventos reais.
+  - **Autonomia:** Confirmar antes — toca múltiplos arquivos (AppHeader, MonitorClient, GuiaClient, AtendenteClient, CozinhaClient); risco de quebrar layout mobile.
+
 ### PWA
 
 ---
@@ -74,6 +84,9 @@ _Itens com critério vago OU bloqueados por dependência externa._
 ---
 
 ## ✅ Concluídos recentemente
+
+### 2026-05-31
+- [claude-pastel 2026-05-31 background] **[P3] A11y: contraste "Caixa aberto" corrigido + audit doc atualizado** — `AdminClient:1096` `text-status-ready` (3.7:1, FAIL AA em 11px) → `text-status-ready-ink` (~8:1, AAA). Verificado que A11Y-01 (`status-preparing` em texto) e A11Y-06 (`prefers-reduced-motion`) não eram gaps reais — já resolvidos no app. `docs/AUDIT-A11Y-2026.md` atualizado com vereditos e tabela revisada. BACKLOG A11y populado com 2 novos P2 (labels + touch targets, "Confirmar antes").
 
 ### 2026-05-29
 - [claude-pastel 2026-05-29] **[P2] Auditoria de acessibilidade WCAG 2.1 AA — primeira dedicada** — `docs/AUDIT-A11Y-2026.md`. App passa boa parte do AA sem trabalho extra (zero achados em `aria-label` icon-only, alt em `<img>`, semântica de botões). **3 gaps reais P2** (`status-preparing` 2.5:1 contraste, ~10 touch targets sub-44px, ~4-5 inputs no AdminClient sem `<label>`) + 3 P3 (`prefers-reduced-motion`, focus trap em modais, `status-ready/delivered` borderline). Esforço total: 4-6h. Não substitui teste com screen reader real.

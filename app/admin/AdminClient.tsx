@@ -1093,7 +1093,7 @@ function CaixaSection({
         {/* Bloco de texto — flex-1 pra empurrar o botão pra direita.
             min-w-0 + truncate evitam overflow quando o nome é longo. */}
         <div className="flex-1 min-w-0 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-          <span className="t-label tracking-[0.08em] text-status-ready">Caixa aberto</span>
+          <span className="t-label tracking-[0.08em] text-status-ready-ink">Caixa aberto</span>
           <span className="font-bold text-[15px] truncate">{eventStatus.name ?? "Sem nome"}</span>
           <span className="text-xs text-ink-3">
             por <span className="font-semibold text-ink-inverse">{eventStatus.openedBy}</span> às{" "}
