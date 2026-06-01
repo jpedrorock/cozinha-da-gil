@@ -2,8 +2,8 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-05-29
-**Atualizado por:** `claude-pastel`
+**Última atualização:** 2026-06-01
+**Atualizado por:** `claude-pastel` (routine background)
 
 ---
 
@@ -13,6 +13,7 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## O que rolou desde a última sessão
 
+- **Routine background 2026-06-01:** 3 itens a11y fechados em 3 commits — (1) quick wins A11Y-02/05 (labels associados + contraste texto); (2) touch targets ≥44px em 10 locais operacionais (atendente/cozinha/header); (3) focus trap em ConfirmDialog/CancelDialog/TrocoCalculator/IconPicker via `lib/use-focus-trap.ts`. PR aberto aguardando merge.
 - Auditoria UX crítica (4º pass) — Fases A (5/5 críticos), B (9/14 importantes), C (4/5 polish + a11y) shipped em 18 commits
 - Follow-ups do audit externo: preview comprovante 80mm, atalhos teclado cozinha, áudio escalonado, PDF com delta vs período anterior, TV breathe intermitente
 - Página `/guia` criada — manual por papel (atendente/cozinha/admin/geral) com tabs, busca, accordion, hero gradient, steps numerados, callouts. Reescrito 2x: primeiro inspirado no `Help.tsx` do cultivo-server, depois sem jargão técnico pra família ler
@@ -29,6 +30,7 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 - **PR #4 aguardando merge** — backup automático do dev.db. Implementação testada local; precisa review + merge do João pra subir pra Coolify.
 - **2 PRs abertas pendentes review** (P3): `claude-pastel/iconify-sw-cache` + `claude-pastel/docker-health-endpoint`.
+- **PR de a11y (routine-pastel-20260601-1609)** — aguardando review/merge do João. 3 itens: quick wins a11y, touch targets, focus trap.
 
 ## Próximo passo recomendado
 
@@ -37,6 +39,8 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 João: (1) mergear **#4 + #30 + #31** (todos validados: tsc/lint/testes/build); (2) **configurar chave PIX** (admin → Caixa → "Pagamento (PIX)") — 1 vez só; (3) **teste manual da PWA no celular** (install/offline/splash) agora que Next 15 está em prod; rollback Coolify 1-clique se algo quebrar.
 
 BACKLOG "Próximos" reabastecido com **5 itens de manutenção pós-Fase 7** (replan 2026-05-29): bookkeeping, smoke prod, limpar 4 routine-* novas, auditoria a11y dedicada, reavaliar Background Sync.
+
+**Próximos (2026-06-01):** 3 itens a11y fechados (quick wins, touch targets, focus trap). Resta apenas "Bookkeeping pós-merge" que depende dos PRs #4/#30/#31 mergearem.
 
 ---
 
@@ -71,7 +75,7 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 
 ## Métricas vivas
 
-- Tests passando: **163/163** ✅
+- Tests passando: **179/179** ✅
 - Type-check: **ok** ✅
 - ESLint: **0 erros** ✅ (check ativo no build)
 - DB schema: **sincronizado** ✅ (imageUrl adicionado)
