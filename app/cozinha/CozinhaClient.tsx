@@ -1089,7 +1089,7 @@ function Ticket({
           <button
             onClick={onCancel}
             disabled={pending}
-            className="w-full h-9 rounded-md border border-line text-ink-3 hover:border-danger hover:text-danger text-[13px] font-semibold inline-flex items-center justify-center gap-1.5 active:scale-[0.97] transition disabled:opacity-50"
+            className="w-full h-11 rounded-md border border-line text-ink-3 hover:border-danger hover:text-danger text-[13px] font-semibold inline-flex items-center justify-center gap-1.5 active:scale-[0.97] transition disabled:opacity-50"
             title="Cancelar pedido"
           >
             <X size={14} strokeWidth={2.5} />

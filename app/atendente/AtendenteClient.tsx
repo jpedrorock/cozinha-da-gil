@@ -891,7 +891,7 @@ export function AtendenteClient({
             onClick={() => setTrocoOpen(true)}
             aria-label="Calculadora de troco"
             title="Troco"
-            className="inline-flex items-center justify-center h-9 w-9 rounded-full border border-line-strong text-ink-2 hover:border-ink-3 hover:text-ink"
+            className="inline-flex items-center justify-center h-11 w-11 rounded-full border border-line-strong text-ink-2 hover:border-ink-3 hover:text-ink"
           >
             <Calculator size={18} strokeWidth={2} />
           </button>
@@ -930,7 +930,7 @@ export function AtendenteClient({
           </div>
           <button
             onClick={() => setStaleDismissed(true)}
-            className="shrink-0 inline-flex items-center justify-center w-8 h-8 rounded-md text-ink-3 hover:text-ink hover:bg-brand-orange/10"
+            className="shrink-0 inline-flex items-center justify-center w-11 h-11 rounded-md text-ink-3 hover:text-ink hover:bg-brand-orange/10"
             aria-label="Dispensar aviso"
           >
             <X size={16} strokeWidth={2.5} />

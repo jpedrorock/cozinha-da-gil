@@ -58,7 +58,7 @@ export function AppHeader({
           {showOperator && operator && (
             <button
               onClick={() => setConfirmingSwitch(true)}
-              className="inline-flex items-center gap-1.5 h-9 pl-2 pr-2 md:pr-3 rounded-full border border-line-strong text-ink-2 hover:border-ink-3 hover:text-ink max-w-[160px] md:max-w-none"
+              className="inline-flex items-center gap-1.5 h-11 pl-3 pr-3 md:pr-3.5 rounded-full border border-line-strong text-ink-2 hover:border-ink-3 hover:text-ink max-w-[160px] md:max-w-none"
               title={`${operator.name} — trocar operador`}
             >
               <RoleIcon role={operator.role} size={16} />
