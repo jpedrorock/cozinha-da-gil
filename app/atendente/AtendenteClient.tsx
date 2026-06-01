@@ -11,7 +11,7 @@ import { OrderCard } from "@/components/OrderCard";
 import { CancelDialog } from "@/components/CancelDialog";
 import { useConfirmDialog } from "@/components/ConfirmDialog";
 import { SwipeableCartItem } from "@/components/SwipeableCartItem";
-import { buildWaNativeUrl, buildWaUrl, templateOrderReady } from "@/lib/whatsapp-templates";
+import { buildWaUrl, templateOrderReady } from "@/lib/whatsapp-templates";
 import { useBodyScrollLock } from "@/lib/use-body-scroll-lock";
 import {
   BebidaIcon,
@@ -863,40 +863,30 @@ export function AtendenteClient({
   }
 
   /** Avisar cliente via WhatsApp que pedido tá pronto.
-   *  Tenta deep-link nativo `whatsapp://` (abre o app instalado em iOS/Android
-   *  sem cair no Safari embutido — audit P1 #07). Cria <a> dinâmico em vez
-   *  de window.open() porque anchor é o que iOS reconhece pro deep-link.
-   *  Fallback pra wa.me em 600ms se o nativo falhar (app não instalado etc). */
+   *  Usa wa.me direto (HTTP) via <a> sintético + click. Em mobile o OS
+   *  resolve pro app WhatsApp; em desktop abre WhatsApp Web. Mesma técnica
+   *  do botão "Enviar no WhatsApp" no comprovante — funciona sempre.
+   *
+   *  Decisão (2026-06-01): tentei antes deep-link `whatsapp://send` com
+   *  fallback wa.me em 600ms, mas o deep-link abre janela em branco em
+   *  Safari iOS / Chrome desktop quando o app não tá instalado, e o
+   *  fallback é bloqueado por popup blocker. wa.me cobre 100% dos casos. */
   function notifyReady(order: OrderView) {
     // Inclui link público de acompanhamento na mensagem — cliente vê status
     // ao vivo pelo celular sem precisar ler a TV no balcão.
     const baseUrl = typeof window !== "undefined" ? window.location.origin : undefined;
     const text = templateOrderReady(order, baseUrl);
-    const nativeUrl = buildWaNativeUrl(order.clientPhone, text);
     const webUrl = buildWaUrl(order.clientPhone, text);
 
-    // Tenta nativo via anchor click sintético (iOS-friendly)
+    // Anchor sintético com wa.me — OS resolve pro app instalado se houver.
     const a = document.createElement("a");
-    a.href = nativeUrl;
+    a.href = webUrl;
     a.target = "_blank";
     a.rel = "noopener noreferrer";
     a.style.display = "none";
     document.body.appendChild(a);
     a.click();
     setTimeout(() => a.remove(), 100);
-
-    // Fallback web se nada aconteceu em 600ms (app não instalado, browser desktop)
-    const fallbackTimer = setTimeout(() => {
-      if (document.visibilityState === "visible") {
-        window.open(webUrl, "_blank", "noopener,noreferrer");
-      }
-    }, 600);
-    // Se a aba perdeu foco antes do timer (app abriu), cancela fallback
-    const onBlur = () => {
-      clearTimeout(fallbackTimer);
-      window.removeEventListener("blur", onBlur);
-    };
-    window.addEventListener("blur", onBlur);
 
     // Fire-and-forget: erro silencioso pq Gil já mandou. SSE atualiza UI.
     fetch(`/api/orders/${order.id}/notify-ready`, {
