@@ -40,10 +40,34 @@ export function buildWaNativeUrl(phone: string | null | undefined, text: string)
 }
 
 /**
+ * Monta link público de acompanhamento do pedido. Retorna `null` se não
+ * tem token (pedidos legados antes do backfill) ou se não tem como saber
+ * o origin (não chamado em browser e sem `baseUrl` passado).
+ *
+ * O `baseUrl` é opcional pra usos client-side onde `window.location.origin`
+ * resolve. Em server (SSR / endpoint que monta link), passa explícito —
+ * preferir `process.env.NEXT_PUBLIC_APP_URL` quando configurado.
+ */
+export function buildPublicOrderUrl(
+  order: Pick<OrderView, "publicToken">,
+  baseUrl?: string,
+): string | null {
+  if (!order.publicToken) return null;
+  const origin =
+    baseUrl ?? (typeof window !== "undefined" ? window.location.origin : null);
+  if (!origin) return null;
+  return `${origin.replace(/\/$/, "")}/p/${order.publicToken}`;
+}
+
+/**
  * Recibo do pedido (mesma lógica visual: repete linhas por quantidade,
  * sem "×N" inline pra reduzir ambiguidade no celular).
+ *
+ * Se `baseUrl` for passado E o pedido tem `publicToken`, adiciona linha
+ * final "Acompanhe: <url>" pro cliente abrir e ver status ao vivo no
+ * próprio celular.
  */
-export function templateReceipt(order: OrderView): string {
+export function templateReceipt(order: OrderView, baseUrl?: string): string {
   const created = new Date(order.createdAt);
   const lines: string[] = [];
   lines.push(`*Cozinha da Gil — Pedido #${String(order.id).padStart(3, "0")}*`);
@@ -85,22 +109,35 @@ export function templateReceipt(order: OrderView): string {
   } else {
     lines.push(`*Total: ${formatBRL(order.totalCents)}*`);
   }
+  const trackUrl = buildPublicOrderUrl(order, baseUrl);
+  if (trackUrl) {
+    lines.push("");
+    lines.push(`Acompanhe: ${trackUrl}`);
+  }
   return lines.join("\n");
 }
 
 /**
- * Aviso "pedido pronto" — curto, amigável, primeiro nome.
+ * Aviso "pedido pronto" — curto, amigável, primeiro nome. Se tiver
+ * publicToken + baseUrl, inclui link de acompanhamento (cliente pode
+ * conferir antes de levantar da mesa).
  */
-export function templateOrderReady(order: OrderView): string {
+export function templateOrderReady(order: OrderView, baseUrl?: string): string {
   const num = String(order.id).padStart(3, "0");
   const firstName = order.clientName.split(" ")[0] || order.clientName;
-  return [
+  const lines = [
     `Oi ${firstName}! 👋`,
     "",
     `Seu pedido *#${num}* tá pronto pra retirar na Cozinha da Gil!`,
     "",
     "Quando puder, vem buscar — a gente te espera.",
-  ].join("\n");
+  ];
+  const trackUrl = buildPublicOrderUrl(order, baseUrl);
+  if (trackUrl) {
+    lines.push("");
+    lines.push(`Acompanhe: ${trackUrl}`);
+  }
+  return lines.join("\n");
 }
 
 /**

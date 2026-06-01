@@ -32,6 +32,14 @@ DATABASE_URL="file:$DB_PATH" UPLOADS_DIR="/app/data/uploads" \
   npx tsx scripts/migrate-product-images.ts \
   || echo "⚠️ migração de imagens falhou — não bloqueia boot."
 
+# Gera publicToken pros pedidos antigos sem token (link de acompanhamento
+# /p/<token>). Idempotente: roda toda subida, mas só preenche os null.
+# Pedidos legados ficam sem link de tracking até o backfill — não quebra.
+echo "🔗 Gerando tokens de acompanhamento pra pedidos antigos (se houver)..."
+DATABASE_URL="file:$DB_PATH" \
+  npx tsx prisma/backfill-public-tokens.ts \
+  || echo "⚠️ backfill de tokens falhou — não bloqueia boot."
+
 # Seed só se SEED_ON_BOOT=true E o DB acabou de ser criado (sem users).
 # Evita re-seedar a cada redeploy (que apagaria customers/orders reais).
 #

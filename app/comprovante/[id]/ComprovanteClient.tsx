@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { ArrowLeft, Coffee, Eye, EyeOff, MessageCircle, Package, Printer, Utensils } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ArrowLeft, Check, Coffee, Eye, EyeOff, Link as LinkIcon, MessageCircle, Package, Printer, Utensils } from "lucide-react";
 import Link from "next/link";
 import { BrandIcon, DoceIcon, PastelIcon } from "@/components/icons";
 import type { OrderView } from "@/lib/orders";
 import { formatPhoneDisplay } from "@/lib/orders";
 import { formatBRL, SIZE_LABEL } from "@/lib/pricing";
-import { buildWaUrl, templateReceipt } from "@/lib/whatsapp-templates";
+import { buildPublicOrderUrl, buildWaUrl, templateReceipt } from "@/lib/whatsapp-templates";
 
 export function ComprovanteClient({ order }: { order: OrderView }) {
   const created = new Date(order.createdAt);
@@ -16,9 +16,30 @@ export function ComprovanteClient({ order }: { order: OrderView }) {
   // genérico), o user vê a versão exata 80mm térmica antes de gastar
   // papel. Toggle "Pré-visualizar" → ticket vira monocromático + 80mm-wide.
   const [previewMode, setPreviewMode] = useState(false);
+  const [copied, setCopied] = useState(false);
+  // baseUrl precisa do window.location.origin, então só preenche depois
+  // de montar. Antes disso, templateReceipt fica sem a linha "Acompanhe:"
+  // — não é crítico, o botão "Enviar" rerenderiza com URL completa.
+  const [baseUrl, setBaseUrl] = useState<string | null>(null);
+  useEffect(() => {
+    setBaseUrl(window.location.origin);
+  }, []);
 
   function handlePrint() {
     window.print();
+  }
+
+  async function handleCopyLink() {
+    if (!trackUrl) return;
+    try {
+      await navigator.clipboard.writeText(trackUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Fallback pra navegadores que negam clipboard sem HTTPS — em prod
+      // tá com HTTPS, mas em dev local pode falhar. Mostra prompt simples.
+      window.prompt("Copie o link manualmente:", trackUrl);
+    }
   }
 
   // WhatsApp via <a href> em vez de window.open(): window.open é
@@ -28,7 +49,8 @@ export function ComprovanteClient({ order }: { order: OrderView }) {
   // WhatsApp se instalado). wa.me é universal: mobile abre app, desktop
   // abre WhatsApp Web/Desktop. Telefone já vem normalizado (+55...) do
   // POST de pedido, então a conversa abre direto no número certo.
-  const waUrl = buildWaUrl(order.clientPhone, templateReceipt(order));
+  const waUrl = buildWaUrl(order.clientPhone, templateReceipt(order, baseUrl ?? undefined));
+  const trackUrl = buildPublicOrderUrl(order, baseUrl ?? undefined);
 
   return (
     <div
@@ -226,6 +248,29 @@ export function ComprovanteClient({ order }: { order: OrderView }) {
           <MessageCircle size={18} strokeWidth={2.5} />
           Enviar no WhatsApp
         </a>
+        {/* Link pro cliente acompanhar — fica disabled enquanto baseUrl
+            ainda não montou (primeiro paint do SSR) ou se pedido legado
+            sem token. Botão muda pra estado "Copiado!" por 2s pra dar
+            feedback visual claro. */}
+        {trackUrl && (
+          <button
+            onClick={handleCopyLink}
+            className="btn btn-ghost w-full"
+            aria-live="polite"
+          >
+            {copied ? (
+              <>
+                <Check size={18} strokeWidth={2.5} />
+                Link copiado!
+              </>
+            ) : (
+              <>
+                <LinkIcon size={18} strokeWidth={2.5} />
+                Copiar link de acompanhamento
+              </>
+            )}
+          </button>
+        )}
       </div>
 
       <style jsx global>{`

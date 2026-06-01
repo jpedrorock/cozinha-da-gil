@@ -8,6 +8,7 @@ import { computeDiscount, isApplicable, serializePromotion } from "@/lib/promoti
 import { MAX_TOPPINGS_PEQUENO } from "@/lib/pricing";
 import { broadcast } from "@/lib/sse";
 import { getCachedIdempotency, isValidIdempotencyKey, setCachedIdempotency } from "@/lib/idempotency";
+import { generatePublicToken } from "@/lib/public-token";
 import type { Product, ProductSize } from "@prisma/client";
 
 export const runtime = "nodejs";
@@ -412,6 +413,10 @@ export async function POST(request: Request) {
         promotionName,
         discountCents,
         customerId,
+        // Token público pro link de acompanhamento (/p/<token>).
+        // 10 chars base62 = ~59 bits de entropia, sem risco de colisão
+        // em escala de barraca (~100 pedidos/evento).
+        publicToken: generatePublicToken(),
         items: {
           create: resolvedItems.map((it) => ({
             productId: it.productId,
