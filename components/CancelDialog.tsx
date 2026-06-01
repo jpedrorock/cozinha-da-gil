@@ -3,6 +3,7 @@ import { useState } from "react";
 import { X } from "lucide-react";
 import { useEscapeKey } from "@/lib/use-escape-key";
 import { useBodyScrollLock } from "@/lib/use-body-scroll-lock";
+import { useFocusTrap } from "@/lib/use-focus-trap";
 
 const PRESET_REASONS = [
   "Cliente foi embora",
@@ -32,6 +33,7 @@ export function CancelDialog({
   }, open);
 
   useBodyScrollLock(open);
+  const dialogRef = useFocusTrap(open);
 
   if (!open) return null;
 
@@ -60,6 +62,7 @@ export function CancelDialog({
       className="fixed inset-0 z-[100] bg-ink/50 backdrop-blur-[3px] flex items-center justify-center p-4 animate-fade-in"
     >
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="cancel-dialog-title"

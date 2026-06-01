@@ -3,6 +3,7 @@ import { useState } from "react";
 import { AlertTriangle, X } from "lucide-react";
 import { useEscapeKey } from "@/lib/use-escape-key";
 import { useBodyScrollLock } from "@/lib/use-body-scroll-lock";
+import { useFocusTrap } from "@/lib/use-focus-trap";
 
 /**
  * Dialog de confirmação genérico — substitui `window.confirm()` nativo.
@@ -44,6 +45,7 @@ export function ConfirmDialog({
 }) {
   useEscapeKey(onClose, open);
   useBodyScrollLock(open);
+  const dialogRef = useFocusTrap(open);
 
   if (!open) return null;
 
@@ -58,6 +60,7 @@ export function ConfirmDialog({
       onClick={onClose}
     >
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="confirm-title"

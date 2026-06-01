@@ -5,6 +5,7 @@ import { formatBRL } from "@/lib/pricing";
 import { pushDigit, popDigit, computeChange } from "@/lib/troco";
 import { useEscapeKey } from "@/lib/use-escape-key";
 import { useBodyScrollLock } from "@/lib/use-body-scroll-lock";
+import { useFocusTrap } from "@/lib/use-focus-trap";
 
 /**
  * Calculadora de troco — bottom-sheet de UMA MÃO pro atendente.
@@ -28,6 +29,7 @@ export function TrocoCalculator({
 
   useEscapeKey(onClose, open);
   useBodyScrollLock(open);
+  const dialogRef = useFocusTrap(open);
 
   if (!open) return null;
 
@@ -54,6 +56,7 @@ export function TrocoCalculator({
       onClick={onClose}
     >
       <div
+        ref={dialogRef}
         role="dialog"
         aria-label="Calculadora de troco"
         className="w-full max-w-md bg-surface-elevated rounded-t-2xl shadow-lg flex flex-col"

@@ -5,6 +5,7 @@ import { Search, Trash2, Upload, WifiOff, X } from "lucide-react";
 import { Icon } from "@iconify/react";
 import { useEscapeKey } from "@/lib/use-escape-key";
 import { useBodyScrollLock } from "@/lib/use-body-scroll-lock";
+import { useFocusTrap } from "@/lib/use-focus-trap";
 import { ICON_CATEGORIES, translateForIconSearch } from "@/lib/ingredient-i18n";
 
 // Tamanho máximo de upload (~512KB). SVG raramente passa de 50KB; PNG
@@ -63,6 +64,7 @@ export function IconPicker({
 
   useEscapeKey(onClose, open);
   useBodyScrollLock(open);
+  const dialogRef = useFocusTrap(open);
 
   // Escuta eventos online/offline do browser pra refletir ao vivo
   // quando wifi vai e volta no meio do uso.
@@ -179,6 +181,7 @@ export function IconPicker({
       onClick={onClose}
     >
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-label="Escolher ícone"
