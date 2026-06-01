@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSwipeable } from "react-swipeable";
-import { AlertTriangle, Calculator, Check, Lock, Minus, Pencil, Plus, RotateCcw, Tag, X } from "lucide-react";
+import { AlertTriangle, Calculator, Check, Lock, MessageCircle, Minus, Pencil, Plus, RotateCcw, Tag, X } from "lucide-react";
 import type { Ingredient, OrderStatus } from "@prisma/client";
 import { AppHeader } from "@/components/AppHeader";
 import { TrocoCalculator } from "@/components/TrocoCalculator";
@@ -345,6 +345,18 @@ export function AtendenteClient({
     "order:updated": (data) => {
       const order = data as OrderView;
       setOrders((prev) => prev.map((o) => (o.id === order.id ? order : o)));
+      // Fase 7 #4 — auto-surface 1-toque: quando cozinha marca PRONTO e o
+      // pedido tem telefone (e ainda não foi notificado), pop o banner.
+      // surfacedReadyRef garante que não re-aparece se o user dispensar.
+      if (
+        order.status === "PRONTO" &&
+        order.clientPhone &&
+        !order.notifiedReadyAt &&
+        !surfacedReadyRef.current.has(order.id)
+      ) {
+        surfacedReadyRef.current.add(order.id);
+        setPendingNotify(order);
+      }
     },
     "event:opened": (data) => {
       const d = data as { id: string; name: string | null; eventDate: string | null; openedAt: string; openedBy: string };
@@ -912,6 +924,9 @@ export function AtendenteClient({
   }
 
   const [trocoOpen, setTrocoOpen] = useState(false);
+  // Fase 7 #4 — banner 1-toque pra avisar cliente quando vira PRONTO
+  const surfacedReadyRef = useRef<Set<number>>(new Set());
+  const [pendingNotify, setPendingNotify] = useState<OrderView | null>(null);
 
   return (
     <div className="min-h-dvh flex flex-col">
@@ -929,6 +944,44 @@ export function AtendenteClient({
         }
       />
       <TrocoCalculator open={trocoOpen} onClose={() => setTrocoOpen(false)} />
+
+      {/* Fase 7 #4 — Banner auto-surface "tá pronto" */}
+      {pendingNotify && (
+        <div
+          className="fixed bottom-0 left-0 right-0 z-40 px-3 pt-3 animate-fade-in"
+          style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 12px)" }}
+        >
+          <div className="max-w-md mx-auto bg-status-ready text-white rounded-2xl shadow-lg p-3 flex items-center gap-2">
+            <div className="flex-1 min-w-0">
+              <div className="text-[10px] font-bold uppercase tracking-wide text-white/80">
+                Pedido pronto — avisar cliente
+              </div>
+              <div className="font-extrabold truncate text-base">
+                #{String(pendingNotify.id).padStart(3, "0")} — {pendingNotify.clientName}
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                notifyReady(pendingNotify);
+                setPendingNotify(null);
+              }}
+              className="shrink-0 h-11 px-4 rounded-lg bg-brand-yellow text-ink font-bold inline-flex items-center gap-1.5"
+            >
+              <MessageCircle size={18} strokeWidth={2.5} />
+              Avisar
+            </button>
+            <button
+              type="button"
+              onClick={() => setPendingNotify(null)}
+              aria-label="Dispensar"
+              className="shrink-0 h-11 w-11 rounded-lg text-white/80 hover:text-white inline-flex items-center justify-center"
+            >
+              <X size={20} strokeWidth={2.5} />
+            </button>
+          </div>
+        </div>
+      )}
 
       {caixaFechado && !creating && (
         <div className="bg-danger text-white px-4 py-3 flex items-center gap-2 sticky top-16 z-20 shadow-md">
