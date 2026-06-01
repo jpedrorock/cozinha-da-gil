@@ -31,6 +31,11 @@ model Order {
   notifiedReadyAt DateTime?
   notifiedReadyBy String?
 
+  // Link público de acompanhamento. Token aleatório (10 chars base62) em
+  // vez de id sequencial — cliente não adivinha pedidos alheios. Nullable
+  // pra pedidos legados; backfill no entrypoint preenche os nulos.
+  publicToken String? @unique
+
   // Fase 6: pedido pertence a uma sessão de caixa (substitui DayClose).
   // Nullable durante transição — pedidos antigos ficam sem session até backfill.
   eventSessionId String?

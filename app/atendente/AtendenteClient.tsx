@@ -868,7 +868,10 @@ export function AtendenteClient({
    *  de window.open() porque anchor é o que iOS reconhece pro deep-link.
    *  Fallback pra wa.me em 600ms se o nativo falhar (app não instalado etc). */
   function notifyReady(order: OrderView) {
-    const text = templateOrderReady(order);
+    // Inclui link público de acompanhamento na mensagem — cliente vê status
+    // ao vivo pelo celular sem precisar ler a TV no balcão.
+    const baseUrl = typeof window !== "undefined" ? window.location.origin : undefined;
+    const text = templateOrderReady(order, baseUrl);
     const nativeUrl = buildWaNativeUrl(order.clientPhone, text);
     const webUrl = buildWaUrl(order.clientPhone, text);
 
