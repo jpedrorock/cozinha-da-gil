@@ -1370,7 +1370,7 @@ function NovoPedido({
             {discount > 0 ? (
               <>
                 <span className="line-through text-ink-3">{formatBRL(subtotal)}</span>{" "}
-                <span className="font-bold text-status-ready">{formatBRL(total)}</span>
+                <span className="font-bold text-status-ready-ink">{formatBRL(total)}</span>
               </>
             ) : (
               <span className="font-bold text-ink">{formatBRL(total)}</span>

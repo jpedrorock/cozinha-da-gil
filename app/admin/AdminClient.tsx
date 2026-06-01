@@ -2463,15 +2463,16 @@ function PromotionModal({
 
         <div className="flex flex-col gap-3">
           <div>
-            <label className="block t-label mb-1">Nome</label>
-            <input className="input input-sm" value={name} onChange={(e) => setName(e.target.value)} />
+            <label htmlFor="promo-name" className="block t-label mb-1">Nome</label>
+            <input id="promo-name" className="input input-sm" value={name} onChange={(e) => setName(e.target.value)} />
           </div>
 
           <div>
-            <label className="block t-label mb-1">
+            <label htmlFor="promo-desc" className="block t-label mb-1">
               Descrição (opcional)
             </label>
             <input
+              id="promo-desc"
               className="input input-sm"
               placeholder='Ex: "Sexta da Gil"'
               value={description}
@@ -2515,10 +2516,11 @@ function PromotionModal({
 
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="block t-label mb-1">
+              <label htmlFor="promo-min-items" className="block t-label mb-1">
                 Mín. itens
               </label>
               <input
+                id="promo-min-items"
                 type="number"
                 min="0"
                 className="input input-sm"
@@ -2528,10 +2530,11 @@ function PromotionModal({
               />
             </div>
             <div>
-              <label className="block t-label mb-1">
+              <label htmlFor="promo-min-total" className="block t-label mb-1">
                 Mín. total (R$)
               </label>
               <input
+                id="promo-min-total"
                 type="number"
                 step="0.01"
                 min="0"
@@ -2566,10 +2569,11 @@ function PromotionModal({
           </div>
 
           <div>
-            <label className="block t-label mb-1">
+            <label htmlFor="promo-coupon" className="block t-label mb-1">
               Cupom (opcional)
             </label>
             <input
+              id="promo-coupon"
               className="input input-sm uppercase t-num"
               placeholder="Ex: FESTA10 — em branco = aplica automaticamente"
               value={couponCode}
@@ -2873,13 +2877,14 @@ function ProductModal({
 
         <div className="flex flex-col gap-3">
           <div>
-            <label className="block t-label mb-1">Nome</label>
-            <input className="input input-sm" value={name} onChange={(e) => setName(e.target.value)} />
+            <label htmlFor="product-name" className="block t-label mb-1">Nome</label>
+            <input id="product-name" className="input input-sm" value={name} onChange={(e) => setName(e.target.value)} />
           </div>
 
           <div>
-            <label className="block t-label mb-1">Tipo</label>
+            <label htmlFor="product-type" className="block t-label mb-1">Tipo</label>
             <select
+              id="product-type"
               className="input input-sm"
               value={type}
               onChange={(e) => setType(e.target.value)}
@@ -2952,9 +2957,10 @@ function ProductModal({
           </div>
 
           <div>
-            <label className="block t-label mb-1">Preço</label>
+            <label htmlFor="product-pricing-mode" className="block t-label mb-1">Preço</label>
             <div className="flex gap-2">
               <select
+                id="product-pricing-mode"
                 className="input input-sm w-32"
                 value={pricingMode}
                 onChange={(e) => setPricingMode(e.target.value as "fixed" | "by_size")}
@@ -4102,8 +4108,8 @@ function NewUserForm({
     <div className="card-lg p-5 flex flex-col gap-4">
       <h3 className="t-h4">Novo usuário</h3>
       <div>
-        <label className="block t-label mb-1">Nome</label>
-        <input className="input" placeholder="Ex: Ana" value={name} onChange={(e) => setName(e.target.value)} />
+        <label htmlFor="new-user-name" className="block t-label mb-1">Nome</label>
+        <input id="new-user-name" className="input" placeholder="Ex: Ana" value={name} onChange={(e) => setName(e.target.value)} />
       </div>
       <div>
         <label className="block t-label mb-1">Função</label>
