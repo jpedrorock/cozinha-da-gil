@@ -891,7 +891,7 @@ export function AtendenteClient({
             onClick={() => setTrocoOpen(true)}
             aria-label="Calculadora de troco"
             title="Troco"
-            className="inline-flex items-center justify-center h-9 w-9 rounded-full border border-line-strong text-ink-2 hover:border-ink-3 hover:text-ink"
+            className="inline-flex items-center justify-center h-11 w-11 rounded-full border border-line-strong text-ink-2 hover:border-ink-3 hover:text-ink"
           >
             <Calculator size={18} strokeWidth={2} />
           </button>
@@ -930,7 +930,7 @@ export function AtendenteClient({
           </div>
           <button
             onClick={() => setStaleDismissed(true)}
-            className="shrink-0 inline-flex items-center justify-center w-8 h-8 rounded-md text-ink-3 hover:text-ink hover:bg-brand-orange/10"
+            className="shrink-0 inline-flex items-center justify-center w-11 h-11 rounded-md text-ink-3 hover:text-ink hover:bg-brand-orange/10"
             aria-label="Dispensar aviso"
           >
             <X size={16} strokeWidth={2.5} />
@@ -1412,7 +1412,7 @@ function NovoPedido({
                     </div>
                     <button
                       onClick={() => setSelectedPromoId(isActive ? null : p.id)}
-                      className={`shrink-0 h-9 px-3 rounded-md text-xs font-bold uppercase tracking-[0.04em] ${
+                      className={`shrink-0 h-11 px-3 rounded-md text-xs font-bold uppercase tracking-[0.04em] ${
                         isActive
                           ? "bg-white text-status-ready"
                           : "bg-ink text-brand-yellow hover:brightness-110"
@@ -1902,7 +1902,7 @@ function StepProduct({
     <div className="flex items-center gap-2 mb-1">
       <button
         onClick={() => setCategory(null)}
-        className="h-8 px-2 -ml-2 rounded-md text-ink-3 hover:text-ink text-sm font-semibold"
+        className="h-11 px-2 -ml-2 rounded-md text-ink-3 hover:text-ink text-sm font-semibold"
         aria-label="Voltar pra categorias"
       >
         ←
@@ -2199,7 +2199,7 @@ function StepIngredients({
           <button
             onClick={markAll}
             disabled={allMarked}
-            className="h-9 px-4 rounded-full border-2 border-line-strong t-body-sm font-semibold text-ink-2 hover:border-ink-3 hover:text-ink disabled:opacity-40 disabled:cursor-not-allowed transition-colors inline-flex items-center gap-1.5"
+            className="h-11 px-4 rounded-full border-2 border-line-strong t-body-sm font-semibold text-ink-2 hover:border-ink-3 hover:text-ink disabled:opacity-40 disabled:cursor-not-allowed transition-colors inline-flex items-center gap-1.5"
           >
             <Check size={14} strokeWidth={3} />
             {legacyMax ? `Marcar ${legacyMax}` : "Marcar tudo"}
@@ -2207,7 +2207,7 @@ function StepIngredients({
           <button
             onClick={clearAll}
             disabled={current.ingredients.length === 0}
-            className="h-9 px-4 rounded-full border-2 border-line-strong t-body-sm font-semibold text-ink-2 hover:border-ink-3 hover:text-ink disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="h-11 px-4 rounded-full border-2 border-line-strong t-body-sm font-semibold text-ink-2 hover:border-ink-3 hover:text-ink disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             Limpar
           </button>
@@ -2495,7 +2495,7 @@ function StepConfigure({
               <button
                 onClick={markAll}
                 disabled={allMarked}
-                className="h-9 px-4 rounded-full border-2 border-line-strong t-body-sm font-semibold text-ink-2 hover:border-ink-3 hover:text-ink disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center gap-1.5"
+                className="h-11 px-4 rounded-full border-2 border-line-strong t-body-sm font-semibold text-ink-2 hover:border-ink-3 hover:text-ink disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center gap-1.5"
               >
                 <Check size={14} strokeWidth={3} />
                 {max ? `Marcar ${max}` : "Marcar tudo"}
@@ -2503,7 +2503,7 @@ function StepConfigure({
               <button
                 onClick={clearAll}
                 disabled={current.ingredients.length === 0}
-                className="h-9 px-4 rounded-full border-2 border-line-strong t-body-sm font-semibold text-ink-2 hover:border-ink-3 hover:text-ink disabled:opacity-40 disabled:cursor-not-allowed"
+                className="h-11 px-4 rounded-full border-2 border-line-strong t-body-sm font-semibold text-ink-2 hover:border-ink-3 hover:text-ink disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Limpar
               </button>
@@ -2960,7 +2960,7 @@ function StepQuantity({
           <button
             key={n}
             onClick={() => setQty(n)}
-            className={`h-9 px-4 rounded-full border text-sm font-semibold ${
+            className={`h-11 px-4 rounded-full border text-sm font-semibold ${
               qty === n
                 ? "bg-ink text-brand-yellow border-ink"
                 : "bg-surface-elevated text-ink-2 border-line-strong"

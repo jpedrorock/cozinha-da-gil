@@ -286,7 +286,7 @@ export function GuiaClient() {
           {search && (
             <button
               onClick={() => setSearch("")}
-              className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 inline-flex items-center justify-center rounded-md text-ink-3 hover:text-ink hover:bg-surface-sunken"
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-11 h-11 inline-flex items-center justify-center rounded-md text-ink-3 hover:text-ink hover:bg-surface-sunken"
               aria-label="Limpar busca"
             >
               <X size={16} strokeWidth={2.5} />
