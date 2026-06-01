@@ -2,7 +2,7 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-05-29
+**Última atualização:** 2026-06-01
 **Atualizado por:** `claude-pastel`
 
 ---
@@ -27,8 +27,7 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## Bloqueios ativos
 
-- **PR #4 aguardando merge** — backup automático do dev.db. Implementação testada local; precisa review + merge do João pra subir pra Coolify.
-- **2 PRs abertas pendentes review** (P3): `claude-pastel/iconify-sw-cache` + `claude-pastel/docker-health-endpoint`.
+- **8 PRs abertas aguardando review** — fila acumulando. PR #4 backup dev.db, PR #30 PIX, PR #31 WhatsApp auto-surface, #26 emoji→lucide, #34 bookkeeping, #35 a11y fix, #39 recibo WhatsApp fix, **#41 a11y bundle (novo)**. Implementações testadas local; gargalo é review do João.
 
 ## Próximo passo recomendado
 
@@ -84,6 +83,7 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 ## Histórico recente (últimos 5 dias)
 
 ### 2026-06-01
+- **`/trabalhar`: bundle A11y completo — PR #41 aberta** — 3 commits cobrindo 5 itens do audit: A11Y-02 (contraste status-ready/delivered nas posições texto → `-ink`), A11Y-03 (touch targets ≥44px: AppHeader operator chip, troco icon, "Dispensar aviso", "Cancelar pedido" cozinha), A11Y-04 (novo hook `lib/use-focus-trap.ts` aplicado em ConfirmDialog/CancelDialog/TrocoCalculator/IconPicker), A11Y-05 (3 inputs Nome do AdminClient ganharam wrap `<label>`), A11Y-06 (`@media (prefers-reduced-motion: reduce)` global em globals.css). Bundle único em vez de 3 PRs separadas pra não inflar a queue (7→8 abertas em vez de 7→10). Validação: tsc + lint + 179/179 testes verdes. Decisão consciente: filter chips e botões absolute em layout denso ficam — 44px lá desproporciona o row.
 - **Backlog replanejado: 3 novos itens em Próximos** (`/planejar`) — todos do `docs/AUDIT-A11Y-2026.md`: (a) [P2] quick wins (A11Y-02/05/06: inputs sem label, prefers-reduced-motion, contraste status-ready/delivered) ~1h; (b) [P2] touch targets ≥44px nas telas operacionais (A11Y-03) ~1-2h; (c) [P3] focus trap em modais (A11Y-04) ~1-2h. Mais 1 housekeeping fechado: routine log-only `20260531-0110` deletada. **Nota:** 7 PRs continuam abertos aguardando review do João.
 - **Bug-fix: recibo WhatsApp não-existente — fix em PR #39** — atendente prometia "manda direto no WhatsApp" ao preencher telefone, mas não havia mecanismo (zero links pra `/comprovante/[id]` no `OrderCard`, zero auto-envio em `submitOrder`). Fix em 2 frentes: (A) `submitOrder` auto-abre wa.me com `templateReceipt` quando pedido novo tem telefone; (B) `OrderCard` ganha botão "Comprovante" (FileText link) em todos status != CANCELADO. tsc/lint/179/build verdes. Commit `ad97a24`.
 

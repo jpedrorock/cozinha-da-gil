@@ -42,23 +42,6 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
   - **Pronto quando:** depois dos PRs #4/#30/#31 mergearem: `docs/FASE-7.md` marca #1 e #4 como ✅; `STATUS.md` reflete Fase 7 completa + Next 15 em prod + módulos atualizados; `BACKLOG.md` "Em progresso" zerado.
   - **Autonomia:** OK fazer direto.
 
-### A11y
-
-- [ ] **[P2] #a11y** Quick wins do audit (A11Y-02 + A11Y-05 + A11Y-06)
-  - **Pronto quando:** (a) `<label>` ou `aria-label` adicionado nos ~4-5 inputs do `AdminClient` que estão sem label (A11Y-05 — anchors em `AdminClient:2467, 2584, 2877, 4106`); (b) `@media (prefers-reduced-motion: reduce)` em `globals.css` desligando `animate-fade-in`, `animate-pulse`, breathe da TV cliente, slide-up de banners (A11Y-06); (c) verificação onde `status-ready`/`status-delivered` aparecem como **texto** (não fundo) e troca pelos `-ink` correspondentes se contraste falhar (A11Y-02).
-  - **Contexto:** `docs/AUDIT-A11Y-2026.md`. Esforço ~1h total.
-  - **Autonomia:** OK fazer direto.
-
-- [ ] **[P2] #a11y** Touch targets ≥ 44px nas telas operacionais (A11Y-03)
-  - **Pronto quando:** ~10 sites com `h-8`/`h-9` sub-44px no atendente e cozinha subidos pra `h-11` (44px). Lista priorizada em `docs/AUDIT-A11Y-2026.md` (chip de operador no AppHeader, ícone troco, botões secundários de OrderCard, search clear do guia, etc).
-  - **Contexto:** WCAG 2.5.5 é AAA, mas Apple HIG/Material recomendam 44×44 pra AA prática; alto valor em tablet com mãos sujas. Esforço ~1-2h.
-  - **Autonomia:** OK fazer direto.
-
-- [ ] **[P3] #a11y** Focus trap em modais (A11Y-04)
-  - **Pronto quando:** `ConfirmDialog`, `TrocoCalculator`, `IconPicker`, `CancelDialog` (e similares) trapeiam `Tab` focus dentro do modal — via `inert` no resto da página OU lib `focus-trap-react`. ESC e backdrop-click já funcionam.
-  - **Contexto:** WCAG 2.4.3 (Focus Order). Esforço ~1-2h.
-  - **Autonomia:** OK fazer direto.
-
 ### PWA
 
 ---
@@ -91,6 +74,7 @@ _Itens com critério vago OU bloqueados por dependência externa._
 ## ✅ Concluídos recentemente
 
 ### 2026-06-01
+- [claude-pastel 2026-06-01] **[P2/P3] A11y bundle (A11Y-02 + 03 + 04 + 05 + 06) — PR #41 aberta** — 3 commits em `claude-pastel/a11y-improvements`. (1) Quick wins: `text-status-ready` → `-ink` no badge "entregue" da cozinha + total descontado do cart; 3 inputs Nome do AdminClient ganharam wrap `<label>` (auto-associa); `globals.css` ganhou `@media (prefers-reduced-motion: reduce)` global. (2) Touch targets: AppHeader chip operador h-9→h-11, troco icon h-9 w-9→h-11 w-11, "Dispensar aviso" w-8 h-8→w-11 h-11, "Cancelar pedido" cozinha h-9→h-11. Filter chips horizontais ficam (rolagem). (3) Focus trap: novo hook `lib/use-focus-trap.ts` (~50 linhas, sem dep) aplicado em ConfirmDialog/CancelDialog/TrocoCalculator/IconPicker — Tab/Shift+Tab cyclam dentro + auto-focus no primeiro focusable. 179/179 testes + tsc + lint verdes. Espera review pra mergear.
 - [claude-pastel 2026-06-01] **[P3] Limpar 1 routine `routine-pastel-20260531-0110`** — branch log-only ("registrar passagem de routine sem trabalho") deletada do origin. As outras 3 routine branches restantes (`-29-1110` emoji→lucide, `-30-2113` bookkeeping, `-31-0900` a11y fix) estão associadas a PRs abertos (#26/#34/#35) e ficam pra você decidir.
 
 ### 2026-05-29
