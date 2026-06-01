@@ -2,14 +2,18 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-05-29
-**Atualizado por:** `claude-pastel`
+**Última atualização:** 2026-06-01
+**Atualizado por:** `claude-pastel` (routine background)
 
 ---
 
 ## Fase atual
 
 Fase 6 entregue. Pós-fase: hardening + observabilidade.
+
+## Routine 2026-06-01
+
+Routine agendada rodou sem trabalho executável: único item em "Próximos" (bookkeeping pós-merge) está bloqueado aguardando João mergear PRs #4/#30/#31. Seções A11y e PWA em "Próximos" estão vazias. Itens do Backlog requerem refinamento ou abertura de PR (modo headless não toca). Nenhuma regressão detectada — app continua 🟢.
 
 ## O que rolou desde a última sessão
 
