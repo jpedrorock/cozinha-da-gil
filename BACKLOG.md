@@ -44,6 +44,7 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ### A11y
 
+
 ### PWA
 
 ---
@@ -74,6 +75,9 @@ _Itens com critério vago OU bloqueados por dependência externa._
 ---
 
 ## ✅ Concluídos recentemente
+
+### 2026-06-01
+- [claude-pastel 2026-06-01 background] **[P3] #a11y Corrigir `text-status-ready` em texto (A11Y-02 restante)** — 5 usos de `text-status-ready` (#1F9B4A, 3.7:1) em texto pequeno sobre fundo branco trocados por `text-status-ready-ink` (#0F5A29, ~8:1 AAA): badge "entregue" na cozinha (`CozinhaClient:797`), preço com desconto no card (`OrderCard:202`), badge "Avisado" WhatsApp (`OrderCard:299`), total com desconto no atendente (`AtendenteClient:1373`), botão "Remover" promoção (`AtendenteClient:1417`). Ícones (`MonitorClient:146` Wifi, `CozinhaClient:1462` Check, `Clientes:225`) mantidos em `text-status-ready` — ícones decorativos não têm requisito de contraste. PR #35 (ainda aberto) já corrigiu `AdminClient:1096`. **lint ✓ 179/179 testes ✓**.
 
 ### 2026-05-29
 - [claude-pastel 2026-05-29] **[P2] Auditoria de acessibilidade WCAG 2.1 AA — primeira dedicada** — `docs/AUDIT-A11Y-2026.md`. App passa boa parte do AA sem trabalho extra (zero achados em `aria-label` icon-only, alt em `<img>`, semântica de botões). **3 gaps reais P2** (`status-preparing` 2.5:1 contraste, ~10 touch targets sub-44px, ~4-5 inputs no AdminClient sem `<label>`) + 3 P3 (`prefers-reduced-motion`, focus trap em modais, `status-ready/delivered` borderline). Esforço total: 4-6h. Não substitui teste com screen reader real.

@@ -1370,7 +1370,7 @@ function NovoPedido({
             {discount > 0 ? (
               <>
                 <span className="line-through text-ink-3">{formatBRL(subtotal)}</span>{" "}
-                <span className="font-bold text-status-ready">{formatBRL(total)}</span>
+                <span className="font-bold text-status-ready-ink">{formatBRL(total)}</span>
               </>
             ) : (
               <span className="font-bold text-ink">{formatBRL(total)}</span>
@@ -1414,7 +1414,7 @@ function NovoPedido({
                       onClick={() => setSelectedPromoId(isActive ? null : p.id)}
                       className={`shrink-0 h-9 px-3 rounded-md text-xs font-bold uppercase tracking-[0.04em] ${
                         isActive
-                          ? "bg-white text-status-ready"
+                          ? "bg-white text-status-ready-ink"
                           : "bg-ink text-brand-yellow hover:brightness-110"
                       }`}
                     >

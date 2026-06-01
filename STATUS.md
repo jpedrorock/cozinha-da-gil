@@ -2,8 +2,8 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-05-29
-**Atualizado por:** `claude-pastel`
+**Última atualização:** 2026-06-01
+**Atualizado por:** `claude-pastel` (routine background)
 
 ---
 
@@ -12,6 +12,13 @@
 Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## O que rolou desde a última sessão
+
+### 2026-06-01 (routine background)
+- **[P3] A11y: contraste `text-status-ready` em texto (A11Y-02 restante)** — 5 usos de `text-status-ready` (#1F9B4A, 3.7:1) em texto pequeno trocados por `text-status-ready-ink` (#0F5A29, ~8:1 AAA) em `CozinhaClient`, `OrderCard`, `AtendenteClient`. Ícones decorativos mantidos. lint ✓ 179/179 ✓. PR aberto.
+- **Routine encerrada com 1 item** — PRs #4/#30/#31 ainda aguardam merge; bookkeeping bloqueado. PRs abertos acumulados: **#4, #26, #30, #31, #34, #35, #36** + este.
+
+---
+
 
 - Auditoria UX crítica (4º pass) — Fases A (5/5 críticos), B (9/14 importantes), C (4/5 polish + a11y) shipped em 18 commits
 - Follow-ups do audit externo: preview comprovante 80mm, atalhos teclado cozinha, áudio escalonado, PDF com delta vs período anterior, TV breathe intermitente
