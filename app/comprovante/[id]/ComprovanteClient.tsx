@@ -170,7 +170,7 @@ export function ComprovanteClient({ order }: { order: OrderView }) {
               <span>Subtotal</span>
               <span className="t-num">{formatBRL(order.totalCents)}</span>
             </div>
-            <div className="flex justify-between text-sm text-status-ready">
+            <div className="flex justify-between text-sm text-status-ready-ink">
               <span>{order.promotionName ?? "Desconto"}</span>
               <span className="t-num">−{formatBRL(order.discountCents)}</span>
             </div>
