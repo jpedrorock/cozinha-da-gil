@@ -11,7 +11,7 @@ import { OrderCard } from "@/components/OrderCard";
 import { CancelDialog } from "@/components/CancelDialog";
 import { useConfirmDialog } from "@/components/ConfirmDialog";
 import { SwipeableCartItem } from "@/components/SwipeableCartItem";
-import { buildWaNativeUrl, buildWaUrl, templateOrderReady } from "@/lib/whatsapp-templates";
+import { buildWaNativeUrl, buildWaUrl, templateOrderReady, templateReceipt } from "@/lib/whatsapp-templates";
 import { useBodyScrollLock } from "@/lib/use-body-scroll-lock";
 import {
   BebidaIcon,
@@ -691,6 +691,37 @@ export function AtendenteClient({
       if (sseDebugEnabled()) {
         console.log(`[SSE-LAT] atendente ${method} id=${order.id} fetch=${(tResp - tFetch).toFixed(0)}ms`);
       }
+
+      // Pedido NOVO com telefone → cumpre a promessa "manda direto no WhatsApp":
+      // auto-abre wa.me com o recibo completo prefillado (1 toque humano no
+      // WhatsApp pra enviar). Tenta nativo (anchor sintético, iOS-friendly) com
+      // fallback web em 600ms. Não envia pelo banco — só dispara o link. Em
+      // edição, NÃO abre (atendente já mandou recibo da 1ª vez; reenviar manualmente
+      // pelo botão "Comprovante" no card).
+      if (!isEditing && order.clientPhone) {
+        const text = templateReceipt(order);
+        const nativeUrl = buildWaNativeUrl(order.clientPhone, text);
+        const webUrl = buildWaUrl(order.clientPhone, text);
+        const a = document.createElement("a");
+        a.href = nativeUrl;
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        a.style.display = "none";
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => a.remove(), 100);
+        const fallbackTimer = setTimeout(() => {
+          if (document.visibilityState === "visible") {
+            window.open(webUrl, "_blank", "noopener,noreferrer");
+          }
+        }, 600);
+        const onBlur = () => {
+          clearTimeout(fallbackTimer);
+          window.removeEventListener("blur", onBlur);
+        };
+        window.addEventListener("blur", onBlur);
+      }
+
       showToast(
         isEditing
           ? `Pedido #${String(order.id).padStart(3, "0")} atualizado.`

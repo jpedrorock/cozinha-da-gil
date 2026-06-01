@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Check, Coffee, HandPlatter, MessageCircle, Package, Pencil, Utensils, X } from "lucide-react";
+import Link from "next/link";
+import { Check, Coffee, FileText, HandPlatter, MessageCircle, Package, Pencil, Utensils, X } from "lucide-react";
 import { StatusBadge } from "./StatusBadge";
 import { PastelIcon, DoceIcon } from "./icons";
 import type { OrderView, OrderItemView } from "@/lib/orders";
@@ -211,6 +212,19 @@ export function OrderCard({
           )}
         </div>
         <div className="ml-auto flex gap-2 flex-wrap justify-end">
+          {/* Comprovante: leva pra /comprovante/<id> onde tem "Enviar no
+              WhatsApp", QR PIX e impressão. Mostrado sempre que pedido não
+              está cancelado — atendente reimprime/reenvia quando quiser. */}
+          {order.status !== "CANCELADO" && (
+            <Link
+              href={`/comprovante/${order.id}`}
+              className="btn btn-secondary btn-sm"
+              title="Ver comprovante / reenviar recibo"
+            >
+              <FileText size={14} strokeWidth={2.5} />
+              Comprovante
+            </Link>
+          )}
           {/* Audit-Crit #1+#6: Editar agora permitido também em EM_PREPARO.
               Cliente desiste de algo, atendente precisa ajustar — bloquear
               força cancelar+refazer (pior pra todo mundo). Backend
