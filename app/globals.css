@@ -232,3 +232,20 @@ html { color-scheme: only light; }
   .animate-step-in  { animation: slide-in-right 220ms cubic-bezier(.2,.8,.2,1); }
   .animate-step-back{ animation: slide-in-left  220ms cubic-bezier(.2,.8,.2,1); }
 }
+
+/* === A11Y-06 (WCAG 2.3.3, 2.2.2) ===
+   Quando o user pediu "menos movimento" no OS (iOS Reduzir Movimento,
+   Android Reduzir animação, Windows Mostrar animações: Off), respeita:
+   praticamente desliga animação/transição em tudo. Usa !important pra
+   sobrescrever utilitários do Tailwind. scroll-behavior: auto evita
+   scroll suave que enjoa quem é sensível a movimento. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

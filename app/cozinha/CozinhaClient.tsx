@@ -794,7 +794,7 @@ export function CozinhaClient({
                             </span>
                             <span className="font-bold truncate">{o.clientName}</span>
                             {o.status === "ENTREGUE" && (
-                              <span className="shrink-0 text-[10px] font-bold uppercase tracking-wide text-status-ready border border-status-ready/40 rounded px-1.5 py-0.5">
+                              <span className="shrink-0 text-[10px] font-bold uppercase tracking-wide text-status-ready-ink border border-status-ready/40 rounded px-1.5 py-0.5">
                                 entregue
                               </span>
                             )}
