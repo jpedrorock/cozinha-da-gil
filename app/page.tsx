@@ -87,7 +87,11 @@ export default function LoginPage() {
 
   return (
     <main
-      className="min-h-dvh flex flex-col bg-gradient-to-b from-brand-yellow to-brand-orange"
+      // h-dvh + overflow-hidden: altura exata do viewport, sem bounce do
+      // PWA standalone iOS revelando o body branco atrás. Em iPhone SE
+      // (375x667) o conteúdo pode ficar apertado — o container do card
+      // herda overflow-y-auto pra scroll interno em vez de cortar.
+      className="h-dvh flex flex-col bg-gradient-to-b from-brand-yellow to-brand-orange overflow-hidden"
       style={{
         paddingTop: "max(env(safe-area-inset-top), 8px)",
         paddingBottom: "max(env(safe-area-inset-bottom), 8px)",
@@ -97,8 +101,9 @@ export default function LoginPage() {
     >
       <PWAInstallBanner />
 
-      {/* Card centralizado verticalmente */}
-      <div className="flex-1 flex items-center justify-center w-full">
+      {/* Card centralizado verticalmente, com scroll interno como fallback
+          pra iPhone SE / telas pequenas onde o numpad pode não caber. */}
+      <div className="flex-1 flex items-center justify-center w-full overflow-y-auto">
         <div className="w-full max-w-sm bg-surface-elevated rounded-3xl shadow-xl px-5 py-5 flex flex-col gap-5">
           {/* Marca em destaque: BrandIcon grande + "Cozinha da Gil" inline
               com "Gil" extra-bold gigante à direita. Hierarquia visual:
