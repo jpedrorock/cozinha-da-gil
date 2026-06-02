@@ -2,14 +2,20 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-01
-**Atualizado por:** `claude-pastel`
+**Última atualização:** 2026-06-02
+**Atualizado por:** `claude-pastel` (routine background)
 
 ---
 
 ## Fase atual
 
 Fase 6 entregue. Pós-fase: hardening + observabilidade.
+
+## Routine 2026-06-02
+
+- **Routine background encerrada sem trabalho** — único item em "Próximos" (bookkeeping Fase 7) está bloqueado pelos PRs #4 e #30 ainda aguardando merge do João. Todos os demais itens do Backlog requerem PR/hardware/presencial. Nenhum item qualificou para execução autônoma.
+
+---
 
 ## O que rolou desde a última sessão
 
