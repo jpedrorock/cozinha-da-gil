@@ -2,7 +2,7 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-01
+**Última atualização:** 2026-06-02
 **Atualizado por:** `claude-pastel`
 
 ---
@@ -13,17 +13,15 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## O que rolou desde a última sessão
 
-- Auditoria UX crítica (4º pass) — Fases A (5/5 críticos), B (9/14 importantes), C (4/5 polish + a11y) shipped em 18 commits
-- Follow-ups do audit externo: preview comprovante 80mm, atalhos teclado cozinha, áudio escalonado, PDF com delta vs período anterior, TV breathe intermitente
-- Página `/guia` criada — manual por papel (atendente/cozinha/admin/geral) com tabs, busca, accordion, hero gradient, steps numerados, callouts. Reescrito 2x: primeiro inspirado no `Help.tsx` do cultivo-server, depois sem jargão técnico pra família ler
-- Header com nome do operador sempre visível (mobile + desktop)
-- Cozinha em 2 colunas quando pedido tem qty>1 + botnav inferior com labels (acessibilidade)
-- ESLint cleanup completa: 115 erros → 0, reativado check no build
-- Migração `Product.imageDataUrl` base64 → filesystem (`/api/uploads/products/<file>`), com script idempotente no entrypoint Docker
-- Caixa virou primeiro item do menu admin (rename "Operação" → "Caixa", default tab também)
-- Bump de patches/minors (`lucide-react`, `tsx`, `vitest`, `@types/react`) — majors deferidos com razão
-- PIN do Gil resetado pra 2699 (local) + script `scripts/reset-gil-password.ts` reusável
-- Backlog replanejado: 9 novos itens aprovados pelo João
+_(sessão 2026-06-01)_
+- **PR #42 mergeada** — link público de acompanhamento do pedido (`/p/<token>`): schema `Order.publicToken`, endpoint `GET /api/p/[token]`, página de status ao vivo, WhatsApp com link, botão "Copiar link" no comprovante. Tests: 163 → 197 (+34).
+- **Fix `c556d20`** — atendente navega direto pro `/comprovante/[id]` após criar pedido (popup blocker impedia wa.me automático).
+- **Fix `817d840`** — botão "Avisar" na cozinha usa `<a href="wa.me/...">` direto (não `whatsapp://` deep link).
+- **PR #41 aberta** — a11y bundle (A11Y-02..06): contraste, touch targets ≥44px, focus trap em modais, labels em inputs, `prefers-reduced-motion`. 179/179 na branch — espera merge.
+- **Bloqueios:** 6 PRs abertas (#4 backup, #30 PIX, #26 emoji→lucide, #34 bookkeeping, #35 a11y-fix, #41 a11y-bundle). Aguardando review do João.
+
+_(routine 2026-06-02)_
+- Routine background disparada. Único item em "Próximos" (bookkeeping pós-merge) está bloqueado por PRs #4 e #30 ainda não mergeados. Sem trabalho de código. Métricas de tests corrigidas (163→197).
 
 ## Bloqueios ativos
 
@@ -55,7 +53,7 @@ BACKLOG "Próximos" reabastecido com **5 itens de manutenção pós-Fase 7** (re
 | Impressora térmica | 🟡 | window.print() funcional; integração ESC/POS espera hardware. |
 | PWA (@ducanh2912/next-pwa, manifest, service worker) | 🟢 | Standalone, 15 splashes (iPhone+iPad), install prompts, update prompt, CacheFirst pra assets imutáveis, shortcuts no long-press, **fallback offline automático** (`fallbacks: document` reativado no fork), 3 screenshots no manifest. _Migrado pra fork na branch `claude-pastel/next15-pwa` (PR)._ |
 | Auth (iron-session) | 🟢 | PIN único por role, identificação por {role + PIN}. |
-| Testes Vitest | 🟢 | 163/163 passando (ingredientes, uploads, kitchen-display, whatsapp URLs, + caixa órfão, idempotency/TTL, i18n de ícones, formatBRL). |
+| Testes Vitest | 🟢 | 197/197 passando (ingredientes, uploads, kitchen-display, whatsapp URLs, + caixa órfão, idempotency/TTL, i18n de ícones, formatBRL, + link público /p/[token]). |
 | Testes Playwright e2e | 🟢 | 12/12 passando em `npm run dev` (auth UI + API smoke + fluxo de pedido + bypass de bebida). Nota: auth UI falha em build de produção por causa do service worker — rodar e2e contra `npm run dev`. |
 
 ---
@@ -70,7 +68,7 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 
 ## Métricas vivas
 
-- Tests passando: **163/163** ✅
+- Tests passando: **197/197** ✅
 - Type-check: **ok** ✅
 - ESLint: **0 erros** ✅ (check ativo no build)
 - DB schema: **sincronizado** ✅ (imageUrl adicionado)
