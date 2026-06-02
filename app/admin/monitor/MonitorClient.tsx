@@ -114,7 +114,7 @@ export function MonitorClient({
   const sessionStale = eventStatus.open && isStaleEventSession(eventStatus.openedAt);
 
   return (
-    <div className="min-h-dvh bg-ink text-ink-inverse flex flex-col">
+    <div className="h-dvh bg-ink text-ink-inverse flex flex-col overflow-hidden">
       {/* Header curto — sem sidebar/chrome admin. Só voltar + status. */}
       <header className="px-4 py-3 border-b border-ink-2 flex items-center justify-between gap-3 bg-ink-2/30">
         <Link
@@ -179,7 +179,7 @@ export function MonitorClient({
       </div>
 
       {/* Lista live: NOVOS + EM_PREPARO, ordenados por urgência (mais antigo primeiro) */}
-      <div className="flex-1 px-4 pb-6 flex flex-col gap-4">
+      <div className="flex-1 overflow-y-auto px-4 pb-6 flex flex-col gap-4">
         <LiveSection
           title="Em preparo"
           dotColor="bg-status-preparing"

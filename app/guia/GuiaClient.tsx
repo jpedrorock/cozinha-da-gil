@@ -176,7 +176,7 @@ export function GuiaClient() {
 
   return (
     <div
-      className="min-h-dvh bg-surface flex flex-col"
+      className="h-dvh bg-surface flex flex-col overflow-hidden"
       style={{ paddingTop: "env(safe-area-inset-top)" }}
     >
       {/* === Header sticky === */}
@@ -267,7 +267,7 @@ export function GuiaClient() {
       </section>
 
       {/* === Main content === */}
-      <main className="flex-1 px-4 md:px-6 py-6 max-w-5xl mx-auto w-full">
+      <main className="flex-1 overflow-y-auto px-4 md:px-6 py-6 max-w-5xl mx-auto w-full">
         {/* Busca */}
         <div className="relative mb-5">
           <Search

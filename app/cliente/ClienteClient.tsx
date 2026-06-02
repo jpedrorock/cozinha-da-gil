@@ -82,7 +82,7 @@ export function ClienteClient({ initialOrders }: { initialOrders: OrderView[] })
   );
 
   return (
-    <div className="min-h-dvh flex flex-col bg-surface">
+    <div className="h-dvh flex flex-col bg-surface overflow-hidden">
       <header
         className="bg-surface-elevated border-b border-line"
         style={{ paddingTop: "env(safe-area-inset-top)" }}
@@ -124,7 +124,7 @@ export function ClienteClient({ initialOrders }: { initialOrders: OrderView[] })
         </div>
       </header>
 
-      <main className="flex-1 max-w-6xl w-full mx-auto px-6 md:px-10 py-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+      <main className="flex-1 overflow-y-auto max-w-6xl w-full mx-auto px-6 md:px-10 py-8 grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Ordem segue o fluxo temporal do pedido:
             esquerda = "Em preparo" (entrou agora) → direita = "Pronto" (sair).
             Cliente acompanha o nome dele "andando" da esquerda pra direita. */}

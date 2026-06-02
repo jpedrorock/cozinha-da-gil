@@ -493,7 +493,7 @@ export function CozinhaClient({
   ).length;
 
   return (
-    <div className="min-h-dvh flex flex-col">
+    <div className="h-dvh flex flex-col overflow-hidden">
       {/* Feedback Gil: header lotado de ícones — movemos controles globais
           (busca/ordenar/som) pro bottom action bar com labels visíveis.
           Header agora só mostra info passiva: status conexão, badges de
@@ -556,7 +556,7 @@ export function CozinhaClient({
       )}
 
       <main
-        className="flex-1 p-4 md:p-6"
+        className="flex-1 overflow-y-auto p-4 md:p-6"
         // Padding bottom respeita altura do action bar fixo (72px) +
         // safe-area do iPhone, pra último card não ficar coberto.
         style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 88px)" }}

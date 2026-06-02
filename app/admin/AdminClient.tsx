@@ -466,7 +466,7 @@ function AdminShell({
   const mobileMore = ADMIN_TABS.filter((t) => t.priority >= 3);
 
   return (
-    <div className="min-h-dvh flex flex-col lg:flex-row">
+    <div className="h-dvh flex flex-col lg:flex-row overflow-hidden">
       {/* === DESKTOP SIDEBAR (md+) === */}
       <aside
         className={`hidden lg:flex flex-col fixed left-0 top-0 bottom-0 z-30 bg-surface-elevated border-r border-line transition-[width] duration-200 ease-out ${
@@ -585,7 +585,7 @@ function AdminShell({
       </div>
 
       {/* === MAIN === */}
-      <div className={`flex-1 flex flex-col pb-24 lg:pb-8 transition-[padding] duration-200 ${sidebarExpanded ? "lg:pl-56" : "lg:pl-16"}`}>
+      <div className={`flex-1 flex flex-col overflow-y-auto pb-24 lg:pb-8 transition-[padding] duration-200 ${sidebarExpanded ? "lg:pl-56" : "lg:pl-16"}`}>
         <main className="flex-1 max-w-5xl w-full mx-auto px-4 md:px-8 py-5 md:py-8">
           {children}
         </main>

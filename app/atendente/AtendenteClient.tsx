@@ -903,7 +903,7 @@ export function AtendenteClient({
   const [pendingNotify, setPendingNotify] = useState<OrderView | null>(null);
 
   return (
-    <div className="min-h-dvh flex flex-col">
+    <div className="h-dvh flex flex-col overflow-hidden">
       <AppHeader
         right={
           <button
@@ -1285,8 +1285,8 @@ function NovoPedido({
 
   if (phase === "client") {
     return (
-      <div className="flex-1 flex flex-col">
-        <div className="flex-1 px-4 md:px-8 pt-6 md:pt-10 max-w-2xl md:max-w-4xl w-full mx-auto">
+      <div className="flex-1 flex flex-col min-h-0">
+        <div className="flex-1 overflow-y-auto px-4 md:px-8 pt-6 md:pt-10 max-w-2xl md:max-w-4xl w-full mx-auto">
           <h1 className="t-h1 mb-1">Novo pedido</h1>
           <p className="t-body-sm mb-5">Quem é o cliente?</p>
 
@@ -1387,7 +1387,7 @@ function NovoPedido({
     const discount = selectedPromo ? computeDiscount(selectedPromo, subtotal, cartForPromo) : 0;
     const total = Math.max(0, subtotal - discount);
     return (
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-h-0">
         <div className="flex-1 overflow-y-auto px-4 md:px-8 pt-6 max-w-2xl md:max-w-4xl w-full mx-auto">
           <div className="flex items-baseline justify-between mb-1">
             <h1 className="t-h1">{editing ? "Editar pedido" : "Resumo"}</h1>
@@ -3308,7 +3308,7 @@ function Fila({
 
   return (
     <div
-      className="flex-1 flex flex-col"
+      className="flex-1 flex flex-col min-h-0 overflow-y-auto"
       style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 140px)" }}
     >
       <div className="px-4 md:px-8 pt-5 max-w-3xl w-full mx-auto">

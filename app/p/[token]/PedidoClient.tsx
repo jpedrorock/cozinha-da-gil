@@ -84,7 +84,7 @@ export function PedidoClient({ initialOrder }: { initialOrder: OrderView }) {
   const offline = sseStatus === "closed";
 
   return (
-    <div className="min-h-dvh flex flex-col bg-surface">
+    <div className="h-dvh flex flex-col bg-surface overflow-hidden">
       <header
         className="bg-surface-elevated border-b border-line"
         style={{ paddingTop: "env(safe-area-inset-top)" }}
@@ -109,7 +109,7 @@ export function PedidoClient({ initialOrder }: { initialOrder: OrderView }) {
         </div>
       </header>
 
-      <main className="flex-1 max-w-md w-full mx-auto px-5 py-6 flex flex-col gap-5">
+      <main className="flex-1 overflow-y-auto max-w-md w-full mx-auto px-5 py-6 flex flex-col gap-5">
         {/* Saudação + #pedido */}
         <div>
           <div className="text-sm text-ink-3 font-medium">Olá,</div>

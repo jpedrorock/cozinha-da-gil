@@ -56,7 +56,7 @@ export function ComprovanteClient({ order }: { order: OrderView }) {
 
   return (
     <div
-      className={`min-h-dvh flex flex-col items-center justify-start py-6 print:py-0 print:bg-white ${
+      className={`h-dvh overflow-y-auto flex flex-col items-center justify-start py-6 print:h-auto print:overflow-visible print:py-0 print:bg-white ${
         previewMode ? "bg-[#2a2a2a]" : "bg-surface"
       }`}
     >

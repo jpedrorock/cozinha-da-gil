@@ -26,10 +26,12 @@ html { color-scheme: only light; }
      continua funcionando (WCAG 1.4.4). */
   button, a, [role="button"] { touch-action: manipulation; }
 
-  /* Bloqueia pull-to-refresh acidental do iOS/Android quando atendente
-     puxa de leve no topo da fila durante stepper aberto. Sem isso, a
-     página recarrega no meio do pedido e perde o state inteiro. */
-  html, body { overscroll-behavior-y: contain; }
+  /* Bloqueia pull-to-refresh + bounce vertical em PWA standalone iOS.
+     `contain` (antigo) só impedia propagação; `none` mata o bounce que
+     mostrava área branca atrás do gradiente no login (Gil 01/06).
+     Pra telas com scroll real (cozinha/admin/guia), o container interno
+     com overflow-y-auto continua scrollando normal. */
+  html, body { overscroll-behavior: none; }
 
   /* iOS Safari faz auto-zoom em qualquer input com font-size < 16px.
      Atendente toca no campo e a tela inteira dá zoom — quebra fluxo.
