@@ -2,7 +2,7 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-01
+**Última atualização:** 2026-06-02
 **Atualizado por:** `claude-pastel`
 
 ---
@@ -27,15 +27,23 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## Bloqueios ativos
 
-- **6 PRs abertas aguardando review** — PR #4 backup dev.db, PR #30 PIX, #26 emoji→lucide, #34 bookkeeping, #35 a11y fix, **#41 a11y bundle**. (PR #31 e #39 mergeadas 01/06 — WhatsApp pós-pedido + avisar pronto liberados em prod.)
+- **11 PRs abertas acumuladas** — João ainda não mergeou os PRs de backlog. Fila cresceu com PRs de routines que não encontraram trabalho novo:
+  - **Bloqueados aguardando merge manual**: #4 (backup dev.db), #30 (PIX), #26 (emoji→lucide)
+  - **A11y**: #35 (contraste Caixa aberto), #37 (contraste restante), #41 (bundle oficial — **preferir este**), #40 (supersedido pelo #41, pode fechar)
+  - **Bookkeeping/log**: #34, #36, #38 (logs antigos, podem fechar), **#43** (bookkeeping mais recente — preferir este)
+  - **Ação urgente**: João mergear ao menos **#4** + **#30** + **#41** + **#43** pra desbloquear o backlog. PRs #36/#38/#34/#40 podem ser fechados sem mergear (work superseded).
 
 ## Próximo passo recomendado
 
-**Fase 7 fechada (5/5)** — 3 itens mergeados (#23 Next 15 já no main, #28 troco, #29 comparativo), 3 PRs aguardando merge (**#4 backup desconflictado**, **#30 PIX**, **#31 WhatsApp auto-surface**), e #5 "Acabou" já existia. Coolify deployou Next 15 em prod na sessão de 29/05.
+**Fase 7 fechada (5/5)** — #23 (Next 15), #28 (troco), #29 (comparativo), #31 (WhatsApp auto-surface, mergeado 01/06), #39 (WhatsApp comprovante, mergeado 01/06), #42 (link público de acompanhamento, mergeado 01/06). Resta só #4 (backup) e #30 (PIX) pra mergear.
 
-João: (1) mergear **#4 + #30 + #31** (todos validados: tsc/lint/testes/build); (2) **configurar chave PIX** (admin → Caixa → "Pagamento (PIX)") — 1 vez só; (3) **teste manual da PWA no celular** (install/offline/splash) agora que Next 15 está em prod; rollback Coolify 1-clique se algo quebrar.
-
-BACKLOG "Próximos" reabastecido com **5 itens de manutenção pós-Fase 7** (replan 2026-05-29): bookkeeping, smoke prod, limpar 4 routine-* novas, auditoria a11y dedicada, reavaliar Background Sync.
+João — lista de ação pra desbloquear o backlog:
+1. Mergear **#4** (backup dev.db — tsc/lint/testes/build verdes)
+2. Mergear **#30** (PIX — tsc/lint/192 testes/build verdes); depois **configurar chave PIX** no admin
+3. Mergear **#41** (a11y bundle, bundle oficial)
+4. Mergear **#43** (bookkeeping STATUS/FASE-7.md atualizado)
+5. **Fechar sem mergear**: #34, #36, #38 (logs de routine superseded), #40 (a11y supersedido pelo #41)
+6. Decidir sobre **#26** (emoji→lucide) e **#35** (contraste — já coberto pelo #41?)
 
 ---
 
@@ -70,7 +78,7 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 
 ## Métricas vivas
 
-- Tests passando: **163/163** ✅
+- Tests passando: **197/197** ✅ (main, pós-merge #42)
 - Type-check: **ok** ✅
 - ESLint: **0 erros** ✅ (check ativo no build)
 - DB schema: **sincronizado** ✅ (imageUrl adicionado)
@@ -81,6 +89,9 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 ---
 
 ## Histórico recente (últimos 5 dias)
+
+### 2026-06-02
+- **Routine encerrada sem trabalho novo** — único item em "Próximos" (bookkeeping) continua bloqueado nos PRs #4 e #30 (não mergeados). 11 PRs abertas, incluindo 4 de routines anteriores. STATUS.md atualizado: métrica testes corrigida (163→197 pós-#42), próximo passo e bloqueios reescritos pra refletir a fila real de PRs.
 
 ### 2026-06-01
 - **🆕 PR #42 mergeada — link público de acompanhamento do pedido** — Gil pediu "criar um link pro cliente acompanhar tb". Implementado: schema `Order.publicToken` (10 chars base62, ~59 bits entropia), backfill idempotente no entrypoint (86 pedidos legados preenchidos), endpoint público `GET /api/p/[token]`, página `/p/[token]` com status grande colorido (preparing/ready com pulso/delivered/cancelled), atualiza ao vivo via SSE. WhatsApp templates `templateReceipt`/`templateOrderReady` ganharam param `baseUrl` que anexa linha "Acompanhe: <url>". Comprovante ganhou botão "Copiar link". Validação: tsc + lint + **197/197 testes** (+18 novos) + build. Squash-merged como `182c30e`.
