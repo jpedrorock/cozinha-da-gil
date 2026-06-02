@@ -2,7 +2,7 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-01
+**Última atualização:** 2026-06-02
 **Atualizado por:** `claude-pastel`
 
 ---
@@ -27,15 +27,26 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## Bloqueios ativos
 
-- **6 PRs abertas aguardando review** — PR #4 backup dev.db, PR #30 PIX, #26 emoji→lucide, #34 bookkeeping, #35 a11y fix, **#41 a11y bundle**. (PR #31 e #39 mergeadas 01/06 — WhatsApp pós-pedido + avisar pronto liberados em prod.)
+- **14 PRs abertas aguardando triagem do João.** Recomendação:
+  - **Mergear:** #4 (backup dev.db), #26 (emoji→lucide), #30 (PIX), #35 (contraste "caixa aberto"), #41 (a11y bundle — 5 itens), #43 (bookkeeping parcial Fase 7)
+  - **Fechar (supersedidos ou log-only):** #34 (supersedido por #43), #36 (log-only), #37 (supersedido por #41), #38 (log-only), #40 (supersedido por #41), #44 / #45 / #46 (log-only de routines)
+  - (PR #31, #39, #42 já mergeados em prod — WhatsApp pós-pedido, avisar pronto, link público.)
 
 ## Próximo passo recomendado
 
-**Fase 7 fechada (5/5)** — 3 itens mergeados (#23 Next 15 já no main, #28 troco, #29 comparativo), 3 PRs aguardando merge (**#4 backup desconflictado**, **#30 PIX**, **#31 WhatsApp auto-surface**), e #5 "Acabou" já existia. Coolify deployou Next 15 em prod na sessão de 29/05.
+**Triagem urgente de PRs acumuladas.** 14 PRs abertas — 6 com código real validado, 8 log-only/supersedidas.
 
-João: (1) mergear **#4 + #30 + #31** (todos validados: tsc/lint/testes/build); (2) **configurar chave PIX** (admin → Caixa → "Pagamento (PIX)") — 1 vez só; (3) **teste manual da PWA no celular** (install/offline/splash) agora que Next 15 está em prod; rollback Coolify 1-clique se algo quebrar.
-
-BACKLOG "Próximos" reabastecido com **5 itens de manutenção pós-Fase 7** (replan 2026-05-29): bookkeeping, smoke prod, limpar 4 routine-* novas, auditoria a11y dedicada, reavaliar Background Sync.
+João:
+1. **Fechar** #34, #36, #37, #38, #40, #44, #45, #46 (log-only ou supersedidos — sem código útil)
+2. **Mergear** #41 (a11y bundle: contraste + touch targets + focus trap, 179 testes ✅)
+3. **Mergear** #35 (contraste "Caixa aberto" — 1 linha CSS, 179 testes ✅)
+4. **Mergear** #26 (emoji→lucide, 163 testes ✅)
+5. **Mergear** #43 (bookkeeping parcial Fase 7 — só docs/markdown)
+6. **Mergear** #4 (backup automático dev.db — validado com build)
+7. **Mergear** #30 (PIX QR + admin config — 192 testes ✅)
+8. Após #4 + #30 mergearem: próxima routine fecha bookkeeping completo (FASE-7.md + BACKLOG zerado)
+9. **Configurar chave PIX** (admin → Caixa → "Pagamento (PIX)") após #30 mergear — 1 vez só
+10. **Smoke test no celular** (PWA install/offline/splash) — Next 15 está em prod desde 29/05
 
 ---
 
@@ -70,17 +81,21 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 
 ## Métricas vivas
 
-- Tests passando: **163/163** ✅
+- Tests passando: **197/197** ✅ (163 base + 34 do link público PR #42)
 - Type-check: **ok** ✅
 - ESLint: **0 erros** ✅ (check ativo no build)
-- DB schema: **sincronizado** ✅ (imageUrl adicionado)
+- DB schema: **sincronizado** ✅ (imageUrl + publicToken adicionados)
 - PWA: **instalável** ✅ (iOS Safari + Android Chrome)
-- Vulns npm audit: **3 moderate** (postcss interno do Next, build-time) na branch Next 15 — era 10 (9 high) no main Next 14. PR aberto.
-- Next/React: **15.5.18 / 19.2.6** na branch `claude-pastel/next15-pwa` (main ainda 14.2.35 até merge)
+- Vulns npm audit: **3 moderate** (postcss interno do Next, build-time, não-bloqueante)
+- Next/React: **15.5.18 / 19.2.6** em main ✅ (PR #23 mergeado em 29/05)
 
 ---
 
 ## Histórico recente (últimos 5 dias)
+
+### 2026-06-02
+- **4 UX fixes** — (1) Root layout fixo, content com `overflow-y: auto` independente em todas as telas (anti-bounce iOS/Android, `7543609`); (2) Login usa `h-dvh` exato pra não aparecer área branca ao bouncy-scroll (`853dd79`); (3) Comprovante: volta automaticamente pra fila após enviar WhatsApp — não precisa clicar "Voltar" (`ece33c5`); (4) Botão "Voltar" movido pro rodapé junto com os outros botões de ação (`15f9d41`).
+- **Routine background 2026-06-02 (21:11)** — sem itens qualificados em "Próximos". Único item (bookkeeping) bloqueado por PRs #4/#30 aguardando merge. STATUS.md atualizado: métricas corrigidas (163→197, Next 15 em main), bloqueios expandidos (14 PRs com triagem), próximo passo reescrito para João.
 
 ### 2026-06-01
 - **🆕 PR #42 mergeada — link público de acompanhamento do pedido** — Gil pediu "criar um link pro cliente acompanhar tb". Implementado: schema `Order.publicToken` (10 chars base62, ~59 bits entropia), backfill idempotente no entrypoint (86 pedidos legados preenchidos), endpoint público `GET /api/p/[token]`, página `/p/[token]` com status grande colorido (preparing/ready com pulso/delivered/cancelled), atualiza ao vivo via SSE. WhatsApp templates `templateReceipt`/`templateOrderReady` ganharam param `baseUrl` que anexa linha "Acompanhe: <url>". Comprovante ganhou botão "Copiar link". Validação: tsc + lint + **197/197 testes** (+18 novos) + build. Squash-merged como `182c30e`.

@@ -28,9 +28,6 @@
 _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 - [ ] **[P1] #chore** Backup automático do `dev.db` no volume Coolify — **PR #4 aberto, aguardando merge** [claude-pastel 2026-05-22]
-- [ ] **[P2] #chore #pwa** Migração Next 14 → 15 + `@ducanh2912/next-pwa` — **PR aberto (branch `claude-pastel/next15-pwa`), aguardando review + teste manual de PWA/SSE em device** [claude-pastel 2026-05-28]
-  - Feito + validado: next 15.5.18, react 19.2.6, fork PWA, codemod async params (14 rotas), override serialize-javascript. tsc/lint/163 testes/build/12 e2e em dev verdes. `fallbacks: /offline` reativado. `npm audit` 10 (9 high) → 3 moderate (postcss interno do Next, build-time, não-bloqueante).
-  - Antes do merge em prod: teste manual da PWA (install/offline/splash) + SSE 3 abas (§4.8 de `docs/UPGRADE-NEXT-15.md`). Rollback: Coolify 1-clique ou `git revert`.
 
 ---
 
@@ -39,7 +36,7 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 ### Pós-Fase 7 — manutenção
 
 - [ ] **[P3] #chore #docs** Bookkeeping pós-merge de Fase 7
-  - **Pronto quando:** depois dos PRs #4/#30/#31 mergearem: `docs/FASE-7.md` marca #1 e #4 como ✅; `STATUS.md` reflete Fase 7 completa + Next 15 em prod + módulos atualizados; `BACKLOG.md` "Em progresso" zerado.
+  - **Pronto quando:** depois dos PRs #4/#30 mergearem (PR #31 já mergeado 01/06): `docs/FASE-7.md` marca todos os itens como ✅; `BACKLOG.md` "Em progresso" zerado (só resta PR #4).
   - **Autonomia:** OK fazer direto.
 
 ### PWA
@@ -73,9 +70,15 @@ _Itens com critério vago OU bloqueados por dependência externa._
 
 ## ✅ Concluídos recentemente
 
+### 2026-06-02
+- [claude-pastel 2026-06-02 background] **STATUS.md atualizado** — métricas corrigidas (163→197 testes, Next 15 em main), bloqueios expandidos (14 PRs com triagem), próximo passo reescrito. BACKLOG: Next 15 removido de "Em progresso" (PR #23 já mergeado). Bookkeeping: critério atualizado (PR #31 ✅, restam #4/#30).
+
 ### 2026-06-01
 - [claude-pastel 2026-06-01] **[P2/P3] A11y bundle (A11Y-02 + 03 + 04 + 05 + 06) — PR #41 aberta** — 3 commits em `claude-pastel/a11y-improvements`. (1) Quick wins: `text-status-ready` → `-ink` no badge "entregue" da cozinha + total descontado do cart; 3 inputs Nome do AdminClient ganharam wrap `<label>` (auto-associa); `globals.css` ganhou `@media (prefers-reduced-motion: reduce)` global. (2) Touch targets: AppHeader chip operador h-9→h-11, troco icon h-9 w-9→h-11 w-11, "Dispensar aviso" w-8 h-8→w-11 h-11, "Cancelar pedido" cozinha h-9→h-11. Filter chips horizontais ficam (rolagem). (3) Focus trap: novo hook `lib/use-focus-trap.ts` (~50 linhas, sem dep) aplicado em ConfirmDialog/CancelDialog/TrocoCalculator/IconPicker — Tab/Shift+Tab cyclam dentro + auto-focus no primeiro focusable. 179/179 testes + tsc + lint verdes. Espera review pra mergear.
 - [claude-pastel 2026-06-01] **[P3] Limpar 1 routine `routine-pastel-20260531-0110`** — branch log-only ("registrar passagem de routine sem trabalho") deletada do origin. As outras 3 routine branches restantes (`-29-1110` emoji→lucide, `-30-2113` bookkeeping, `-31-0900` a11y fix) estão associadas a PRs abertos (#26/#34/#35) e ficam pra você decidir.
+
+### 2026-05-29 (mergeados)
+- [claude-pastel 2026-05-29] **[P2] Migração Next 14 → 15 + `@ducanh2912/next-pwa` — PR #23 mergeado** — next 15.5.18, react 19.2.6, fork PWA, codemod async params (14 rotas). tsc/lint/163 testes/build/12 e2e verdes. `fallbacks: /offline` reativado. `npm audit` 10 (9 high) → 3 moderate. Coolify deployou automaticamente após merge.
 
 ### 2026-05-29
 - [claude-pastel 2026-05-29] **[P2] Auditoria de acessibilidade WCAG 2.1 AA — primeira dedicada** — `docs/AUDIT-A11Y-2026.md`. App passa boa parte do AA sem trabalho extra (zero achados em `aria-label` icon-only, alt em `<img>`, semântica de botões). **3 gaps reais P2** (`status-preparing` 2.5:1 contraste, ~10 touch targets sub-44px, ~4-5 inputs no AdminClient sem `<label>`) + 3 P3 (`prefers-reduced-motion`, focus trap em modais, `status-ready/delivered` borderline). Esforço total: 4-6h. Não substitui teste com screen reader real.
