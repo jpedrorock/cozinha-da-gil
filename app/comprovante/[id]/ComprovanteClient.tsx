@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { ArrowLeft, Check, Coffee, Eye, EyeOff, Link as LinkIcon, MessageCircle, Package, Printer, Utensils } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { BrandIcon, DoceIcon, PastelIcon } from "@/components/icons";
 import type { OrderView } from "@/lib/orders";
 import { formatPhoneDisplay } from "@/lib/orders";
@@ -10,6 +11,7 @@ import { formatBRL, SIZE_LABEL } from "@/lib/pricing";
 import { buildPublicOrderUrl, buildWaUrl, templateReceipt } from "@/lib/whatsapp-templates";
 
 export function ComprovanteClient({ order }: { order: OrderView }) {
+  const router = useRouter();
   const created = new Date(order.createdAt);
   // Audit follow-up P2 #24: preview inline antes de imprimir. Em vez de
   // confiar no diálogo nativo do navegador (que renderiza preto-no-branco
@@ -234,10 +236,18 @@ export function ComprovanteClient({ order }: { order: OrderView }) {
             </>
           )}
         </button>
+        {/* Depois de tocar enviar: o OS abre o WhatsApp em nova janela/aba,
+            e o app volta automaticamente pra fila do atendente (em vez de
+            ficar parado numa tela em branco do wa.me). Delay 400ms garante
+            que o browser já começou a processar o anchor click antes do
+            router.push — sem delay, o navigation cancela o link externo. */}
         <a
           href={waUrl}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() => {
+            setTimeout(() => router.push("/atendente"), 400);
+          }}
           className="btn btn-secondary w-full"
         >
           <MessageCircle size={18} strokeWidth={2.5} />
