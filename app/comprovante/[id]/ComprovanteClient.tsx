@@ -58,16 +58,11 @@ export function ComprovanteClient({ order }: { order: OrderView }) {
         previewMode ? "bg-[#2a2a2a]" : "bg-surface"
       }`}
     >
-      <div className="no-print w-full max-w-md px-4 mb-4 flex items-center justify-between">
-        <Link
-          href="/atendente"
-          className={`inline-flex items-center gap-1.5 font-semibold text-sm ${
-            previewMode ? "text-white/70 hover:text-white" : "text-ink-2 hover:text-ink"
-          }`}
-        >
-          <ArrowLeft size={18} strokeWidth={2.5} />
-          Voltar
-        </Link>
+      {/* Header só com label do modo preview (Voltar moveu pro rodapé junto
+          aos outros botões — UX feedback Gil 01/06: link sozinho em cima
+          ficava perdido; agrupar todas as ações embaixo é mais previsível
+          e dá target mais gordo pro polegar). */}
+      <div className="no-print w-full max-w-md px-4 mb-4 flex items-center justify-end min-h-[20px]">
         {previewMode && (
           <span className="t-label text-white/60 tracking-[0.1em]">
             Modo impressão · 80mm térmica
@@ -271,6 +266,14 @@ export function ComprovanteClient({ order }: { order: OrderView }) {
             )}
           </button>
         )}
+        {/* Separador visual antes do Voltar — ações principais ficam
+            agrupadas, Voltar é o "encerrar fluxo". Mesma altura dos outros
+            (btn-secondary mantém shape), só com peso visual menor. */}
+        <div className="border-t border-line my-2" />
+        <Link href="/atendente" className="btn btn-secondary w-full">
+          <ArrowLeft size={18} strokeWidth={2.5} />
+          Voltar à fila
+        </Link>
       </div>
 
       <style jsx global>{`
