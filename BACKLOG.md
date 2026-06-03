@@ -28,9 +28,6 @@
 _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 - [ ] **[P1] #chore** Backup automático do `dev.db` no volume Coolify — **PR #4 aberto, aguardando merge** [claude-pastel 2026-05-22]
-- [ ] **[P2] #chore #pwa** Migração Next 14 → 15 + `@ducanh2912/next-pwa` — **PR aberto (branch `claude-pastel/next15-pwa`), aguardando review + teste manual de PWA/SSE em device** [claude-pastel 2026-05-28]
-  - Feito + validado: next 15.5.18, react 19.2.6, fork PWA, codemod async params (14 rotas), override serialize-javascript. tsc/lint/163 testes/build/12 e2e em dev verdes. `fallbacks: /offline` reativado. `npm audit` 10 (9 high) → 3 moderate (postcss interno do Next, build-time, não-bloqueante).
-  - Antes do merge em prod: teste manual da PWA (install/offline/splash) + SSE 3 abas (§4.8 de `docs/UPGRADE-NEXT-15.md`). Rollback: Coolify 1-clique ou `git revert`.
 
 ---
 
@@ -39,7 +36,7 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 ### Pós-Fase 7 — manutenção
 
 - [ ] **[P3] #chore #docs** Bookkeeping pós-merge de Fase 7
-  - **Pronto quando:** depois dos PRs #4/#30/#31 mergearem: `docs/FASE-7.md` marca #1 e #4 como ✅; `STATUS.md` reflete Fase 7 completa + Next 15 em prod + módulos atualizados; `BACKLOG.md` "Em progresso" zerado.
+  - **Pronto quando:** depois dos PRs **#4 e #30** mergearem (PR #31 ✅ mergeado 01/06): `docs/FASE-7.md` marca itens concluídos ✅; `STATUS.md` reflete Fase 7 + Next 15 + link público em prod; `BACKLOG.md` "Em progresso" zerado.
   - **Autonomia:** OK fazer direto.
 
 ### PWA
@@ -54,8 +51,7 @@ _Itens com critério vago OU bloqueados por dependência externa._
   - **Blocked:** precisa impressora térmica 80mm pra testar. Hoje `@page size: 80mm auto; margin: 0` + CSS print rules já está implementado em `app/comprovante/[id]/ComprovanteClient.tsx`. Sem hardware, não dá pra confirmar se algo corta.
   - **Próximo passo quando hardware existir:** imprimir 5 pedidos variados (curto/longo, com/sem nota, com/sem promo) → verificar se nome cliente longo, lista grande de toppings ou rodapé do total cortam → ajustar `max-width`/`padding` específicos.
 
-- [ ] **[P3] #pwa #sw** Reativar `fallbacks: { document: "/offline" }` quando migrar pro `@ducanh2912/next-pwa`
-  - **Blocked:** depende da migração de `next-pwa@5.6.0` → `@ducanh2912/next-pwa` (plano em `docs/UPGRADE-NEXT-15.md`). Hoje next-pwa@5.6.0 tem bug que quebra build com runtimeCaching customizado + fallbacks; `/offline` existe mas só serve navegação manual.
+- ~~**[P3] #pwa #sw** Reativar `fallbacks: { document: "/offline" }` quando migrar pro `@ducanh2912/next-pwa`~~ — **✅ CONCLUÍDO** com PR #23 (Next 15 + `@ducanh2912/next-pwa@10`). `fallbacks: document` reativado e funcionando.
 - [ ] **[P3] #pwa #admin** Cachear `api.iconify.design` no Service Worker pra ícones já vistos renderizarem offline
   - **Pronto quando:** `next.config.mjs` ganha regra de runtimeCaching `CacheFirst` (ou `StaleWhileRevalidate`) pro domínio `api.iconify.design`; após visitar admin Cardápio com wifi e voltar pra revisitar offline, os ícones já vistos no IconPicker e nas linhas de ingrediente renderizam normalmente.
   - **Contexto:** Hoje sem rede o `<Icon icon="...">` do `@iconify/react` exibe placeholder vazio (fetch falha no client). Esse cache deixa "memória" dos ícones vistos. PR conforme PLAYBOOK (mexe em PWA config).
@@ -72,6 +68,12 @@ _Itens com critério vago OU bloqueados por dependência externa._
 ---
 
 ## ✅ Concluídos recentemente
+
+### 2026-06-03
+- [claude-pastel 2026-06-03 background] **Housekeeping STATUS/BACKLOG** — data atualizada, métricas 163→197, Next 15 "em main ✅" (era "na branch"), Next 15 migration removida de "Em progresso" (PR #23 mergeado 29/05), bookkeeping criterion atualizado (só #4 e #30 restam), histórico 2026-06-02 adicionado, triage de PRs abertas incluída no próximo passo.
+
+### 2026-06-02
+- **4 UX fixes diretos em main** — comprovante Voltar pro rodapé; retorno automático à fila após WhatsApp; login fix scroll/bounce (h-dvh exato); root fixo + content scrollável anti-bounce. Commits `15f9d41`→`7543609`.
 
 ### 2026-06-01
 - [claude-pastel 2026-06-01] **[P2/P3] A11y bundle (A11Y-02 + 03 + 04 + 05 + 06) — PR #41 aberta** — 3 commits em `claude-pastel/a11y-improvements`. (1) Quick wins: `text-status-ready` → `-ink` no badge "entregue" da cozinha + total descontado do cart; 3 inputs Nome do AdminClient ganharam wrap `<label>` (auto-associa); `globals.css` ganhou `@media (prefers-reduced-motion: reduce)` global. (2) Touch targets: AppHeader chip operador h-9→h-11, troco icon h-9 w-9→h-11 w-11, "Dispensar aviso" w-8 h-8→w-11 h-11, "Cancelar pedido" cozinha h-9→h-11. Filter chips horizontais ficam (rolagem). (3) Focus trap: novo hook `lib/use-focus-trap.ts` (~50 linhas, sem dep) aplicado em ConfirmDialog/CancelDialog/TrocoCalculator/IconPicker — Tab/Shift+Tab cyclam dentro + auto-focus no primeiro focusable. 179/179 testes + tsc + lint verdes. Espera review pra mergear.
