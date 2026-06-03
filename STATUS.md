@@ -2,7 +2,7 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-01
+**Última atualização:** 2026-06-03
 **Atualizado por:** `claude-pastel`
 
 ---
@@ -12,6 +12,11 @@
 Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## O que rolou desde a última sessão
+
+### 2026-06-03
+- **Routine encerrada — sem itens acionáveis.** Único item em "Próximos" (Bookkeeping pós-merge) está bloqueado pelos PRs #4 e #30 não mergeados; PR #34 já cobre esse trabalho. Itens em "Backlog" requerem PR ou hardware. Nada foi implementado.
+
+
 
 - Auditoria UX crítica (4º pass) — Fases A (5/5 críticos), B (9/14 importantes), C (4/5 polish + a11y) shipped em 18 commits
 - Follow-ups do audit externo: preview comprovante 80mm, atalhos teclado cozinha, áudio escalonado, PDF com delta vs período anterior, TV breathe intermitente
