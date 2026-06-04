@@ -2,8 +2,8 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-01
-**Atualizado por:** `claude-pastel`
+**Última atualização:** 2026-06-04
+**Atualizado por:** `claude-pastel` (routine background)
 
 ---
 
@@ -28,6 +28,7 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 ## Bloqueios ativos
 
 - **6 PRs abertas aguardando review** — PR #4 backup dev.db, PR #30 PIX, #26 emoji→lucide, #34 bookkeeping, #35 a11y fix, **#41 a11y bundle**. (PR #31 e #39 mergeadas 01/06 — WhatsApp pós-pedido + avisar pronto liberados em prod.)
+- **Routine 2026-06-04:** encerrada sem trabalho — único item em "Próximos" (bookkeeping pós-merge) bloqueado até PRs #4 e #30 mergearem. Itens do Backlog refinado tocam em auth/Docker/PWA config (exigem PR com revisão presencial). Nenhum item elegível para background.
 
 ## Próximo passo recomendado
 
