@@ -2,8 +2,8 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-01
-**Atualizado por:** `claude-pastel`
+**Última atualização:** 2026-06-04
+**Atualizado por:** `claude-pastel` (routine background)
 
 ---
 
@@ -27,15 +27,33 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## Bloqueios ativos
 
-- **6 PRs abertas aguardando review** — PR #4 backup dev.db, PR #30 PIX, #26 emoji→lucide, #34 bookkeeping, #35 a11y fix, **#41 a11y bundle**. (PR #31 e #39 mergeadas 01/06 — WhatsApp pós-pedido + avisar pronto liberados em prod.)
+- **17 PRs abertas acumuladas** — rotinas consecutivas sem merge geraram fila. Ação necessária do João:
+
+  **Mergear (têm código/docs úteis, tsc+lint+testes ✅):**
+  | PR | Conteúdo |
+  |---|---|
+  | **#4** | Backup automático dev.db |
+  | **#30** | PIX config + QR comprovante |
+  | **#41** | A11y bundle (contraste + touch 44px + focus trap) |
+  | **#35** | Contraste "Caixa aberto" (1 linha CSS) |
+  | **#26** | Emoji → lucide (cosmético — cherry-pick ou fechar) |
+
+  **Fechar (log-only / supersedidos):**
+  #34, #36, #37, #38, #40, #43, #44, #45, #46, #47, #48, #49, #50 e esta PR.
+
+- **Bookkeeping pós-Fase 7** bloqueado por PRs #4 e #30 (pendentes de merge). Critério: `docs/FASE-7.md` marcar PIX como ✅ + BACKLOG "Em progresso" zerado.
 
 ## Próximo passo recomendado
 
-**Fase 7 fechada (5/5)** — 3 itens mergeados (#23 Next 15 já no main, #28 troco, #29 comparativo), 3 PRs aguardando merge (**#4 backup desconflictado**, **#30 PIX**, **#31 WhatsApp auto-surface**), e #5 "Acabou" já existia. Coolify deployou Next 15 em prod na sessão de 29/05.
+**Fase 7 completa em prod** (5/5 mergeados ou verificados). Next 15 + React 19 em main desde 29/05. PR #31 (WhatsApp avisar pronto) mergeado 01/06.
 
-João: (1) mergear **#4 + #30 + #31** (todos validados: tsc/lint/testes/build); (2) **configurar chave PIX** (admin → Caixa → "Pagamento (PIX)") — 1 vez só; (3) **teste manual da PWA no celular** (install/offline/splash) agora que Next 15 está em prod; rollback Coolify 1-clique se algo quebrar.
-
-BACKLOG "Próximos" reabastecido com **5 itens de manutenção pós-Fase 7** (replan 2026-05-29): bookkeeping, smoke prod, limpar 4 routine-* novas, auditoria a11y dedicada, reavaliar Background Sync.
+João — ações necessárias (ordenadas):
+1. **Mergear #4** (backup dev.db — validado)
+2. **Mergear #30** (PIX — validado: 197/197 testes)
+3. **Mergear #41** (a11y bundle — validado)
+4. **Fechar PRs log-only**: #34, #36, #37, #38, #40, #43, #44, #45, #46, #47, #48, #49, #50 e esta PR
+5. **Configurar chave PIX**: admin → Caixa → "Pagamento (PIX)" (1 vez, após merge #30)
+6. **Teste manual PWA** no celular se ainda não fez (install/offline/splash/SSE com Next 15)
 
 ---
 
@@ -53,9 +71,9 @@ BACKLOG "Próximos" reabastecido com **5 itens de manutenção pós-Fase 7** (re
 | `app/api` (endpoints + SSE) | 🟢 | Codes estruturados (DUPLICATE_SUSPECTED, CAIXA_FECHADO, INVALID_TRANSITION, ORDER_LOCKED). |
 | `prisma/schema` | 🟢 | imageUrl + imageDataUrl (legacy) coexistem; migração roda no boot. |
 | Impressora térmica | 🟡 | window.print() funcional; integração ESC/POS espera hardware. |
-| PWA (@ducanh2912/next-pwa, manifest, service worker) | 🟢 | Standalone, 15 splashes (iPhone+iPad), install prompts, update prompt, CacheFirst pra assets imutáveis, shortcuts no long-press, **fallback offline automático** (`fallbacks: document` reativado no fork), 3 screenshots no manifest. _Migrado pra fork na branch `claude-pastel/next15-pwa` (PR)._ |
+| PWA (@ducanh2912/next-pwa, manifest, service worker) | 🟢 | Standalone, 15 splashes (iPhone+iPad), install prompts, update prompt, CacheFirst pra assets imutáveis, shortcuts no long-press, **fallback offline automático** (`fallbacks: document` reativado no fork), 3 screenshots no manifest. Em main desde PR #23 (29/05). |
 | Auth (iron-session) | 🟢 | PIN único por role, identificação por {role + PIN}. |
-| Testes Vitest | 🟢 | 163/163 passando (ingredientes, uploads, kitchen-display, whatsapp URLs, + caixa órfão, idempotency/TTL, i18n de ícones, formatBRL). |
+| Testes Vitest | 🟢 | 197/197 passando (ingredientes, uploads, kitchen-display, whatsapp URLs, + caixa órfão, idempotency/TTL, i18n de ícones, formatBRL, pix BR Code, link público /p/[token]). |
 | Testes Playwright e2e | 🟢 | 12/12 passando em `npm run dev` (auth UI + API smoke + fluxo de pedido + bypass de bebida). Nota: auth UI falha em build de produção por causa do service worker — rodar e2e contra `npm run dev`. |
 
 ---
@@ -70,17 +88,24 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 
 ## Métricas vivas
 
-- Tests passando: **163/163** ✅
+- Tests passando: **197/197** ✅
 - Type-check: **ok** ✅
 - ESLint: **0 erros** ✅ (check ativo no build)
-- DB schema: **sincronizado** ✅ (imageUrl adicionado)
+- DB schema: **sincronizado** ✅ (imageUrl + publicToken adicionados)
 - PWA: **instalável** ✅ (iOS Safari + Android Chrome)
-- Vulns npm audit: **3 moderate** (postcss interno do Next, build-time) na branch Next 15 — era 10 (9 high) no main Next 14. PR aberto.
-- Next/React: **15.5.18 / 19.2.6** na branch `claude-pastel/next15-pwa` (main ainda 14.2.35 até merge)
+- Vulns npm audit: **3 moderate** (postcss interno do Next, build-time — não-bloqueante)
+- Next/React: **15.5.18 / 19.2.6** em main ✅ (PR #23 mergeado 29/05)
 
 ---
 
 ## Histórico recente (últimos 5 dias)
+
+### 2026-06-04
+- **Routine background (11:12)** — Nenhum item implementado. Único item em "Próximos" (bookkeeping) continua bloqueado pelos PRs **#4** e **#30** aguardando merge. 17 PRs acumuladas no GitHub (ver guia de triagem em "Bloqueios ativos"). STATUS.md atualizado: métricas corrigidas (163→197 testes), Next 15 marcado em main, PWA módulo corrigido.
+
+### 2026-06-02
+- **4 UX fixes mergeados em main** — `7543609` root fixo + content scrollável (anti-bounce em todas as telas), `853dd79` login scroll/bounce h-dvh exato, `ece33c5` comprovante volta pra fila após WhatsApp, `15f9d41` botão Voltar movido pro rodapé do comprovante, `817d840` botão Avisar usa wa.me direto (não deep-link whatsapp://).
+- **4 rotines log-only** (#44–#47) — todas bloqueadas pelos mesmos PRs #4 e #30.
 
 ### 2026-06-01
 - **🆕 PR #42 mergeada — link público de acompanhamento do pedido** — Gil pediu "criar um link pro cliente acompanhar tb". Implementado: schema `Order.publicToken` (10 chars base62, ~59 bits entropia), backfill idempotente no entrypoint (86 pedidos legados preenchidos), endpoint público `GET /api/p/[token]`, página `/p/[token]` com status grande colorido (preparing/ready com pulso/delivered/cancelled), atualiza ao vivo via SSE. WhatsApp templates `templateReceipt`/`templateOrderReady` ganharam param `baseUrl` que anexa linha "Acompanhe: <url>". Comprovante ganhou botão "Copiar link". Validação: tsc + lint + **197/197 testes** (+18 novos) + build. Squash-merged como `182c30e`.
