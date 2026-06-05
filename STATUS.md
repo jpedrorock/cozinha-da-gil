@@ -11,7 +11,21 @@
 
 Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
-## O que rolou nesta sessão (routine 2026-06-05)
+## O que rolou nesta sessão (routine 2026-06-05 21h)
+
+- **Sem implementação nova** — fila "Próximos" depletada de itens executáveis em background.
+- **197/197 testes confirmados** (npm test + lint limpos). Métricas stale no STATUS corrigidas.
+- **Backfill publicToken verificado localmente:** código existe em `prisma/backfill-public-tokens.ts` + chamado no `docker-entrypoint.sh` (linha 39). Idempotente, loga `[backfill-public-tokens] OK=N`. Só falta João confirmar via logs Coolify pós-deploy `c556d20+`.
+- Itens pulados e motivo:
+  - **Rebase PR #30** — `force-with-lease` proibido em background
+  - **Verificar backfill prod** — requer acesso aos logs Coolify
+  - **Smoke test prod** — requer acesso ao app em produção
+  - **SW cache `/p/*`** — toca `next.config.mjs` (proibido na routine)
+  - **Limpar branches routine** — "Confirmar antes" (op destrutiva)
+  - **Bookkeeping pós-merge** — bloqueado (PRs #4/#30 não mergeados)
+- Branch: `routine-pastel-20260605-2105`. PR aberta.
+
+## O que rolou nesta sessão (routine 2026-06-05 16h)
 
 - **[P2] Botão "Avisar" auto-volta pra fila** — `notifyReady()` em `AtendenteClient.tsx` ganhou `setTimeout(() => router.push("/atendente"), 400)`. Mesmo pattern do comprovante. Cobre banner e card direto.
 - **[P3] Indicador "ao vivo" em `/p/<token>`** — header da página mostra "ao vivo · HH:MM" quando SSE conectado; "offline · última atualização HH:MM" quando desconectado. Atualiza em cada evento SSE e clockeia a cada 60s.
@@ -64,7 +78,7 @@ BACKLOG "Próximos" reabastecido com **5 itens de manutenção pós-Fase 7** (re
 | Impressora térmica | 🟡 | window.print() funcional; integração ESC/POS espera hardware. |
 | PWA (@ducanh2912/next-pwa, manifest, service worker) | 🟢 | Standalone, 15 splashes (iPhone+iPad), install prompts, update prompt, CacheFirst pra assets imutáveis, shortcuts no long-press, **fallback offline automático** (`fallbacks: document` reativado no fork), 3 screenshots no manifest. _Migrado pra fork na branch `claude-pastel/next15-pwa` (PR)._ |
 | Auth (iron-session) | 🟢 | PIN único por role, identificação por {role + PIN}. |
-| Testes Vitest | 🟢 | 163/163 passando (ingredientes, uploads, kitchen-display, whatsapp URLs, + caixa órfão, idempotency/TTL, i18n de ícones, formatBRL). |
+| Testes Vitest | 🟢 | 197/197 passando (ingredientes, uploads, kitchen-display, whatsapp URLs, caixa órfão, idempotency/TTL, i18n de ícones, formatBRL, + 18 de public token + 16 de p/[token]). |
 | Testes Playwright e2e | 🟢 | 12/12 passando em `npm run dev` (auth UI + API smoke + fluxo de pedido + bypass de bebida). Nota: auth UI falha em build de produção por causa do service worker — rodar e2e contra `npm run dev`. |
 
 ---
@@ -79,7 +93,7 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 
 ## Métricas vivas
 
-- Tests passando: **163/163** ✅
+- Tests passando: **197/197** ✅
 - Type-check: **ok** ✅
 - ESLint: **0 erros** ✅ (check ativo no build)
 - DB schema: **sincronizado** ✅ (imageUrl adicionado)
