@@ -887,6 +887,9 @@ export function AtendenteClient({
     document.body.appendChild(a);
     a.click();
     setTimeout(() => a.remove(), 100);
+    // Mesmo pattern do "Enviar no WhatsApp" no comprovante: 400ms garante
+    // que o browser já processou o anchor click antes do router.push.
+    setTimeout(() => router.push("/atendente"), 400);
 
     // Fire-and-forget: erro silencioso pq Gil já mandou. SSE atualiza UI.
     fetch(`/api/orders/${order.id}/notify-ready`, {
