@@ -2,8 +2,8 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-01
-**Atualizado por:** `claude-pastel`
+**Última atualização:** 2026-06-05
+**Atualizado por:** `claude-pastel` (routine background)
 
 ---
 
@@ -13,6 +13,7 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## O que rolou desde a última sessão
 
+- **2026-06-02 — 5 UX/fix commits (João + Claude Opus 4.7):** (1) `ux(login)` — fix scroll/bounce no iOS PWA (min-h-dvh → h-dvh + overflow-hidden); (2) `ux(comprovante)` — Voltar moveu pro rodapé junto dos outros botões de ação; (3) `ux(comprovante)` — auto-volta pra fila /atendente após enviar WhatsApp (delay 400ms pra não cancelar o anchor); (4) `ux(pwa)` — pattern "root fixo + content scrollável" aplicado nas 9 telas principais (h-dvh flex-col overflow-hidden + miolo overflow-y-auto) — mata o iOS standalone bounce/overscroll em toda parte; (5) `fix(atendente)` — botão Avisar usava `whatsapp://` deep-link com fallback, trocado por `wa.me` direto (mesmo padrão do comprovante, funciona em 100% dos casos). PR #41 (a11y bundle) continua aguardando review.
 - Auditoria UX crítica (4º pass) — Fases A (5/5 críticos), B (9/14 importantes), C (4/5 polish + a11y) shipped em 18 commits
 - Follow-ups do audit externo: preview comprovante 80mm, atalhos teclado cozinha, áudio escalonado, PDF com delta vs período anterior, TV breathe intermitente
 - Página `/guia` criada — manual por papel (atendente/cozinha/admin/geral) com tabs, busca, accordion, hero gradient, steps numerados, callouts. Reescrito 2x: primeiro inspirado no `Help.tsx` do cultivo-server, depois sem jargão técnico pra família ler
@@ -27,13 +28,13 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## Bloqueios ativos
 
-- **6 PRs abertas aguardando review** — PR #4 backup dev.db, PR #30 PIX, #26 emoji→lucide, #34 bookkeeping, #35 a11y fix, **#41 a11y bundle**. (PR #31 e #39 mergeadas 01/06 — WhatsApp pós-pedido + avisar pronto liberados em prod.)
+- **6 PRs abertas aguardando review** — PR #4 backup dev.db, PR #30 PIX, #26 emoji→lucide, #34 bookkeeping, #35 a11y fix, **#41 a11y bundle**. (PR #31 e #39 mergeadas 01/06 — WhatsApp pós-pedido + avisar pronto liberados em prod. Bookkeeping completo de Fase 7 aguardando PR #4 + PR #30 mergearem.)
 
 ## Próximo passo recomendado
 
 **Fase 7 fechada (5/5)** — 3 itens mergeados (#23 Next 15 já no main, #28 troco, #29 comparativo), 3 PRs aguardando merge (**#4 backup desconflictado**, **#30 PIX**, **#31 WhatsApp auto-surface**), e #5 "Acabou" já existia. Coolify deployou Next 15 em prod na sessão de 29/05.
 
-João: (1) mergear **#4 + #30 + #31** (todos validados: tsc/lint/testes/build); (2) **configurar chave PIX** (admin → Caixa → "Pagamento (PIX)") — 1 vez só; (3) **teste manual da PWA no celular** (install/offline/splash) agora que Next 15 está em prod; rollback Coolify 1-clique se algo quebrar.
+João: (1) mergear **#4 + #30** — #31 já mergeada em 01/06; (2) **configurar chave PIX** (admin → Caixa → "Pagamento (PIX)") — 1 vez só; (3) **revisar PR #41 (a11y bundle)** — 5 itens A11Y-02/03/04/05/06, tsc/lint/197 testes verdes; (4) **teste manual da PWA no celular** (install/offline/splash) com os fixes de scroll/bounce do 02/06 — iOS PWA não deve mais mostrar área branca.
 
 BACKLOG "Próximos" reabastecido com **5 itens de manutenção pós-Fase 7** (replan 2026-05-29): bookkeeping, smoke prod, limpar 4 routine-* novas, auditoria a11y dedicada, reavaliar Background Sync.
 
@@ -45,17 +46,18 @@ BACKLOG "Próximos" reabastecido com **5 itens de manutenção pós-Fase 7** (re
 |---|---|---|
 | `app/atendente` | 🟢 | Stepper completo, dedup server-side, undo, banner caixa órfão. "Adicionar outro item" (não só pastel). "Marcar todos" some no pastel pequeno. |
 | `app/cozinha` (SSE) | 🟢 | Busca + ordenação + alarme escalonado + botnav + atalhos teclado + **smart checklist** (mostra "menos X" quando maioria vai) + **drawer Prontos** (histórico do dia). |
-| `app/cliente` | 🟢 | TV breathe intermitente, painel ao vivo. |
+| `app/cliente` | 🟢 | TV breathe intermitente, painel ao vivo. Link público de acompanhamento via `/p/<token>`. |
+| `app/p/[token]` | 🟢 | Página pública de status do pedido (PR #42, 01/06): token base62, status colorido grande (preparing/ready/delivered/cancelled), atualiza ao vivo via SSE. Link aparece no comprovante + WhatsApp templates. |
 | `app/admin` | 🟢 | Caixa primeiro, Vendas com revenue por ingrediente, comparativo no PDF, sidebar com Guia + Monitor + **Sair**. |
 | `app/admin/monitor` | 🟢 | KPIs gigantes ao vivo (Receita/Pedidos/Ticket/Preparo) + lista live de pedidos em preparo. Mobile-first, fundo escuro. |
-| `app/comprovante` (PDF) | 🟢 | Preview 80mm inline + impressão térmica. WhatsApp via `<a>` deep link (fix window.open bloqueado em PWA). |
+| `app/comprovante` (PDF) | 🟢 | Preview 80mm inline + impressão térmica. WhatsApp via `<a href>` wa.me (funciona em 100% dos casos). "Copiar link" do pedido. Voltar no rodapé; auto-retorna pra /atendente após enviar WhatsApp. |
 | `app/guia` | 🟢 | Manual completo por papel. |
 | `app/api` (endpoints + SSE) | 🟢 | Codes estruturados (DUPLICATE_SUSPECTED, CAIXA_FECHADO, INVALID_TRANSITION, ORDER_LOCKED). |
 | `prisma/schema` | 🟢 | imageUrl + imageDataUrl (legacy) coexistem; migração roda no boot. |
 | Impressora térmica | 🟡 | window.print() funcional; integração ESC/POS espera hardware. |
 | PWA (@ducanh2912/next-pwa, manifest, service worker) | 🟢 | Standalone, 15 splashes (iPhone+iPad), install prompts, update prompt, CacheFirst pra assets imutáveis, shortcuts no long-press, **fallback offline automático** (`fallbacks: document` reativado no fork), 3 screenshots no manifest. _Migrado pra fork na branch `claude-pastel/next15-pwa` (PR)._ |
 | Auth (iron-session) | 🟢 | PIN único por role, identificação por {role + PIN}. |
-| Testes Vitest | 🟢 | 163/163 passando (ingredientes, uploads, kitchen-display, whatsapp URLs, + caixa órfão, idempotency/TTL, i18n de ícones, formatBRL). |
+| Testes Vitest | 🟢 | 197/197 passando (15 arquivos de teste; inclui link público /p/<token>, troco, a11y, + todos os anteriores). |
 | Testes Playwright e2e | 🟢 | 12/12 passando em `npm run dev` (auth UI + API smoke + fluxo de pedido + bypass de bebida). Nota: auth UI falha em build de produção por causa do service worker — rodar e2e contra `npm run dev`. |
 
 ---
@@ -70,7 +72,7 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 
 ## Métricas vivas
 
-- Tests passando: **163/163** ✅
+- Tests passando: **197/197** ✅
 - Type-check: **ok** ✅
 - ESLint: **0 erros** ✅ (check ativo no build)
 - DB schema: **sincronizado** ✅ (imageUrl adicionado)
@@ -81,6 +83,10 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 ---
 
 ## Histórico recente (últimos 5 dias)
+
+### 2026-06-02
+- **UX polish iOS PWA — 4 commits (João + Claude Opus 4.7):** (1) `ux(login)` — `min-h-dvh → h-dvh + overflow-hidden` no app/page.tsx; card central ganha `overflow-y-auto` pra iPhone SE. (2) `ux(comprovante)` — "Voltar à fila" movido pra rodapé com separador visual, header simplificado só mostra label de preview. (3) `ux(comprovante)` — `onClick` no botão WhatsApp programa `router.push('/atendente')` com delay 400ms pra não cancelar o anchor click — resolve tela branca pós-WhatsApp em iOS. (4) `ux(pwa)` — pattern global `h-dvh flex-col overflow-hidden + miolo overflow-y-auto` aplicado em 9 telas (`AtendenteClient`, `CozinhaClient`, `AdminClient`, `ClienteClient`, `MonitorClient`, `PedidoClient`, `GuiaClient`, `ComprovanteClient`, `globals.css`) — mata bounce/overscroll do iOS PWA standalone em toda parte. tsc + lint + 197/197 + build verdes.
+- **fix(atendente) — botão Avisar usa wa.me direto** — `whatsapp://send?...` com fallback em 600ms falhava silenciosamente (Safari iOS, Chrome desktop, popup blocker). Trocado por anchor `wa.me` direto, mesmo padrão do comprovante. Commit `817d840`.
 
 ### 2026-06-01
 - **🆕 PR #42 mergeada — link público de acompanhamento do pedido** — Gil pediu "criar um link pro cliente acompanhar tb". Implementado: schema `Order.publicToken` (10 chars base62, ~59 bits entropia), backfill idempotente no entrypoint (86 pedidos legados preenchidos), endpoint público `GET /api/p/[token]`, página `/p/[token]` com status grande colorido (preparing/ready com pulso/delivered/cancelled), atualiza ao vivo via SSE. WhatsApp templates `templateReceipt`/`templateOrderReady` ganharam param `baseUrl` que anexa linha "Acompanhe: <url>". Comprovante ganhou botão "Copiar link". Validação: tsc + lint + **197/197 testes** (+18 novos) + build. Squash-merged como `182c30e`.
