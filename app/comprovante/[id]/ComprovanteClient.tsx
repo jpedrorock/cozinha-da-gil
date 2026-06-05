@@ -1,13 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, Check, Coffee, Eye, EyeOff, Link as LinkIcon, MessageCircle, Package, Printer, Utensils } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BrandIcon, DoceIcon, PastelIcon } from "@/components/icons";
+import { PixCheckout } from "@/components/PixCheckout";
 import type { OrderView } from "@/lib/orders";
 import { formatPhoneDisplay } from "@/lib/orders";
 import { formatBRL, SIZE_LABEL } from "@/lib/pricing";
+import { buildPixPayload } from "@/lib/pix";
 import { buildPublicOrderUrl, buildWaUrl, templateReceipt } from "@/lib/whatsapp-templates";
 
 export function ComprovanteClient({ order }: { order: OrderView }) {
@@ -26,6 +28,38 @@ export function ComprovanteClient({ order }: { order: OrderView }) {
   useEffect(() => {
     setBaseUrl(window.location.origin);
   }, []);
+
+  // Fase 7 #1 — config do PIX (lida do admin via GET /api/settings/payment).
+  // Vazia → QR não aparece. Montagem do payload é memoizada.
+  const [pixConfig, setPixConfig] = useState<{
+    pixKey: string | null;
+    merchantName: string | null;
+    merchantCity: string | null;
+  } | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/settings/payment")
+      .then((r) => r.json())
+      .then((data) => {
+        if (!cancelled) setPixConfig(data);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+  const pixPayload = useMemo(() => {
+    if (!pixConfig?.pixKey || !pixConfig?.merchantName || !pixConfig?.merchantCity) return null;
+    const amount = order.finalCents ?? order.totalCents;
+    if (!amount || amount <= 0) return null;
+    return buildPixPayload({
+      pixKey: pixConfig.pixKey,
+      merchantName: pixConfig.merchantName,
+      merchantCity: pixConfig.merchantCity,
+      amountCents: amount,
+      txid: `PDG${order.id}`,
+    });
+  }, [pixConfig, order.finalCents, order.totalCents, order.id]);
 
   function handlePrint() {
     window.print();
@@ -213,6 +247,7 @@ export function ComprovanteClient({ order }: { order: OrderView }) {
       </article>
 
       <div className="no-print w-full max-w-md px-4 mt-6 flex flex-col gap-2">
+        {pixPayload && <PixCheckout payload={pixPayload} />}
         <button onClick={handlePrint} className="btn btn-primary w-full">
           <Printer size={18} strokeWidth={2.5} />
           Imprimir
