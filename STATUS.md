@@ -2,7 +2,7 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-05 (routine background)
+**Última atualização:** 2026-06-05
 **Atualizado por:** `claude-pastel`
 
 ---
@@ -35,7 +35,7 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## Bloqueios ativos
 
-- **21 PRs abertas — fila inflada** (precisa triagem). 10+ são routine logs duplicadas/superseded (#43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53 candidatas a fechar). PRs reais aguardando: #4 (backup), #26 (emoji→lucide), **#30 (PIX — DIRTY/CONFLITANTE, único bloqueado por conflito)**, #34, #35, #41 (a11y bundle). #40 parece duplicada de #41.
+- **5 PRs abertas** (22 → 5 após triagem 05/06): #4 backup CLEAN, #26 emoji→lucide DIRTY, **#30 PIX DIRTY** (precisa rebase — item P1 no Próximos), #35 contraste DIRTY, #41 a11y bundle CLEAN.
 - **Backfill `publicToken` em prod não confirmado** — feature `/p/<token>` deploya hoje (01/06); pedidos novos via POST geram token, mas legados dependem do backfill no entrypoint Coolify ter rodado. Sem confirmação, mensagens WhatsApp de pedidos antigos ficam sem linha "Acompanhe:".
 
 ## Próximo passo recomendado
@@ -92,6 +92,7 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 ## Histórico recente (últimos 5 dias)
 
 ### 2026-06-05
+- **Triagem de PRs concluída — 22 → 5 abertas** (`/trabalhar`) — fechei 17 PRs em batch: 5 log-only "sem itens", 10 docs/STATUS superseded em sequência, 2 duplicatas do PR #41 a11y. Cada uma com comentário explicativo. Restantes: #4 backup CLEAN, #26 emoji→lucide DIRTY, #30 PIX DIRTY (rebase é o próximo item P1), #35 contraste DIRTY, #41 a11y CLEAN. Bonus: PR #55 mergeada — implementou 2 itens do BACKLOG hoje (Avisar auto-volta + indicador "ao vivo" em /p/<token>) via routine background paralela ao /planejar.
 - **Backlog replanejado: 8 novos itens em "Próximos"** (`/planejar`) — diagnóstico achou (a) fila de 21 PRs com 10+ routine logs duplicadas/superseded, (b) PR #30 PIX DIRTY/CONFLITANTE, (c) backfill `publicToken` em prod não confirmado, (d) feature `/p/<token>` e fixes de scroll do dia 01/06 ainda sem smoke test prod. Aprovados pelo João: triagem PRs [P1], rebase PIX [P1], verificar backfill [P1], botão Avisar auto-volta [P2], smoke prod [P2], indicador "ao vivo" em /p [P3], SW cache pra /p [P3], limpar branches routine [P3]. Total: 8 itens.
 
 ### 2026-06-01
