@@ -2,7 +2,7 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-01
+**Última atualização:** 2026-06-05
 **Atualizado por:** `claude-pastel`
 
 ---
@@ -27,7 +27,8 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## Bloqueios ativos
 
-- **6 PRs abertas aguardando review** — PR #4 backup dev.db, PR #30 PIX, #26 emoji→lucide, #34 bookkeeping, #35 a11y fix, **#41 a11y bundle**. (PR #31 e #39 mergeadas 01/06 — WhatsApp pós-pedido + avisar pronto liberados em prod.)
+- **21 PRs abertas — fila inflada** (precisa triagem). 10+ são routine logs duplicadas/superseded (#43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53 candidatas a fechar). PRs reais aguardando: #4 (backup), #26 (emoji→lucide), **#30 (PIX — DIRTY/CONFLITANTE, único bloqueado por conflito)**, #34, #35, #41 (a11y bundle). #40 parece duplicada de #41.
+- **Backfill `publicToken` em prod não confirmado** — feature `/p/<token>` deploya hoje (01/06); pedidos novos via POST geram token, mas legados dependem do backfill no entrypoint Coolify ter rodado. Sem confirmação, mensagens WhatsApp de pedidos antigos ficam sem linha "Acompanhe:".
 
 ## Próximo passo recomendado
 
@@ -81,6 +82,9 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 ---
 
 ## Histórico recente (últimos 5 dias)
+
+### 2026-06-05
+- **Backlog replanejado: 8 novos itens em "Próximos"** (`/planejar`) — diagnóstico achou (a) fila de 21 PRs com 10+ routine logs duplicadas/superseded, (b) PR #30 PIX DIRTY/CONFLITANTE, (c) backfill `publicToken` em prod não confirmado, (d) feature `/p/<token>` e fixes de scroll do dia 01/06 ainda sem smoke test prod. Aprovados pelo João: triagem PRs [P1], rebase PIX [P1], verificar backfill [P1], botão Avisar auto-volta [P2], smoke prod [P2], indicador "ao vivo" em /p [P3], SW cache pra /p [P3], limpar branches routine [P3]. Total: 8 itens.
 
 ### 2026-06-01
 - **🆕 PR #42 mergeada — link público de acompanhamento do pedido** — Gil pediu "criar um link pro cliente acompanhar tb". Implementado: schema `Order.publicToken` (10 chars base62, ~59 bits entropia), backfill idempotente no entrypoint (86 pedidos legados preenchidos), endpoint público `GET /api/p/[token]`, página `/p/[token]` com status grande colorido (preparing/ready com pulso/delivered/cancelled), atualiza ao vivo via SSE. WhatsApp templates `templateReceipt`/`templateOrderReady` ganharam param `baseUrl` que anexa linha "Acompanhe: <url>". Comprovante ganhou botão "Copiar link". Validação: tsc + lint + **197/197 testes** (+18 novos) + build. Squash-merged como `182c30e`.

@@ -36,6 +36,47 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ## ⏭️ Próximos (prontos pra executar)
 
+### Fila de PRs (bloqueia merges, prioridade alta)
+
+- [ ] **[P1] #chore** Triagem agressiva das 21 PRs abertas
+  - **Pronto quando:** identificar quais PRs são routine-log duplicadas/superseded (candidatas: #43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53). Fechar com comentário "superseded by ..." apontando pra versão mantida. Lista final no STATUS dos PRs com trabalho real merecendo review.
+  - **Autonomia:** Confirmar antes (decisão de descartar PRs).
+
+- [ ] **[P1] #chore** Rebase PR #30 (PIX) — único CONFLITANTE
+  - **Pronto quando:** branch `claude-pastel/pix-config` rebaseada em main atual, conflito de `next.config.mjs` resolvido (e outros se houver), `git push --force-with-lease`, PR volta a CLEAN/MERGEABLE.
+  - **Autonomia:** OK fazer direto.
+
+- [ ] **[P1] #chore #db** Verificar backfill `publicToken` rodou em prod
+  - **Pronto quando:** confirmado via (a) logs Coolify mostrando `[backfill-public-tokens] OK=N` no boot pós-deploy `c556d20+`, OU (b) testando um link de pedido legado em prod. Se falhou: rodar manualmente. Sem isso, pedidos legados ficam sem linha "Acompanhe:" na mensagem WhatsApp.
+  - **Autonomia:** OK fazer direto.
+
+### UX (follow-up das mudanças de hoje)
+
+- [ ] **[P2] #atendente #ux** Botão "Avisar" também auto-volta pra fila
+  - **Pronto quando:** depois de tocar "Avisar" no card de pedido pronto (banner ou card direto), o app navega pra `/atendente` automaticamente. Mesmo pattern do "Enviar no WhatsApp" no comprovante (setTimeout 400ms + router.push). Atendente não fica olhando tela estática quando volta do WhatsApp.
+  - **Autonomia:** OK fazer direto.
+
+- [ ] **[P2] #chore** Smoke test prod das 4 mudanças de hoje (01/06)
+  - **Pronto quando:** criar 1 pedido novo em prod (cozinhadagil.evapro.cloud) com telefone teste, validar: (a) navega pro comprovante após confirmar; (b) botão WhatsApp com mensagem incluindo "Acompanhe: /p/..."; (c) link `/p/<token>` abre e mostra status; (d) telas sem bounce branco / scroll fix funcionando.
+  - **Autonomia:** OK fazer direto.
+
+### Polish
+
+- [ ] **[P3] #cliente #ux** Indicador "ao vivo · atualizado às X" em `/p/<token>`
+  - **Pronto quando:** header da página `/p/[token]` ganha texto pequeno "atualizado às HH:MM · ao vivo" que atualiza quando SSE recebe `order:updated`. Quando SSE desconecta, vira "offline · última atualização HH:MM". Reforça confiança no cliente que a página é live.
+  - **Autonomia:** OK fazer direto.
+
+- [ ] **[P3] #pwa** Service Worker runtimeCaching pra `/p/<token>`
+  - **Pronto quando:** `next.config.mjs` ganha regra `NetworkFirst` pra `/p/*` (não pra `/api/p`, esse já tá coberto por `/api/*`). Quando cliente fica sem rede momentânea, página renderiza do cache em vez de cair pro `/offline`.
+  - **Contexto:** PR conforme PLAYBOOK (mexe em PWA config).
+  - **Autonomia:** Abrir PR.
+
+### Cleanup
+
+- [ ] **[P3] #chore** Limpar branches `routine-pastel-*` órfãs pós-triagem
+  - **Pronto quando:** após fechar PRs duplicadas (item triagem), `git push -d origin` em todas as routine-* sem PR ativo associado. Lista deve cair de ~15 pra ≤3.
+  - **Autonomia:** Confirmar antes (op destrutiva).
+
 ### Pós-Fase 7 — manutenção
 
 - [ ] **[P3] #chore #docs** Bookkeeping pós-merge de Fase 7
