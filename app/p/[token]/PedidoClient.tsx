@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CheckCircle2, Clock, CookingPot, HandPlatter, WifiOff, XCircle } from "lucide-react";
 import { useSSE } from "@/lib/use-sse";
 import { BrandIcon } from "@/components/icons";
@@ -66,8 +66,13 @@ function statusVisual(status: OrderView["status"]) {
   }
 }
 
+function formatTime(date: Date) {
+  return date.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+}
+
 export function PedidoClient({ initialOrder }: { initialOrder: OrderView }) {
   const [order, setOrder] = useState<OrderView>(initialOrder);
+  const [lastUpdated, setLastUpdated] = useState<Date>(() => new Date());
 
   // SSE: só presta atenção em eventos do próprio pedido. Filtro por id
   // basta — o token nem precisa entrar aqui porque o stream já é público
@@ -75,9 +80,19 @@ export function PedidoClient({ initialOrder }: { initialOrder: OrderView }) {
   const sseStatus = useSSE("/api/sse", {
     "order:updated": (data) => {
       const incoming = data as OrderView;
-      if (incoming.id === order.id) setOrder(incoming);
+      if (incoming.id === order.id) {
+        setOrder(incoming);
+        setLastUpdated(new Date());
+      }
     },
   });
+
+  // Atualiza o clock "ao vivo" a cada minuto pra manter a hora legível.
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setTick((t) => t + 1), 60_000);
+    return () => clearInterval(id);
+  }, []);
 
   const visual = statusVisual(order.status);
   const Icon = visual.Icon;
@@ -97,13 +112,19 @@ export function PedidoClient({ initialOrder }: { initialOrder: OrderView }) {
             </span>
             <span className="text-base font-extrabold -tracking-[0.01em]">Gil</span>
           </div>
-          {offline && (
+          {offline ? (
             <span
               className="inline-flex items-center gap-1 text-xs font-semibold text-ink-3"
               title="Sem conexão — pode estar desatualizado"
             >
               <WifiOff size={14} strokeWidth={2.5} />
-              Offline
+              <span>
+                offline · última atualização {formatTime(lastUpdated)}
+              </span>
+            </span>
+          ) : (
+            <span className="text-[11px] text-ink-3 font-medium">
+              ao vivo · {formatTime(lastUpdated)}
             </span>
           )}
         </div>

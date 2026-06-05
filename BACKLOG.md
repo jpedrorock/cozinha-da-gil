@@ -52,9 +52,7 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ### UX (follow-up das mudanças de hoje)
 
-- [ ] **[P2] #atendente #ux** Botão "Avisar" também auto-volta pra fila
-  - **Pronto quando:** depois de tocar "Avisar" no card de pedido pronto (banner ou card direto), o app navega pra `/atendente` automaticamente. Mesmo pattern do "Enviar no WhatsApp" no comprovante (setTimeout 400ms + router.push). Atendente não fica olhando tela estática quando volta do WhatsApp.
-  - **Autonomia:** OK fazer direto.
+- [x] **[P2] #atendente #ux** Botão "Avisar" também auto-volta pra fila [claude-pastel 2026-06-05 background]
 
 - [ ] **[P2] #chore** Smoke test prod das 4 mudanças de hoje (01/06)
   - **Pronto quando:** criar 1 pedido novo em prod (cozinhadagil.evapro.cloud) com telefone teste, validar: (a) navega pro comprovante após confirmar; (b) botão WhatsApp com mensagem incluindo "Acompanhe: /p/..."; (c) link `/p/<token>` abre e mostra status; (d) telas sem bounce branco / scroll fix funcionando.
@@ -62,9 +60,7 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ### Polish
 
-- [ ] **[P3] #cliente #ux** Indicador "ao vivo · atualizado às X" em `/p/<token>`
-  - **Pronto quando:** header da página `/p/[token]` ganha texto pequeno "atualizado às HH:MM · ao vivo" que atualiza quando SSE recebe `order:updated`. Quando SSE desconecta, vira "offline · última atualização HH:MM". Reforça confiança no cliente que a página é live.
-  - **Autonomia:** OK fazer direto.
+- [x] **[P3] #cliente #ux** Indicador "ao vivo · atualizado às X" em `/p/<token>` [claude-pastel 2026-06-05 background]
 
 - [ ] **[P3] #pwa** Service Worker runtimeCaching pra `/p/<token>`
   - **Pronto quando:** `next.config.mjs` ganha regra `NetworkFirst` pra `/p/*` (não pra `/api/p`, esse já tá coberto por `/api/*`). Quando cliente fica sem rede momentânea, página renderiza do cache em vez de cair pro `/offline`.
@@ -113,6 +109,10 @@ _Itens com critério vago OU bloqueados por dependência externa._
 ---
 
 ## ✅ Concluídos recentemente
+
+### 2026-06-05
+- [claude-pastel 2026-06-05 background] **[P2] Botão "Avisar" auto-volta pra fila** — `notifyReady()` em `AtendenteClient.tsx` ganhou `setTimeout(() => router.push("/atendente"), 400)` após o anchor click. Mesmo pattern do "Enviar no WhatsApp" no comprovante. Cobre banner _e_ card direto (ambos chamam a mesma função). lint/197 testes verdes.
+- [claude-pastel 2026-06-05 background] **[P3] Indicador "ao vivo · atualizado às X" em `/p/<token>`** — `PedidoClient.tsx`: estado `lastUpdated` inicia com `new Date()` e atualiza em cada `order:updated` SSE. Header mostra "ao vivo · HH:MM" quando conectado, "offline · última atualização HH:MM" (com WifiOff icon) quando SSE fecha. Clock ticks a cada 60s pra hora não envelhecer. lint/197 testes verdes.
 
 ### 2026-06-01
 - [claude-pastel 2026-06-01] **[P2/P3] A11y bundle (A11Y-02 + 03 + 04 + 05 + 06) — PR #41 aberta** — 3 commits em `claude-pastel/a11y-improvements`. (1) Quick wins: `text-status-ready` → `-ink` no badge "entregue" da cozinha + total descontado do cart; 3 inputs Nome do AdminClient ganharam wrap `<label>` (auto-associa); `globals.css` ganhou `@media (prefers-reduced-motion: reduce)` global. (2) Touch targets: AppHeader chip operador h-9→h-11, troco icon h-9 w-9→h-11 w-11, "Dispensar aviso" w-8 h-8→w-11 h-11, "Cancelar pedido" cozinha h-9→h-11. Filter chips horizontais ficam (rolagem). (3) Focus trap: novo hook `lib/use-focus-trap.ts` (~50 linhas, sem dep) aplicado em ConfirmDialog/CancelDialog/TrocoCalculator/IconPicker — Tab/Shift+Tab cyclam dentro + auto-focus no primeiro focusable. 179/179 testes + tsc + lint verdes. Espera review pra mergear.
