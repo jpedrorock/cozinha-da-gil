@@ -35,7 +35,7 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## Bloqueios ativos
 
-- **5 PRs abertas** (22 → 5 após triagem 05/06): #4 backup CLEAN, #26 emoji→lucide DIRTY, **#30 PIX DIRTY** (precisa rebase — item P1 no Próximos), #35 contraste DIRTY, #41 a11y bundle CLEAN.
+- **4 PRs abertas** (22 → 4 após triagem + merge PR #30 PIX hoje): #4 backup CLEAN, #26 emoji→lucide DIRTY, #35 contraste DIRTY, #41 a11y bundle CLEAN.
 - **Backfill `publicToken` em prod não confirmado** — feature `/p/<token>` deploya hoje (01/06); pedidos novos via POST geram token, mas legados dependem do backfill no entrypoint Coolify ter rodado. Sem confirmação, mensagens WhatsApp de pedidos antigos ficam sem linha "Acompanhe:".
 
 ## Próximo passo recomendado
@@ -92,6 +92,7 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 ## Histórico recente (últimos 5 dias)
 
 ### 2026-06-05
+- **Rebase + merge PR #30 PIX** (`/trabalhar`) — branch `claude-pastel/pix-config` rebaseada em main atual. Conflito real só em ComprovanteClient.tsx (imports lucide + whatsapp-templates) — resolvido fundindo PIX + publicToken. Schema (Order.publicToken + PaymentConfig) auto-merged sem conflito. Validação pós-rebase: `npm install` + `prisma generate` + tsc + lint + **210/210 testes** (+13 PIX) + build verdes. Force-push `c784e68 → 7a7883e`. Checker aprovou. Squash-merged `12f205f`. Próximo passo do João: **configurar chave PIX no admin → Caixa** pra recurso ficar funcional pro cliente final.
 - **Triagem de PRs concluída — 22 → 5 abertas** (`/trabalhar`) — fechei 17 PRs em batch: 5 log-only "sem itens", 10 docs/STATUS superseded em sequência, 2 duplicatas do PR #41 a11y. Cada uma com comentário explicativo. Restantes: #4 backup CLEAN, #26 emoji→lucide DIRTY, #30 PIX DIRTY (rebase é o próximo item P1), #35 contraste DIRTY, #41 a11y CLEAN. Bonus: PR #55 mergeada — implementou 2 itens do BACKLOG hoje (Avisar auto-volta + indicador "ao vivo" em /p/<token>) via routine background paralela ao /planejar.
 - **Backlog replanejado: 8 novos itens em "Próximos"** (`/planejar`) — diagnóstico achou (a) fila de 21 PRs com 10+ routine logs duplicadas/superseded, (b) PR #30 PIX DIRTY/CONFLITANTE, (c) backfill `publicToken` em prod não confirmado, (d) feature `/p/<token>` e fixes de scroll do dia 01/06 ainda sem smoke test prod. Aprovados pelo João: triagem PRs [P1], rebase PIX [P1], verificar backfill [P1], botão Avisar auto-volta [P2], smoke prod [P2], indicador "ao vivo" em /p [P3], SW cache pra /p [P3], limpar branches routine [P3]. Total: 8 itens.
 
