@@ -36,7 +36,7 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 ## Bloqueios ativos
 
 - **4 PRs abertas** (22 → 4 após triagem + merge PR #30 PIX hoje): #4 backup CLEAN, #26 emoji→lucide DIRTY, #35 contraste DIRTY, #41 a11y bundle CLEAN.
-- **Backfill `publicToken` em prod não confirmado** — feature `/p/<token>` deploya hoje (01/06); pedidos novos via POST geram token, mas legados dependem do backfill no entrypoint Coolify ter rodado. Sem confirmação, mensagens WhatsApp de pedidos antigos ficam sem linha "Acompanhe:".
+- ~~Backfill `publicToken` em prod não confirmado~~ — verificação técnica feita 05/06 (endpoint funciona, POST gera token, backfill rodou 2× no entrypoint). Monitorar empiricamente: se pedido legado mandar WhatsApp sem linha "Acompanhe:", abrir endpoint admin pra rodar backfill on-demand.
 
 ## Próximo passo recomendado
 
