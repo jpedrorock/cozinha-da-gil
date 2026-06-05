@@ -2,40 +2,42 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-01
-**Atualizado por:** `claude-pastel`
+**Última atualização:** 2026-06-05
+**Atualizado por:** `claude-pastel` (routine background)
 
 ---
 
 ## Fase atual
 
-Fase 6 entregue. Pós-fase: hardening + observabilidade.
+Fase 6 entregue. Fase 7 entregue (código). Pós-fase: hardening + observabilidade. **PRs de feature acumulando sem merge.**
 
 ## O que rolou desde a última sessão
 
-- Auditoria UX crítica (4º pass) — Fases A (5/5 críticos), B (9/14 importantes), C (4/5 polish + a11y) shipped em 18 commits
-- Follow-ups do audit externo: preview comprovante 80mm, atalhos teclado cozinha, áudio escalonado, PDF com delta vs período anterior, TV breathe intermitente
-- Página `/guia` criada — manual por papel (atendente/cozinha/admin/geral) com tabs, busca, accordion, hero gradient, steps numerados, callouts. Reescrito 2x: primeiro inspirado no `Help.tsx` do cultivo-server, depois sem jargão técnico pra família ler
-- Header com nome do operador sempre visível (mobile + desktop)
-- Cozinha em 2 colunas quando pedido tem qty>1 + botnav inferior com labels (acessibilidade)
-- ESLint cleanup completa: 115 erros → 0, reativado check no build
-- Migração `Product.imageDataUrl` base64 → filesystem (`/api/uploads/products/<file>`), com script idempotente no entrypoint Docker
-- Caixa virou primeiro item do menu admin (rename "Operação" → "Caixa", default tab também)
-- Bump de patches/minors (`lucide-react`, `tsx`, `vitest`, `@types/react`) — majors deferidos com razão
-- PIN do Gil resetado pra 2699 (local) + script `scripts/reset-gil-password.ts` reusável
-- Backlog replanejado: 9 novos itens aprovados pelo João
+- PR #42 mergeada (01/06) — link público de acompanhamento do pedido (`/p/<token>`)
+- PR #39 mergeada (01/06) — fix WhatsApp recibo no atendente
+- PR #31 mergeada (01/06) — banner "tá pronto" 1-toque WhatsApp
+- Routine background de 04/06 e 05/06 encerraram sem trabalho executado (único item de "Próximos" bloqueado por PRs #4 e #30 não mergeados)
 
 ## Bloqueios ativos
 
-- **6 PRs abertas aguardando review** — PR #4 backup dev.db, PR #30 PIX, #26 emoji→lucide, #34 bookkeeping, #35 a11y fix, **#41 a11y bundle**. (PR #31 e #39 mergeadas 01/06 — WhatsApp pós-pedido + avisar pronto liberados em prod.)
+- **PRs #4 e #30 não mergeados bloqueiam o bookkeeping de Fase 7** — PR #4 (backup automático dev.db) e PR #30 (PIX QR) são os únicos gates para o item "Bookkeeping pós-merge" que é o único executável em "Próximos".
+- **Acumulação crítica de PRs abertas:** há 17+ PRs abertas no repo (contando PRs de routine log-only de 02/06–05/06). A maioria são docs/STATUS updates de routines que não conseguiram trabalhar. João precisa:
+  1. Mergear ou fechar **PR #4** (backup dev.db — validado, safe to merge)
+  2. Mergear ou fechar **PR #30** (PIX — validado, safe to merge; precisará configurar chave PIX no admin depois)
+  3. Mergear ou fechar **PR #41** (a11y bundle — validado, safe to merge)
+  4. Fechar as PRs de routine (#34, #36, #37, #38, #40, #43–#52) — são log-only ou supersedidas, podem ser fechadas sem merge
+- Sem evento agendado (não há risco de congelamento ativo).
 
 ## Próximo passo recomendado
 
-**Fase 7 fechada (5/5)** — 3 itens mergeados (#23 Next 15 já no main, #28 troco, #29 comparativo), 3 PRs aguardando merge (**#4 backup desconflictado**, **#30 PIX**, **#31 WhatsApp auto-surface**), e #5 "Acabou" já existia. Coolify deployou Next 15 em prod na sessão de 29/05.
+**João:** ação prioritária é limpar a fila de PRs. O app está saudável (197/197 testes, lint OK, Next 15 em prod). Nada está quebrado em prod — só acumulou dívida de review.
 
-João: (1) mergear **#4 + #30 + #31** (todos validados: tsc/lint/testes/build); (2) **configurar chave PIX** (admin → Caixa → "Pagamento (PIX)") — 1 vez só; (3) **teste manual da PWA no celular** (install/offline/splash) agora que Next 15 está em prod; rollback Coolify 1-clique se algo quebrar.
+1. **Mergear #4** (backup db) — não toca em fluxo de pedido, só cria scheduler de backup
+2. **Mergear #30** (PIX) — depois configurar chave PIX em admin → Caixa → Pagamento
+3. **Mergear #41** (a11y bundle) — melhoria de acessibilidade, sem risco
+4. **Fechar sem merge** os PRs de routine (#34, #36–#38, #40, #43–#52) — todos são log-only ou supersedidos
 
-BACKLOG "Próximos" reabastecido com **5 itens de manutenção pós-Fase 7** (replan 2026-05-29): bookkeeping, smoke prod, limpar 4 routine-* novas, auditoria a11y dedicada, reavaliar Background Sync.
+Após #4 e #30 mergearem: routine poderá executar o bookkeeping (FASE-7.md + STATUS + BACKLOG zerados).
 
 ---
 
