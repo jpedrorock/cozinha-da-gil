@@ -50,10 +50,7 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 - [x] **[P3] #cliente #ux** Indicador "ao vivo · atualizado às X" em `/p/<token>` [claude-pastel 2026-06-05 background]
 
-- [ ] **[P3] #pwa** Service Worker runtimeCaching pra `/p/<token>`
-  - **Pronto quando:** `next.config.mjs` ganha regra `NetworkFirst` pra `/p/*` (não pra `/api/p`, esse já tá coberto por `/api/*`). Quando cliente fica sem rede momentânea, página renderiza do cache em vez de cair pro `/offline`.
-  - **Contexto:** PR conforme PLAYBOOK (mexe em PWA config).
-  - **Autonomia:** Abrir PR.
+- [ ] **[P3] #pwa** Service Worker runtimeCaching pra `/p/<token>` — **PR #59 aberta, aguardando review** [claude-pastel 2026-06-05]
 
 ### Cleanup
 
@@ -99,6 +96,7 @@ _Itens com critério vago OU bloqueados por dependência externa._
 ## ✅ Concluídos recentemente
 
 ### 2026-06-05
+- [claude-pastel 2026-06-05] **[P3] SW runtimeCaching pra /p/<token> — PR #59 aberta** — `next.config.mjs` ganhou regra explícita `NetworkFirst` pra `/\/p\/[A-Za-z0-9]{10}/` antes do catch-all SWR. networkTimeoutSeconds:2 + cacheName "pedido-public" (50 entries × 24h). SW gerado confirmou ordem correta. build + 210/210 verdes. Aguarda review.
 - [claude-pastel 2026-06-05] **[P1] Verificar backfill `publicToken` em prod** — verificação técnica completa: (a) prod no ar com deploy fresco (uptime ~120s após merge PIX); (b) endpoint `/api/p/<token>` retorna 404 estruturado pra token inválido = rota funciona; (c) `app/api/orders/route.ts:401-417` confirma POST gera `publicToken` no create de todo pedido novo + 210/210 testes passam; (d) backfill `prisma/backfill-public-tokens.ts` é idempotente e roda no entrypoint a cada deploy (já teve 2 oportunidades: deploy /p em 01/06 + deploy PIX agora). **Caveat:** sem acesso SSH/logs Coolify não consigo confirmar empiricamente se backfill rodou OK em legados. Se Gil reportar pedido legado sem linha "Acompanhe:" na msg WhatsApp, monto endpoint admin temporário pra rodar backfill on-demand. Risco baixo.
 - [claude-pastel 2026-06-05] **[P1] Rebase PR #30 PIX** — branch `claude-pastel/pix-config` (1 commit `c784e68`) rebaseada em main atual. Conflito real só em `app/comprovante/[id]/ComprovanteClient.tsx` (imports lucide/whatsapp-templates) — resolvido preservando ambos os conjuntos (PIX: PixCheckout/buildPixPayload + main: Check/LinkIcon/buildPublicOrderUrl). Schema `prisma/schema.prisma` auto-merged (Order.publicToken + PaymentConfig coexistem). `AdminClient.tsx` auto-merged. Após rebase: `npm install` + `prisma generate` + tsc + lint + **210/210 testes** (+13 do PIX) + build verdes. Force-push: `c784e68 → 7a7883e`. PR voltou a CLEAN/MERGEABLE.
 - [claude-pastel 2026-06-05] **[P1] Triagem agressiva das 22 PRs abertas** — fechei 17 PRs em batch (5 log-only "sem itens" #36/38/46/49/52, 10 docs/STATUS superseded em sequência #34/43/44/45/47/48/50/51/53/54, 2 duplicatas do PR #41 a11y #37/40). Cada PR fechada com comentário explicativo apontando o motivo. Fila de 22 → 5 PRs com trabalho real: #4 (backup), #26 (emoji→lucide DIRTY), #30 (PIX DIRTY), #35 (contraste Caixa aberto DIRTY), #41 (a11y bundle CLEAN). Bonus: PR #55 que abriu durante a triagem cobria 2 itens do BACKLOG (Avisar auto-volta + Indicador ao vivo) — mergeada também.
