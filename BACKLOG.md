@@ -28,9 +28,6 @@
 _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 - [ ] **[P1] #chore** Backup automático do `dev.db` no volume Coolify — **PR #4 aberto, aguardando merge** [claude-pastel 2026-05-22]
-- [ ] **[P2] #chore #pwa** Migração Next 14 → 15 + `@ducanh2912/next-pwa` — **PR aberto (branch `claude-pastel/next15-pwa`), aguardando review + teste manual de PWA/SSE em device** [claude-pastel 2026-05-28]
-  - Feito + validado: next 15.5.18, react 19.2.6, fork PWA, codemod async params (14 rotas), override serialize-javascript. tsc/lint/163 testes/build/12 e2e em dev verdes. `fallbacks: /offline` reativado. `npm audit` 10 (9 high) → 3 moderate (postcss interno do Next, build-time, não-bloqueante).
-  - Antes do merge em prod: teste manual da PWA (install/offline/splash) + SSE 3 abas (§4.8 de `docs/UPGRADE-NEXT-15.md`). Rollback: Coolify 1-clique ou `git revert`.
 
 ---
 
@@ -63,10 +60,6 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ### Pós-Fase 7 — manutenção
 
-- [ ] **[P3] #chore #docs** Bookkeeping pós-merge de Fase 7
-  - **Pronto quando:** depois dos PRs #4/#30/#31 mergearem: `docs/FASE-7.md` marca #1 e #4 como ✅; `STATUS.md` reflete Fase 7 completa + Next 15 em prod + módulos atualizados; `BACKLOG.md` "Em progresso" zerado.
-  - **Autonomia:** OK fazer direto.
-
 ### PWA
 
 ---
@@ -97,6 +90,9 @@ _Itens com critério vago OU bloqueados por dependência externa._
 ---
 
 ## ✅ Concluídos recentemente
+
+### 2026-06-06
+- [claude-pastel 2026-06-06 background] **[P3] Bookkeeping pós-merge de Fase 7** — `docs/FASE-7.md` marcado "✅ ENTREGUE" com 5/5 features; headers das features #3/#4/#5 receberam marcação ✅ com PR+data; item "Migração Next 15 (PR #23)" removido de "Em progresso" (mergeou em 2026-05-29). PR #4 (backup dev.db) continua em progresso — não faz parte das features de Fase 7.
 
 ### 2026-06-05
 - [claude-pastel 2026-06-05] **[P1] Verificar backfill `publicToken` em prod** — verificação técnica completa: (a) prod no ar com deploy fresco (uptime ~120s após merge PIX); (b) endpoint `/api/p/<token>` retorna 404 estruturado pra token inválido = rota funciona; (c) `app/api/orders/route.ts:401-417` confirma POST gera `publicToken` no create de todo pedido novo + 210/210 testes passam; (d) backfill `prisma/backfill-public-tokens.ts` é idempotente e roda no entrypoint a cada deploy (já teve 2 oportunidades: deploy /p em 01/06 + deploy PIX agora). **Caveat:** sem acesso SSH/logs Coolify não consigo confirmar empiricamente se backfill rodou OK em legados. Se Gil reportar pedido legado sem linha "Acompanhe:" na msg WhatsApp, monto endpoint admin temporário pra rodar backfill on-demand. Risco baixo.

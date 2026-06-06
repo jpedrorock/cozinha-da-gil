@@ -2,14 +2,20 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-05
+**Última atualização:** 2026-06-06
 **Atualizado por:** `claude-pastel`
 
 ---
 
 ## Fase atual
 
-Fase 6 entregue. Pós-fase: hardening + observabilidade.
+Fase 6 entregue. **Fase 7 entregue (5/5 features mergeadas).** Pós-fase: hardening + observabilidade.
+
+## O que rolou nesta sessão (routine 2026-06-06)
+
+- **[P3] Bookkeeping pós-merge Fase 7** — `docs/FASE-7.md` marcado "✅ ENTREGUE"; features #3/#4/#5 receberam marcação ✅ com PR+data; item "Migração Next 15 (PR #23, mergeado 2026-05-29)" removido do BACKLOG "Em progresso". PR #4 backup continua aguardando merge do João.
+- **Smoke test prod: inconclusivo** — sem acesso de rede externa no ambiente remoto ("Host not in allowlist"). Item mantido em "Próximos" para João verificar manualmente ou para próxima sessão com acesso de rede.
+- Testes/lint não rodaram (node_modules ausente no clone remoto). Edições são doc-only.
 
 ## O que rolou nesta sessão (routine 2026-06-05)
 
@@ -64,7 +70,7 @@ BACKLOG "Próximos" reabastecido com **5 itens de manutenção pós-Fase 7** (re
 | Impressora térmica | 🟡 | window.print() funcional; integração ESC/POS espera hardware. |
 | PWA (@ducanh2912/next-pwa, manifest, service worker) | 🟢 | Standalone, 15 splashes (iPhone+iPad), install prompts, update prompt, CacheFirst pra assets imutáveis, shortcuts no long-press, **fallback offline automático** (`fallbacks: document` reativado no fork), 3 screenshots no manifest. _Migrado pra fork na branch `claude-pastel/next15-pwa` (PR)._ |
 | Auth (iron-session) | 🟢 | PIN único por role, identificação por {role + PIN}. |
-| Testes Vitest | 🟢 | 163/163 passando (ingredientes, uploads, kitchen-display, whatsapp URLs, + caixa órfão, idempotency/TTL, i18n de ícones, formatBRL). |
+| Testes Vitest | 🟢 | 210/210 passando (pós-merge PIX +13 testes em 2026-06-05). |
 | Testes Playwright e2e | 🟢 | 12/12 passando em `npm run dev` (auth UI + API smoke + fluxo de pedido + bypass de bebida). Nota: auth UI falha em build de produção por causa do service worker — rodar e2e contra `npm run dev`. |
 
 ---
@@ -79,7 +85,7 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 
 ## Métricas vivas
 
-- Tests passando: **163/163** ✅
+- Tests passando: **210/210** ✅ (último estado verificado pós-merge PIX, 2026-06-05)
 - Type-check: **ok** ✅
 - ESLint: **0 erros** ✅ (check ativo no build)
 - DB schema: **sincronizado** ✅ (imageUrl adicionado)
