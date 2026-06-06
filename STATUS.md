@@ -2,14 +2,21 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-05
+**Última atualização:** 2026-06-06
 **Atualizado por:** `claude-pastel`
 
 ---
 
 ## Fase atual
 
-Fase 6 entregue. Pós-fase: hardening + observabilidade.
+Fase 7 entregue (5/5). Pós-fase: hardening + observabilidade.
+
+## O que rolou nesta sessão (routine 2026-06-06)
+
+- **Health check**: lint 0 erros ✅, **210/210 testes** ✅ (main pulled e atualizado com PIX + commits 2026-06-05).
+- **STATUS.md + BACKLOG.md corrigidos**: métricas estavam stale (163→210 testes), fase era "6" quando Fase 7 já está entregue, "Em progresso" tinha Next15-pwa (mergeou como PR #23 em 2026-05-29).
+- **PRs abertas atualizadas**: 8 no total — #4 (backup CLEAN), #26 (emoji→lucide DIRTY), #35 (contraste DIRTY), #41 (a11y CLEAN), #56/#57/#58 (routine logs, fechar sem merge), #59 (SW cache CLEAN).
+- Item smoke test prod: mantido em "Próximos" — criação de pedido real em prod requer interação manual do João.
 
 ## O que rolou nesta sessão (routine 2026-06-05)
 
@@ -35,16 +42,14 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## Bloqueios ativos
 
-- **5 PRs abertas, 2 CLEAN aguardando review** (22 → 5 após triagem + merge PR #30 PIX hoje): #4 backup CLEAN, #26 emoji→lucide DIRTY, #35 contraste DIRTY, #41 a11y bundle CLEAN, **#59 SW cache /p CLEAN** (novo).
-- ~~Backfill `publicToken` em prod não confirmado~~ — verificação técnica feita 05/06 (endpoint funciona, POST gera token, backfill rodou 2× no entrypoint). Monitorar empiricamente: se pedido legado mandar WhatsApp sem linha "Acompanhe:", abrir endpoint admin pra rodar backfill on-demand.
+- **8 PRs abertas**: #4 backup CLEAN, #26 emoji→lucide DIRTY (precisa rebase), #35 contraste DIRTY (precisa rebase), #41 a11y bundle CLEAN, #56/#57/#58 routine logs (fechar sem merge — não têm código), #59 SW cache /p CLEAN.
+- ~~Backfill `publicToken` em prod não confirmado~~ — verificação técnica feita 05/06. Monitorar: se pedido legado mandar WhatsApp sem linha "Acompanhe:", montar endpoint admin on-demand.
 
 ## Próximo passo recomendado
 
-**Fase 7 fechada (5/5)** — 3 itens mergeados (#23 Next 15 já no main, #28 troco, #29 comparativo), 3 PRs aguardando merge (**#4 backup desconflictado**, **#30 PIX**, **#31 WhatsApp auto-surface**), e #5 "Acabou" já existia. Coolify deployou Next 15 em prod na sessão de 29/05.
+**Fase 7 entregue (5/5)**: #23 Next 15, #28 troco, #29 comparativo, #30 PIX, #31 WhatsApp — todos mergeados. Next 15 em prod desde 29/05.
 
-João: (1) mergear **#4 + #30 + #31** (todos validados: tsc/lint/testes/build); (2) **configurar chave PIX** (admin → Caixa → "Pagamento (PIX)") — 1 vez só; (3) **teste manual da PWA no celular** (install/offline/splash) agora que Next 15 está em prod; rollback Coolify 1-clique se algo quebrar.
-
-BACKLOG "Próximos" reabastecido com **5 itens de manutenção pós-Fase 7** (replan 2026-05-29): bookkeeping, smoke prod, limpar 4 routine-* novas, auditoria a11y dedicada, reavaliar Background Sync.
+João: (1) **fechar PRs #56/#57/#58** (routine logs, zero código, só ruído na fila); (2) **mergear #4** (backup CLEAN), **#41** (a11y CLEAN), **#59** (SW cache CLEAN); (3) **configurar chave PIX** (admin → Caixa → "Pagamento (PIX)") — 1 vez só; (4) **smoke test manual em prod** — criar 1 pedido com telefone teste e validar: (a) navega pro comprovante, (b) mensagem WhatsApp tem "Acompanhe: /p/...", (c) link /p abre e atualiza ao vivo, (d) sem bounce no scroll; (5) PRs #26/#35 estão DIRTY — só rebasar se quiser mergeá-los, senão podem ser fechados.
 
 ---
 
@@ -62,9 +67,9 @@ BACKLOG "Próximos" reabastecido com **5 itens de manutenção pós-Fase 7** (re
 | `app/api` (endpoints + SSE) | 🟢 | Codes estruturados (DUPLICATE_SUSPECTED, CAIXA_FECHADO, INVALID_TRANSITION, ORDER_LOCKED). |
 | `prisma/schema` | 🟢 | imageUrl + imageDataUrl (legacy) coexistem; migração roda no boot. |
 | Impressora térmica | 🟡 | window.print() funcional; integração ESC/POS espera hardware. |
-| PWA (@ducanh2912/next-pwa, manifest, service worker) | 🟢 | Standalone, 15 splashes (iPhone+iPad), install prompts, update prompt, CacheFirst pra assets imutáveis, shortcuts no long-press, **fallback offline automático** (`fallbacks: document` reativado no fork), 3 screenshots no manifest. _Migrado pra fork na branch `claude-pastel/next15-pwa` (PR)._ |
+| PWA (@ducanh2912/next-pwa, manifest, service worker) | 🟢 | Standalone, 15 splashes (iPhone+iPad), install prompts, update prompt, CacheFirst pra assets imutáveis, shortcuts no long-press, **fallback offline automático** (`fallbacks: document` reativado no fork), 3 screenshots no manifest. Em prod desde 2026-05-29. |
 | Auth (iron-session) | 🟢 | PIN único por role, identificação por {role + PIN}. |
-| Testes Vitest | 🟢 | 163/163 passando (ingredientes, uploads, kitchen-display, whatsapp URLs, + caixa órfão, idempotency/TTL, i18n de ícones, formatBRL). |
+| Testes Vitest | 🟢 | 210/210 passando (pós-merge PIX +13 testes, +18 publicToken, + caixa órfão, idempotency, i18n de ícones, formatBRL, kitchen-display, whatsapp URLs). |
 | Testes Playwright e2e | 🟢 | 12/12 passando em `npm run dev` (auth UI + API smoke + fluxo de pedido + bypass de bebida). Nota: auth UI falha em build de produção por causa do service worker — rodar e2e contra `npm run dev`. |
 
 ---
@@ -79,17 +84,20 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 
 ## Métricas vivas
 
-- Tests passando: **163/163** ✅
+- Tests passando: **210/210** ✅ (verificado 2026-06-06)
 - Type-check: **ok** ✅
 - ESLint: **0 erros** ✅ (check ativo no build)
-- DB schema: **sincronizado** ✅ (imageUrl adicionado)
+- DB schema: **sincronizado** ✅ (imageUrl + publicToken + PaymentConfig)
 - PWA: **instalável** ✅ (iOS Safari + Android Chrome)
-- Vulns npm audit: **3 moderate** (postcss interno do Next, build-time) na branch Next 15 — era 10 (9 high) no main Next 14. PR aberto.
-- Next/React: **15.5.18 / 19.2.6** na branch `claude-pastel/next15-pwa` (main ainda 14.2.35 até merge)
+- Vulns npm audit: **3 moderate** (postcss interno do Next, build-time — não-bloqueante)
+- Next/React: **15.5.18 / 19.2.6** ✅ em prod desde 2026-05-29
 
 ---
 
 ## Histórico recente (últimos 5 dias)
+
+### 2026-06-06
+- **Routine background** — health check: lint ✅, 210/210 testes ✅ (main pulled com PIX). STATUS.md e BACKLOG.md corrigidos (métricas stale, Fase 6→7, Next15-pwa removido de Em progresso). 8 PRs abertas mapeadas. Item smoke test prod mantido em "Próximos" (requer interação manual). PRs #56/#57/#58 são routine logs que João pode fechar sem merge.
 
 ### 2026-06-05
 - **Rebase + merge PR #30 PIX** (`/trabalhar`) — branch `claude-pastel/pix-config` rebaseada em main atual. Conflito real só em ComprovanteClient.tsx (imports lucide + whatsapp-templates) — resolvido fundindo PIX + publicToken. Schema (Order.publicToken + PaymentConfig) auto-merged sem conflito. Validação pós-rebase: `npm install` + `prisma generate` + tsc + lint + **210/210 testes** (+13 PIX) + build verdes. Force-push `c784e68 → 7a7883e`. Checker aprovou. Squash-merged `12f205f`. Próximo passo do João: **configurar chave PIX no admin → Caixa** pra recurso ficar funcional pro cliente final.
