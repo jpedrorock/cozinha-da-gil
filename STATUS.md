@@ -2,7 +2,7 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-05
+**Última atualização:** 2026-06-06
 **Atualizado por:** `claude-pastel`
 
 ---
@@ -10,6 +10,15 @@
 ## Fase atual
 
 Fase 6 entregue. Pós-fase: hardening + observabilidade.
+
+## O que rolou nesta sessão (routine 2026-06-06)
+
+- **0 itens executados** — nenhum item de "Próximos" qualificou para execução em background:
+  - `[P2] Smoke test prod` → requer criação de pedido real em produção + validação de UI no browser; inviável em sessão headless.
+  - `[P3] SW runtimeCaching /p/*` → marcado "Abrir PR" (skipped conforme regra de routine background).
+  - `[P3] Limpar branches routine` → marcado "Confirmar antes" (skipped).
+  - `[P3] Bookkeeping pós-merge` → bloqueado por PR #4 (backup dev.db) ainda aberto.
+- Fila de "Próximos" desbloqueará quando João: (a) mergear PR #4 → bookkeeping pode rodar; (b) fizer smoke test manual em prod.
 
 ## O que rolou nesta sessão (routine 2026-06-05)
 
