@@ -28,9 +28,6 @@
 _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 - [ ] **[P1] #chore** Backup automático do `dev.db` no volume Coolify — **PR #4 aberto, aguardando merge** [claude-pastel 2026-05-22]
-- [ ] **[P2] #chore #pwa** Migração Next 14 → 15 + `@ducanh2912/next-pwa` — **PR aberto (branch `claude-pastel/next15-pwa`), aguardando review + teste manual de PWA/SSE em device** [claude-pastel 2026-05-28]
-  - Feito + validado: next 15.5.18, react 19.2.6, fork PWA, codemod async params (14 rotas), override serialize-javascript. tsc/lint/163 testes/build/12 e2e em dev verdes. `fallbacks: /offline` reativado. `npm audit` 10 (9 high) → 3 moderate (postcss interno do Next, build-time, não-bloqueante).
-  - Antes do merge em prod: teste manual da PWA (install/offline/splash) + SSE 3 abas (§4.8 de `docs/UPGRADE-NEXT-15.md`). Rollback: Coolify 1-clique ou `git revert`.
 
 ---
 
@@ -42,9 +39,9 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 - [x] **[P2] #atendente #ux** Botão "Avisar" também auto-volta pra fila [claude-pastel 2026-06-05 background]
 
-- [ ] **[P2] #chore** Smoke test prod das 4 mudanças de hoje (01/06)
+- [ ] **[P2] #chore** Smoke test prod das mudanças de 01/06
   - **Pronto quando:** criar 1 pedido novo em prod (cozinhadagil.evapro.cloud) com telefone teste, validar: (a) navega pro comprovante após confirmar; (b) botão WhatsApp com mensagem incluindo "Acompanhe: /p/..."; (c) link `/p/<token>` abre e mostra status; (d) telas sem bounce branco / scroll fix funcionando.
-  - **Autonomia:** OK fazer direto.
+  - **Autonomia:** OK fazer direto. ⚠️ Background não consegue acessar prod (403) — requer João no browser.
 
 ### Polish
 
@@ -95,7 +92,11 @@ _Itens com critério vago OU bloqueados por dependência externa._
 
 ## ✅ Concluídos recentemente
 
+### 2026-06-06
+- [claude-pastel 2026-06-06 background] **Saúde verificada** — 210/210 testes + lint limpo. STATUS.md atualizado: métricas corrigidas (163→210 testes), migração Next 15 movida de "Em progresso" para Concluídos (já mergeada desde 29/05), bloqueio smoke test documentado (403 em background). Sem itens disponíveis em "Próximos" para execução autônoma.
+
 ### 2026-06-05
+- [claude-pastel 2026-06-05] **[P2] #chore #pwa Migração Next 14 → 15 + `@ducanh2912/next-pwa` — MERGEADA em main** — PR squash-mergeada em 29/05 (Coolify auto-deployou). next 15.5.18 + react 19.2.6 + fork PWA em prod. `npm audit` 10 (9 high) → 3 moderate.
 - [claude-pastel 2026-06-05] **[P3] SW runtimeCaching pra /p/<token> — PR #59 aberta** — `next.config.mjs` ganhou regra explícita `NetworkFirst` pra `/\/p\/[A-Za-z0-9]{10}/` antes do catch-all SWR. networkTimeoutSeconds:2 + cacheName "pedido-public" (50 entries × 24h). SW gerado confirmou ordem correta. build + 210/210 verdes. Aguarda review.
 - [claude-pastel 2026-06-05] **[P1] Verificar backfill `publicToken` em prod** — verificação técnica completa: (a) prod no ar com deploy fresco (uptime ~120s após merge PIX); (b) endpoint `/api/p/<token>` retorna 404 estruturado pra token inválido = rota funciona; (c) `app/api/orders/route.ts:401-417` confirma POST gera `publicToken` no create de todo pedido novo + 210/210 testes passam; (d) backfill `prisma/backfill-public-tokens.ts` é idempotente e roda no entrypoint a cada deploy (já teve 2 oportunidades: deploy /p em 01/06 + deploy PIX agora). **Caveat:** sem acesso SSH/logs Coolify não consigo confirmar empiricamente se backfill rodou OK em legados. Se Gil reportar pedido legado sem linha "Acompanhe:" na msg WhatsApp, monto endpoint admin temporário pra rodar backfill on-demand. Risco baixo.
 - [claude-pastel 2026-06-05] **[P1] Rebase PR #30 PIX** — branch `claude-pastel/pix-config` (1 commit `c784e68`) rebaseada em main atual. Conflito real só em `app/comprovante/[id]/ComprovanteClient.tsx` (imports lucide/whatsapp-templates) — resolvido preservando ambos os conjuntos (PIX: PixCheckout/buildPixPayload + main: Check/LinkIcon/buildPublicOrderUrl). Schema `prisma/schema.prisma` auto-merged (Order.publicToken + PaymentConfig coexistem). `AdminClient.tsx` auto-merged. Após rebase: `npm install` + `prisma generate` + tsc + lint + **210/210 testes** (+13 do PIX) + build verdes. Force-push: `c784e68 → 7a7883e`. PR voltou a CLEAN/MERGEABLE.
