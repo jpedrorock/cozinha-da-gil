@@ -76,8 +76,6 @@ _Itens com critério vago OU bloqueados por dependência externa._
   - **Blocked:** precisa impressora térmica 80mm pra testar. Hoje `@page size: 80mm auto; margin: 0` + CSS print rules já está implementado em `app/comprovante/[id]/ComprovanteClient.tsx`. Sem hardware, não dá pra confirmar se algo corta.
   - **Próximo passo quando hardware existir:** imprimir 5 pedidos variados (curto/longo, com/sem nota, com/sem promo) → verificar se nome cliente longo, lista grande de toppings ou rodapé do total cortam → ajustar `max-width`/`padding` específicos.
 
-- [ ] **[P3] #pwa #sw** Reativar `fallbacks: { document: "/offline" }` quando migrar pro `@ducanh2912/next-pwa`
-  - **Blocked:** depende da migração de `next-pwa@5.6.0` → `@ducanh2912/next-pwa` (plano em `docs/UPGRADE-NEXT-15.md`). Hoje next-pwa@5.6.0 tem bug que quebra build com runtimeCaching customizado + fallbacks; `/offline` existe mas só serve navegação manual.
 - [ ] **[P3] #pwa #admin** Cachear `api.iconify.design` no Service Worker pra ícones já vistos renderizarem offline
   - **Pronto quando:** `next.config.mjs` ganha regra de runtimeCaching `CacheFirst` (ou `StaleWhileRevalidate`) pro domínio `api.iconify.design`; após visitar admin Cardápio com wifi e voltar pra revisitar offline, os ícones já vistos no IconPicker e nas linhas de ingrediente renderizam normalmente.
   - **Contexto:** Hoje sem rede o `<Icon icon="...">` do `@iconify/react` exibe placeholder vazio (fetch falha no client). Esse cache deixa "memória" dos ícones vistos. PR conforme PLAYBOOK (mexe em PWA config).
@@ -94,6 +92,9 @@ _Itens com critério vago OU bloqueados por dependência externa._
 ---
 
 ## ✅ Concluídos recentemente
+
+### 2026-06-07
+- [claude-pastel 2026-06-07 background] **[P3] #pwa #sw** Reativar `fallbacks: { document: "/offline" }` — **entregue como parte da migração Next 15** (PR #23, mergeado 2026-05-29). `@ducanh2912/next-pwa` já tem `fallbacks: { document: "/offline" }` ativo no `next.config.mjs`. O bug do `next-pwa@5.6.0` que impedia isso não existe no fork. Item movido de Backlog → Concluídos.
 
 ### 2026-06-05
 - [claude-pastel 2026-06-05] **[P3] SW runtimeCaching pra /p/<token> — PR #59 aberta** — `next.config.mjs` ganhou regra explícita `NetworkFirst` pra `/\/p\/[A-Za-z0-9]{10}/` antes do catch-all SWR. networkTimeoutSeconds:2 + cacheName "pedido-public" (50 entries × 24h). SW gerado confirmou ordem correta. build + 210/210 verdes. Aguarda review.

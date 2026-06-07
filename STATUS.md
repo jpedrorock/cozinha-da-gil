@@ -2,14 +2,22 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-05
+**Última atualização:** 2026-06-07
 **Atualizado por:** `claude-pastel`
 
 ---
 
 ## Fase atual
 
-Fase 6 entregue. Pós-fase: hardening + observabilidade.
+Fase 6 entregue. Fase 7 entregue (5/5). Pós-fase: hardening + observabilidade.
+
+## O que rolou nesta sessão (routine 2026-06-07)
+
+- **Doc housekeeping — Fase 7 completa**: `docs/FASE-7.md` agora reflete todos os 5 itens como ✅ FEITA/VERIFICADA. Itens #3 (comparativo, PR #29), #4 (WhatsApp auto-surface, PRs #31+#39) e #5 ("Acabou" verificado) estavam entregues mas não marcados.
+- **BACKLOG cleanup**: item "Reativar fallbacks `/offline`" removido do Backlog — era bloqueado pela migração Next 15 que já foi mergeada (PR #23). Movido pra Concluídos.
+- **Métricas atualizadas**: suite corrigida de 163/163 → 210/210 (cresce com PRs mergeadas).
+- 210/210 testes, lint limpo.
+- Branch: `routine-pastel-20260607-0105`.
 
 ## O que rolou nesta sessão (routine 2026-06-05)
 
@@ -64,7 +72,7 @@ BACKLOG "Próximos" reabastecido com **5 itens de manutenção pós-Fase 7** (re
 | Impressora térmica | 🟡 | window.print() funcional; integração ESC/POS espera hardware. |
 | PWA (@ducanh2912/next-pwa, manifest, service worker) | 🟢 | Standalone, 15 splashes (iPhone+iPad), install prompts, update prompt, CacheFirst pra assets imutáveis, shortcuts no long-press, **fallback offline automático** (`fallbacks: document` reativado no fork), 3 screenshots no manifest. _Migrado pra fork na branch `claude-pastel/next15-pwa` (PR)._ |
 | Auth (iron-session) | 🟢 | PIN único por role, identificação por {role + PIN}. |
-| Testes Vitest | 🟢 | 163/163 passando (ingredientes, uploads, kitchen-display, whatsapp URLs, + caixa órfão, idempotency/TTL, i18n de ícones, formatBRL). |
+| Testes Vitest | 🟢 | 210/210 passando (ingredientes, uploads, kitchen-display, whatsapp URLs, PIX, caixa órfão, idempotency/TTL, i18n de ícones, formatBRL). |
 | Testes Playwright e2e | 🟢 | 12/12 passando em `npm run dev` (auth UI + API smoke + fluxo de pedido + bypass de bebida). Nota: auth UI falha em build de produção por causa do service worker — rodar e2e contra `npm run dev`. |
 
 ---
@@ -79,7 +87,7 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 
 ## Métricas vivas
 
-- Tests passando: **163/163** ✅
+- Tests passando: **210/210** ✅
 - Type-check: **ok** ✅
 - ESLint: **0 erros** ✅ (check ativo no build)
 - DB schema: **sincronizado** ✅ (imageUrl adicionado)

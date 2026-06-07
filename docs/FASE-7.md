@@ -24,22 +24,24 @@
 - **Como:** bottom-sheet de **uma mão só** — numpad grande (reusa o teclado do PIN), digita "recebi R$" + total → mostra o troco. Standalone (funciona sem pedido aberto).
 - **Escopo:** puro client, sem API, sem schema. **Pode ser feita já**, independente do PR #23.
 
-## 3. Comparativo entre eventos (admin)
+## 3. Comparativo entre eventos (admin) — ✅ FEITA (PR #29)
 
+- **Entregue:** nova sub-aba "Comparativo" no admin Vendas — cards por `EventSession` com faturamento, nº pedidos e ticket médio; hora de pico; topping campeão do evento. Comparação lado a lado. Read-only, sem schema novo. Mergeado em 2026-05-29.
 - **Como:** nova sub-aba no admin Vendas: card por `EventSession` (faturamento, nº pedidos, ticket médio) + **hora de pico** + **topping campeão do evento**. Comparação lado a lado.
 - **Escopo:** read-only, reusa a agregação existente. Sem schema. Endpoint estático novo (sem `[id]` → sem questão de async-params).
 
-## 4. WhatsApp "tá pronto" — auto-surface 1 toque
+## 4. WhatsApp "tá pronto" — auto-surface 1 toque — ✅ FEITA (PRs #31 + #39)
 
+- **Entregue:** banner fixed-bottom "Avisar pronto" aparece automaticamente quando pedido vira PRONTO e tem telefone cadastrado — 1 toque abre wa.me com mensagem prefillada. Comprovante ganha botão WhatsApp + auto-navegação pós-pedido. Mergeados em 2026-06-01.
 - **Decisão travada + teto técnico:** o `wa.me` (que o app usa) **não envia sozinho** — exige 1 toque humano no WhatsApp. Então "automático" = ao marcar **PRONTO**, a mensagem prefillada **aparece pronta** → 1 toque pra enviar (em vez de caçar o botão).
 - **Como:** reusa `notify-ready` + CRM + template já existentes. Só dispara se o cliente tiver telefone cadastrado.
 - **Fora de escopo:** envio 100% sem toque exigiria WhatsApp Business + Cloud API (conta paga + template aprovado) — overkill pra barraca.
 
-## 5. "Acabou" — propagação ao vivo (admin marca)
+## 5. "Acabou" — propagação ao vivo (admin marca) — ✅ VERIFICADA (já funcionava)
 
+- **Verificado em 2026-05-29:** `PATCH /api/ingredients/[id]` já fazia broadcast `ingredient:updated` via SSE → atendente aplicava o campo `available` ao vivo (chip fica cinza sem refresh). Feature existia desde a Fase 6. Nenhuma mudança necessária.
 - **Decisão travada:** **só admin marca** esgotado (mantém restrito ao Cardápio). O atendente **não** ganha o toggle.
 - **Logo a feature encolheu:** garantir que o toggle "esgotou" do admin **propague AO VIVO via SSE** pro atendente (chip fica cinza na hora, sem refresh).
-- **Próximo passo:** **verificar primeiro** se já propaga ao vivo. Se sim → item já está pronto, nada a fazer. Se não → adicionar broadcast SSE de disponibilidade de ingrediente (PR — toca SSE, roda e2e).
 
 ---
 
