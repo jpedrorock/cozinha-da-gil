@@ -28,9 +28,6 @@
 _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 - [ ] **[P1] #chore** Backup automático do `dev.db` no volume Coolify — **PR #4 aberto, aguardando merge** [claude-pastel 2026-05-22]
-- [ ] **[P2] #chore #pwa** Migração Next 14 → 15 + `@ducanh2912/next-pwa` — **PR aberto (branch `claude-pastel/next15-pwa`), aguardando review + teste manual de PWA/SSE em device** [claude-pastel 2026-05-28]
-  - Feito + validado: next 15.5.18, react 19.2.6, fork PWA, codemod async params (14 rotas), override serialize-javascript. tsc/lint/163 testes/build/12 e2e em dev verdes. `fallbacks: /offline` reativado. `npm audit` 10 (9 high) → 3 moderate (postcss interno do Next, build-time, não-bloqueante).
-  - Antes do merge em prod: teste manual da PWA (install/offline/splash) + SSE 3 abas (§4.8 de `docs/UPGRADE-NEXT-15.md`). Rollback: Coolify 1-clique ou `git revert`.
 
 ---
 
@@ -60,8 +57,9 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ### Pós-Fase 7 — manutenção
 
-- [ ] **[P3] #chore #docs** Bookkeeping pós-merge de Fase 7
-  - **Pronto quando:** depois dos PRs #4/#30/#31 mergearem: `docs/FASE-7.md` marca #1 e #4 como ✅; `STATUS.md` reflete Fase 7 completa + Next 15 em prod + módulos atualizados; `BACKLOG.md` "Em progresso" zerado.
+- [ ] **[P3] #chore #docs** Bookkeeping pós-merge de Fase 7 — resto após PR #4 mergear
+  - **Pronto quando:** PR #4 (backup dev.db) mergear → `BACKLOG.md` "Em progresso" zerado.
+  - **Feito hoje (2026-06-07):** `docs/FASE-7.md` marcado ✅ ENTREGUE + itens 3/4/5 marcados ✅ FEITA; `STATUS.md` teste count 163→210, módulos atualizados; BACKLOG "Em progresso" limpo (Next 15 migration removida — já mergeada).
   - **Autonomia:** OK fazer direto.
 
 ### PWA
@@ -76,8 +74,7 @@ _Itens com critério vago OU bloqueados por dependência externa._
   - **Blocked:** precisa impressora térmica 80mm pra testar. Hoje `@page size: 80mm auto; margin: 0` + CSS print rules já está implementado em `app/comprovante/[id]/ComprovanteClient.tsx`. Sem hardware, não dá pra confirmar se algo corta.
   - **Próximo passo quando hardware existir:** imprimir 5 pedidos variados (curto/longo, com/sem nota, com/sem promo) → verificar se nome cliente longo, lista grande de toppings ou rodapé do total cortam → ajustar `max-width`/`padding` específicos.
 
-- [ ] **[P3] #pwa #sw** Reativar `fallbacks: { document: "/offline" }` quando migrar pro `@ducanh2912/next-pwa`
-  - **Blocked:** depende da migração de `next-pwa@5.6.0` → `@ducanh2912/next-pwa` (plano em `docs/UPGRADE-NEXT-15.md`). Hoje next-pwa@5.6.0 tem bug que quebra build com runtimeCaching customizado + fallbacks; `/offline` existe mas só serve navegação manual.
+
 - [ ] **[P3] #pwa #admin** Cachear `api.iconify.design` no Service Worker pra ícones já vistos renderizarem offline
   - **Pronto quando:** `next.config.mjs` ganha regra de runtimeCaching `CacheFirst` (ou `StaleWhileRevalidate`) pro domínio `api.iconify.design`; após visitar admin Cardápio com wifi e voltar pra revisitar offline, os ícones já vistos no IconPicker e nas linhas de ingrediente renderizam normalmente.
   - **Contexto:** Hoje sem rede o `<Icon icon="...">` do `@iconify/react` exibe placeholder vazio (fetch falha no client). Esse cache deixa "memória" dos ícones vistos. PR conforme PLAYBOOK (mexe em PWA config).
@@ -94,6 +91,9 @@ _Itens com critério vago OU bloqueados por dependência externa._
 ---
 
 ## ✅ Concluídos recentemente
+
+### 2026-06-07
+- [claude-pastel 2026-06-07 background] **[P3] Housekeeping STATUS/BACKLOG/FASE-7** — BACKLOG "Em progresso" limpo: migração Next 15 removida (mergeada main 2026-05-29, já superseded). STATUS "Métricas vivas" e tabela Saúde dos módulos: contador de testes 163 → **210** (valor real verificado com `npm test`). `docs/FASE-7.md` banner atualizado pra ✅ ENTREGUE; itens 3 (Comparativo), 4 (WhatsApp auto-surface), 5 ("Acabou") marcados ✅ FEITA com notas das PRs e datas. BACKLOG "Backlog" (refinement): item "Reativar fallbacks SW" removido — já feito na migração Next 15 (2026-05-28). 210/210 testes verdes.
 
 ### 2026-06-05
 - [claude-pastel 2026-06-05] **[P3] SW runtimeCaching pra /p/<token> — PR #59 aberta** — `next.config.mjs` ganhou regra explícita `NetworkFirst` pra `/\/p\/[A-Za-z0-9]{10}/` antes do catch-all SWR. networkTimeoutSeconds:2 + cacheName "pedido-public" (50 entries × 24h). SW gerado confirmou ordem correta. build + 210/210 verdes. Aguarda review.
