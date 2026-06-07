@@ -2,7 +2,7 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-05
+**Última atualização:** 2026-06-07
 **Atualizado por:** `claude-pastel`
 
 ---
@@ -10,6 +10,14 @@
 ## Fase atual
 
 Fase 6 entregue. Pós-fase: hardening + observabilidade.
+
+## O que rolou nesta sessão (routine 2026-06-07)
+
+- **[docs] FASE-7.md marcada como ✅ ENTREGUE** — features 3 (comparativo), 4 (WhatsApp auto-surface) e 5 (Acabou) ganharam marcadores ✅ FEITA/VERIFICADA. Banner do cabeçalho atualizado pra refletir entrega completa da fase. Doc-only.
+- **[docs] STATUS.md corrigido** — métricas vivas 163/163 → 210/210 (valor real desde 05/06, após PIX +13 testes). Data atualizada.
+- 210/210 testes, lint limpo (verificados no início da rotina).
+- Branch: `routine-pastel-20260607-1605`. PR aberta.
+- Itens avaliados e pulados: smoke test prod (requer browser manual + criação de pedido em prod — não executável em background); bookkeeping completo (PR #4 backup ainda aguarda review — critério não satisfeito); limpar branches routine-* (#Confirmar antes); SW cache /p/<token> (PR #59 já aberta aguardando review).
 
 ## O que rolou nesta sessão (routine 2026-06-05)
 
@@ -79,7 +87,7 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 
 ## Métricas vivas
 
-- Tests passando: **163/163** ✅
+- Tests passando: **210/210** ✅
 - Type-check: **ok** ✅
 - ESLint: **0 erros** ✅ (check ativo no build)
 - DB schema: **sincronizado** ✅ (imageUrl adicionado)
