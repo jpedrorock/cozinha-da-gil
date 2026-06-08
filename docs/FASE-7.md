@@ -1,10 +1,8 @@
 # Fase 7 — Pagamento (PIX), dashboard de eventos e conveniências de operação
 
-> **Status:** roadmap. 5 features escolhidas pelo João + **decisões travadas em 2026-05-28**.
-> **Quando construir:** depois que o PR #23 (migração Next 15) mergear — evita divergência de
-> STATUS/BACKLOG e garante async-params em rotas novas. **Exceção:** a calculadora de troco é
-> 100% client, pode ir isolada a qualquer momento.
-> **Como:** cada feature vira PR própria (não empilhar tudo num PR só).
+> **Status: ✅ ENTREGUE (5/5).** Todas as features mergeadas em `main`.
+> #23 Next 15 (2026-05-28) · #28 troco (2026-05-28) · #29 comparativo (2026-05-28) · #31 WhatsApp pronto (2026-06-01) · #30 PIX (2026-06-05). Feature #5 já existia, verificada 2026-05-29.
+> **Ação pendente do João:** configurar chave PIX em Admin → Caixa → "Pagamento (PIX)".
 
 ---
 
@@ -24,28 +22,30 @@
 - **Como:** bottom-sheet de **uma mão só** — numpad grande (reusa o teclado do PIN), digita "recebi R$" + total → mostra o troco. Standalone (funciona sem pedido aberto).
 - **Escopo:** puro client, sem API, sem schema. **Pode ser feita já**, independente do PR #23.
 
-## 3. Comparativo entre eventos (admin)
+## 3. Comparativo entre eventos (admin) — ✅ FEITA (PR #29, mergeado 2026-05-28)
 
+- **Entregue:** sub-aba "Comparativo" em Admin → Vendas. Cards por `EventSession` com faturamento, nº pedidos, ticket médio, hora de pico e topping campeão. Comparação lado a lado. Sem schema novo. Validado: tsc/lint/testes/build.
 - **Como:** nova sub-aba no admin Vendas: card por `EventSession` (faturamento, nº pedidos, ticket médio) + **hora de pico** + **topping campeão do evento**. Comparação lado a lado.
 - **Escopo:** read-only, reusa a agregação existente. Sem schema. Endpoint estático novo (sem `[id]` → sem questão de async-params).
 
-## 4. WhatsApp "tá pronto" — auto-surface 1 toque
+## 4. WhatsApp "tá pronto" — auto-surface 1 toque — ✅ FEITA (PR #31, mergeado 2026-06-01)
 
+- **Entregue:** ao marcar PRONTO, banner fixed-bottom verde aparece no atendente com botão "Avisar" (1 toque abre `wa.me` prefillado). Só dispara se pedido tem telefone e ainda não foi notificado. `surfacedReadyRef` garante 1 banner por pedido por sessão. Edição de 1 arquivo (`AtendenteClient.tsx`). Validado: tsc/lint/179/build.
 - **Decisão travada + teto técnico:** o `wa.me` (que o app usa) **não envia sozinho** — exige 1 toque humano no WhatsApp. Então "automático" = ao marcar **PRONTO**, a mensagem prefillada **aparece pronta** → 1 toque pra enviar (em vez de caçar o botão).
 - **Como:** reusa `notify-ready` + CRM + template já existentes. Só dispara se o cliente tiver telefone cadastrado.
 - **Fora de escopo:** envio 100% sem toque exigiria WhatsApp Business + Cloud API (conta paga + template aprovado) — overkill pra barraca.
 
-## 5. "Acabou" — propagação ao vivo (admin marca)
+## 5. "Acabou" — propagação ao vivo (admin marca) — ✅ JÁ EXISTIA (verificado 2026-05-29)
 
+- **Verificado:** PATCH ingrediente broadcast `ingredient:updated` via SSE → atendente aplica `available: false` ao vivo (chip fica cinza sem refresh). Já funcionava antes da Fase 7. Nada a implementar.
 - **Decisão travada:** **só admin marca** esgotado (mantém restrito ao Cardápio). O atendente **não** ganha o toggle.
 - **Logo a feature encolheu:** garantir que o toggle "esgotou" do admin **propague AO VIVO via SSE** pro atendente (chip fica cinza na hora, sem refresh).
-- **Próximo passo:** **verificar primeiro** se já propaga ao vivo. Se sim → item já está pronto, nada a fazer. Se não → adicionar broadcast SSE de disponibilidade de ingrediente (PR — toca SSE, roda e2e).
 
 ---
 
 ## O que o João precisa fornecer
 
-- **Chave PIX** (pra feature #1) — quando for construir.
+- **Chave PIX** — configurar uma vez em Admin → Caixa → "Pagamento (PIX)". Sem isso o QR não aparece no comprovante. Os 3 campos: chave (CPF/CNPJ/e-mail/telefone/EVP), nome (até 25 chars) e cidade (até 15 chars).
 
 ## Fora de escopo (consciente — pode voltar depois)
 
