@@ -2,7 +2,7 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-05
+**Última atualização:** 2026-06-08
 **Atualizado por:** `claude-pastel`
 
 ---
@@ -10,6 +10,13 @@
 ## Fase atual
 
 Fase 6 entregue. Pós-fase: hardening + observabilidade.
+
+## O que rolou nesta sessão (routine 2026-06-08)
+
+- **[P3] doc: FASE-7.md atualizado** — itens 3 (Comparativo, PR #29), 4 (WhatsApp auto-surface, PR #31) e 5 ("Acabou" já existia) marcados ✅ FEITA com notas de entrega. Status header atualizado para "✅ ENTREGUE (5/5 features)". Nenhum código alterado.
+- 210/210 testes, lint limpo.
+- Branch: `routine-pastel-20260608-2107`. PR aberta.
+- Itens pulados: smoke test prod (requer interação visual em browser), limpar branches (Confirmar antes), bookkeeping completo bloqueado por PR #4 ainda aberta.
 
 ## O que rolou nesta sessão (routine 2026-06-05)
 

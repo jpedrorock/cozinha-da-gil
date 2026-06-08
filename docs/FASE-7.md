@@ -1,10 +1,9 @@
 # Fase 7 — Pagamento (PIX), dashboard de eventos e conveniências de operação
 
-> **Status:** roadmap. 5 features escolhidas pelo João + **decisões travadas em 2026-05-28**.
-> **Quando construir:** depois que o PR #23 (migração Next 15) mergear — evita divergência de
-> STATUS/BACKLOG e garante async-params em rotas novas. **Exceção:** a calculadora de troco é
-> 100% client, pode ir isolada a qualquer momento.
-> **Como:** cada feature vira PR própria (não empilhar tudo num PR só).
+> **Status: ✅ ENTREGUE (5/5 features implementadas).** Este doc é o plano original mantido como
+> referência histórica. Todas as 5 features foram construídas e mergeadas ao main. PR #4 (backup
+> automático do `dev.db`) ainda aguarda review/merge — feature independente das 5 abaixo.
+> **Como:** cada feature entrou por PR própria.
 
 ---
 
@@ -24,22 +23,25 @@
 - **Como:** bottom-sheet de **uma mão só** — numpad grande (reusa o teclado do PIN), digita "recebi R$" + total → mostra o troco. Standalone (funciona sem pedido aberto).
 - **Escopo:** puro client, sem API, sem schema. **Pode ser feita já**, independente do PR #23.
 
-## 3. Comparativo entre eventos (admin)
+## 3. Comparativo entre eventos (admin) — ✅ FEITA (PR #29, mergeado 2026-05-29)
 
+- **Entregue:** nova sub-aba "Comparativo" no admin → Vendas: cards por `EventSession` com faturamento, nº pedidos e ticket médio; coluna de detalhe mostra top toppings e hora de pico por evento. Read-only, sem schema novo. Mergeado junto com troco (PR #28) e migração Next 15 (PR #23).
 - **Como:** nova sub-aba no admin Vendas: card por `EventSession` (faturamento, nº pedidos, ticket médio) + **hora de pico** + **topping campeão do evento**. Comparação lado a lado.
 - **Escopo:** read-only, reusa a agregação existente. Sem schema. Endpoint estático novo (sem `[id]` → sem questão de async-params).
 
-## 4. WhatsApp "tá pronto" — auto-surface 1 toque
+## 4. WhatsApp "tá pronto" — auto-surface 1 toque — ✅ FEITA (PR #31, mergeado 2026-06-01)
 
+- **Entregue:** banner fixed-bottom aparece automaticamente no atendente quando pedido vira PRONTO e tem telefone cadastrado. 1 toque abre `wa.me` com mensagem de "tá pronto" prefillada (reusa `notifyReady()` + template existente). Bannerem tem 2 ações: "Avisar" (abre WhatsApp) e "Dispensar". Cobre tanto card do atendente quanto banner de notificação direta.
 - **Decisão travada + teto técnico:** o `wa.me` (que o app usa) **não envia sozinho** — exige 1 toque humano no WhatsApp. Então "automático" = ao marcar **PRONTO**, a mensagem prefillada **aparece pronta** → 1 toque pra enviar (em vez de caçar o botão).
 - **Como:** reusa `notify-ready` + CRM + template já existentes. Só dispara se o cliente tiver telefone cadastrado.
 - **Fora de escopo:** envio 100% sem toque exigiria WhatsApp Business + Cloud API (conta paga + template aprovado) — overkill pra barraca.
 
-## 5. "Acabou" — propagação ao vivo (admin marca)
+## 5. "Acabou" — propagação ao vivo (admin marca) — ✅ FEITA (verificado 2026-05-29, já existia)
 
+- **Entregue:** verificado que já funcionava — `PATCH /api/ingredients/[id]` (toggle `available`) dispara broadcast SSE `ingredient:updated`; atendente recebe e aplica `available` ao vivo no chip do ingrediente. Nenhum código novo necessário — a feature já estava completa.
 - **Decisão travada:** **só admin marca** esgotado (mantém restrito ao Cardápio). O atendente **não** ganha o toggle.
 - **Logo a feature encolheu:** garantir que o toggle "esgotou" do admin **propague AO VIVO via SSE** pro atendente (chip fica cinza na hora, sem refresh).
-- **Próximo passo:** **verificar primeiro** se já propaga ao vivo. Se sim → item já está pronto, nada a fazer. Se não → adicionar broadcast SSE de disponibilidade de ingrediente (PR — toca SSE, roda e2e).
+- **Verificação:** PATCH ingrediente → broadcast `ingredient:updated` → atendente aplica `available` ao vivo. Feature já existia, nada a fazer.
 
 ---
 
