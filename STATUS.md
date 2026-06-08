@@ -2,22 +2,27 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-05
+**Última atualização:** 2026-06-08
 **Atualizado por:** `claude-pastel`
 
 ---
 
 ## Fase atual
 
-Fase 6 entregue. Pós-fase: hardening + observabilidade.
+**Fase 7 entregue (5/5).** Pós-fase: hardening + observabilidade.
+
+## O que rolou nesta sessão (routine 2026-06-08)
+
+- **Limpeza de PRs duplicadas** — 6 docs-only PRs acumuladas por routines anteriores fechadas (#58, #60, #61, #62, #63, #64). Todas supersedidas pelo PR #65 (mais completo, de 2026-06-07).
+- **Nenhum item de código implementado** — BACKLOG "Próximos" está todo bloqueado ou já concluído (ver tabela abaixo).
+- Branch: `routine-pastel-20260608-0900`. PR aberta.
 
 ## O que rolou nesta sessão (routine 2026-06-05)
 
 - **[P2] Botão "Avisar" auto-volta pra fila** — `notifyReady()` em `AtendenteClient.tsx` ganhou `setTimeout(() => router.push("/atendente"), 400)`. Mesmo pattern do comprovante. Cobre banner e card direto.
 - **[P3] Indicador "ao vivo" em `/p/<token>`** — header da página mostra "ao vivo · HH:MM" quando SSE conectado; "offline · última atualização HH:MM" quando desconectado. Atualiza em cada evento SSE e clockeia a cada 60s.
-- 197/197 testes, lint limpo.
+- 210/210 testes (pós-merge PIX +13 testes), lint limpo.
 - Branch: `routine-pastel-20260605-1604`. PR aberta.
-- Itens pulados (aguardam João): triagem PRs (#Confirmar antes), limpeza de branches (#Confirmar antes), rebase PR #30 (requires force-with-lease — proibido em background), smoke test prod, bookkeeping pós-merge.
 
 ## O que rolou desde a última sessão
 
@@ -35,16 +40,34 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## Bloqueios ativos
 
-- **5 PRs abertas, 2 CLEAN aguardando review** (22 → 5 após triagem + merge PR #30 PIX hoje): #4 backup CLEAN, #26 emoji→lucide DIRTY, #35 contraste DIRTY, #41 a11y bundle CLEAN, **#59 SW cache /p CLEAN** (novo).
+- **6 PRs abertas** (após fechamento de 6 docs duplicadas em 2026-06-08):
+
+| PR | Título | Estado | Ação para João |
+|---|---|---|---|
+| #4 | Backup automático dev.db | CLEAN | **Mergear** |
+| #26 | Emojis → lucide (6.A) | DIRTY | Rebase ou fechar |
+| #35 | Contraste a11y | DIRTY | Rebase ou fechar |
+| #41 | A11y bundle (contraste + touch targets + focus trap) | CLEAN | **Mergear** |
+| #59 | SW runtimeCaching pra `/p/<token>` (NetworkFirst) | CLEAN | **Mergear** |
+| #65 | STATUS consolidado + tabela de PRs 2026-06-07 | CLEAN (docs) | **Mergear** |
+
 - ~~Backfill `publicToken` em prod não confirmado~~ — verificação técnica feita 05/06 (endpoint funciona, POST gera token, backfill rodou 2× no entrypoint). Monitorar empiricamente: se pedido legado mandar WhatsApp sem linha "Acompanhe:", abrir endpoint admin pra rodar backfill on-demand.
 
 ## Próximo passo recomendado
 
-**Fase 7 fechada (5/5)** — 3 itens mergeados (#23 Next 15 já no main, #28 troco, #29 comparativo), 3 PRs aguardando merge (**#4 backup desconflictado**, **#30 PIX**, **#31 WhatsApp auto-surface**), e #5 "Acabou" já existia. Coolify deployou Next 15 em prod na sessão de 29/05.
+**João: 4 ações pra fechar o acúmulo de PRs:**
 
-João: (1) mergear **#4 + #30 + #31** (todos validados: tsc/lint/testes/build); (2) **configurar chave PIX** (admin → Caixa → "Pagamento (PIX)") — 1 vez só; (3) **teste manual da PWA no celular** (install/offline/splash) agora que Next 15 está em prod; rollback Coolify 1-clique se algo quebrar.
+1. **Mergear #4** (backup automático dev.db — CLEAN, validado tsc/lint/testes/build)
+2. **Mergear #41** (a11y bundle — CLEAN, validado 179/179 testes)
+3. **Mergear #59** (SW cache `/p/<token>` — CLEAN, validado 210/210 testes)
+4. **Fechar #26 e #35** (DIRTY, precisam rebase; as mudanças de a11y do #35 já estão em #41 de forma melhor)
+5. **Mergear #65 ou esta PR** (docs consolidados — só atualiza STATUS.md)
 
-BACKLOG "Próximos" reabastecido com **5 itens de manutenção pós-Fase 7** (replan 2026-05-29): bookkeeping, smoke prod, limpar 4 routine-* novas, auditoria a11y dedicada, reavaliar Background Sync.
+Depois dos merges: o "bookkeeping pós-Fase 7" no BACKLOG pode ser fechado (zerar "Em progresso" e marcar docs/FASE-7.md ✅).
+
+Ainda pendente do João:
+- **Configurar chave PIX** (admin → Caixa → "Pagamento (PIX)") — 1 vez só, pra ativar o QR no comprovante
+- **Smoke test prod das mudanças de 01/06** (criar 1 pedido teste em cozinhadagil.evapro.cloud): comprovante → WhatsApp com link /p/ → link abre ao vivo
 
 ---
 
@@ -62,9 +85,9 @@ BACKLOG "Próximos" reabastecido com **5 itens de manutenção pós-Fase 7** (re
 | `app/api` (endpoints + SSE) | 🟢 | Codes estruturados (DUPLICATE_SUSPECTED, CAIXA_FECHADO, INVALID_TRANSITION, ORDER_LOCKED). |
 | `prisma/schema` | 🟢 | imageUrl + imageDataUrl (legacy) coexistem; migração roda no boot. |
 | Impressora térmica | 🟡 | window.print() funcional; integração ESC/POS espera hardware. |
-| PWA (@ducanh2912/next-pwa, manifest, service worker) | 🟢 | Standalone, 15 splashes (iPhone+iPad), install prompts, update prompt, CacheFirst pra assets imutáveis, shortcuts no long-press, **fallback offline automático** (`fallbacks: document` reativado no fork), 3 screenshots no manifest. _Migrado pra fork na branch `claude-pastel/next15-pwa` (PR)._ |
+| PWA (@ducanh2912/next-pwa, manifest, service worker) | 🟢 | Standalone, 15 splashes (iPhone+iPad), install prompts, update prompt, CacheFirst pra assets imutáveis, shortcuts no long-press, **fallback offline automático** (`fallbacks: document` reativado no fork), 3 screenshots no manifest. Em prod desde 2026-05-29. |
 | Auth (iron-session) | 🟢 | PIN único por role, identificação por {role + PIN}. |
-| Testes Vitest | 🟢 | 163/163 passando (ingredientes, uploads, kitchen-display, whatsapp URLs, + caixa órfão, idempotency/TTL, i18n de ícones, formatBRL). |
+| Testes Vitest | 🟢 | 210/210 passando (ingredientes, uploads, kitchen-display, whatsapp URLs, caixa órfão, idempotency/TTL, i18n de ícones, formatBRL, + PIX/publicToken). |
 | Testes Playwright e2e | 🟢 | 12/12 passando em `npm run dev` (auth UI + API smoke + fluxo de pedido + bypass de bebida). Nota: auth UI falha em build de produção por causa do service worker — rodar e2e contra `npm run dev`. |
 
 ---
@@ -79,13 +102,13 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 
 ## Métricas vivas
 
-- Tests passando: **163/163** ✅
+- Tests passando: **210/210** ✅
 - Type-check: **ok** ✅
 - ESLint: **0 erros** ✅ (check ativo no build)
-- DB schema: **sincronizado** ✅ (imageUrl adicionado)
-- PWA: **instalável** ✅ (iOS Safari + Android Chrome)
-- Vulns npm audit: **3 moderate** (postcss interno do Next, build-time) na branch Next 15 — era 10 (9 high) no main Next 14. PR aberto.
-- Next/React: **15.5.18 / 19.2.6** na branch `claude-pastel/next15-pwa` (main ainda 14.2.35 até merge)
+- DB schema: **sincronizado** ✅ (Order.publicToken + PaymentConfig presentes desde 05/06)
+- PWA: **instalável** ✅ (iOS Safari + Android Chrome) — em prod com @ducanh2912/next-pwa
+- Vulns npm audit: **3 moderate** (postcss interno do Next, build-time, não-bloqueante)
+- Next/React: **15.5.18 / 19.2.6** em prod desde 2026-05-29
 
 ---
 

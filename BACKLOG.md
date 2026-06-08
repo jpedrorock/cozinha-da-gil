@@ -28,9 +28,6 @@
 _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 - [ ] **[P1] #chore** Backup automático do `dev.db` no volume Coolify — **PR #4 aberto, aguardando merge** [claude-pastel 2026-05-22]
-- [ ] **[P2] #chore #pwa** Migração Next 14 → 15 + `@ducanh2912/next-pwa` — **PR aberto (branch `claude-pastel/next15-pwa`), aguardando review + teste manual de PWA/SSE em device** [claude-pastel 2026-05-28]
-  - Feito + validado: next 15.5.18, react 19.2.6, fork PWA, codemod async params (14 rotas), override serialize-javascript. tsc/lint/163 testes/build/12 e2e em dev verdes. `fallbacks: /offline` reativado. `npm audit` 10 (9 high) → 3 moderate (postcss interno do Next, build-time, não-bloqueante).
-  - Antes do merge em prod: teste manual da PWA (install/offline/splash) + SSE 3 abas (§4.8 de `docs/UPGRADE-NEXT-15.md`). Rollback: Coolify 1-clique ou `git revert`.
 
 ---
 
@@ -95,6 +92,10 @@ _Itens com critério vago OU bloqueados por dependência externa._
 
 ## ✅ Concluídos recentemente
 
+### 2026-06-08
+- [claude-pastel 2026-06-08 background] **Housekeeping: 6 docs PRs duplicadas fechadas** — PRs #58, #60, #61, #62, #63, #64 eram todas docs-only supersedidas pelo PR #65 (mais completo, criado 2026-06-07). Fechadas com comentário apontando #65 como canônico. Fila de docs PRs: 7 → 1.
+- [claude-pastel 2026-06-08 background] **BACKLOG/STATUS atualizados** — migração Next 15 removida de "Em progresso" (PR #23 mergeou 2026-05-29), contagem de testes corrigida para 210/210, tabela de PRs e próximo passo recomendado atualizados.
+
 ### 2026-06-05
 - [claude-pastel 2026-06-05] **[P3] SW runtimeCaching pra /p/<token> — PR #59 aberta** — `next.config.mjs` ganhou regra explícita `NetworkFirst` pra `/\/p\/[A-Za-z0-9]{10}/` antes do catch-all SWR. networkTimeoutSeconds:2 + cacheName "pedido-public" (50 entries × 24h). SW gerado confirmou ordem correta. build + 210/210 verdes. Aguarda review.
 - [claude-pastel 2026-06-05] **[P1] Verificar backfill `publicToken` em prod** — verificação técnica completa: (a) prod no ar com deploy fresco (uptime ~120s após merge PIX); (b) endpoint `/api/p/<token>` retorna 404 estruturado pra token inválido = rota funciona; (c) `app/api/orders/route.ts:401-417` confirma POST gera `publicToken` no create de todo pedido novo + 210/210 testes passam; (d) backfill `prisma/backfill-public-tokens.ts` é idempotente e roda no entrypoint a cada deploy (já teve 2 oportunidades: deploy /p em 01/06 + deploy PIX agora). **Caveat:** sem acesso SSH/logs Coolify não consigo confirmar empiricamente se backfill rodou OK em legados. Se Gil reportar pedido legado sem linha "Acompanhe:" na msg WhatsApp, monto endpoint admin temporário pra rodar backfill on-demand. Risco baixo.
@@ -108,6 +109,7 @@ _Itens com critério vago OU bloqueados por dependência externa._
 - [claude-pastel 2026-06-01] **[P3] Limpar 1 routine `routine-pastel-20260531-0110`** — branch log-only ("registrar passagem de routine sem trabalho") deletada do origin. As outras 3 routine branches restantes (`-29-1110` emoji→lucide, `-30-2113` bookkeeping, `-31-0900` a11y fix) estão associadas a PRs abertos (#26/#34/#35) e ficam pra você decidir.
 
 ### 2026-05-29
+- [claude-pastel 2026-05-29] **[P2] Migração Next 14 → 15 + `@ducanh2912/next-pwa` — mergeada (PR #23)** — next 15.5.18 + react 19.2.6 + fork PWA + codemod async params (14 rotas). tsc/lint/163 testes/build/12 e2e verdes. Fallback `/offline` reativado. npm audit 10 (9 high) → 3 moderate. Coolify deployou automaticamente após merge.
 - [claude-pastel 2026-05-29] **[P2] Auditoria de acessibilidade WCAG 2.1 AA — primeira dedicada** — `docs/AUDIT-A11Y-2026.md`. App passa boa parte do AA sem trabalho extra (zero achados em `aria-label` icon-only, alt em `<img>`, semântica de botões). **3 gaps reais P2** (`status-preparing` 2.5:1 contraste, ~10 touch targets sub-44px, ~4-5 inputs no AdminClient sem `<label>`) + 3 P3 (`prefers-reduced-motion`, focus trap em modais, `status-ready/delivered` borderline). Esforço total: 4-6h. Não substitui teste com screen reader real.
 - [claude-pastel 2026-05-29] **[P3] Limpar branches `routine-pastel-*` obsoletas (7 de 8)** — `git push -d origin` em 7 log-only (`-2110`/`-0110`/`-1611`/`-2109` de 29/05, `-1111`/`-1609`/`-background` de 30/05). **A `routine-pastel-20260529-1110` ficou** — carrega trabalho real (FASE-6 §6.A: substituir emojis por ícones lucide em `ClientesBroadcast`, `MonitorClient`, `CozinhaClient`, `OrderCard`, `guide-content.ts`), em arquivos que **não foram tocados no main**. Deletar perderia. Decisão pendente do João: cherry-pick, abrir PR, ou descartar.
 - [claude-pastel 2026-05-29] **[P3] Smoke test em prod pós-Next 15** — `/api/health` retorna 200 com `dbOk:true, problems:[], dbLatencyMs:2`; todas as rotas chave (`/`, `/atendente`, `/cliente`, `/admin`, `/api/products`, `/api/sse`, `/manifest.webmanifest`) respondem 200; `uptimeSec:46` confirma que Coolify acabou de subir o deploy do Next 15. **Detalhe operacional:** o response mostra um **caixa órfão** aberto desde 28/05 (`"Teste Fred"`, Gil) — `isStaleEventSession` deve estar mostrando banner pra Gil fechar.
