@@ -44,7 +44,7 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 - [ ] **[P2] #chore** Smoke test prod das 4 mudanças de hoje (01/06)
   - **Pronto quando:** criar 1 pedido novo em prod (cozinhadagil.evapro.cloud) com telefone teste, validar: (a) navega pro comprovante após confirmar; (b) botão WhatsApp com mensagem incluindo "Acompanhe: /p/..."; (c) link `/p/<token>` abre e mostra status; (d) telas sem bounce branco / scroll fix funcionando.
-  - **Autonomia:** OK fazer direto.
+  - **Autonomia:** OK fazer direto (requer browser/UI — impossível remotamente). Routine 2026-06-08: servidor confirma 403 "Host not in allowlist" — Coolify no ar, restringe IPs externos. Validação manual pendente.
 
 ### Polish
 
