@@ -35,7 +35,7 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## Bloqueios ativos
 
-- **6 PRs abertas, 3 CLEAN aguardando review** (22 → 6): #4 backup CLEAN, #26 emoji→lucide DIRTY, #35 contraste DIRTY, #41 a11y bundle CLEAN, #59 SW cache /p CLEAN, **#74 cardápio junho 2026 CLEAN** (preços + 3 produtos novos + ingredientes — aguarda João aplicar em prod via admin).
+- **7 PRs abertas, 4 CLEAN aguardando review** (22 → 7): #4 backup CLEAN, #26 emoji→lucide DIRTY, #35 contraste DIRTY, #41 a11y bundle CLEAN, #59 SW cache /p CLEAN, #74 cardápio junho 2026 CLEAN, **#75 Zona de Perigo (apagar dados op) CLEAN** (novo).
 - ~~Backfill `publicToken` em prod não confirmado~~ — verificação técnica feita 05/06 (endpoint funciona, POST gera token, backfill rodou 2× no entrypoint). Monitorar empiricamente: se pedido legado mandar WhatsApp sem linha "Acompanhe:", abrir endpoint admin pra rodar backfill on-demand.
 
 ## Próximo passo recomendado
@@ -92,6 +92,7 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 ## Histórico recente (últimos 5 dias)
 
 ### 2026-06-06
+- **Zona de Perigo (apagar dados de operação) — PR #75 aberta** — Gil pediu botão "escondido + difícil" pra resetar operação. Implementado pattern GitHub-like: bloco colapsado no fim da aba Usuários, cooldown 3s, modal exigindo digitar frase EXATA "APAGAR TUDO NA COZINHA DA GIL" (validada client+server), backup automático do dev.db em `backups/wipe-<timestamp>.db` ANTES de apagar (aborta se backup falhar), DELETE em transação Prisma. Escopo: apaga Order/OrderItem/EventSession/BroadcastLog; mantém Product/Ingredient/User/Customer/PaymentConfig/Promotion. Arquivos novos: `lib/db-backup.ts` + 2 endpoints + `app/admin/DangerZone.tsx` + `tests/db-backup.test.ts` (6 testes). tsc + lint + 216/216 + build verdes. Aguarda checker + review pra merge.
 - **Atualização cardápio junho 2026 — PR #74 aberta** — Gil mandou cardápio impresso novo (Pastel/Macarrão) + 3 produtos novos via WhatsApp. Coletei decisões via AskUserQuestion e implementei: preços Pastel Salgado Pequeno R$15→10 e Grande R$20→15, 4 produtos novos (Pastel Churrasqueiro R$20 combo fixo, Torta de Frango R$15, Torta de Alho Poró e Bacon R$15, Guaraná Antártica R$6), 6 ingredientes novos (Carne desfiada, Barbecue, Pimentão, Alho e óleo, Penne, Espaguete) em 5 categorias (incluindo nova `macarrao_massa`), 1 remoção (Bolonhesa). Atualizei `prisma/seed.ts` + `lib/ingredients.ts` + `tests/ingredients.test.ts`. **Seed só roda em DB zerado — não afeta prod.** João aplica em prod via Admin → Cardápio seguindo checklist do PR. tsc + lint + 210/210 + build verdes. Item de backlog separado pra escolha estruturada de massa no stepper (por enquanto atendente usa Observações).
 
 ### 2026-06-05
