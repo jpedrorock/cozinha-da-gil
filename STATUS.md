@@ -2,7 +2,7 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-05
+**Última atualização:** 2026-06-09
 **Atualizado por:** `claude-pastel`
 
 ---
@@ -11,13 +11,12 @@
 
 Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
-## O que rolou nesta sessão (routine 2026-06-05)
+## O que rolou nesta sessão (routine 2026-06-09 21:06)
 
-- **[P2] Botão "Avisar" auto-volta pra fila** — `notifyReady()` em `AtendenteClient.tsx` ganhou `setTimeout(() => router.push("/atendente"), 400)`. Mesmo pattern do comprovante. Cobre banner e card direto.
-- **[P3] Indicador "ao vivo" em `/p/<token>`** — header da página mostra "ao vivo · HH:MM" quando SSE conectado; "offline · última atualização HH:MM" quando desconectado. Atualiza em cada evento SSE e clockeia a cada 60s.
-- 197/197 testes, lint limpo.
-- Branch: `routine-pastel-20260605-1604`. PR aberta.
-- Itens pulados (aguardam João): triagem PRs (#Confirmar antes), limpeza de branches (#Confirmar antes), rebase PR #30 (requires force-with-lease — proibido em background), smoke test prod, bookkeeping pós-merge.
+- **Fila "Próximos" efetivamente vazia** — items concluídos, com PR aberta ou bloqueados por PR #4.
+- **[P2] Smoke test prod** — **bloqueado**: `cozinhadagil.evapro.cloud` retorna HTTP 403 de ambientes cloud (Coolify provavelmente bloqueia IPs de container externo). Requer execução manual com browser em rede com acesso ao prod. Ver nota no BACKLOG.
+- **Verificação local**: 210/210 testes, lint 0 erros. Codebase saudável.
+- PR #72 (routine 16:06 de hoje) cobre bookkeeping completo de Fase 7 — aguardando merge do João.
 
 ## O que rolou desde a última sessão
 

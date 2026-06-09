@@ -45,6 +45,7 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 - [ ] **[P2] #chore** Smoke test prod das 4 mudanças de hoje (01/06)
   - **Pronto quando:** criar 1 pedido novo em prod (cozinhadagil.evapro.cloud) com telefone teste, validar: (a) navega pro comprovante após confirmar; (b) botão WhatsApp com mensagem incluindo "Acompanhe: /p/..."; (c) link `/p/<token>` abre e mostra status; (d) telas sem bounce branco / scroll fix funcionando.
   - **Autonomia:** OK fazer direto.
+  - **Nota (2026-06-09):** prod retorna HTTP 403 de ambientes cloud (container sem acesso IP ao Coolify). Executar manualmente com browser.
 
 ### Polish
 
