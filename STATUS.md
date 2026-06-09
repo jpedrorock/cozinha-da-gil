@@ -35,7 +35,7 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## Bloqueios ativos
 
-- **5 PRs abertas, 2 CLEAN aguardando review** (22 → 5 após triagem + merge PR #30 PIX hoje): #4 backup CLEAN, #26 emoji→lucide DIRTY, #35 contraste DIRTY, #41 a11y bundle CLEAN, **#59 SW cache /p CLEAN** (novo).
+- **6 PRs abertas, 3 CLEAN aguardando review** (22 → 6): #4 backup CLEAN, #26 emoji→lucide DIRTY, #35 contraste DIRTY, #41 a11y bundle CLEAN, #59 SW cache /p CLEAN, **#74 cardápio junho 2026 CLEAN** (preços + 3 produtos novos + ingredientes — aguarda João aplicar em prod via admin).
 - ~~Backfill `publicToken` em prod não confirmado~~ — verificação técnica feita 05/06 (endpoint funciona, POST gera token, backfill rodou 2× no entrypoint). Monitorar empiricamente: se pedido legado mandar WhatsApp sem linha "Acompanhe:", abrir endpoint admin pra rodar backfill on-demand.
 
 ## Próximo passo recomendado
@@ -90,6 +90,9 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 ---
 
 ## Histórico recente (últimos 5 dias)
+
+### 2026-06-06
+- **Atualização cardápio junho 2026 — PR #74 aberta** — Gil mandou cardápio impresso novo (Pastel/Macarrão) + 3 produtos novos via WhatsApp. Coletei decisões via AskUserQuestion e implementei: preços Pastel Salgado Pequeno R$15→10 e Grande R$20→15, 4 produtos novos (Pastel Churrasqueiro R$20 combo fixo, Torta de Frango R$15, Torta de Alho Poró e Bacon R$15, Guaraná Antártica R$6), 6 ingredientes novos (Carne desfiada, Barbecue, Pimentão, Alho e óleo, Penne, Espaguete) em 5 categorias (incluindo nova `macarrao_massa`), 1 remoção (Bolonhesa). Atualizei `prisma/seed.ts` + `lib/ingredients.ts` + `tests/ingredients.test.ts`. **Seed só roda em DB zerado — não afeta prod.** João aplica em prod via Admin → Cardápio seguindo checklist do PR. tsc + lint + 210/210 + build verdes. Item de backlog separado pra escolha estruturada de massa no stepper (por enquanto atendente usa Observações).
 
 ### 2026-06-05
 - **Rebase + merge PR #30 PIX** (`/trabalhar`) — branch `claude-pastel/pix-config` rebaseada em main atual. Conflito real só em ComprovanteClient.tsx (imports lucide + whatsapp-templates) — resolvido fundindo PIX + publicToken. Schema (Order.publicToken + PaymentConfig) auto-merged sem conflito. Validação pós-rebase: `npm install` + `prisma generate` + tsc + lint + **210/210 testes** (+13 PIX) + build verdes. Force-push `c784e68 → 7a7883e`. Checker aprovou. Squash-merged `12f205f`. Próximo passo do João: **configurar chave PIX no admin → Caixa** pra recurso ficar funcional pro cliente final.

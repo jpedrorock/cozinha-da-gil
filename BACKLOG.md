@@ -36,6 +36,17 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ## ⏭️ Próximos (prontos pra executar)
 
+### Cardápio (atualização junho 2026)
+
+- [ ] **[P1] #admin #chore** Aplicar cardápio novo em prod (PR #74)
+  - **Pronto quando:** seguindo checklist do PR #74, aplico via `/admin/cardapio`: 2 preços (Pastel Salgado Pequeno R$15→10, Grande R$20→15), 4 produtos novos (Pastel Churrasqueiro R$20, Torta de Frango R$15, Torta de Alho Poró e Bacon R$15, Guaraná Antártica Lata R$6), 6 ingredientes (Carne desfiada/Barbecue/Pimentão/Alho e óleo/Penne/Espaguete), 1 remoção (Bolonhesa). Cardápio do app espelha o impresso.
+  - **Autonomia:** OK fazer direto (admin UI normal).
+
+- [ ] **[P3] #atendente #ux** Stepper: escolha estruturada de massa do macarrão
+  - **Pronto quando:** ao adicionar Macarrão no pedido, stepper mostra fase nova "Massa" com Penne / Espaguete (do `macarrao_massa`) antes de toppings. Pedido salva massa estruturada (não em Observações). Cozinha vê na ticket.
+  - **Contexto:** PR #74 deixou ingredientes prontos via categoria `macarrao_massa`; falta UI no stepper + campo no schema do pedido OU reusar `sauces` com flag. Por enquanto atendente registra via Observações.
+  - **Autonomia:** Confirmar antes (decide caminho schema vs notes).
+
 ### Fila de PRs (bloqueia merges, prioridade alta)
 
 ### UX (follow-up das mudanças de hoje)
