@@ -2,14 +2,21 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-05
+**Última atualização:** 2026-06-09
 **Atualizado por:** `claude-pastel`
 
 ---
 
 ## Fase atual
 
-Fase 6 entregue. Pós-fase: hardening + observabilidade.
+Fase 7 entregue (5/5). Pós-fase: hardening + merge de PRs pendentes.
+
+## O que rolou nesta sessão (routine 2026-06-09)
+
+- **Diagnóstico:** fila "Próximos" sem itens acionáveis em background (smoke prod requer browser; bookkeeping bloqueado por PR #4; limpar branches = "Confirmar antes").
+- **Limpeza de PRs:** fechadas #69 e #70 como supersedidas por PR #67 (bookkeeping Fase 7 completo). Fila de PRs: 9 → 7.
+- **Fetch de origin/main:** detectado que origin/main estava desatualizado (7543609); após fetch atualizou para 33d5565 (PIX + Avisar + indicador já mergeados). Repositório local estava correto — era só fetch stale.
+- Lint e testes não rodados (sem mudança de código).
 
 ## O que rolou nesta sessão (routine 2026-06-05)
 
