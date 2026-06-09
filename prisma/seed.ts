@@ -34,6 +34,9 @@ const INGREDIENTS: Record<string, Seed[]> = {
     { name: "Cebola caramelizada" },
     { name: "Azeitona" },
     { name: "Batata palha" },
+    // Atualização cardápio 06/06: Carne desfiada vai no Pastel Churrasqueiro;
+    // disponível como topping pra montagem custom também.
+    { name: "Carne desfiada" },
   ],
   doce: [
     { name: "Banana com chocolate" },
@@ -44,6 +47,9 @@ const INGREDIENTS: Record<string, Seed[]> = {
     { name: "Verde" },
     { name: "Rosé" },
     { name: "Mostarda" },
+    // Atualização cardápio 06/06: Barbecue acompanha Pastel Churrasqueiro;
+    // disponível como molho extra também.
+    { name: "Barbecue" },
   ],
   // Fase 6 — macarrão tem ingredientes separados
   macarrao_topping: [
@@ -58,11 +64,22 @@ const INGREDIENTS: Record<string, Seed[]> = {
     { name: "Azeitona" },
     { name: "Batata palha" },
     { name: "Cebola caramelizada" },
+    // Atualização cardápio 06/06.
+    { name: "Pimentão" },
   ],
   macarrao_molho: [
-    { name: "Bolonhesa" },
+    // Atualização cardápio 06/06: Bolonhesa removida (não tá no cardápio
+    // impresso); Alho e óleo adicionado.
     { name: "Branco" },
     { name: "Tomate" },
+    { name: "Alho e óleo" },
+  ],
+  // Atualização cardápio 06/06: escolha de massa do macarrão (categoria
+  // nova `macarrao_massa`). Por enquanto atendente registra via Observações
+  // do pedido; stepper de escolha estruturada vira backlog futuro.
+  macarrao_massa: [
+    { name: "Penne" },
+    { name: "Espaguete" },
   ],
 };
 
@@ -85,6 +102,7 @@ type ProductSeed = {
 
 const PRODUCTS: ProductSeed[] = [
   // --- Pastel salgado: 2 tamanhos com regras diferentes ---
+  // Atualização cardápio 06/06: Pequeno 1500→1000, Grande 2000→1500.
   {
     name: "Pastel Salgado",
     type: "salgado",
@@ -95,8 +113,8 @@ const PRODUCTS: ProductSeed[] = [
     sauceCategory: "molho",
     position: 0,
     sizes: [
-      { name: "Pequeno", description: "Até 2 ingredientes", priceCents: 1500 },
-      { name: "Grande", description: "Monte o seu", priceCents: 2000 },
+      { name: "Pequeno", description: "Até 2 ingredientes", priceCents: 1000 },
+      { name: "Grande", description: "Monte o seu", priceCents: 1500 },
     ],
   },
   // --- Pastel doce: 1 sabor único ---
@@ -127,6 +145,38 @@ const PRODUCTS: ProductSeed[] = [
     sauceCategory: "macarrao_molho",
     position: 2,
   },
+  // --- Pastel Churrasqueiro: combo pré-montado, sem escolha (06/06/2026) ---
+  // Carne desfiada + Queijo + Molho barbecue já vem assumidos; atendente
+  // não monta. Modelado como type "salgado" fixed pra render igual aos
+  // outros pastéis na listagem, mas sem ingredientes/molhos opcionais.
+  {
+    name: "Pastel Churrasqueiro",
+    type: "salgado",
+    pricingMode: "fixed",
+    basePriceCents: 2000,
+    allowsIngredients: false,
+    allowsSauces: false,
+    position: 3,
+  },
+  // --- Tortas: produtos fixos sem montagem (06/06/2026) ---
+  {
+    name: "Torta de Frango",
+    type: "salgado",
+    pricingMode: "fixed",
+    basePriceCents: 1500,
+    allowsIngredients: false,
+    allowsSauces: false,
+    position: 4,
+  },
+  {
+    name: "Torta de Alho Poró e Bacon",
+    type: "salgado",
+    pricingMode: "fixed",
+    basePriceCents: 1500,
+    allowsIngredients: false,
+    allowsSauces: false,
+    position: 5,
+  },
   // --- Bebidas: cada uma é um Product, preço fixo, sem ingredientes ---
   {
     name: "Coca-Cola Lata",
@@ -135,19 +185,27 @@ const PRODUCTS: ProductSeed[] = [
     basePriceCents: 600,
     position: 10,
   },
+  // Atualização cardápio 06/06.
+  {
+    name: "Guaraná Antártica Lata",
+    type: "bebida",
+    pricingMode: "fixed",
+    basePriceCents: 600,
+    position: 11,
+  },
   {
     name: "Suco",
     type: "bebida",
     pricingMode: "fixed",
     basePriceCents: 500,
-    position: 11,
+    position: 12,
   },
   {
     name: "Água",
     type: "bebida",
     pricingMode: "fixed",
     basePriceCents: 400,
-    position: 12,
+    position: 13,
   },
   // --- Combo 4 sabores: preço fixo, exige exatamente 4 sabores (toppings de salgado) ---
   {
