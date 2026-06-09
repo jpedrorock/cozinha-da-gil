@@ -2,24 +2,24 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-05
+**Última atualização:** 2026-06-09
 **Atualizado por:** `claude-pastel`
 
 ---
 
 ## Fase atual
 
-Fase 6 entregue. Pós-fase: hardening + observabilidade.
+Fase 7 entregue (5/5). Pós-fase: hardening + observabilidade. PRs pendentes aguardam review do João.
+
+## O que rolou nesta sessão (routine 2026-06-09)
+
+- Fila "Próximos" sem itens acionáveis em modo background — routine encerrada após diagnóstico.
+- **Diagnóstico da fila:** smoke test prod requer browser (impossível remotamente); SW cache /p já tem PR #59; limpeza de branches exige "Confirmar antes"; bookkeeping bloqueado em PR #4 (pendente há 16 dias).
+- **Situação das PRs:** 8 abertas (veja "Bloqueios ativos"). Rotinas de 08/06 deixaram #67/#68/#69 ainda aguardando merge — 3 são docs-only/CLEAN.
+- **Atenção:** PR #67 e PR #69 ambas tocam em `docs/FASE-7.md` e `STATUS.md` — João deve mergear **#67** (mais completa) e **fechar #69** (supersedida).
+- Branch: `routine-pastel-20260609-0107`. PR aberta.
 
 ## O que rolou nesta sessão (routine 2026-06-05)
-
-- **[P2] Botão "Avisar" auto-volta pra fila** — `notifyReady()` em `AtendenteClient.tsx` ganhou `setTimeout(() => router.push("/atendente"), 400)`. Mesmo pattern do comprovante. Cobre banner e card direto.
-- **[P3] Indicador "ao vivo" em `/p/<token>`** — header da página mostra "ao vivo · HH:MM" quando SSE conectado; "offline · última atualização HH:MM" quando desconectado. Atualiza em cada evento SSE e clockeia a cada 60s.
-- 197/197 testes, lint limpo.
-- Branch: `routine-pastel-20260605-1604`. PR aberta.
-- Itens pulados (aguardam João): triagem PRs (#Confirmar antes), limpeza de branches (#Confirmar antes), rebase PR #30 (requires force-with-lease — proibido em background), smoke test prod, bookkeeping pós-merge.
-
-## O que rolou desde a última sessão
 
 - Auditoria UX crítica (4º pass) — Fases A (5/5 críticos), B (9/14 importantes), C (4/5 polish + a11y) shipped em 18 commits
 - Follow-ups do audit externo: preview comprovante 80mm, atalhos teclado cozinha, áudio escalonado, PDF com delta vs período anterior, TV breathe intermitente
@@ -35,16 +35,32 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## Bloqueios ativos
 
-- **5 PRs abertas, 2 CLEAN aguardando review** (22 → 5 após triagem + merge PR #30 PIX hoje): #4 backup CLEAN, #26 emoji→lucide DIRTY, #35 contraste DIRTY, #41 a11y bundle CLEAN, **#59 SW cache /p CLEAN** (novo).
-- ~~Backfill `publicToken` em prod não confirmado~~ — verificação técnica feita 05/06 (endpoint funciona, POST gera token, backfill rodou 2× no entrypoint). Monitorar empiricamente: se pedido legado mandar WhatsApp sem linha "Acompanhe:", abrir endpoint admin pra rodar backfill on-demand.
+**8 PRs abertas em 2026-06-09** — situação por PR:
+
+| PR | Título | Estado | Ação |
+|---|---|---|---|
+| **#4** | Backup automático dev.db | CLEAN (pendente há 16 dias) | **Mergear** |
+| **#26** | Emojis → lucide (6.A) | DIRTY (desconflitar antes) | Rebase ou fechar |
+| **#35** | Contraste Caixa aberto | DIRTY | Rebase ou fechar |
+| **#41** | A11y bundle (contraste/touch/focus) | CLEAN | **Mergear** |
+| **#59** | SW cache `/p/<token>` (NetworkFirst) | CLEAN | **Mergear** |
+| **#67** | Bookkeeping Fase 7 completo | CLEAN | **Mergear** (mais completa) |
+| **#68** | Smoke parcial + fecha #66 | CLEAN | **Mergear** |
+| **#69** | Docs Fase 7 itens 3/4/5 | CLEAN | **Fechar** (supersedida por #67) |
+
+- PR #30 (PIX) mergeada em 2026-06-05.
+- PR #31 (WhatsApp auto-surface) mergeada em 2026-06-01.
+- ~~Backfill `publicToken` em prod não confirmado~~ — verificação técnica feita 05/06 (endpoint funciona). Baixo risco.
 
 ## Próximo passo recomendado
 
-**Fase 7 fechada (5/5)** — 3 itens mergeados (#23 Next 15 já no main, #28 troco, #29 comparativo), 3 PRs aguardando merge (**#4 backup desconflictado**, **#30 PIX**, **#31 WhatsApp auto-surface**), e #5 "Acabou" já existia. Coolify deployou Next 15 em prod na sessão de 29/05.
+João: mergear as 5 CLEAN (**#4 → #41 → #59 → #68 → #67**, nessa ordem — #67 por último pois toca em STATUS/BACKLOG), fechar #69, decidir sobre #26 e #35 (DIRTY — rebase ou descartar).
 
-João: (1) mergear **#4 + #30 + #31** (todos validados: tsc/lint/testes/build); (2) **configurar chave PIX** (admin → Caixa → "Pagamento (PIX)") — 1 vez só; (3) **teste manual da PWA no celular** (install/offline/splash) agora que Next 15 está em prod; rollback Coolify 1-clique se algo quebrar.
+Após PR #4 mergeada: bookkeeping final (BACKLOG "Em progresso" zerado) pode ser feito pela próxima routine.
 
-BACKLOG "Próximos" reabastecido com **5 itens de manutenção pós-Fase 7** (replan 2026-05-29): bookkeeping, smoke prod, limpar 4 routine-* novas, auditoria a11y dedicada, reavaliar Background Sync.
+**PIX**: configurar chave PIX em admin → Caixa → "Pagamento (PIX)" — 1 vez só — se ainda não feito.
+
+**Smoke test manual**: criar 1 pedido em prod com telefone de teste, validar comprovante + WhatsApp + link `/p/<token>` — requer browser (não executável em background).
 
 ---
 
