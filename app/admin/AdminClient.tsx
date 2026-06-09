@@ -61,6 +61,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { Clientes } from "./Clientes";
 import { ComparativoEventos } from "./ComparativoEventos";
 import { PagamentoSettings } from "./PagamentoSettings";
+import { DangerZone } from "./DangerZone";
 import { AppHeader } from "@/components/AppHeader";
 import { BrandIcon, PastelIcon, DoceIcon } from "@/components/icons";
 // IconPicker carrega Iconify (~200k icons em memória ao buscar) e só serve
@@ -4085,6 +4086,10 @@ function Usuarios({
         );
       })}
       {confirmNode}
+      {/* Zona de Perigo — escondida no fim de Usuários por ser ação
+          administrativa de último recurso (zerar operação). Pattern GitHub:
+          texto discreto, cooldown 3s, frase exata, backup automático. */}
+      <DangerZone />
     </div>
   );
 }
