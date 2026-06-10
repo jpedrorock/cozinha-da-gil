@@ -41,6 +41,15 @@ services:
       # Depois do primeiro boot, volta pra "false" pra não re-seedar.
       SEED_ON_BOOT: ${SEED_ON_BOOT:-false}
 
+      # Backup diário automático do SQLite (lib/backup-scheduler.ts).
+      # Roda às 03:00 local, mantém últimos 14 dias em /app/data/backups/.
+      # Setta "false" pra desativar (ex: dev local).
+      BACKUP_SCHEDULE_ENABLED: ${BACKUP_SCHEDULE_ENABLED:-true}
+      BACKUP_HOUR: ${BACKUP_HOUR:-3}
+      BACKUP_KEEP_DAYS: ${BACKUP_KEEP_DAYS:-14}
+      DB_PATH: /app/data/dev.db
+      BACKUPS_DIR: /app/data/backups
+
     volumes:
       # Volume nomeado pro SQLite — Coolify reaproveita entre deploys.
       # Path interno bate com DATABASE_URL acima.
