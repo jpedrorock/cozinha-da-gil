@@ -20,6 +20,12 @@ export const INGREDIENT_CATEGORIES = [
   "molho",
   "macarrao_topping",
   "macarrao_molho",
+  // Categoria nova pra Penne/Espaguete (atualização cardápio 06/06/2026).
+  // Stepper estruturado pra escolha de massa fica em backlog (item P3) —
+  // por enquanto admin pode adicionar ingredientes aqui pra Cardápio
+  // refletir o que existe, e atendente usa Observações do pedido pra
+  // marcar qual massa o cliente quer.
+  "macarrao_massa",
   "bebida_extra",
 ] as const;
 
