@@ -88,6 +88,25 @@ const withPWA = withPWAInit({
         },
       },
       {
+        // Página pública de acompanhamento do pedido — `NetworkFirst` com
+        // timeout curto (2s). Por quê NetworkFirst em vez do catch-all
+        // `StaleWhileRevalidate`: cliente abrindo o link quer ver estado
+        // atual ("Pronto!" vs "Em preparo" vs "Entregue") — SWR poderia
+        // mostrar status antigo até o background sync atualizar.
+        // Quando rede falha (wifi cai), cai pro cache imediatamente em vez
+        // do fallback /offline genérico — cliente vê o estado conhecido
+        // do pedido + indicador "offline" na própria página.
+        // SSE continua precisando de rede pra atualizar live (bypass via
+        // /api/sse acima); essa regra é só pro document HTML inicial.
+        urlPattern: /\/p\/[A-Za-z0-9]{10}/,
+        handler: "NetworkFirst",
+        options: {
+          cacheName: "pedido-public",
+          networkTimeoutSeconds: 2,
+          expiration: { maxEntries: 50, maxAgeSeconds: 60 * 60 * 24 },
+        },
+      },
+      {
         // Páginas/HTML: stale-while-revalidate (catch-all final)
         urlPattern: /^https?.*/,
         handler: "StaleWhileRevalidate",
