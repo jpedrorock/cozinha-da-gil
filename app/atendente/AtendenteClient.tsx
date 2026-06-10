@@ -914,7 +914,7 @@ export function AtendenteClient({
             onClick={() => setTrocoOpen(true)}
             aria-label="Calculadora de troco"
             title="Troco"
-            className="inline-flex items-center justify-center h-9 w-9 rounded-full border border-line-strong text-ink-2 hover:border-ink-3 hover:text-ink"
+            className="inline-flex items-center justify-center h-11 w-11 rounded-full border border-line-strong text-ink-2 hover:border-ink-3 hover:text-ink"
           >
             <Calculator size={18} strokeWidth={2} />
           </button>
@@ -991,7 +991,7 @@ export function AtendenteClient({
           </div>
           <button
             onClick={() => setStaleDismissed(true)}
-            className="shrink-0 inline-flex items-center justify-center w-8 h-8 rounded-md text-ink-3 hover:text-ink hover:bg-brand-orange/10"
+            className="shrink-0 inline-flex items-center justify-center w-11 h-11 rounded-md text-ink-3 hover:text-ink hover:bg-brand-orange/10"
             aria-label="Dispensar aviso"
           >
             <X size={16} strokeWidth={2.5} />
@@ -1431,7 +1431,7 @@ function NovoPedido({
             {discount > 0 ? (
               <>
                 <span className="line-through text-ink-3">{formatBRL(subtotal)}</span>{" "}
-                <span className="font-bold text-status-ready">{formatBRL(total)}</span>
+                <span className="font-bold text-status-ready-ink">{formatBRL(total)}</span>
               </>
             ) : (
               <span className="font-bold text-ink">{formatBRL(total)}</span>
@@ -1475,7 +1475,7 @@ function NovoPedido({
                       onClick={() => setSelectedPromoId(isActive ? null : p.id)}
                       className={`shrink-0 h-9 px-3 rounded-md text-xs font-bold uppercase tracking-[0.04em] ${
                         isActive
-                          ? "bg-white text-status-ready"
+                          ? "bg-white text-status-ready-ink"
                           : "bg-ink text-brand-yellow hover:brightness-110"
                       }`}
                     >

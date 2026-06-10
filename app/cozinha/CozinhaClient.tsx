@@ -794,7 +794,7 @@ export function CozinhaClient({
                             </span>
                             <span className="font-bold truncate">{o.clientName}</span>
                             {o.status === "ENTREGUE" && (
-                              <span className="shrink-0 text-[10px] font-bold uppercase tracking-wide text-status-ready border border-status-ready/40 rounded px-1.5 py-0.5">
+                              <span className="shrink-0 text-[10px] font-bold uppercase tracking-wide text-status-ready-ink border border-status-ready/40 rounded px-1.5 py-0.5">
                                 entregue
                               </span>
                             )}
@@ -1089,7 +1089,7 @@ function Ticket({
           <button
             onClick={onCancel}
             disabled={pending}
-            className="w-full h-9 rounded-md border border-line text-ink-3 hover:border-danger hover:text-danger text-[13px] font-semibold inline-flex items-center justify-center gap-1.5 active:scale-[0.97] transition disabled:opacity-50"
+            className="w-full h-11 rounded-md border border-line text-ink-3 hover:border-danger hover:text-danger text-[13px] font-semibold inline-flex items-center justify-center gap-1.5 active:scale-[0.97] transition disabled:opacity-50"
             title="Cancelar pedido"
           >
             <X size={14} strokeWidth={2.5} />

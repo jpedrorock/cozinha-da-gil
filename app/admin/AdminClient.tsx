@@ -2465,8 +2465,10 @@ function PromotionModal({
 
         <div className="flex flex-col gap-3">
           <div>
-            <label className="block t-label mb-1">Nome</label>
-            <input className="input input-sm" value={name} onChange={(e) => setName(e.target.value)} />
+            <label className="block">
+              <span className="block t-label mb-1">Nome</span>
+              <input className="input input-sm" value={name} onChange={(e) => setName(e.target.value)} />
+            </label>
           </div>
 
           <div>
@@ -2875,8 +2877,10 @@ function ProductModal({
 
         <div className="flex flex-col gap-3">
           <div>
-            <label className="block t-label mb-1">Nome</label>
-            <input className="input input-sm" value={name} onChange={(e) => setName(e.target.value)} />
+            <label className="block">
+              <span className="block t-label mb-1">Nome</span>
+              <input className="input input-sm" value={name} onChange={(e) => setName(e.target.value)} />
+            </label>
           </div>
 
           <div>
@@ -4109,8 +4113,10 @@ function NewUserForm({
     <div className="card-lg p-5 flex flex-col gap-4">
       <h3 className="t-h4">Novo usuário</h3>
       <div>
-        <label className="block t-label mb-1">Nome</label>
-        <input className="input" placeholder="Ex: Ana" value={name} onChange={(e) => setName(e.target.value)} />
+        <label className="block">
+          <span className="block t-label mb-1">Nome</span>
+          <input className="input" placeholder="Ex: Ana" value={name} onChange={(e) => setName(e.target.value)} />
+        </label>
       </div>
       <div>
         <label className="block t-label mb-1">Função</label>

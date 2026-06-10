@@ -1,8 +1,9 @@
 "use client";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { X } from "lucide-react";
 import { useEscapeKey } from "@/lib/use-escape-key";
 import { useBodyScrollLock } from "@/lib/use-body-scroll-lock";
+import { useFocusTrap } from "@/lib/use-focus-trap";
 
 const PRESET_REASONS = [
   "Cliente foi embora",
@@ -24,6 +25,7 @@ export function CancelDialog({
 }) {
   const [selected, setSelected] = useState<string | null>(null);
   const [customText, setCustomText] = useState("");
+  const dialogRef = useRef<HTMLDivElement>(null);
 
   useEscapeKey(() => {
     setSelected(null);
@@ -32,6 +34,7 @@ export function CancelDialog({
   }, open);
 
   useBodyScrollLock(open);
+  useFocusTrap(open, dialogRef);
 
   if (!open) return null;
 
@@ -60,6 +63,7 @@ export function CancelDialog({
       className="fixed inset-0 z-[100] bg-ink/50 backdrop-blur-[3px] flex items-center justify-center p-4 animate-fade-in"
     >
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="cancel-dialog-title"

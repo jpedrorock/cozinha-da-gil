@@ -310,7 +310,7 @@ export function OrderCard({
           })()}
           {order.notifiedReadyAt && order.status === "PRONTO" && (
             <span
-              className="inline-flex items-center gap-1 t-caption text-status-ready font-semibold"
+              className="inline-flex items-center gap-1 t-caption text-status-ready-ink font-semibold"
               title={new Date(order.notifiedReadyAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
             >
               <Check size={12} strokeWidth={3} />

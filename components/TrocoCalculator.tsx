@@ -1,10 +1,11 @@
 "use client";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Delete, X } from "lucide-react";
 import { formatBRL } from "@/lib/pricing";
 import { pushDigit, popDigit, computeChange } from "@/lib/troco";
 import { useEscapeKey } from "@/lib/use-escape-key";
 import { useBodyScrollLock } from "@/lib/use-body-scroll-lock";
+import { useFocusTrap } from "@/lib/use-focus-trap";
 
 /**
  * Calculadora de troco — bottom-sheet de UMA MÃO pro atendente.
@@ -25,9 +26,11 @@ export function TrocoCalculator({
   const [total, setTotal] = useState(0);
   const [recebido, setRecebido] = useState(0);
   const [active, setActive] = useState<"total" | "recebido">("total");
+  const dialogRef = useRef<HTMLDivElement>(null);
 
   useEscapeKey(onClose, open);
   useBodyScrollLock(open);
+  useFocusTrap(open, dialogRef);
 
   if (!open) return null;
 
@@ -54,7 +57,9 @@ export function TrocoCalculator({
       onClick={onClose}
     >
       <div
+        ref={dialogRef}
         role="dialog"
+        aria-modal="true"
         aria-label="Calculadora de troco"
         className="w-full max-w-md bg-surface-elevated rounded-t-2xl shadow-lg flex flex-col"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
