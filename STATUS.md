@@ -92,6 +92,9 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 ## Histórico recente (últimos 5 dias)
 
 ### 2026-06-09
+- **Guia atualizado — PR #76 mergeada** (`6a21be6`) — audit do `/guia` vs estado atual achou 11 features adicionadas que não tinham doc: tela do recibo pós-pedido, link `/p/<token>`, smart checklist cozinha, drawer Prontos, produtos pré-montados (Churrasqueiro/Tortas), categoria `macarrao_massa`, **3 seções inteiras novas em Admin (PIX, Monitor KPIs, Zona de Perigo)** e 4 regras automáticas. CRÍTICO documentar a Zona de Perigo pra Gil entender. Bonus: fix do teste flaky no `db-backup` (do PR #75) — colisão de filename em chamadas <1ms apart, resolvido com suffix random 4 chars hex.
+
+### 2026-06-09
 - **🚀 5 PRs mergeadas em sequência** — João autorizou ("nao precisa revisar pode seguir"). Squash-merged: #74 cardápio junho 2026 (`26f5346`), #75 Zona de Perigo (`3af76c1`), #4 backup automático dev.db (`2fcd1b6`), #59 SW cache /p (`9290942`), #41 a11y bundle (`26757a0`). Mais 2 routine logs (#72, #73) fechados na triagem padrão. Fila caiu de 7 → 2 (#26, #35 ambos DIRTY pra rebase futura). Coolify deploya automaticamente.
 
 ### 2026-06-06
