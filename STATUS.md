@@ -2,22 +2,21 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-05
-**Atualizado por:** `claude-pastel`
+**Última atualização:** 2026-06-10
+**Atualizado por:** `claude-pastel` (routine background)
 
 ---
 
 ## Fase atual
 
-Fase 6 entregue. Pós-fase: hardening + observabilidade.
+Fase 6 ✅ e Fase 7 ✅ entregues. Estado: hardening + manutenção pós-fase.
 
-## O que rolou nesta sessão (routine 2026-06-05)
+## O que rolou nesta sessão (routine 2026-06-10)
 
-- **[P2] Botão "Avisar" auto-volta pra fila** — `notifyReady()` em `AtendenteClient.tsx` ganhou `setTimeout(() => router.push("/atendente"), 400)`. Mesmo pattern do comprovante. Cobre banner e card direto.
-- **[P3] Indicador "ao vivo" em `/p/<token>`** — header da página mostra "ao vivo · HH:MM" quando SSE conectado; "offline · última atualização HH:MM" quando desconectado. Atualiza em cada evento SSE e clockeia a cada 60s.
-- 197/197 testes, lint limpo.
-- Branch: `routine-pastel-20260605-1604`. PR aberta.
-- Itens pulados (aguardam João): triagem PRs (#Confirmar antes), limpeza de branches (#Confirmar antes), rebase PR #30 (requires force-with-lease — proibido em background), smoke test prod, bookkeeping pós-merge.
+- **[P3] Bookkeeping pós-merge de Fase 7** — `docs/FASE-7.md` marcado ✅ ENTREGUE (5/5): features #3 (comparativo eventos), #4 (WhatsApp auto-surface), #5 ("Acabou" — já existia) registradas com notas de entrega. `BACKLOG.md` "Em progresso" zerado (PRs #4 e #23 já mergeados). STATUS/BACKLOG/FASE-7 consistentes.
+- 216/216 testes, lint limpo.
+- Branch: `routine-pastel-20260610-1610`. PR aberta.
+- Itens pulados: smoke test prod (requer acesso browser à prod), aplicar cardápio em prod (requer João no admin), stepper massa (#Confirmar antes), limpar branches (#Confirmar antes).
 
 ## O que rolou desde a última sessão
 
@@ -40,11 +39,9 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## Próximo passo recomendado
 
-**Fase 7 fechada (5/5)** — 3 itens mergeados (#23 Next 15 já no main, #28 troco, #29 comparativo), 3 PRs aguardando merge (**#4 backup desconflictado**, **#30 PIX**, **#31 WhatsApp auto-surface**), e #5 "Acabou" já existia. Coolify deployou Next 15 em prod na sessão de 29/05.
+**Fases 6 e 7 completas. App estável — hardening + manutenção.**
 
-João: (1) mergear **#4 + #30 + #31** (todos validados: tsc/lint/testes/build); (2) **configurar chave PIX** (admin → Caixa → "Pagamento (PIX)") — 1 vez só; (3) **teste manual da PWA no celular** (install/offline/splash) agora que Next 15 está em prod; rollback Coolify 1-clique se algo quebrar.
-
-BACKLOG "Próximos" reabastecido com **5 itens de manutenção pós-Fase 7** (replan 2026-05-29): bookkeeping, smoke prod, limpar 4 routine-* novas, auditoria a11y dedicada, reavaliar Background Sync.
+João: (1) **Smoke test manual em prod** (cozinhadagil.evapro.cloud) — criar pedido com telefone, verificar navega pro comprovante, botão WhatsApp inclui link `/p/<token>`, link do cliente abre ao vivo; (2) **Aplicar cardápio junho 2026** via Admin → Cardápio (seguir checklist do PR #74, mergeado): 2 preços + 4 produtos novos + 6 ingredientes; (3) **Configurar chave PIX** (admin → Caixa → "Pagamento (PIX)") se ainda não feito; (4) **Rebasing PRs DIRTY** (#26 emoji→lucide, #35 contraste "Caixa aberto") quando houver janela.
 
 ---
 
@@ -79,7 +76,7 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 
 ## Métricas vivas
 
-- Tests passando: **163/163** ✅
+- Tests passando: **216/216** ✅
 - Type-check: **ok** ✅
 - ESLint: **0 erros** ✅ (check ativo no build)
 - DB schema: **sincronizado** ✅ (imageUrl adicionado)
