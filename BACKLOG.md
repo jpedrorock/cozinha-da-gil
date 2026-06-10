@@ -27,10 +27,7 @@
 
 _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
-- [ ] **[P1] #chore** Backup automático do `dev.db` no volume Coolify — **PR #4 aberto, aguardando merge** [claude-pastel 2026-05-22]
-- [ ] **[P2] #chore #pwa** Migração Next 14 → 15 + `@ducanh2912/next-pwa` — **PR aberto (branch `claude-pastel/next15-pwa`), aguardando review + teste manual de PWA/SSE em device** [claude-pastel 2026-05-28]
-  - Feito + validado: next 15.5.18, react 19.2.6, fork PWA, codemod async params (14 rotas), override serialize-javascript. tsc/lint/163 testes/build/12 e2e em dev verdes. `fallbacks: /offline` reativado. `npm audit` 10 (9 high) → 3 moderate (postcss interno do Next, build-time, não-bloqueante).
-  - Antes do merge em prod: teste manual da PWA (install/offline/splash) + SSE 3 abas (§4.8 de `docs/UPGRADE-NEXT-15.md`). Rollback: Coolify 1-clique ou `git revert`.
+_Limpo — nenhum item em andamento._
 
 ---
 
@@ -38,9 +35,9 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ### Cardápio (atualização junho 2026)
 
-- [ ] **[P1] #admin #chore** Aplicar cardápio novo em prod (PR #74)
-  - **Pronto quando:** seguindo checklist do PR #74, aplico via `/admin/cardapio`: 2 preços (Pastel Salgado Pequeno R$15→10, Grande R$20→15), 4 produtos novos (Pastel Churrasqueiro R$20, Torta de Frango R$15, Torta de Alho Poró e Bacon R$15, Guaraná Antártica Lata R$6), 6 ingredientes (Carne desfiada/Barbecue/Pimentão/Alho e óleo/Penne/Espaguete), 1 remoção (Bolonhesa). Cardápio do app espelha o impresso.
-  - **Autonomia:** OK fazer direto (admin UI normal).
+- [ ] **[P1] #admin** Aplicar cardápio novo em prod via Admin UI (João)
+  - **Contexto:** PR #74 mergeada (09/06) — `prisma/seed.ts` e `lib/ingredients.ts` refletem o cardápio novo. O seed só roda em DB zerado; em prod, João precisa aplicar manualmente via `/admin/cardapio`: 2 preços (Pastel Salgado Pequeno R$15→10, Grande R$20→15), 4 produtos novos (Pastel Churrasqueiro R$20, Torta de Frango R$15, Torta de Alho Poró e Bacon R$15, Guaraná Antártica Lata R$6), 6 ingredientes (Carne desfiada/Barbecue/Pimentão/Alho e óleo/Penne/Espaguete), 1 remoção (Bolonhesa).
+  - **Autonomia:** João faz via admin UI — não é trabalho de código.
 
 - [ ] **[P3] #atendente #ux** Stepper: escolha estruturada de massa do macarrão
   - **Pronto quando:** ao adicionar Macarrão no pedido, stepper mostra fase nova "Massa" com Penne / Espaguete (do `macarrao_massa`) antes de toppings. Pedido salva massa estruturada (não em Observações). Cozinha vê na ticket.
@@ -61,7 +58,7 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 - [x] **[P3] #cliente #ux** Indicador "ao vivo · atualizado às X" em `/p/<token>` [claude-pastel 2026-06-05 background]
 
-- [ ] **[P3] #pwa** Service Worker runtimeCaching pra `/p/<token>` — **PR #59 aberta, aguardando review** [claude-pastel 2026-06-05]
+- [x] **[P3] #pwa** Service Worker runtimeCaching pra `/p/<token>` — **PR #59 mergeada (09/06)** [claude-pastel 2026-06-05]
 
 ### Cleanup
 
@@ -71,9 +68,7 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ### Pós-Fase 7 — manutenção
 
-- [ ] **[P3] #chore #docs** Bookkeeping pós-merge de Fase 7
-  - **Pronto quando:** depois dos PRs #4/#30/#31 mergearem: `docs/FASE-7.md` marca #1 e #4 como ✅; `STATUS.md` reflete Fase 7 completa + Next 15 em prod + módulos atualizados; `BACKLOG.md` "Em progresso" zerado.
-  - **Autonomia:** OK fazer direto.
+- [x] **[P3] #chore #docs** Bookkeeping pós-merge de Fase 7 [claude-pastel 2026-06-10 background]
 
 ### PWA
 
@@ -105,6 +100,17 @@ _Itens com critério vago OU bloqueados por dependência externa._
 ---
 
 ## ✅ Concluídos recentemente
+
+### 2026-06-10
+- [claude-pastel 2026-06-10 background] **[P3] Bookkeeping pós-merge** — BACKLOG "Em progresso" zerado; FASE-7.md todos 5 itens marcados ✅; STATUS.md atualizado (216/216 testes, PRs abertas #26/#35 DIRTY, Next 15 em prod confirmado).
+
+### 2026-06-09
+- [claude-pastel 2026-06-09] **PR #76 mergeada — guia atualizado** — 11 tópicos novos (tela do recibo, link /p/<token>, smart checklist cozinha, drawer Prontos, produtos pré-montados, categoria `macarrao_massa`, PIX, Monitor KPIs, Zona de Perigo, 3 seções admin, 4 regras automáticas). Fix teste flaky db-backup (colisão filename em <1ms, suffix random 4 chars hex).
+- [claude-pastel 2026-06-09] **5 PRs mergeadas em sequência** — #74 cardápio junho 2026 (`26f5346`), #75 Zona de Perigo (`3af76c1`), #4 backup automático dev.db (`2fcd1b6`), #59 SW cache /p (`9290942`), #41 a11y bundle (`26757a0`). Fila caiu de 7 → 2 PRs abertas (#26, #35 ambas DIRTY). Coolify deploya automaticamente.
+
+### 2026-06-06
+- [claude-pastel 2026-06-06] **PR #75 — Zona de Perigo** — bloco colapsado no admin (Usuários), cooldown 3s, modal com frase EXATA "APAGAR TUDO NA COZINHA DA GIL", backup automático antes de apagar. Escopo: apaga Order/OrderItem/EventSession/BroadcastLog; mantém Product/Ingredient/User/Customer/PaymentConfig/Promotion.
+- [claude-pastel 2026-06-06] **PR #74 — cardápio junho 2026** — preços Pastel Salgado Pequeno R$15→10 e Grande R$20→15, 4 produtos novos, 6 ingredientes novos (incl. categoria `macarrao_massa`), 1 remoção (Bolonhesa). Seed + lib/ingredients + tests atualizados.
 
 ### 2026-06-05
 - [claude-pastel 2026-06-05] **[P3] SW runtimeCaching pra /p/<token> — PR #59 aberta** — `next.config.mjs` ganhou regra explícita `NetworkFirst` pra `/\/p\/[A-Za-z0-9]{10}/` antes do catch-all SWR. networkTimeoutSeconds:2 + cacheName "pedido-public" (50 entries × 24h). SW gerado confirmou ordem correta. build + 210/210 verdes. Aguarda review.

@@ -2,22 +2,21 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-05
+**Última atualização:** 2026-06-10
 **Atualizado por:** `claude-pastel`
 
 ---
 
 ## Fase atual
 
-Fase 6 entregue. Pós-fase: hardening + observabilidade.
+Fase 6 + Fase 7 entregues. Pós-fase: hardening + manutenção de cardápio.
 
-## O que rolou nesta sessão (routine 2026-06-05)
+## O que rolou nesta sessão (routine 2026-06-10)
 
-- **[P2] Botão "Avisar" auto-volta pra fila** — `notifyReady()` em `AtendenteClient.tsx` ganhou `setTimeout(() => router.push("/atendente"), 400)`. Mesmo pattern do comprovante. Cobre banner e card direto.
-- **[P3] Indicador "ao vivo" em `/p/<token>`** — header da página mostra "ao vivo · HH:MM" quando SSE conectado; "offline · última atualização HH:MM" quando desconectado. Atualiza em cada evento SSE e clockeia a cada 60s.
-- 197/197 testes, lint limpo.
-- Branch: `routine-pastel-20260605-1604`. PR aberta.
-- Itens pulados (aguardam João): triagem PRs (#Confirmar antes), limpeza de branches (#Confirmar antes), rebase PR #30 (requires force-with-lease — proibido em background), smoke test prod, bookkeeping pós-merge.
+- **[P3] Bookkeeping pós-merge** — BACKLOG "Em progresso" zerado; FASE-7.md todos 5/5 itens marcados ✅; STATUS.md atualizado para refletir merges de 09/06.
+- 216/216 testes, lint limpo.
+- Branch: `routine-pastel-20260610-0427`. PR aberta.
+- 2 PRs abertas aguardando rebase + review do João: #26 (emojis→lucide) e #35 (contraste Caixa aberto) — ambas DIRTY, sem urgência.
 
 ## O que rolou desde a última sessão
 
@@ -35,16 +34,17 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## Bloqueios ativos
 
-- **2 PRs abertas (ambas DIRTY)** — #26 emoji→lucide e #35 contraste "Caixa aberto". Precisam rebase em outra sessão. **5 PRs mergeadas hoje em sequência**: #74 (cardápio), #75 (Zona de Perigo), #4 (backup), #59 (SW cache /p), #41 (a11y bundle).
-- ~~Backfill `publicToken` em prod não confirmado~~ — verificação técnica feita 05/06 (endpoint funciona, POST gera token, backfill rodou 2× no entrypoint). Monitorar empiricamente: se pedido legado mandar WhatsApp sem linha "Acompanhe:", abrir endpoint admin pra rodar backfill on-demand.
+- **2 PRs abertas (ambas DIRTY)** — #26 emoji→lucide e #35 contraste "Caixa aberto". Precisam rebase (proibido em background). João decide: mergear com rebase ou fechar.
+- **Cardápio em prod pendente** — PR #74 mergeada (código OK), mas produção precisa que João aplique manualmente via `/admin/cardapio` (seed só roda em DB zerado). Ver checklist do PR #74.
+- ~~Backfill `publicToken` em prod~~ — verificação técnica feita 05/06. Monitorar empiricamente.
 
 ## Próximo passo recomendado
 
-**Fase 7 fechada (5/5)** — 3 itens mergeados (#23 Next 15 já no main, #28 troco, #29 comparativo), 3 PRs aguardando merge (**#4 backup desconflictado**, **#30 PIX**, **#31 WhatsApp auto-surface**), e #5 "Acabou" já existia. Coolify deployou Next 15 em prod na sessão de 29/05.
+**Fase 7 fechada (5/5)** + **Fase 6 entregue** + hardening completo. App em prod com Next 15.
 
-João: (1) mergear **#4 + #30 + #31** (todos validados: tsc/lint/testes/build); (2) **configurar chave PIX** (admin → Caixa → "Pagamento (PIX)") — 1 vez só; (3) **teste manual da PWA no celular** (install/offline/splash) agora que Next 15 está em prod; rollback Coolify 1-clique se algo quebrar.
+João: (1) **aplicar cardápio novo em prod** via `/admin/cardapio` (checklist no PR #74); (2) **configurar chave PIX** (admin → Caixa → "Pagamento (PIX)") se ainda não fez; (3) decidir sobre PRs #26/#35 (rebase ou fechar).
 
-BACKLOG "Próximos" reabastecido com **5 itens de manutenção pós-Fase 7** (replan 2026-05-29): bookkeeping, smoke prod, limpar 4 routine-* novas, auditoria a11y dedicada, reavaliar Background Sync.
+Próximo trabalho de código: itens P3 do Backlog (stepper massa — Confirmar antes; limpar branches routine — Confirmar antes) ou novos itens que o João quiser propor.
 
 ---
 
@@ -79,23 +79,24 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 
 ## Métricas vivas
 
-- Tests passando: **163/163** ✅
+- Tests passando: **216/216** ✅ (verificado 2026-06-10)
 - Type-check: **ok** ✅
 - ESLint: **0 erros** ✅ (check ativo no build)
-- DB schema: **sincronizado** ✅ (imageUrl adicionado)
-- PWA: **instalável** ✅ (iOS Safari + Android Chrome)
-- Vulns npm audit: **3 moderate** (postcss interno do Next, build-time) na branch Next 15 — era 10 (9 high) no main Next 14. PR aberto.
-- Next/React: **15.5.18 / 19.2.6** na branch `claude-pastel/next15-pwa` (main ainda 14.2.35 até merge)
+- DB schema: **sincronizado** ✅ (imageUrl + publicToken + PaymentConfig)
+- PWA: **instalável** ✅ (iOS Safari + Android Chrome) — Next 15 em prod
+- Vulns npm audit: **3 moderate** (postcss interno do Next, build-time — não-bloqueante)
+- Next/React: **15.5.18 / 19.2.6** em prod (mergeado PR #23)
 
 ---
 
 ## Histórico recente (últimos 5 dias)
 
-### 2026-06-09
-- **Guia atualizado — PR #76 mergeada** (`6a21be6`) — audit do `/guia` vs estado atual achou 11 features adicionadas que não tinham doc: tela do recibo pós-pedido, link `/p/<token>`, smart checklist cozinha, drawer Prontos, produtos pré-montados (Churrasqueiro/Tortas), categoria `macarrao_massa`, **3 seções inteiras novas em Admin (PIX, Monitor KPIs, Zona de Perigo)** e 4 regras automáticas. CRÍTICO documentar a Zona de Perigo pra Gil entender. Bonus: fix do teste flaky no `db-backup` (do PR #75) — colisão de filename em chamadas <1ms apart, resolvido com suffix random 4 chars hex.
+### 2026-06-10
+- **Routine background** — bookkeeping pós-merge: BACKLOG "Em progresso" zerado, FASE-7.md 5/5 ✅, STATUS.md atualizado (216/216 testes). PR `routine-pastel-20260610-0427` aberta.
 
 ### 2026-06-09
-- **🚀 5 PRs mergeadas em sequência** — João autorizou ("nao precisa revisar pode seguir"). Squash-merged: #74 cardápio junho 2026 (`26f5346`), #75 Zona de Perigo (`3af76c1`), #4 backup automático dev.db (`2fcd1b6`), #59 SW cache /p (`9290942`), #41 a11y bundle (`26757a0`). Mais 2 routine logs (#72, #73) fechados na triagem padrão. Fila caiu de 7 → 2 (#26, #35 ambos DIRTY pra rebase futura). Coolify deploya automaticamente.
+- **Guia atualizado — PR #76 mergeada** (`6a21be6`) — audit do `/guia` achou 11 features sem doc: tela do recibo pós-pedido, link `/p/<token>`, smart checklist cozinha, drawer Prontos, produtos pré-montados, categoria `macarrao_massa`, 3 seções admin novas (PIX, Monitor KPIs, Zona de Perigo) e 4 regras automáticas. Fix do teste flaky db-backup (colisão de filename em <1ms → suffix random 4 chars hex).
+- **🚀 5 PRs mergeadas em sequência** — João autorizou. Squash-merged: #74 cardápio junho 2026, #75 Zona de Perigo, #4 backup automático dev.db, #59 SW cache /p, #41 a11y bundle. Fila caiu de 7 → 2 (#26, #35 DIRTY). Coolify deploya automaticamente.
 
 ### 2026-06-06
 - **Zona de Perigo (apagar dados de operação) — PR #75 aberta** — Gil pediu botão "escondido + difícil" pra resetar operação. Implementado pattern GitHub-like: bloco colapsado no fim da aba Usuários, cooldown 3s, modal exigindo digitar frase EXATA "APAGAR TUDO NA COZINHA DA GIL" (validada client+server), backup automático do dev.db em `backups/wipe-<timestamp>.db` ANTES de apagar (aborta se backup falhar), DELETE em transação Prisma. Escopo: apaga Order/OrderItem/EventSession/BroadcastLog; mantém Product/Ingredient/User/Customer/PaymentConfig/Promotion. Arquivos novos: `lib/db-backup.ts` + 2 endpoints + `app/admin/DangerZone.tsx` + `tests/db-backup.test.ts` (6 testes). tsc + lint + 216/216 + build verdes. Aguarda checker + review pra merge.
