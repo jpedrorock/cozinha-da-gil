@@ -35,7 +35,7 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## Bloqueios ativos
 
-- **7 PRs abertas, 4 CLEAN aguardando review** (22 → 7): #4 backup CLEAN, #26 emoji→lucide DIRTY, #35 contraste DIRTY, #41 a11y bundle CLEAN, #59 SW cache /p CLEAN, #74 cardápio junho 2026 CLEAN, **#75 Zona de Perigo (apagar dados op) CLEAN** (novo).
+- **2 PRs abertas (ambas DIRTY)** — #26 emoji→lucide e #35 contraste "Caixa aberto". Precisam rebase em outra sessão. **5 PRs mergeadas hoje em sequência**: #74 (cardápio), #75 (Zona de Perigo), #4 (backup), #59 (SW cache /p), #41 (a11y bundle).
 - ~~Backfill `publicToken` em prod não confirmado~~ — verificação técnica feita 05/06 (endpoint funciona, POST gera token, backfill rodou 2× no entrypoint). Monitorar empiricamente: se pedido legado mandar WhatsApp sem linha "Acompanhe:", abrir endpoint admin pra rodar backfill on-demand.
 
 ## Próximo passo recomendado
@@ -90,6 +90,9 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 ---
 
 ## Histórico recente (últimos 5 dias)
+
+### 2026-06-09
+- **🚀 5 PRs mergeadas em sequência** — João autorizou ("nao precisa revisar pode seguir"). Squash-merged: #74 cardápio junho 2026 (`26f5346`), #75 Zona de Perigo (`3af76c1`), #4 backup automático dev.db (`2fcd1b6`), #59 SW cache /p (`9290942`), #41 a11y bundle (`26757a0`). Mais 2 routine logs (#72, #73) fechados na triagem padrão. Fila caiu de 7 → 2 (#26, #35 ambos DIRTY pra rebase futura). Coolify deploya automaticamente.
 
 ### 2026-06-06
 - **Zona de Perigo (apagar dados de operação) — PR #75 aberta** — Gil pediu botão "escondido + difícil" pra resetar operação. Implementado pattern GitHub-like: bloco colapsado no fim da aba Usuários, cooldown 3s, modal exigindo digitar frase EXATA "APAGAR TUDO NA COZINHA DA GIL" (validada client+server), backup automático do dev.db em `backups/wipe-<timestamp>.db` ANTES de apagar (aborta se backup falhar), DELETE em transação Prisma. Escopo: apaga Order/OrderItem/EventSession/BroadcastLog; mantém Product/Ingredient/User/Customer/PaymentConfig/Promotion. Arquivos novos: `lib/db-backup.ts` + 2 endpoints + `app/admin/DangerZone.tsx` + `tests/db-backup.test.ts` (6 testes). tsc + lint + 216/216 + build verdes. Aguarda checker + review pra merge.
