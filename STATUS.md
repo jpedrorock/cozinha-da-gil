@@ -2,8 +2,8 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-05
-**Atualizado por:** `claude-pastel`
+**Última atualização:** 2026-06-10
+**Atualizado por:** `claude-pastel` (routine background)
 
 ---
 
@@ -11,13 +11,12 @@
 
 Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
-## O que rolou nesta sessão (routine 2026-06-05)
+## O que rolou nesta sessão (routine 2026-06-10)
 
-- **[P2] Botão "Avisar" auto-volta pra fila** — `notifyReady()` em `AtendenteClient.tsx` ganhou `setTimeout(() => router.push("/atendente"), 400)`. Mesmo pattern do comprovante. Cobre banner e card direto.
-- **[P3] Indicador "ao vivo" em `/p/<token>`** — header da página mostra "ao vivo · HH:MM" quando SSE conectado; "offline · última atualização HH:MM" quando desconectado. Atualiza em cada evento SSE e clockeia a cada 60s.
-- 197/197 testes, lint limpo.
-- Branch: `routine-pastel-20260605-1604`. PR aberta.
-- Itens pulados (aguardam João): triagem PRs (#Confirmar antes), limpeza de branches (#Confirmar antes), rebase PR #30 (requires force-with-lease — proibido em background), smoke test prod, bookkeeping pós-merge.
+- **[P3] Bookkeeping pós-merge de Fase 7** — `docs/FASE-7.md` marcado ✅ ENTREGUE; itens 3 (Comparativo #29), 4 (WhatsApp #31), 5 ("Acabou" verificado) receberam entradas de entrega. `STATUS.md` atualizado com métricas corretas (216/216). `BACKLOG.md`: item PR #4 movido para Concluídos, SW #59 marcado como concluído, "Em progresso" zerado exceto migração Next 15 (aguardando review manual).
+- 216/216 testes, lint limpo.
+- Branch: `routine-pastel-20260610-1109`. PR aberta.
+- Itens pulados (aguardam João): aplicar cardápio em prod (admin UI), smoke test prod, limpar branches routine-* (#Confirmar antes), stepper massa macarrão (#Confirmar antes).
 
 ## O que rolou desde a última sessão
 
@@ -64,7 +63,7 @@ BACKLOG "Próximos" reabastecido com **5 itens de manutenção pós-Fase 7** (re
 | Impressora térmica | 🟡 | window.print() funcional; integração ESC/POS espera hardware. |
 | PWA (@ducanh2912/next-pwa, manifest, service worker) | 🟢 | Standalone, 15 splashes (iPhone+iPad), install prompts, update prompt, CacheFirst pra assets imutáveis, shortcuts no long-press, **fallback offline automático** (`fallbacks: document` reativado no fork), 3 screenshots no manifest. _Migrado pra fork na branch `claude-pastel/next15-pwa` (PR)._ |
 | Auth (iron-session) | 🟢 | PIN único por role, identificação por {role + PIN}. |
-| Testes Vitest | 🟢 | 163/163 passando (ingredientes, uploads, kitchen-display, whatsapp URLs, + caixa órfão, idempotency/TTL, i18n de ícones, formatBRL). |
+| Testes Vitest | 🟢 | 216/216 passando (ingredientes, uploads, kitchen-display, whatsapp URLs, caixa órfão, idempotency/TTL, i18n de ícones, formatBRL, PIX BR Code, db-backup, troco). |
 | Testes Playwright e2e | 🟢 | 12/12 passando em `npm run dev` (auth UI + API smoke + fluxo de pedido + bypass de bebida). Nota: auth UI falha em build de produção por causa do service worker — rodar e2e contra `npm run dev`. |
 
 ---
@@ -79,7 +78,7 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 
 ## Métricas vivas
 
-- Tests passando: **163/163** ✅
+- Tests passando: **216/216** ✅
 - Type-check: **ok** ✅
 - ESLint: **0 erros** ✅ (check ativo no build)
 - DB schema: **sincronizado** ✅ (imageUrl adicionado)
