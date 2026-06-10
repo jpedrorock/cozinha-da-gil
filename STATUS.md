@@ -2,14 +2,21 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-05
-**Atualizado por:** `claude-pastel`
+**Última atualização:** 2026-06-10
+**Atualizado por:** `claude-pastel` (routine background)
 
 ---
 
 ## Fase atual
 
 Fase 6 entregue. Pós-fase: hardening + observabilidade.
+
+## O que rolou nesta sessão (routine 2026-06-10 — tarde)
+
+- **Triagem: PRs #77 e #78 fechadas** como duplicatas de #79 — 3 rotinas anteriores hoje tentaram o mesmo item de bookkeeping sem perceber que já havia PR aberta. Fila de bookkeeping: 3 → 1 (apenas #79 permanece).
+- Testes confirmados: **216/216** ✅
+- Nenhum item novo implementado — todos os elegíveis no BACKLOG ou têm PR aberta (#79 para bookkeeping) ou requerem confirmação/acesso a prod.
+- Branch: `routine-pastel-20260610-2110`. PR: esta.
 
 ## O que rolou nesta sessão (routine 2026-06-05)
 
@@ -35,16 +42,16 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## Bloqueios ativos
 
-- **2 PRs abertas (ambas DIRTY)** — #26 emoji→lucide e #35 contraste "Caixa aberto". Precisam rebase em outra sessão. **5 PRs mergeadas hoje em sequência**: #74 (cardápio), #75 (Zona de Perigo), #4 (backup), #59 (SW cache /p), #41 (a11y bundle).
+- **2 PRs abertas (ambas DIRTY)** — #26 emoji→lucide e #35 contraste "Caixa aberto". Precisam rebase em outra sessão.
+- **PR #79 aberta (bookkeeping Fase 7)** — docs-only, aguardando merge do João. Fila limpa: #77 e #78 fechadas como duplicatas.
+- **PR #23 (Next 15) + migração Next15-pwa** — aguardando teste manual de PWA em device antes do merge.
 - ~~Backfill `publicToken` em prod não confirmado~~ — verificação técnica feita 05/06 (endpoint funciona, POST gera token, backfill rodou 2× no entrypoint). Monitorar empiricamente: se pedido legado mandar WhatsApp sem linha "Acompanhe:", abrir endpoint admin pra rodar backfill on-demand.
 
 ## Próximo passo recomendado
 
-**Fase 7 fechada (5/5)** — 3 itens mergeados (#23 Next 15 já no main, #28 troco, #29 comparativo), 3 PRs aguardando merge (**#4 backup desconflictado**, **#30 PIX**, **#31 WhatsApp auto-surface**), e #5 "Acabou" já existia. Coolify deployou Next 15 em prod na sessão de 29/05.
+**Fases 6 e 7 entregues.** PRs #4, #30, #31 já mergeadas. PR #23 (Next 15) em prod.
 
-João: (1) mergear **#4 + #30 + #31** (todos validados: tsc/lint/testes/build); (2) **configurar chave PIX** (admin → Caixa → "Pagamento (PIX)") — 1 vez só; (3) **teste manual da PWA no celular** (install/offline/splash) agora que Next 15 está em prod; rollback Coolify 1-clique se algo quebrar.
-
-BACKLOG "Próximos" reabastecido com **5 itens de manutenção pós-Fase 7** (replan 2026-05-29): bookkeeping, smoke prod, limpar 4 routine-* novas, auditoria a11y dedicada, reavaliar Background Sync.
+João: (1) **mergear PR #79** (bookkeeping docs-only — FASE-7.md ✅, BACKLOG zerado); (2) **configurar chave PIX** (admin → Caixa → "Pagamento (PIX)") se ainda não feito; (3) decidir sobre **PR #26** (emoji→lucide, DIRTY) e **PR #35** (contraste, DIRTY) — mergear após rebase ou fechar.
 
 ---
 
@@ -79,7 +86,7 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 
 ## Métricas vivas
 
-- Tests passando: **163/163** ✅
+- Tests passando: **216/216** ✅
 - Type-check: **ok** ✅
 - ESLint: **0 erros** ✅ (check ativo no build)
 - DB schema: **sincronizado** ✅ (imageUrl adicionado)
