@@ -179,6 +179,23 @@ export const GUIDE: GuideTab[] = [
               "Se a internet falhar e você apertar de novo, o app pergunta 'É outro pedido?' antes de mandar duplicado.",
             ],
           },
+          {
+            title: "7º — Tela do recibo bonitinho",
+            body: "Depois de confirmar, o app vai direto pra tela do comprovante. Mostra logo da Cozinha, número, items e total. Daí você tem 4 botões: Imprimir, Pré-visualizar (modo 80mm térmica), Enviar no WhatsApp (verde) e Copiar link de acompanhamento. No fim, 'Voltar à fila'.",
+            tips: [
+              "Quando toca 'Enviar no WhatsApp', o app abre o WhatsApp já com a mensagem pronta + um link pro cliente acompanhar o pedido pelo celular. Você só revisa e aperta enviar.",
+              "Depois de mandar pelo WhatsApp, o app volta sozinho pra fila — não fica em tela parada.",
+            ],
+          },
+          {
+            title: "Link pro cliente acompanhar (novidade)",
+            body: "Toda vez que cria pedido novo, o cliente ganha um link tipo cozinhadagil.evapro.cloud/p/abc7x9k2. Ele abre no celular e vê o status ao vivo: 'Pedido recebido' → 'Em preparo' → 'Tá pronto!' (com bolinha pulsando) → 'Entregue'.",
+            tips: [
+              "O link já entra na mensagem do WhatsApp automaticamente.",
+              "Botão 'Copiar link de acompanhamento' na tela do recibo se você quiser mandar por SMS ou Instagram.",
+              "O link tem um código aleatório (10 letras) — cliente não consegue ver pedido dos outros adivinhando.",
+            ],
+          },
         ],
       },
       {
@@ -286,6 +303,20 @@ export const GUIDE: GuideTab[] = [
           {
             title: "Observações 'sem' em vermelho",
             body: "Se atendente marcou 'sem cebola', aparece grandão vermelho no topo do item — você lê antes de começar. Outras coisas ('bem dourado') ficam em amarelo, mais discreto.",
+          },
+          {
+            title: "Checklist esperto pra pastel grande",
+            body: "Em vez de listar 12 recheios riscados, o ticket adapta: se a maioria vai, mostra só 'Vai tudo, menos: Cebola, Bacon' em laranja. Se só uns 2-3 vão, mostra só os ✓ marcados. Quando vai tudo, aparece 'Tudo (12)'.",
+            tips: [
+              "Menos visual, menos chance de confundir.",
+            ],
+          },
+          {
+            title: "Ver pedidos prontos do dia",
+            body: "Botão 'Prontos' no botnav embaixo abre um drawer com todos os pedidos finalizados hoje (Pronto + Entregue). Read-only — pra conferir sem refazer por engano.",
+            tips: [
+              "Útil pra confirmar se já mandou pra alguém quando atendente pergunta.",
+            ],
           },
         ],
       },
@@ -447,6 +478,17 @@ export const GUIDE: GuideTab[] = [
               "A mudança propaga via tempo-real (SSE), atendente vê na hora.",
             ],
           },
+          {
+            title: "Produtos pré-montados (combos fixos)",
+            body: "Alguns produtos vêm com tudo já pronto — sem o cliente montar. Tipo Pastel Churrasqueiro (carne desfiada + queijo + barbecue), Torta de Frango, Torta de Alho Poró e Bacon. Atendente toca 1 vez e pronto, sem passar pelas etapas de recheio/molho.",
+            tips: [
+              "Pra cadastrar: 'Novo produto' → tipo salgado → preço fixo → desligar 'Aceita ingredientes'.",
+            ],
+          },
+          {
+            title: "Macarrão: escolha de massa",
+            body: "Macarrão tem uma categoria nova de ingrediente: 'macarrao_massa'. Coloca Penne e Espaguete lá pra atendente saber as opções. Por enquanto a massa fica registrada nas Observações do pedido — futuro vai virar passo do stepper.",
+          },
         ],
       },
       {
@@ -533,6 +575,91 @@ export const GUIDE: GuideTab[] = [
           },
         ],
       },
+      {
+        id: "pix",
+        title: "Pagamento PIX no comprovante",
+        icon: "QrCode",
+        description: "Configurar sua chave pra QR Code sair no recibo.",
+        topics: [
+          {
+            title: "Cadastrar a chave",
+            body: "Vai em Caixa → 'Pagamento (PIX)'. Coloca sua chave (CPF/CNPJ, email ou celular), nome do recebedor (igual o cadastrado na sua conta) e cidade. Salva.",
+            rules: [
+              "Só configura 1 vez. Depois fica salvo pros próximos eventos.",
+              "Nome e cidade têm que bater EXATO com seu cadastro do banco — senão o PIX recusa.",
+            ],
+          },
+          {
+            title: "Como aparece pro cliente",
+            body: "Na tela do comprovante de cada pedido, abaixo do total, aparece um QR Code com o valor do pedido já preenchido. Cliente abre o banco dele, escaneia e paga em segundos. Tem botão 'Copiar código' pra quem prefere colar.",
+            tips: [
+              "Sem chave configurada, QR não aparece — só o comprovante normal.",
+              "O TXID é PDG + número do pedido (ex: PDG042) — fica fácil de identificar no extrato.",
+            ],
+          },
+        ],
+      },
+      {
+        id: "monitor",
+        title: "Monitor (KPIs ao vivo no celular)",
+        icon: "Monitor",
+        description: "Tela rapidona pra acompanhar a festa de longe.",
+        topics: [
+          {
+            title: "Pra que serve",
+            body: "Em festa cheia você quer dar uma olhada no faturamento sem mexer no tablet da barraca. Abre /admin/monitor no seu celular pessoal — fundo escuro, 4 números gigantes: Receita, Pedidos, Ticket médio, Preparo médio. Atualiza sozinho.",
+            tips: [
+              "Link rápido no AppHeader mobile (ícone monitor) ou no rodapé da sidebar do admin desktop.",
+            ],
+          },
+          {
+            title: "Lista ao vivo embaixo",
+            body: "Embaixo dos KPIs tem as listas 'Em preparo' e 'Novos', ordenadas por urgência (mais antigo primeiro). Pedido em preparo há mais de 15 min ganha anel vermelho.",
+          },
+        ],
+      },
+      {
+        id: "danger-zone",
+        title: "Zona de Perigo (apagar tudo)",
+        icon: "ShieldOff",
+        description: "Recomeçar do zero entre eventos. CUIDADO.",
+        topics: [
+          {
+            title: "Onde fica",
+            body: "Escondido no FIM da aba 'Usuários'. Rola até embaixo, aparece 'Zona de Perigo' em vermelho discreto. Clica pra expandir e ver as contagens do que vai sumir.",
+            rules: [
+              "NÃO clica por curiosidade na hora da festa. É pra usar quando vai começar evento novo do zero.",
+              "Expandir só mostra as contagens — não apaga nada.",
+            ],
+          },
+          {
+            title: "O que apaga e o que mantém",
+            body: "APAGA: pedidos, items, eventos de caixa antigos, logs de aviso. MANTÉM: cardápio completo (produtos + ingredientes + preços), usuários (Gil, atendentes, cozinha), base de clientes do CRM, sua chave PIX, promoções cadastradas.",
+            tips: [
+              "Use entre eventos pra zerar histórico sem perder cardápio nem PIX.",
+            ],
+          },
+          {
+            title: "Como apagar (passo-a-passo)",
+            body: "1) Expande Zona de Perigo. 2) Confere as contagens. 3) Espera 3 segundos (botão fica disabled). 4) Clica 'Apagar tudo isso'. 5) Modal abre pedindo pra digitar a frase. 6) Digita LITERAL: APAGAR TUDO NA COZINHA DA GIL (tudo maiúsculo, sem ponto, sem acento). 7) Botão vermelho 'Apagar permanentemente' libera. Clica.",
+            rules: [
+              "Se digitar errado (faltou letra, errou acento), o botão fica disabled. Não dá pra apagar por acidente.",
+              "Servidor confere a frase de novo — mesmo se alguém forçar o botão pelo browser, falha.",
+            ],
+          },
+          {
+            title: "Backup automático antes",
+            body: "Antes de apagar, o app salva uma cópia do banco em /app/data/backups/wipe-DATA-HORA.db. Se você apagou por engano, chama o Claude (ou quem cuida) pra restaurar via cp do arquivo. NADA é perdido permanentemente.",
+            tips: [
+              "Se o backup falhar por qualquer motivo, a operação ABORTA sem apagar. Mais seguro errar pelo lado da preservação.",
+            ],
+          },
+          {
+            title: "Depois de apagar",
+            body: "Aparece resumo: 'X pedidos, Y items, Z eventos apagados' + caminho do backup. Atendente passa a ver fila vazia. Você pode abrir caixa novo agora.",
+          },
+        ],
+      },
     ],
   },
 ];
@@ -564,5 +691,17 @@ export const RULES = [
   {
     title: "Telefone padronizado",
     body: "Você digita '(11) 99999-9999' do jeito normal. O app guarda no formato que o WhatsApp entende e formata bonito quando mostra.",
+  },
+  {
+    title: "Cliente ganha link de acompanhamento",
+    body: "Sempre que cria pedido, sai um link único tipo /p/abc7x9k2. Já entra na mensagem do WhatsApp. Cliente abre no celular e vê status ao vivo sem precisar perguntar 'tá pronto?'.",
+  },
+  {
+    title: "Backup automático do banco diariamente",
+    body: "Toda madrugada o app salva uma cópia completa do banco em /app/data/backups/. Mantém os últimos 14 dias. Se um dia algo der MUITO errado, a Cozinha consegue voltar ao estado de ontem.",
+  },
+  {
+    title: "Comprovante mostra PIX se configurou",
+    body: "Se você cadastrou chave PIX em Caixa, todo comprovante automaticamente gera o QR Code do valor exato. Cliente escaneia e paga em 1 toque.",
   },
 ];

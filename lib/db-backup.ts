@@ -1,5 +1,6 @@
 import { copyFile, mkdir } from "node:fs/promises";
 import { dirname, join } from "node:path";
+import { randomBytes } from "node:crypto";
 
 /**
  * Copia o `dev.db` (SQLite) pra um arquivo timestamped em `backups/`.
@@ -29,11 +30,14 @@ export async function backupDatabase(reason: string): Promise<string> {
   return backupPath;
 }
 
-/** Helper: timestamp ISO sem `:` (filename-safe) pra nomear backup. */
+/**
+ * Helper: timestamp ISO sem `:` (filename-safe) + 4 chars random pra
+ * garantir unique mesmo se 2 chamadas caírem no mesmo ms (ex: testes
+ * rodando em loop tight; o ISO tem granularidade só de ms).
+ */
 function stampNow(): string {
-  // YYYY-MM-DDTHH-MM-SS-mmm
-  return new Date()
-    .toISOString()
-    .replace(/[:.]/g, "-")
-    .replace(/Z$/, "");
+  // YYYY-MM-DDTHH-MM-SS-mmm-XXXX
+  const iso = new Date().toISOString().replace(/[:.]/g, "-").replace(/Z$/, "");
+  const suffix = randomBytes(2).toString("hex"); // 4 chars hex
+  return `${iso}-${suffix}`;
 }
