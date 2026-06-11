@@ -27,10 +27,7 @@
 
 _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
-- [ ] **[P1] #chore** Backup automático do `dev.db` no volume Coolify — **PR #4 aberto, aguardando merge** [claude-pastel 2026-05-22]
-- [ ] **[P2] #chore #pwa** Migração Next 14 → 15 + `@ducanh2912/next-pwa` — **PR aberto (branch `claude-pastel/next15-pwa`), aguardando review + teste manual de PWA/SSE em device** [claude-pastel 2026-05-28]
-  - Feito + validado: next 15.5.18, react 19.2.6, fork PWA, codemod async params (14 rotas), override serialize-javascript. tsc/lint/163 testes/build/12 e2e em dev verdes. `fallbacks: /offline` reativado. `npm audit` 10 (9 high) → 3 moderate (postcss interno do Next, build-time, não-bloqueante).
-  - Antes do merge em prod: teste manual da PWA (install/offline/splash) + SSE 3 abas (§4.8 de `docs/UPGRADE-NEXT-15.md`). Rollback: Coolify 1-clique ou `git revert`.
+_(vazio — aguardando próximo item do João)_
 
 ---
 
@@ -61,7 +58,7 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 - [x] **[P3] #cliente #ux** Indicador "ao vivo · atualizado às X" em `/p/<token>` [claude-pastel 2026-06-05 background]
 
-- [ ] **[P3] #pwa** Service Worker runtimeCaching pra `/p/<token>` — **PR #59 aberta, aguardando review** [claude-pastel 2026-06-05]
+- [x] **[P3] #pwa** Service Worker runtimeCaching pra `/p/<token>` — **PR #59 mergeada 2026-06-09** [claude-pastel 2026-06-05]
 
 ### Cleanup
 
@@ -71,9 +68,7 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ### Pós-Fase 7 — manutenção
 
-- [ ] **[P3] #chore #docs** Bookkeeping pós-merge de Fase 7
-  - **Pronto quando:** depois dos PRs #4/#30/#31 mergearem: `docs/FASE-7.md` marca #1 e #4 como ✅; `STATUS.md` reflete Fase 7 completa + Next 15 em prod + módulos atualizados; `BACKLOG.md` "Em progresso" zerado.
-  - **Autonomia:** OK fazer direto.
+- [x] **[P3] #chore #docs** Bookkeeping pós-merge de Fase 7 [claude-pastel 2026-06-11 background]
 
 ### PWA
 
@@ -87,8 +82,7 @@ _Itens com critério vago OU bloqueados por dependência externa._
   - **Blocked:** precisa impressora térmica 80mm pra testar. Hoje `@page size: 80mm auto; margin: 0` + CSS print rules já está implementado em `app/comprovante/[id]/ComprovanteClient.tsx`. Sem hardware, não dá pra confirmar se algo corta.
   - **Próximo passo quando hardware existir:** imprimir 5 pedidos variados (curto/longo, com/sem nota, com/sem promo) → verificar se nome cliente longo, lista grande de toppings ou rodapé do total cortam → ajustar `max-width`/`padding` específicos.
 
-- [ ] **[P3] #pwa #sw** Reativar `fallbacks: { document: "/offline" }` quando migrar pro `@ducanh2912/next-pwa`
-  - **Blocked:** depende da migração de `next-pwa@5.6.0` → `@ducanh2912/next-pwa` (plano em `docs/UPGRADE-NEXT-15.md`). Hoje next-pwa@5.6.0 tem bug que quebra build com runtimeCaching customizado + fallbacks; `/offline` existe mas só serve navegação manual.
+- [x] **[P3] #pwa #sw** Reativar `fallbacks: { document: "/offline" }` — **resolvido pela migração Next 15 (PR #23, mergeada 2026-05-29).** `@ducanh2912/next-pwa@10` não tem o bug; `fallbacks: document` reativado.
 - [ ] **[P3] #pwa #admin** Cachear `api.iconify.design` no Service Worker pra ícones já vistos renderizarem offline
   - **Pronto quando:** `next.config.mjs` ganha regra de runtimeCaching `CacheFirst` (ou `StaleWhileRevalidate`) pro domínio `api.iconify.design`; após visitar admin Cardápio com wifi e voltar pra revisitar offline, os ícones já vistos no IconPicker e nas linhas de ingrediente renderizam normalmente.
   - **Contexto:** Hoje sem rede o `<Icon icon="...">` do `@iconify/react` exibe placeholder vazio (fetch falha no client). Esse cache deixa "memória" dos ícones vistos. PR conforme PLAYBOOK (mexe em PWA config).
@@ -105,6 +99,11 @@ _Itens com critério vago OU bloqueados por dependência externa._
 ---
 
 ## ✅ Concluídos recentemente
+
+### 2026-06-11
+- [claude-pastel 2026-06-11 background] **[P3] Bookkeeping pós-merge de Fase 7** — `docs/FASE-7.md` atualizado pra ✅ ENTREGUE (5/5); itens #3/#4/#5 marcados; `BACKLOG.md` "Em progresso" zerado (PR #4 + PR #23 ambos já mergeados); PR #59 marcada como mergeada; fallbacks PWA fechado. `STATUS.md` reflete estado atual. 216/216 testes + lint limpos.
+- [claude-pastel 2026-06-09 — via squash-merge] **[P1] Backup automático do `dev.db` no volume Coolify** — PR #4 squash-merged (`2fcd1b6`).
+- [claude-pastel 2026-05-29 — via squash-merge] **[P2] Migração Next 14 → 15 + `@ducanh2912/next-pwa`** — PR #23 squash-merged. Next 15.5.18/React 19.2.6 em prod. Coolify auto-deployou.
 
 ### 2026-06-05
 - [claude-pastel 2026-06-05] **[P3] SW runtimeCaching pra /p/<token> — PR #59 aberta** — `next.config.mjs` ganhou regra explícita `NetworkFirst` pra `/\/p\/[A-Za-z0-9]{10}/` antes do catch-all SWR. networkTimeoutSeconds:2 + cacheName "pedido-public" (50 entries × 24h). SW gerado confirmou ordem correta. build + 210/210 verdes. Aguarda review.
