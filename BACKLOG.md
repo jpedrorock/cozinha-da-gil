@@ -49,6 +49,31 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ### Fila de PRs (bloqueia merges, prioridade alta)
 
+- [ ] **[P1] #admin #chore** Confirmar aplicação do cardápio em prod (PR #74)
+  - **Pronto quando:** valido via `GET /api/products` em prod (cozinhadagil.evapro.cloud) que cardápio bate com seed novo: Pastel Salgado R$10/R$15, 4 produtos novos (Churrasqueiro/2 Tortas/Guaraná), 6 ingredientes novos, Bolonhesa removida. Se não bater: aviso João + repasso checklist do PR #74.
+  - **Autonomia:** OK fazer direto (validação read-only).
+
+- [ ] **[P2] #chore** Triagem fila PR + branches routine
+  - **Pronto quando:** PRs duplicadas/superseded fechadas (#26, #35 são as únicas com trabalho real hoje; resto é routine logs); branches `routine-pastel-*` órfãs (sem PR ativo) deletadas do origin. Lista final: ≤5 PRs com trabalho real, ≤5 routine branches vivas.
+  - **Contexto:** Triagem 05/06 limpou 17 PRs + 19 branches. Voltou a inflar: 42 routine branches hoje.
+  - **Autonomia:** Confirmar antes (op destrutiva em branches).
+
+- [ ] **[P3] #chore** Investigar routine background criando branches sem trabalho
+  - **Pronto quando:** identificado o gating do `routine-pastel-*` que faz abrir branch/PR mesmo quando "sem itens executáveis". Documentado no PLAYBOOK. Idealmente: rotina que não acha trabalho real NÃO cria branch — só atualiza STATUS direto em main.
+  - **Contexto:** Em 4 dias gerou 11+ branches só log-only. Sem isso, triagem vira eterna.
+  - **Autonomia:** OK fazer direto.
+
+### Hardening / deps
+
+- [ ] **[P3] #chore** Bumps de patches/minors seguros
+  - **Pronto quando:** PR consolidado sobe: react 19.2.6→19.2.7, next + eslint-config-next 15.5.18→15.5.19, @types/react 19.2.15→19.2.17, @vitest/coverage-v8 4.1.7→4.1.8, sharp 0.34.5→0.35.0, tsx 4.22.3→4.22.4. **NÃO incluir:** @prisma 6→7 (major), tailwindcss 3→4 (major), eslint 8→10 (major). tsc + lint + 216/216 + build verdes.
+  - **Autonomia:** Abrir PR.
+
+- [ ] **[P3] #chore #infra** Rotação automática de backups dev.db (retenção 14d)
+  - **Pronto quando:** o instrumentation hook do PR #4 (ou script auxiliar) deleta backups com mais de 14 dias de `/app/data/backups/`. Loga quantos removeu por dia. Teste unit cobre a função de cleanup (fake-time + arquivos com mtime variável).
+  - **Contexto:** PR #4 documentou 14d mas não implementou cleanup. Sem isso, volume Coolify enche.
+  - **Autonomia:** Abrir PR.
+
 ### UX (follow-up das mudanças de hoje)
 
 - [x] **[P2] #atendente #ux** Botão "Avisar" também auto-volta pra fila [claude-pastel 2026-06-05 background]
@@ -58,6 +83,10 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
   - **Autonomia:** OK fazer direto.
 
 ### Polish
+
+- [ ] **[P3] #atendente #ux** Botão "Enviar WhatsApp" do comprovante sinaliza que link já tá incluído
+  - **Pronto quando:** abaixo (ou ao lado de) "Enviar no WhatsApp" no `ComprovanteClient`, aparece micro-texto com icon `LinkIcon` pequeno: "Mensagem inclui link de acompanhamento". Atendente vê que o link já vai junto e não tenta copiar/mandar de novo.
+  - **Autonomia:** OK fazer direto.
 
 - [x] **[P3] #cliente #ux** Indicador "ao vivo · atualizado às X" em `/p/<token>` [claude-pastel 2026-06-05 background]
 

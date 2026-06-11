@@ -2,7 +2,7 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-05
+**Última atualização:** 2026-06-11
 **Atualizado por:** `claude-pastel`
 
 ---
@@ -90,6 +90,9 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 ---
 
 ## Histórico recente (últimos 5 dias)
+
+### 2026-06-11
+- **Backlog replanejado: 8 itens em Próximos** (`/planejar`) — diagnóstico: 216/216 ✅, 0 TODOs reais, sem evento próximo, 42 routine branches acumuladas de novo, 14 deps com bumps disponíveis (low-risk patches/minors), backup PR #4 começou a rodar sem rotação de retenção. Aprovados pelo João: confirmar cardápio em prod [P1], triagem PR+branches [P2], investigar routine background [P3], bumps patches [P3, PR], rotação backups dev.db [P3, PR], botão WhatsApp sinaliza link incluído [P3], stepper massa (manter), smoke test prod (manter).
 
 ### 2026-06-09
 - **Guia atualizado — PR #76 mergeada** (`6a21be6`) — audit do `/guia` vs estado atual achou 11 features adicionadas que não tinham doc: tela do recibo pós-pedido, link `/p/<token>`, smart checklist cozinha, drawer Prontos, produtos pré-montados (Churrasqueiro/Tortas), categoria `macarrao_massa`, **3 seções inteiras novas em Admin (PIX, Monitor KPIs, Zona de Perigo)** e 4 regras automáticas. CRÍTICO documentar a Zona de Perigo pra Gil entender. Bonus: fix do teste flaky no `db-backup` (do PR #75) — colisão de filename em chamadas <1ms apart, resolvido com suffix random 4 chars hex.
