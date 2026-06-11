@@ -17,6 +17,10 @@
 - **Limite a 1 PR por item.** Não acumule.
 - Pare ao chegar em `[P0]` que precisa de confirmação.
 - Se "Eventos próximos" em STATUS tem evento em ≤ 48h: **só toque em P2/P3** baixo risco. Nada que mexa em SSE, auth, schema.
+- **Se nenhum item qualifica** (todos são P0 / "Confirmar antes" / "Abrir PR" / tocam SSE/auth/schema/comprovante/Docker / há congelamento de evento): **NÃO crie branch**. Atualize `STATUS.md` diretamente em main com a nota `"Routine encerrada — sem itens executáveis"` e faça push. Branches sem código entregue congestionam a triagem.
+
+#### Por que branches log-only são um problema
+A routine cria a branch **antes** de verificar se há trabalho (step 2 do roteiro). Quando nenhum item qualifica, a branch vira um PR log-only que precisa ser fechado manualmente — nos últimos dias isso gerou 42 branches acumuladas (2026-06-11). A regra acima corrige: **"sem item executável = sem branch"**.
 
 ### Como saber em qual modo está
 - `/trabalhar` interativo → presencial
