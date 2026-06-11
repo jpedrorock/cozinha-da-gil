@@ -11,6 +11,14 @@
 
 Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
+## O que rolou nesta sessão (routine 2026-06-11)
+
+- **[P3] Investigar routine background** — PLAYBOOK atualizado com regra: se nenhum item qualifica, NÃO criar branch; atualizar STATUS em main. Causa documentada (step 2 cria branch antes de checar itens → 42 branches acumuladas).
+- **[P1] Confirmar cardápio em prod** — bloqueado: `/api/products` retorna 403 sem auth em background. Requer sessão admin ou João fazer manualmente via browser.
+- Demais itens do BACKLOG saltados: todos marcados "Confirmar antes", "Abrir PR", ou requerem acesso a prod não disponível em background.
+- 216/216 testes, lint limpo.
+- Branch: `routine-pastel-20260611-2107`. PR aberta.
+
 ## O que rolou nesta sessão (routine 2026-06-05)
 
 - **[P2] Botão "Avisar" auto-volta pra fila** — `notifyReady()` em `AtendenteClient.tsx` ganhou `setTimeout(() => router.push("/atendente"), 400)`. Mesmo pattern do comprovante. Cobre banner e card direto.
@@ -35,6 +43,7 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## Bloqueios ativos
 
+- **[P1] Confirmar cardápio em prod** — `/api/products` retorna 403 sem auth. João: confirmar manualmente via browser em prod (`cozinhadagil.evapro.cloud`) se cardápio bate com PR #74 (Pastel Salgado R$10/R$15, Churrasqueiro, 2 Tortas, Guaraná, sem Bolonhesa).
 - **2 PRs abertas (ambas DIRTY)** — #26 emoji→lucide e #35 contraste "Caixa aberto". Precisam rebase em outra sessão. **5 PRs mergeadas hoje em sequência**: #74 (cardápio), #75 (Zona de Perigo), #4 (backup), #59 (SW cache /p), #41 (a11y bundle).
 - ~~Backfill `publicToken` em prod não confirmado~~ — verificação técnica feita 05/06 (endpoint funciona, POST gera token, backfill rodou 2× no entrypoint). Monitorar empiricamente: se pedido legado mandar WhatsApp sem linha "Acompanhe:", abrir endpoint admin pra rodar backfill on-demand.
 
