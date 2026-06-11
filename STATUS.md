@@ -2,8 +2,8 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-05
-**Atualizado por:** `claude-pastel`
+**Última atualização:** 2026-06-11
+**Atualizado por:** `claude-pastel` (routine background)
 
 ---
 
@@ -11,13 +11,11 @@
 
 Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
-## O que rolou nesta sessão (routine 2026-06-05)
+## O que rolou nesta sessão (routine 2026-06-11)
 
-- **[P2] Botão "Avisar" auto-volta pra fila** — `notifyReady()` em `AtendenteClient.tsx` ganhou `setTimeout(() => router.push("/atendente"), 400)`. Mesmo pattern do comprovante. Cobre banner e card direto.
-- **[P3] Indicador "ao vivo" em `/p/<token>`** — header da página mostra "ao vivo · HH:MM" quando SSE conectado; "offline · última atualização HH:MM" quando desconectado. Atualiza em cada evento SSE e clockeia a cada 60s.
-- 197/197 testes, lint limpo.
-- Branch: `routine-pastel-20260605-1604`. PR aberta.
-- Itens pulados (aguardam João): triagem PRs (#Confirmar antes), limpeza de branches (#Confirmar antes), rebase PR #30 (requires force-with-lease — proibido em background), smoke test prod, bookkeeping pós-merge.
+- **[P3] Bookkeeping pós-merge de Fase 7** — `docs/FASE-7.md` marcado ✅ ENTREGUE; itens 3 (comparativo), 4 (WhatsApp pronto) e 5 (Acabou) marcados como ✅ FEITA; `BACKLOG.md` "Em progresso" zerado (PR #4 + Next 15 mergeados há semanas); PR #59 SW cache marcada concluída; item de fallbacks PWA removido do Backlog (resolvido na migração Next 15); `STATUS.md` atualizado com métricas reais.
+- 216/216 testes, lint limpo.
+- Branch: `routine-pastel-20260611-0000`. PR aberta.
 
 ## O que rolou desde a última sessão
 
@@ -40,11 +38,11 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## Próximo passo recomendado
 
-**Fase 7 fechada (5/5)** — 3 itens mergeados (#23 Next 15 já no main, #28 troco, #29 comparativo), 3 PRs aguardando merge (**#4 backup desconflictado**, **#30 PIX**, **#31 WhatsApp auto-surface**), e #5 "Acabou" já existia. Coolify deployou Next 15 em prod na sessão de 29/05.
+**Pós-Fase 7 — hardening + observabilidade.** Fase 7 completamente mergeada (Next 15, PIX, troco, comparativo, WhatsApp pronto — todos em prod).
 
-João: (1) mergear **#4 + #30 + #31** (todos validados: tsc/lint/testes/build); (2) **configurar chave PIX** (admin → Caixa → "Pagamento (PIX)") — 1 vez só; (3) **teste manual da PWA no celular** (install/offline/splash) agora que Next 15 está em prod; rollback Coolify 1-clique se algo quebrar.
+João: (1) **configurar chave PIX** (admin → Caixa → "Pagamento (PIX)") se ainda não configurado; (2) **smoke test manual das features de junho** (criar pedido em prod, validar link /p/<token> no WhatsApp, PIX no comprovante); (3) decidir sobre **limpar branches `routine-pastel-*`** (op destrutiva, #Confirmar antes no BACKLOG).
 
-BACKLOG "Próximos" reabastecido com **5 itens de manutenção pós-Fase 7** (replan 2026-05-29): bookkeeping, smoke prod, limpar 4 routine-* novas, auditoria a11y dedicada, reavaliar Background Sync.
+BACKLOG "Próximos" tem 2 itens ativos: [P1] aplicar cardápio junho em prod via admin UI, e [P2] smoke test das mudanças de 01/06.
 
 ---
 
@@ -62,9 +60,9 @@ BACKLOG "Próximos" reabastecido com **5 itens de manutenção pós-Fase 7** (re
 | `app/api` (endpoints + SSE) | 🟢 | Codes estruturados (DUPLICATE_SUSPECTED, CAIXA_FECHADO, INVALID_TRANSITION, ORDER_LOCKED). |
 | `prisma/schema` | 🟢 | imageUrl + imageDataUrl (legacy) coexistem; migração roda no boot. |
 | Impressora térmica | 🟡 | window.print() funcional; integração ESC/POS espera hardware. |
-| PWA (@ducanh2912/next-pwa, manifest, service worker) | 🟢 | Standalone, 15 splashes (iPhone+iPad), install prompts, update prompt, CacheFirst pra assets imutáveis, shortcuts no long-press, **fallback offline automático** (`fallbacks: document` reativado no fork), 3 screenshots no manifest. _Migrado pra fork na branch `claude-pastel/next15-pwa` (PR)._ |
+| PWA (@ducanh2912/next-pwa, manifest, service worker) | 🟢 | Standalone, 15 splashes (iPhone+iPad), install prompts, update prompt, CacheFirst pra assets imutáveis, shortcuts no long-press, **fallback offline automático** (`fallbacks: document` reativado no fork), 3 screenshots no manifest. NetworkFirst pra `/p/<token>`. Em main desde 29/05. |
 | Auth (iron-session) | 🟢 | PIN único por role, identificação por {role + PIN}. |
-| Testes Vitest | 🟢 | 163/163 passando (ingredientes, uploads, kitchen-display, whatsapp URLs, + caixa órfão, idempotency/TTL, i18n de ícones, formatBRL). |
+| Testes Vitest | 🟢 | 216/216 passando (ingredientes, uploads, kitchen-display, whatsapp URLs, + caixa órfão, idempotency/TTL, i18n de ícones, formatBRL, PIX, troco, db-backup). |
 | Testes Playwright e2e | 🟢 | 12/12 passando em `npm run dev` (auth UI + API smoke + fluxo de pedido + bypass de bebida). Nota: auth UI falha em build de produção por causa do service worker — rodar e2e contra `npm run dev`. |
 
 ---
@@ -79,17 +77,20 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 
 ## Métricas vivas
 
-- Tests passando: **163/163** ✅
+- Tests passando: **216/216** ✅
 - Type-check: **ok** ✅
 - ESLint: **0 erros** ✅ (check ativo no build)
-- DB schema: **sincronizado** ✅ (imageUrl adicionado)
+- DB schema: **sincronizado** ✅
 - PWA: **instalável** ✅ (iOS Safari + Android Chrome)
-- Vulns npm audit: **3 moderate** (postcss interno do Next, build-time) na branch Next 15 — era 10 (9 high) no main Next 14. PR aberto.
-- Next/React: **15.5.18 / 19.2.6** na branch `claude-pastel/next15-pwa` (main ainda 14.2.35 até merge)
+- Vulns npm audit: **3 moderate** (postcss interno do Next, build-time — não-bloqueante)
+- Next/React: **15.5.18 / 19.2.6** (main) — Coolify deployou em prod desde 29/05
 
 ---
 
 ## Histórico recente (últimos 5 dias)
+
+### 2026-06-11
+- **Bookkeeping pós-merge de Fase 7 (routine background)** — `docs/FASE-7.md` marcado ✅ ENTREGUE; itens 3–5 marcados ✅ FEITA; BACKLOG "Em progresso" zerado; PR #59 e Next 15 fechados nos Concluídos; métricas atualizadas para 216/216 testes.
 
 ### 2026-06-09
 - **Guia atualizado — PR #76 mergeada** (`6a21be6`) — audit do `/guia` vs estado atual achou 11 features adicionadas que não tinham doc: tela do recibo pós-pedido, link `/p/<token>`, smart checklist cozinha, drawer Prontos, produtos pré-montados (Churrasqueiro/Tortas), categoria `macarrao_massa`, **3 seções inteiras novas em Admin (PIX, Monitor KPIs, Zona de Perigo)** e 4 regras automáticas. CRÍTICO documentar a Zona de Perigo pra Gil entender. Bonus: fix do teste flaky no `db-backup` (do PR #75) — colisão de filename em chamadas <1ms apart, resolvido com suffix random 4 chars hex.
