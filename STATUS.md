@@ -2,7 +2,7 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-05
+**Última atualização:** 2026-06-11
 **Atualizado por:** `claude-pastel`
 
 ---
@@ -11,13 +11,11 @@
 
 Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
-## O que rolou nesta sessão (routine 2026-06-05)
+## O que rolou nesta sessão (routine 2026-06-11)
 
-- **[P2] Botão "Avisar" auto-volta pra fila** — `notifyReady()` em `AtendenteClient.tsx` ganhou `setTimeout(() => router.push("/atendente"), 400)`. Mesmo pattern do comprovante. Cobre banner e card direto.
-- **[P3] Indicador "ao vivo" em `/p/<token>`** — header da página mostra "ao vivo · HH:MM" quando SSE conectado; "offline · última atualização HH:MM" quando desconectado. Atualiza em cada evento SSE e clockeia a cada 60s.
-- 197/197 testes, lint limpo.
-- Branch: `routine-pastel-20260605-1604`. PR aberta.
-- Itens pulados (aguardam João): triagem PRs (#Confirmar antes), limpeza de branches (#Confirmar antes), rebase PR #30 (requires force-with-lease — proibido em background), smoke test prod, bookkeeping pós-merge.
+- **[P3] Bookkeeping pós-merge de Fase 7** — `docs/FASE-7.md` recebeu banner ✅ ENTREGUE e features #3 (Comparativo, PR #29), #4 (WhatsApp auto-surface, PR #31) e #5 (Acabou, já existia) marcadas como feitas. `BACKLOG.md` "Em progresso" zerado (PRs #4 e Next 15 já mergeados). `STATUS.md` métricas atualizadas.
+- 216/216 testes passando, lint limpo.
+- Branch: `routine-pastel-20260611-0109`. PR aberta.
 
 ## O que rolou desde a última sessão
 
@@ -40,11 +38,11 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## Próximo passo recomendado
 
-**Fase 7 fechada (5/5)** — 3 itens mergeados (#23 Next 15 já no main, #28 troco, #29 comparativo), 3 PRs aguardando merge (**#4 backup desconflictado**, **#30 PIX**, **#31 WhatsApp auto-surface**), e #5 "Acabou" já existia. Coolify deployou Next 15 em prod na sessão de 29/05.
+**Fase 7 fechada (5/5) + Bookkeeping completo.** Todos os PRs mergeados em main. Estado limpo.
 
-João: (1) mergear **#4 + #30 + #31** (todos validados: tsc/lint/testes/build); (2) **configurar chave PIX** (admin → Caixa → "Pagamento (PIX)") — 1 vez só; (3) **teste manual da PWA no celular** (install/offline/splash) agora que Next 15 está em prod; rollback Coolify 1-clique se algo quebrar.
+João: (1) **configurar chave PIX** se ainda não foi (admin → Caixa → "Pagamento (PIX)") — 1 vez só; (2) **aplicar cardápio novo em prod** via admin UI (checklist no PR #74): 2 preços atualizados, 4 produtos novos, 6 ingredientes — o código está em main desde 2026-06-09; (3) **rebase + merge PRs #26 e #35** (ambos DIRTY) quando der — não são urgentes.
 
-BACKLOG "Próximos" reabastecido com **5 itens de manutenção pós-Fase 7** (replan 2026-05-29): bookkeeping, smoke prod, limpar 4 routine-* novas, auditoria a11y dedicada, reavaliar Background Sync.
+Próximas sessões: BACKLOG "Próximos" tem 1 item P1 que precisa ação humana em prod (cardápio), e 2 itens "Confirmar antes" (escolha de massa no stepper, limpeza de branches).
 
 ---
 
@@ -79,17 +77,20 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 
 ## Métricas vivas
 
-- Tests passando: **163/163** ✅
+- Tests passando: **216/216** ✅
 - Type-check: **ok** ✅
 - ESLint: **0 erros** ✅ (check ativo no build)
 - DB schema: **sincronizado** ✅ (imageUrl adicionado)
 - PWA: **instalável** ✅ (iOS Safari + Android Chrome)
-- Vulns npm audit: **3 moderate** (postcss interno do Next, build-time) na branch Next 15 — era 10 (9 high) no main Next 14. PR aberto.
-- Next/React: **15.5.18 / 19.2.6** na branch `claude-pastel/next15-pwa` (main ainda 14.2.35 até merge)
+- Vulns npm audit: **3 moderate** (postcss interno do Next, build-time — não-bloqueante)
+- Next/React: **15.5.18 / 19.2.6** em main ✅ (PR #23 mergeada 2026-05-29, Coolify em prod)
 
 ---
 
 ## Histórico recente (últimos 5 dias)
+
+### 2026-06-11
+- **[P3] Bookkeeping pós-merge Fase 7 (routine background)** — `docs/FASE-7.md` atualizado: banner ✅ ENTREGUE + features #3 (Comparativo/PR #29), #4 (WhatsApp/PR #31) e #5 (Acabou/já existia) marcadas como feitas. `BACKLOG.md` "Em progresso" zerado: PR #4 backup e PR #23 Next 15 movidos pra Concluídos. SW cache /p (PR #59) marcado done. Métricas vivas atualizadas: 216/216 testes, Next 15 em main. Branch `routine-pastel-20260611-0109`. PR aberta.
 
 ### 2026-06-09
 - **Guia atualizado — PR #76 mergeada** (`6a21be6`) — audit do `/guia` vs estado atual achou 11 features adicionadas que não tinham doc: tela do recibo pós-pedido, link `/p/<token>`, smart checklist cozinha, drawer Prontos, produtos pré-montados (Churrasqueiro/Tortas), categoria `macarrao_massa`, **3 seções inteiras novas em Admin (PIX, Monitor KPIs, Zona de Perigo)** e 4 regras automáticas. CRÍTICO documentar a Zona de Perigo pra Gil entender. Bonus: fix do teste flaky no `db-backup` (do PR #75) — colisão de filename em chamadas <1ms apart, resolvido com suffix random 4 chars hex.
