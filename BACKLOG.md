@@ -55,10 +55,7 @@ _(vazio)_
   - **Contexto:** Triagem 05/06 limpou 17 PRs + 19 branches. Voltou a inflar: 42 routine branches hoje.
   - **Autonomia:** Confirmar antes (op destrutiva em branches).
 
-- [ ] **[P3] #chore** Investigar routine background criando branches sem trabalho
-  - **Pronto quando:** identificado o gating do `routine-pastel-*` que faz abrir branch/PR mesmo quando "sem itens executáveis". Documentado no PLAYBOOK. Idealmente: rotina que não acha trabalho real NÃO cria branch — só atualiza STATUS direto em main.
-  - **Contexto:** Em 4 dias gerou 11+ branches só log-only. Sem isso, triagem vira eterna.
-  - **Autonomia:** OK fazer direto.
+- [x] **[P3] #chore** Investigar routine background criando branches sem trabalho [claude-pastel 2026-06-12 background]
 
 ### Hardening / deps
 
@@ -131,6 +128,7 @@ _Itens com critério vago OU bloqueados por dependência externa._
 ## ✅ Concluídos recentemente
 
 ### 2026-06-12
+- [claude-pastel 2026-06-12 background] **[P3] Investigar routine background criando branches sem trabalho** — diagnóstico: rotina não tinha gate de "sem itens executáveis" e criava branch/PR mesmo vazia. Solução documentada em PLAYBOOK: se nenhum item for executável após triagem, atualizar STATUS direto em main e encerrar sem criar branch.
 - [claude-pastel 2026-06-12 background] **[P3] Bookkeeping pós-merge de Fase 7** — `BACKLOG.md` "Em progresso" zerado; `docs/FASE-7.md` itens #3/#4/#5 marcados ✅; STATUS atualizado. PRs já mergeados: #4 backup (09/06), #30 PIX (05/06), #31 WhatsApp (01/06), Next 15 deployado em prod (29/05).
 - [claude-pastel 2026-06-12 background] **[P1] Backup automático do `dev.db` no volume Coolify — PR #4 mergeada** — squash-merged 2026-06-09 como parte das 5 PRs em sequência. Entregue: instrumentation hook, WAL checkpoint, retenção 14 dias (rotação pendente: item separado no BACKLOG).
 - [claude-pastel 2026-06-12 background] **[P2] Migração Next 14 → 15 + `@ducanh2912/next-pwa`** — branch `claude-pastel/next15-pwa` mergeada, Coolify deployou em prod (2026-05-29). Entregue: next 15.5.18, react 19.2.6, fork PWA, codemod async params (14 rotas), fallbacks /offline reativado. npm audit 10 (9 high) → 3 moderate.
