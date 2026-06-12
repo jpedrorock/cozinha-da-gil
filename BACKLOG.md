@@ -78,9 +78,7 @@ _(vazio)_
 
 ### Polish
 
-- [ ] **[P3] #atendente #ux** Botão "Enviar WhatsApp" do comprovante sinaliza que link já tá incluído
-  - **Pronto quando:** abaixo (ou ao lado de) "Enviar no WhatsApp" no `ComprovanteClient`, aparece micro-texto com icon `LinkIcon` pequeno: "Mensagem inclui link de acompanhamento". Atendente vê que o link já vai junto e não tenta copiar/mandar de novo.
-  - **Autonomia:** OK fazer direto.
+- [x] **[P3] #atendente #ux** Botão "Enviar WhatsApp" do comprovante sinaliza que link já tá incluído [claude-pastel 2026-06-12 background]
 
 - [x] **[P3] #cliente #ux** Indicador "ao vivo · atualizado às X" em `/p/<token>` [claude-pastel 2026-06-05 background]
 
@@ -128,6 +126,7 @@ _Itens com critério vago OU bloqueados por dependência externa._
 ## ✅ Concluídos recentemente
 
 ### 2026-06-12
+- [claude-pastel 2026-06-12 background] **[P3] Botão "Enviar WhatsApp" sinaliza link incluído** — micro-texto `"Mensagem inclui link de acompanhamento"` com `LinkIcon` aparece abaixo do botão WhatsApp em `ComprovanteClient.tsx` quando há `trackUrl` (pedido tem publicToken). Atendente não tenta copiar/remandar o link separado.
 - [claude-pastel 2026-06-12 background] **[P3] Investigar routine background criando branches sem trabalho** — diagnóstico: rotina não tinha gate de "sem itens executáveis" e criava branch/PR mesmo vazia. Solução documentada em PLAYBOOK: se nenhum item for executável após triagem, atualizar STATUS direto em main e encerrar sem criar branch.
 - [claude-pastel 2026-06-12 background] **[P3] Bookkeeping pós-merge de Fase 7** — `BACKLOG.md` "Em progresso" zerado; `docs/FASE-7.md` itens #3/#4/#5 marcados ✅; STATUS atualizado. PRs já mergeados: #4 backup (09/06), #30 PIX (05/06), #31 WhatsApp (01/06), Next 15 deployado em prod (29/05).
 - [claude-pastel 2026-06-12 background] **[P1] Backup automático do `dev.db` no volume Coolify — PR #4 mergeada** — squash-merged 2026-06-09 como parte das 5 PRs em sequência. Entregue: instrumentation hook, WAL checkpoint, retenção 14 dias (rotação pendente: item separado no BACKLOG).
