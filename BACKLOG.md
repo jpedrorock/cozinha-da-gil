@@ -59,9 +59,8 @@ _(vazio)_
 
 ### Hardening / deps
 
-- [ ] **[P3] #chore** Bumps de patches/minors seguros
-  - **Pronto quando:** PR consolidado sobe: react 19.2.6→19.2.7, next + eslint-config-next 15.5.18→15.5.19, @types/react 19.2.15→19.2.17, @vitest/coverage-v8 4.1.7→4.1.8, sharp 0.34.5→0.35.0, tsx 4.22.3→4.22.4. **NÃO incluir:** @prisma 6→7 (major), tailwindcss 3→4 (major), eslint 8→10 (major). tsc + lint + 216/216 + build verdes.
-  - **Autonomia:** Abrir PR.
+- [ ] **[P3] #chore** Bumps de patches/minors seguros — **PR aberta (branch `claude-pastel/bumps-patches-20260612`), aguardando merge** [claude-pastel 2026-06-12 background]
+  - Aplicado: react/react-dom 19.2.7, next+eslint-config-next 15.5.19, @types/react 19.2.17, vitest+coverage-v8 4.1.8, sharp 0.35.1, tsx 4.22.4. Majors diferidos (prisma 6→7, eslint 8→10, next 15→16, tailwind 3→4). tsc+lint+216/216 verdes.
 
 - [ ] **[P3] #chore #infra** Rotação automática de backups dev.db (retenção 14d)
   - **Pronto quando:** o instrumentation hook do PR #4 (ou script auxiliar) deleta backups com mais de 14 dias de `/app/data/backups/`. Loga quantos removeu por dia. Teste unit cobre a função de cleanup (fake-time + arquivos com mtime variável).
