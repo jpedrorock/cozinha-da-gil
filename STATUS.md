@@ -2,14 +2,22 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-11
+**Última atualização:** 2026-06-12
 **Atualizado por:** `claude-pastel`
 
 ---
 
 ## Fase atual
 
-Fase 6 entregue. Pós-fase: hardening + observabilidade.
+**Fase 7 entregue** (bookkeeping concluído 2026-06-12). Pós-fase: hardening + manutenção contínua. Next 15 em prod.
+
+## O que rolou nesta sessão (routine 2026-06-12)
+
+- **[P3] Investigar routine background** — causa raiz documentada no PLAYBOOK: branch criada incondicionalmente antes de varrer itens. Fix esperado no prompt: só criar branch se ≥1 item elegível.
+- **[P3] Botão WhatsApp sinaliza link incluído** — micro-texto "Mensagem inclui link de acompanhamento" com `LinkIcon` no `ComprovanteClient.tsx`, abaixo do botão WhatsApp. Só aparece quando order tem `publicToken`.
+- **[P3] Bookkeeping pós-merge Fase 7** — `docs/FASE-7.md` ✅ ENTREGUE; itens 3/4/5 marcados; `BACKLOG.md` "Em progresso" zerado (PR #4 e PR next15-pwa ambos já mergeados).
+- 216/216 testes, lint limpo.
+- Branch: `routine-pastel-20260612-2106`. PR aberta.
 
 ## O que rolou nesta sessão (routine 2026-06-05)
 
@@ -79,7 +87,7 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 
 ## Métricas vivas
 
-- Tests passando: **163/163** ✅
+- Tests passando: **216/216** ✅
 - Type-check: **ok** ✅
 - ESLint: **0 erros** ✅ (check ativo no build)
 - DB schema: **sincronizado** ✅ (imageUrl adicionado)
