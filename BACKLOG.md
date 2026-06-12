@@ -27,10 +27,8 @@
 
 _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
-- [ ] **[P1] #chore** Backup automático do `dev.db` no volume Coolify — **PR #4 aberto, aguardando merge** [claude-pastel 2026-05-22]
-- [ ] **[P2] #chore #pwa** Migração Next 14 → 15 + `@ducanh2912/next-pwa` — **PR aberto (branch `claude-pastel/next15-pwa`), aguardando review + teste manual de PWA/SSE em device** [claude-pastel 2026-05-28]
-  - Feito + validado: next 15.5.18, react 19.2.6, fork PWA, codemod async params (14 rotas), override serialize-javascript. tsc/lint/163 testes/build/12 e2e em dev verdes. `fallbacks: /offline` reativado. `npm audit` 10 (9 high) → 3 moderate (postcss interno do Next, build-time, não-bloqueante).
-  - Antes do merge em prod: teste manual da PWA (install/offline/splash) + SSE 3 abas (§4.8 de `docs/UPGRADE-NEXT-15.md`). Rollback: Coolify 1-clique ou `git revert`.
+- [x] **[P1] #chore** Backup automático do `dev.db` no volume Coolify — **PR #4 mergeada 2026-06-09** [claude-pastel 2026-05-22]
+- [x] **[P2] #chore #pwa** Migração Next 14 → 15 + `@ducanh2912/next-pwa` — **PR mergeada, Coolify deployou em prod 2026-05-29** [claude-pastel 2026-05-28]
 
 ---
 
@@ -58,14 +56,12 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
   - **Contexto:** Triagem 05/06 limpou 17 PRs + 19 branches. Voltou a inflar: 42 routine branches hoje.
   - **Autonomia:** Confirmar antes (op destrutiva em branches).
 
-- [ ] **[P3] #chore** Investigar routine background criando branches sem trabalho
-  - **Pronto quando:** identificado o gating do `routine-pastel-*` que faz abrir branch/PR mesmo quando "sem itens executáveis". Documentado no PLAYBOOK. Idealmente: rotina que não acha trabalho real NÃO cria branch — só atualiza STATUS direto em main.
-  - **Contexto:** Em 4 dias gerou 11+ branches só log-only. Sem isso, triagem vira eterna.
-  - **Autonomia:** OK fazer direto.
+- [x] **[P3] #chore** Investigar routine background criando branches sem trabalho [claude-pastel 2026-06-12 background]
+  - Root cause documentado no PLAYBOOK (seção "Routine background — problema de branch log-only"): branch é criada antes de checar se há trabalho. Comportamento correto descrito: avaliar primeiro, criar branch só se houver item concreto, senão commitar STATUS direto em main sem PR.
 
 ### Hardening / deps
 
-- [ ] **[P3] #chore** Bumps de patches/minors seguros
+- [ ] **[P3] #chore** Bumps de patches/minors seguros [claude-pastel 2026-06-12 background]
   - **Pronto quando:** PR consolidado sobe: react 19.2.6→19.2.7, next + eslint-config-next 15.5.18→15.5.19, @types/react 19.2.15→19.2.17, @vitest/coverage-v8 4.1.7→4.1.8, sharp 0.34.5→0.35.0, tsx 4.22.3→4.22.4. **NÃO incluir:** @prisma 6→7 (major), tailwindcss 3→4 (major), eslint 8→10 (major). tsc + lint + 216/216 + build verdes.
   - **Autonomia:** Abrir PR.
 
@@ -84,9 +80,8 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ### Polish
 
-- [ ] **[P3] #atendente #ux** Botão "Enviar WhatsApp" do comprovante sinaliza que link já tá incluído
-  - **Pronto quando:** abaixo (ou ao lado de) "Enviar no WhatsApp" no `ComprovanteClient`, aparece micro-texto com icon `LinkIcon` pequeno: "Mensagem inclui link de acompanhamento". Atendente vê que o link já vai junto e não tenta copiar/mandar de novo.
-  - **Autonomia:** OK fazer direto.
+- [x] **[P3] #atendente #ux** Botão "Enviar WhatsApp" do comprovante sinaliza que link já tá incluído [claude-pastel 2026-06-12 background]
+  - `ComprovanteClient.tsx`: parágrafo com `<LinkIcon size={12}> + "Mensagem inclui link de acompanhamento"` abaixo do botão WA, condicional em `trackUrl` (só aparece quando publicToken + baseUrl estão prontos = link realmente vai na msg). lint/216 verdes.
 
 - [x] **[P3] #cliente #ux** Indicador "ao vivo · atualizado às X" em `/p/<token>` [claude-pastel 2026-06-05 background]
 
@@ -100,9 +95,8 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ### Pós-Fase 7 — manutenção
 
-- [ ] **[P3] #chore #docs** Bookkeeping pós-merge de Fase 7
-  - **Pronto quando:** depois dos PRs #4/#30/#31 mergearem: `docs/FASE-7.md` marca #1 e #4 como ✅; `STATUS.md` reflete Fase 7 completa + Next 15 em prod + módulos atualizados; `BACKLOG.md` "Em progresso" zerado.
-  - **Autonomia:** OK fazer direto.
+- [x] **[P3] #chore #docs** Bookkeeping pós-merge de Fase 7 [claude-pastel 2026-06-12 background]
+  - `docs/FASE-7.md` marcada ✅ ENTREGUE (todas 5 features), `BACKLOG.md` "Em progresso" zerado, STATUS atualizado.
 
 ### PWA
 
