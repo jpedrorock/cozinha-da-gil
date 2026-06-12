@@ -113,6 +113,18 @@ npm test
 
 ---
 
+## Rotina background — gating de branches
+
+**Problema conhecido (2026-06-12):** a rotina background cria uma branch e abre PR mesmo quando não acha nenhum item elegível — infla a fila de branches orphan.
+
+**Causa raiz:** o passo "git checkout -b routine-pastel-..." está fixo no início do roteiro, antes de qualquer varredura de itens.
+
+**Fix esperado no prompt da rotina:** escanear "Próximos" *antes* de criar branch. Se nenhum item qualificar → atualizar STATUS.md diretamente em `main` + push em `main`, **sem** criar branch ou abrir PR. Só criar branch quando ≥1 item elegível encontrado.
+
+Enquanto o prompt não for corrigido: João pode deletar branches `routine-pastel-*` em lote após confirmar que são log-only.
+
+---
+
 ## Quando travar
 
 Pare e registre em STATUS → "Bloqueios ativos" quando:
