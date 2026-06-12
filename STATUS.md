@@ -2,14 +2,22 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-11
+**Última atualização:** 2026-06-12
 **Atualizado por:** `claude-pastel`
 
 ---
 
 ## Fase atual
 
-Fase 6 entregue. Pós-fase: hardening + observabilidade.
+Fase 6 e Fase 7 entregues. Pós-fase: hardening + observabilidade.
+
+## O que rolou nesta sessão (routine 2026-06-12)
+
+- **[P3] Botão WhatsApp sinaliza link incluído** — micro-texto com `LinkIcon` aparece abaixo de "Enviar no WhatsApp" no comprovante quando pedido tem `publicToken`. Atendente não tenta copiar o link manualmente por engano.
+- **[P3] Bookkeeping pós-Fase 7** — `docs/FASE-7.md` status → ✅ ENTREGUE (5/5), features #3/#4/#5 marcadas com refs; BACKLOG "Em progresso" zerado (PR #4 e PR #23 já estavam mergeados).
+- **[P3] Investigar routine background** — causa raiz documentada no PLAYBOOK: branch criada antes do loop + push incondicional. Regra nova: sem commits de código → não abrir PR, commitar só STATUS em main.
+- 216/216 testes, lint limpo.
+- Itens pulados: [P1] Confirmar cardápio em prod → `/api/products` e `/api/health` em prod retornam 403 (requer auth de sessão, inacessível em background); [P2] Smoke test prod → mesma razão; [P2] Triagem PR+branches → "Confirmar antes"; Stepper massa → "Confirmar antes"; Bumps patches → "Abrir PR" (pulado per routine).
 
 ## O que rolou nesta sessão (routine 2026-06-05)
 
@@ -35,6 +43,7 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## Bloqueios ativos
 
+- **[P1] Confirmar cardápio em prod inacessível em background** — `/api/products` e `/api/health` retornam 403 (requer cookie de sessão). Validação só pode ser feita por João com browser logado ou via sessão presencial. Critério: verificar que Pastel Salgado Pequeno = R$10, Grande = R$15, 4 produtos novos, Bolonhesa removida.
 - **2 PRs abertas (ambas DIRTY)** — #26 emoji→lucide e #35 contraste "Caixa aberto". Precisam rebase em outra sessão. **5 PRs mergeadas hoje em sequência**: #74 (cardápio), #75 (Zona de Perigo), #4 (backup), #59 (SW cache /p), #41 (a11y bundle).
 - ~~Backfill `publicToken` em prod não confirmado~~ — verificação técnica feita 05/06 (endpoint funciona, POST gera token, backfill rodou 2× no entrypoint). Monitorar empiricamente: se pedido legado mandar WhatsApp sem linha "Acompanhe:", abrir endpoint admin pra rodar backfill on-demand.
 
