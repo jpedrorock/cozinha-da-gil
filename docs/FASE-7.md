@@ -1,10 +1,8 @@
 # Fase 7 — Pagamento (PIX), dashboard de eventos e conveniências de operação
 
-> **Status:** roadmap. 5 features escolhidas pelo João + **decisões travadas em 2026-05-28**.
-> **Quando construir:** depois que o PR #23 (migração Next 15) mergear — evita divergência de
-> STATUS/BACKLOG e garante async-params em rotas novas. **Exceção:** a calculadora de troco é
-> 100% client, pode ir isolada a qualquer momento.
-> **Como:** cada feature vira PR própria (não empilhar tudo num PR só).
+> **Status: ✅ ENTREGUE (2026-06-05).** 5/5 features implementadas e mergeadas em main.
+> Next 15 deployado em prod via Coolify. PIX configurável pelo admin. Troco, comparativo,
+> WhatsApp auto-surface e "Acabou" ao vivo — todos funcionando. Doc mantido como referência histórica.
 
 ---
 
@@ -24,22 +22,20 @@
 - **Como:** bottom-sheet de **uma mão só** — numpad grande (reusa o teclado do PIN), digita "recebi R$" + total → mostra o troco. Standalone (funciona sem pedido aberto).
 - **Escopo:** puro client, sem API, sem schema. **Pode ser feita já**, independente do PR #23.
 
-## 3. Comparativo entre eventos (admin)
+## 3. Comparativo entre eventos (admin) — ✅ FEITA (PR #29)
 
-- **Como:** nova sub-aba no admin Vendas: card por `EventSession` (faturamento, nº pedidos, ticket médio) + **hora de pico** + **topping campeão do evento**. Comparação lado a lado.
-- **Escopo:** read-only, reusa a agregação existente. Sem schema. Endpoint estático novo (sem `[id]` → sem questão de async-params).
+- **Entregue:** sub-aba "Comparativo" no admin Vendas. Card por `EventSession` com faturamento, nº pedidos, ticket médio. Mergeado junto ao PR #23 (Next 15).
+- **Escopo original:** read-only, reusa a agregação existente. Sem schema. Endpoint estático novo.
 
-## 4. WhatsApp "tá pronto" — auto-surface 1 toque
+## 4. WhatsApp "tá pronto" — auto-surface 1 toque — ✅ FEITA (PR #31)
 
-- **Decisão travada + teto técnico:** o `wa.me` (que o app usa) **não envia sozinho** — exige 1 toque humano no WhatsApp. Então "automático" = ao marcar **PRONTO**, a mensagem prefillada **aparece pronta** → 1 toque pra enviar (em vez de caçar o botão).
-- **Como:** reusa `notify-ready` + CRM + template já existentes. Só dispara se o cliente tiver telefone cadastrado.
-- **Fora de escopo:** envio 100% sem toque exigiria WhatsApp Business + Cloud API (conta paga + template aprovado) — overkill pra barraca.
+- **Entregue:** banner fixed-bottom 1-toque no atendente quando pedido vira PRONTO e tem telefone. Reusa `notifyReady()` existente. PR #39 complementar (auto-abrir wa.me pós-pedido + botão Comprovante em todo card) mergeado junto. Validado em prod 2026-06-01.
+- **Teto técnico mantido:** `wa.me` exige 1 toque humano. Automático 100% (sem toque) exigiria WhatsApp Business API — fora de escopo consciente.
 
-## 5. "Acabou" — propagação ao vivo (admin marca)
+## 5. "Acabou" — propagação ao vivo (admin marca) — ✅ FEITA (já existia)
 
-- **Decisão travada:** **só admin marca** esgotado (mantém restrito ao Cardápio). O atendente **não** ganha o toggle.
-- **Logo a feature encolheu:** garantir que o toggle "esgotou" do admin **propague AO VIVO via SSE** pro atendente (chip fica cinza na hora, sem refresh).
-- **Próximo passo:** **verificar primeiro** se já propaga ao vivo. Se sim → item já está pronto, nada a fazer. Se não → adicionar broadcast SSE de disponibilidade de ingrediente (PR — toca SSE, roda e2e).
+- **Verificado em 2026-05-29:** PATCH ingrediente já dispara broadcast `ingredient:updated` → atendente aplica `available` ao vivo via SSE, sem refresh. Feature completa sem código novo.
+- **Decisão mantida:** só admin marca esgotado (restrito ao Cardápio). Atendente não ganha o toggle.
 
 ---
 
