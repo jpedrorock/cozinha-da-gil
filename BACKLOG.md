@@ -80,9 +80,8 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ### Polish
 
-- [ ] **[P3] #atendente #ux** Botão "Enviar WhatsApp" do comprovante sinaliza que link já tá incluído [claude-pastel 2026-06-12 background]
-  - **Pronto quando:** abaixo (ou ao lado de) "Enviar no WhatsApp" no `ComprovanteClient`, aparece micro-texto com icon `LinkIcon` pequeno: "Mensagem inclui link de acompanhamento". Atendente vê que o link já vai junto e não tenta copiar/mandar de novo.
-  - **Autonomia:** OK fazer direto.
+- [x] **[P3] #atendente #ux** Botão "Enviar WhatsApp" do comprovante sinaliza que link já tá incluído [claude-pastel 2026-06-12 background]
+  - `ComprovanteClient.tsx`: parágrafo com `<LinkIcon size={12}> + "Mensagem inclui link de acompanhamento"` abaixo do botão WA, condicional em `trackUrl` (só aparece quando publicToken + baseUrl estão prontos = link realmente vai na msg). lint/216 verdes.
 
 - [x] **[P3] #cliente #ux** Indicador "ao vivo · atualizado às X" em `/p/<token>` [claude-pastel 2026-06-05 background]
 
