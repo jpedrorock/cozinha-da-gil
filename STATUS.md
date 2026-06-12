@@ -2,22 +2,24 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-11
+**Última atualização:** 2026-06-12
 **Atualizado por:** `claude-pastel`
 
 ---
 
 ## Fase atual
 
-Fase 6 entregue. Pós-fase: hardening + observabilidade.
+Fase 6 e Fase 7 entregues. Pós-fase: hardening + observabilidade + manutenção deps.
 
-## O que rolou nesta sessão (routine 2026-06-05)
+## O que rolou nesta sessão (routine 2026-06-12)
 
-- **[P2] Botão "Avisar" auto-volta pra fila** — `notifyReady()` em `AtendenteClient.tsx` ganhou `setTimeout(() => router.push("/atendente"), 400)`. Mesmo pattern do comprovante. Cobre banner e card direto.
-- **[P3] Indicador "ao vivo" em `/p/<token>`** — header da página mostra "ao vivo · HH:MM" quando SSE conectado; "offline · última atualização HH:MM" quando desconectado. Atualiza em cada evento SSE e clockeia a cada 60s.
-- 197/197 testes, lint limpo.
-- Branch: `routine-pastel-20260605-1604`. PR aberta.
-- Itens pulados (aguardam João): triagem PRs (#Confirmar antes), limpeza de branches (#Confirmar antes), rebase PR #30 (requires force-with-lease — proibido em background), smoke test prod, bookkeeping pós-merge.
+- **[P3] Bookkeeping pós-Fase 7** — `docs/FASE-7.md` marcado ✅ ENTREGUE (todos 5 itens), `BACKLOG.md` "Em progresso" zerado (PRs #4 e Next 15 já mergeados em junho).
+- **[P3] Investigar routine background** — root cause documentado em `PLAYBOOK.md` (nova seção): branch criada antes de verificar trabalho. Comportamento correto: avaliar itens executáveis primeiro, só criar branch se houver trabalho real; caso contrário atualizar STATUS direto em main sem abrir PR.
+- **[P3] Bumps patches/minors** — react 19.2.6→19.2.7, next+eslint-config-next 15.5.18→15.5.19, @types/react 19.2.15→19.2.17, vitest/@vitest/coverage-v8 4.1.7→4.1.8, sharp 0.34.5→0.35.1, tsx 4.22.3→4.22.4. 216/216 testes, lint limpo.
+- **[P3] Comprovante WA sinaliza link incluído** — micro-texto "Mensagem inclui link de acompanhamento" com `LinkIcon` abaixo do botão WA, condicional em `trackUrl`.
+- 216/216 testes, lint limpo.
+- Branch: `routine-pastel-20260612-0900`. PR aberta.
+- Itens pulados (aguardam João): triagem PR + branches (#Confirmar antes, op destrutiva), stepper de massa (#Confirmar antes, decisão schema), smoke test prod, aplicar cardápio em prod.
 
 ## O que rolou desde a última sessão
 
