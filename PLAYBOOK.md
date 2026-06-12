@@ -23,6 +23,18 @@
 - `claude -p` ou Routine agendada → background
 - Em dúvida: pergunte uma vez ("Modo presencial ou background?"). Sem resposta em 30s → background.
 
+### Routine background — problema de branch log-only
+
+**Problema diagnosticado (2026-06-12):** o prompt de routine agenda `git checkout -b routine-pastel-$(date)` como **passo 2**, antes de verificar se há itens executáveis. Quando a rotina não acha trabalho real, ela cria a branch mesmo assim e acaba abrindo PR log-only (só atualização de STATUS). Em 4 dias isso gerou 40+ branches `routine-*` que viram tech debt de triagem.
+
+**Comportamento correto:**
+1. Lê CLAUDE.md, STATUS, BACKLOG, PLAYBOOK.
+2. **Avalia** se há ≥1 item executável (P2/P3, sem "Confirmar antes", sem tocar em SSE/auth/schema/comprovante/Docker).
+3. **Só se encontrar trabalho real:** `git checkout -b routine-pastel-$(date +%Y%m%d-%H%M)`.
+4. Se não houver trabalho: atualiza STATUS.md direto em main (`git add STATUS.md && git commit -m "chore: routine sem itens executáveis [$(date +%Y-%m-%d)]"` e **não abre PR**).
+
+**Regra de ouro para implementadores do prompt de routine:** não criar branch antes de confirmar que há item concreto a executar.
+
 ---
 
 ## Início de sessão (obrigatório)
