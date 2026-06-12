@@ -17,6 +17,7 @@
 - **Limite a 1 PR por item.** Não acumule.
 - Pare ao chegar em `[P0]` que precisa de confirmação.
 - Se "Eventos próximos" em STATUS tem evento em ≤ 48h: **só toque em P2/P3** baixo risco. Nada que mexa em SSE, auth, schema.
+- **GATE DE BRANCH:** Se após triagem do BACKLOG **nenhum item for executável** (todos são P0 / "Confirmar antes" / SSE/auth/schema), **NÃO criar branch nem PR**. Apenas atualizar `STATUS.md` direto em `main` com registro `"Routine encerrada — sem itens executáveis em YYYY-MM-DD HH:MM"`. Branch log-only acumula dívida de triagem sem valor. Diagnóstico 2026-06-12: 42+ branches routine acumuladas em 7 dias; a maioria era "sem itens" sem o gate.
 
 ### Como saber em qual modo está
 - `/trabalhar` interativo → presencial
