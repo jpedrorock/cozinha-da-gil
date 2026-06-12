@@ -27,10 +27,7 @@
 
 _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
-- [ ] **[P1] #chore** Backup automático do `dev.db` no volume Coolify — **PR #4 aberto, aguardando merge** [claude-pastel 2026-05-22]
-- [ ] **[P2] #chore #pwa** Migração Next 14 → 15 + `@ducanh2912/next-pwa` — **PR aberto (branch `claude-pastel/next15-pwa`), aguardando review + teste manual de PWA/SSE em device** [claude-pastel 2026-05-28]
-  - Feito + validado: next 15.5.18, react 19.2.6, fork PWA, codemod async params (14 rotas), override serialize-javascript. tsc/lint/163 testes/build/12 e2e em dev verdes. `fallbacks: /offline` reativado. `npm audit` 10 (9 high) → 3 moderate (postcss interno do Next, build-time, não-bloqueante).
-  - Antes do merge em prod: teste manual da PWA (install/offline/splash) + SSE 3 abas (§4.8 de `docs/UPGRADE-NEXT-15.md`). Rollback: Coolify 1-clique ou `git revert`.
+_(vazio)_
 
 ---
 
@@ -100,9 +97,7 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ### Pós-Fase 7 — manutenção
 
-- [ ] **[P3] #chore #docs** Bookkeeping pós-merge de Fase 7
-  - **Pronto quando:** depois dos PRs #4/#30/#31 mergearem: `docs/FASE-7.md` marca #1 e #4 como ✅; `STATUS.md` reflete Fase 7 completa + Next 15 em prod + módulos atualizados; `BACKLOG.md` "Em progresso" zerado.
-  - **Autonomia:** OK fazer direto.
+- [x] **[P3] #chore #docs** Bookkeeping pós-merge de Fase 7 [claude-pastel 2026-06-12 background]
 
 ### PWA
 
@@ -134,6 +129,11 @@ _Itens com critério vago OU bloqueados por dependência externa._
 ---
 
 ## ✅ Concluídos recentemente
+
+### 2026-06-12
+- [claude-pastel 2026-06-12 background] **[P3] Bookkeeping pós-merge de Fase 7** — `BACKLOG.md` "Em progresso" zerado; `docs/FASE-7.md` itens #3/#4/#5 marcados ✅; STATUS atualizado. PRs já mergeados: #4 backup (09/06), #30 PIX (05/06), #31 WhatsApp (01/06), Next 15 deployado em prod (29/05).
+- [claude-pastel 2026-06-12 background] **[P1] Backup automático do `dev.db` no volume Coolify — PR #4 mergeada** — squash-merged 2026-06-09 como parte das 5 PRs em sequência. Entregue: instrumentation hook, WAL checkpoint, retenção 14 dias (rotação pendente: item separado no BACKLOG).
+- [claude-pastel 2026-06-12 background] **[P2] Migração Next 14 → 15 + `@ducanh2912/next-pwa`** — branch `claude-pastel/next15-pwa` mergeada, Coolify deployou em prod (2026-05-29). Entregue: next 15.5.18, react 19.2.6, fork PWA, codemod async params (14 rotas), fallbacks /offline reativado. npm audit 10 (9 high) → 3 moderate.
 
 ### 2026-06-05
 - [claude-pastel 2026-06-05] **[P3] SW runtimeCaching pra /p/<token> — PR #59 aberta** — `next.config.mjs` ganhou regra explícita `NetworkFirst` pra `/\/p\/[A-Za-z0-9]{10}/` antes do catch-all SWR. networkTimeoutSeconds:2 + cacheName "pedido-public" (50 entries × 24h). SW gerado confirmou ordem correta. build + 210/210 verdes. Aguarda review.
