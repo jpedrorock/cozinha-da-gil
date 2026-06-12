@@ -113,6 +113,25 @@ npm test
 
 ---
 
+## Routine background — gating de branches
+
+**Problema identificado (2026-06-12):** o prompt de routine cria a branch em step 2 (antes do loop de trabalho). Se nenhum item qualifica, a branch fica vazia e a PR gerada é só log — infla a fila. Em 4 dias gerou 11+ branches log-only; triagem virou trabalho recorrente.
+
+**Causa raiz:** step 2 (`git checkout -b`) é incondicional. Step 4 (push + PR) também é incondicional mesmo sem commits.
+
+**Regra adicionada:**
+- Se ao final do loop **nenhum commit foi feito** (apenas edições em STATUS.md), **não criar branch nem PR**.
+- Em vez disso: commitar STATUS.md diretamente em main com `chore: routine sem trabalho — <data>`.
+- Só abrir PR se houver ≥1 commit de código/doc além de STATUS.md.
+
+**Verificação rápida:**
+```bash
+git diff --name-only HEAD..  # se só STATUS.md → não abrir PR
+git log --oneline -1         # se "routine" não aparecer → ficou vazio
+```
+
+**Responsabilidade:** o executor da routine (Claude em background) deve aplicar essa lógica. O prompt do caller idealmente vai ser atualizado pra refletir — até lá, aplicar como regra local de bom senso.
+
 ## Quando travar
 
 Pare e registre em STATUS → "Bloqueios ativos" quando:
