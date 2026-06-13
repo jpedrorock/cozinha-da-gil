@@ -18,6 +18,21 @@
 - Pare ao chegar em `[P0]` que precisa de confirmação.
 - Se "Eventos próximos" em STATUS tem evento em ≤ 48h: **só toque em P2/P3** baixo risco. Nada que mexa em SSE, auth, schema.
 
+#### Problema conhecido: branches log-only acumuladas
+
+**Diagnóstico (2026-06-13):** a routine background cria branch + abre PR incondicionalmente no passo final, mesmo quando zero itens foram executados (todos pulados por "Confirmar antes", "Abrir PR" ou restrição SSE/auth). Isso gerou 42+ branches `routine-pastel-*` em 4 dias.
+
+**Causa raiz:** o roteiro da routine diz "git push + Abra PR" como passo 4 final, sem condição de guarda em "nenhum item executado".
+
+**Fix esperado no prompt da routine** (João ajusta na plataforma de agendamento):
+> Se o loop (passo 3) encerrar com **0 itens executados**:
+> - NÃO criar branch.
+> - NÃO abrir PR.
+> - Registrar em STATUS.md: "Routine encerrada — sem itens executáveis. [data]"
+> - Commitar STATUS.md direto em `main` (mudança trivial, sem PR).
+
+**Enquanto o fix não sai:** João deve continuar triando branches `routine-pastel-*` periodicamente (triagem periódica já é item no BACKLOG). Toda branch com PR log-only "sem itens executados" pode ser fechada sem risco.
+
 ### Como saber em qual modo está
 - `/trabalhar` interativo → presencial
 - `claude -p` ou Routine agendada → background

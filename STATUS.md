@@ -2,14 +2,20 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-11
+**Última atualização:** 2026-06-13
 **Atualizado por:** `claude-pastel`
 
 ---
 
 ## Fase atual
 
-Fase 6 entregue. Pós-fase: hardening + observabilidade.
+Fase 6 entregue. **Fase 7 entregue (5/5).** Pós-fase: hardening + observabilidade.
+
+## O que rolou nesta sessão (routine 2026-06-13)
+
+- **[P3] Bookkeeping pós-Fase 7** — `docs/FASE-7.md` atualizado com status ✅ ENTREGUE (5/5); features #3 (comparativo), #4 (WhatsApp pronto), #5 (Acabou verificado) marcadas com detalhes de entrega. BACKLOG "Em progresso" zerado — PR #4 backup e next15-pwa já estavam mergeados em main há semanas.
+- **[P3] Investigar routine background criando branches** — causa raiz documentada em PLAYBOOK (seção "Problema conhecido: branches log-only acumuladas"). Fix proposto: roteiro da routine deve ter guarda "se 0 itens executados → commit STATUS em main direto, skip branch + PR". Aguarda João ajustar o prompt de agendamento.
+- 216/216 testes, lint limpo.
 
 ## O que rolou nesta sessão (routine 2026-06-05)
 
@@ -40,11 +46,9 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## Próximo passo recomendado
 
-**Fase 7 fechada (5/5)** — 3 itens mergeados (#23 Next 15 já no main, #28 troco, #29 comparativo), 3 PRs aguardando merge (**#4 backup desconflictado**, **#30 PIX**, **#31 WhatsApp auto-surface**), e #5 "Acabou" já existia. Coolify deployou Next 15 em prod na sessão de 29/05.
+**Fase 7 entregue (5/5)** — todos mergeados em main. Next 15.5.18 + React 19 em prod. 216/216 testes. Estado do BACKLOG "Em progresso" zerado.
 
-João: (1) mergear **#4 + #30 + #31** (todos validados: tsc/lint/testes/build); (2) **configurar chave PIX** (admin → Caixa → "Pagamento (PIX)") — 1 vez só; (3) **teste manual da PWA no celular** (install/offline/splash) agora que Next 15 está em prod; rollback Coolify 1-clique se algo quebrar.
-
-BACKLOG "Próximos" reabastecido com **5 itens de manutenção pós-Fase 7** (replan 2026-05-29): bookkeeping, smoke prod, limpar 4 routine-* novas, auditoria a11y dedicada, reavaliar Background Sync.
+João: (1) **Aplicar cardápio junho 2026 em prod** via Admin → Cardápio (checklist do PR #74); (2) **Triagem fila PR + branches routine** (42 branches acumuladas — pular essa tarefa vai continuar inflando); (3) **Ajustar prompt da routine background** para não criar branch quando 0 itens executados (documentado em PLAYBOOK). (4) **Configurar chave PIX** se ainda não foi feito (Admin → Caixa → Pagamento PIX).
 
 ---
 
@@ -79,7 +83,7 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 
 ## Métricas vivas
 
-- Tests passando: **163/163** ✅
+- Tests passando: **216/216** ✅
 - Type-check: **ok** ✅
 - ESLint: **0 erros** ✅ (check ativo no build)
 - DB schema: **sincronizado** ✅ (imageUrl adicionado)
