@@ -2,22 +2,23 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-11
+**Última atualização:** 2026-06-13
 **Atualizado por:** `claude-pastel`
 
 ---
 
 ## Fase atual
 
-Fase 6 entregue. Pós-fase: hardening + observabilidade.
+Fases 6 e 7 entregues. Pós-fase: hardening + observabilidade.
 
-## O que rolou nesta sessão (routine 2026-06-05)
+## O que rolou nesta sessão (routine 2026-06-13)
 
-- **[P2] Botão "Avisar" auto-volta pra fila** — `notifyReady()` em `AtendenteClient.tsx` ganhou `setTimeout(() => router.push("/atendente"), 400)`. Mesmo pattern do comprovante. Cobre banner e card direto.
-- **[P3] Indicador "ao vivo" em `/p/<token>`** — header da página mostra "ao vivo · HH:MM" quando SSE conectado; "offline · última atualização HH:MM" quando desconectado. Atualiza em cada evento SSE e clockeia a cada 60s.
-- 197/197 testes, lint limpo.
-- Branch: `routine-pastel-20260605-1604`. PR aberta.
-- Itens pulados (aguardam João): triagem PRs (#Confirmar antes), limpeza de branches (#Confirmar antes), rebase PR #30 (requires force-with-lease — proibido em background), smoke test prod, bookkeeping pós-merge.
+- **[P3] Bookkeeping pós-merge Fase 7** — `docs/FASE-7.md` marcado ✅ ENTREGUE; itens 3/4/5 marcados; BACKLOG "Em progresso" zerado.
+- **[P3] Bumps patches/minors** — next 15.5.19, react+react-dom 19.2.7, lucide-react 1.18.0, @types/react 19.2.17, vitest+coverage-v8 4.1.8, tsx 4.22.4, sharp 0.35.x, eslint-config-next 15.5.19.
+- **[P3] Botão WhatsApp sinaliza link incluído** — micro-texto com `LinkIcon` abaixo do botão "Enviar no WhatsApp" no ComprovanteClient.
+- **[P3] Investigar routine background** — documentado no PLAYBOOK: gating pra não criar branch quando sem itens executáveis.
+- 216/216 testes, lint limpo.
+- Branch: `routine-pastel-20260613-0900`. PR aberta.
 
 ## O que rolou desde a última sessão
 
@@ -40,11 +41,11 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## Próximo passo recomendado
 
-**Fase 7 fechada (5/5)** — 3 itens mergeados (#23 Next 15 já no main, #28 troco, #29 comparativo), 3 PRs aguardando merge (**#4 backup desconflictado**, **#30 PIX**, **#31 WhatsApp auto-surface**), e #5 "Acabou" já existia. Coolify deployou Next 15 em prod na sessão de 29/05.
+**Fases 6 e 7 entregues.** App está estável em prod (Coolify). Em modo hardening/observabilidade.
 
-João: (1) mergear **#4 + #30 + #31** (todos validados: tsc/lint/testes/build); (2) **configurar chave PIX** (admin → Caixa → "Pagamento (PIX)") — 1 vez só; (3) **teste manual da PWA no celular** (install/offline/splash) agora que Next 15 está em prod; rollback Coolify 1-clique se algo quebrar.
+João: (1) **mergear esta PR** (bumps de deps + botão WhatsApp + docs); (2) **triagem das 42 routine branches** acumuladas — `git branch -r | grep routine` (requer confirmação antes de deletar); (3) **aplicar cardápio junho 2026 em prod** via Admin → Cardápio (checklist no PR #74 mergeado).
 
-BACKLOG "Próximos" reabastecido com **5 itens de manutenção pós-Fase 7** (replan 2026-05-29): bookkeeping, smoke prod, limpar 4 routine-* novas, auditoria a11y dedicada, reavaliar Background Sync.
+BACKLOG "Próximos" tem itens P3 executáveis: bumps (feito nesta PR), botão WhatsApp (feito), investigação routine (feito), rotação backups (próximo), smoke prod.
 
 ---
 
@@ -79,13 +80,13 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 
 ## Métricas vivas
 
-- Tests passando: **163/163** ✅
+- Tests passando: **216/216** ✅
 - Type-check: **ok** ✅
 - ESLint: **0 erros** ✅ (check ativo no build)
 - DB schema: **sincronizado** ✅ (imageUrl adicionado)
 - PWA: **instalável** ✅ (iOS Safari + Android Chrome)
 - Vulns npm audit: **3 moderate** (postcss interno do Next, build-time) na branch Next 15 — era 10 (9 high) no main Next 14. PR aberto.
-- Next/React: **15.5.18 / 19.2.6** na branch `claude-pastel/next15-pwa` (main ainda 14.2.35 até merge)
+- Next/React: **15.5.19 / 19.2.7** no main
 
 ---
 

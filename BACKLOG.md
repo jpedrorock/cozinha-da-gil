@@ -27,10 +27,7 @@
 
 _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
-- [ ] **[P1] #chore** Backup automático do `dev.db` no volume Coolify — **PR #4 aberto, aguardando merge** [claude-pastel 2026-05-22]
-- [ ] **[P2] #chore #pwa** Migração Next 14 → 15 + `@ducanh2912/next-pwa` — **PR aberto (branch `claude-pastel/next15-pwa`), aguardando review + teste manual de PWA/SSE em device** [claude-pastel 2026-05-28]
-  - Feito + validado: next 15.5.18, react 19.2.6, fork PWA, codemod async params (14 rotas), override serialize-javascript. tsc/lint/163 testes/build/12 e2e em dev verdes. `fallbacks: /offline` reativado. `npm audit` 10 (9 high) → 3 moderate (postcss interno do Next, build-time, não-bloqueante).
-  - Antes do merge em prod: teste manual da PWA (install/offline/splash) + SSE 3 abas (§4.8 de `docs/UPGRADE-NEXT-15.md`). Rollback: Coolify 1-clique ou `git revert`.
+_(vazio)_
 
 ---
 
@@ -134,6 +131,13 @@ _Itens com critério vago OU bloqueados por dependência externa._
 ---
 
 ## ✅ Concluídos recentemente
+
+### 2026-06-13
+- [claude-pastel 2026-06-13 background] **[P3] Bookkeeping pós-merge Fase 7** — `docs/FASE-7.md` marcado ✅ ENTREGUE; itens 3/4/5 marcados com entrega; `BACKLOG.md` "Em progresso" zerado. PRs #4 (backup), #30 (PIX), #31 (WhatsApp), #23 (Next 15) todos mergeados conforme histórico do STATUS.
+
+### 2026-06-09
+- [claude-pastel 2026-06-09] **[P1] #chore Backup automático do `dev.db` no volume Coolify** — PR #4 mergeada (squash `2fcd1b6`). Rotação 14d não implementada ainda (item separado no backlog).
+- [claude-pastel 2026-05-28] **[P2] #chore #pwa Migração Next 14 → 15 + `@ducanh2912/next-pwa`** — PR #23 mergeada. next 15.5.18, react 19.2.6, fork PWA `@ducanh2912/next-pwa@10.2.9`, async params (14 rotas), `npm audit` 10 high → 3 moderate. Coolify deployou automaticamente.
 
 ### 2026-06-05
 - [claude-pastel 2026-06-05] **[P3] SW runtimeCaching pra /p/<token> — PR #59 aberta** — `next.config.mjs` ganhou regra explícita `NetworkFirst` pra `/\/p\/[A-Za-z0-9]{10}/` antes do catch-all SWR. networkTimeoutSeconds:2 + cacheName "pedido-public" (50 entries × 24h). SW gerado confirmou ordem correta. build + 210/210 verdes. Aguarda review.
