@@ -18,6 +18,35 @@
 - Pare ao chegar em `[P0]` que precisa de confirmação.
 - Se "Eventos próximos" em STATUS tem evento em ≤ 48h: **só toque em P2/P3** baixo risco. Nada que mexa em SSE, auth, schema.
 
+### Rotina de background sem itens executáveis
+
+**Problema diagnosticado (2026-06-13):** a rotina criava branch `routine-pastel-*` + PR em toda execução, mesmo sem trabalho — gerando 40+ branches orphans que exigem triagem manual periódica.
+
+**Causa raiz:** o passo `git checkout -b routine-pastel-$(date ...)` estava hardcoded como passo 2, antes de qualquer verificação de BACKLOG.
+
+**Procedimento correto quando não há itens executáveis:**
+1. Ler STATUS.md + BACKLOG.md normalmente.
+2. Avaliar BACKLOG "Próximos": se todos os itens são P0 / "Confirmar antes" / "Abrir PR" / tocam SSE/auth/schema/comprovante/Docker → **sem trabalho executável**.
+3. **NÃO criar branch.** Atualizar `STATUS.md` direto em `main`:
+   ```
+   ## O que rolou nesta sessão (routine YYYY-MM-DD)
+   Routine encerrada — sem itens executáveis. Próximos itens aguardam confirmação do João.
+   ```
+4. Commit em `main`: `chore: routine sem trabalho — STATUS.md [routine]`
+5. Encerrar sem PR.
+
+**Critérios para criar branch** (apenas quando):
+- Há ≥1 item "OK fazer direto" que não toca SSE/auth/schema/comprovante/Docker.
+- OU há documentação/housekeeping que justifique PR (ex: análise + PLAYBOOK update).
+
+**Para quem escreve o prompt da rotina:** adicionar verificação ANTES do `git checkout -b`:
+```
+PASSO ZERO GATES:
+1. Leia BACKLOG "Próximos" mentalmente.
+2. Se nenhum item qualificar → registre em STATUS.md (sem branch), encerre.
+3. Só se houver trabalho real → git checkout -b routine-pastel-$(date ...).
+```
+
 ### Como saber em qual modo está
 - `/trabalhar` interativo → presencial
 - `claude -p` ou Routine agendada → background

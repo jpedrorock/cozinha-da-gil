@@ -2,22 +2,22 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-11
-**Atualizado por:** `claude-pastel`
+**Última atualização:** 2026-06-13
+**Atualizado por:** `claude-pastel` (routine background)
 
 ---
 
 ## Fase atual
 
-Fase 6 entregue. Pós-fase: hardening + observabilidade.
+Fase 6 e Fase 7 entregues. Pós-fase: hardening + observabilidade. Next 15 em prod.
 
-## O que rolou nesta sessão (routine 2026-06-05)
+## O que rolou nesta sessão (routine 2026-06-13)
 
-- **[P2] Botão "Avisar" auto-volta pra fila** — `notifyReady()` em `AtendenteClient.tsx` ganhou `setTimeout(() => router.push("/atendente"), 400)`. Mesmo pattern do comprovante. Cobre banner e card direto.
-- **[P3] Indicador "ao vivo" em `/p/<token>`** — header da página mostra "ao vivo · HH:MM" quando SSE conectado; "offline · última atualização HH:MM" quando desconectado. Atualiza em cada evento SSE e clockeia a cada 60s.
-- 197/197 testes, lint limpo.
-- Branch: `routine-pastel-20260605-1604`. PR aberta.
-- Itens pulados (aguardam João): triagem PRs (#Confirmar antes), limpeza de branches (#Confirmar antes), rebase PR #30 (requires force-with-lease — proibido em background), smoke test prod, bookkeeping pós-merge.
+- **[P3] Investigar routine background criando branches sem trabalho** — diagnóstico completo: causa raiz é branch sempre criada antes de checar BACKLOG. Documentado no PLAYBOOK: nova seção "Rotina de background sem itens executáveis" com procedimento de exit gracioso sem branch/PR quando não há trabalho executável.
+- **[P3] Bookkeeping pós-merge de Fase 7** — `docs/FASE-7.md` marcado ✅ ENTREGUE no header; itens #3 (Comparativo), #4 (WhatsApp auto-surface), #5 ("Acabou") receberam status com detalhes de entrega. `BACKLOG.md` "Em progresso" zerado (PR #4 backup + Next 15, ambos mergeados desde maio).
+- 216/216 testes, lint limpo.
+- Branch: `routine-pastel-20260613-1607`. PR aberta.
+- Itens pulados (aguardam João): triagem PRs + branches (#Confirmar antes), aplicar/confirmar cardápio prod (sem acesso remoto), bumps deps + rotação backups (#Abrir PR — PR dedicada), stepper massa macarrão (#Confirmar antes).
 
 ## O que rolou desde a última sessão
 
@@ -79,7 +79,7 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 
 ## Métricas vivas
 
-- Tests passando: **163/163** ✅
+- Tests passando: **216/216** ✅
 - Type-check: **ok** ✅
 - ESLint: **0 erros** ✅ (check ativo no build)
 - DB schema: **sincronizado** ✅ (imageUrl adicionado)
@@ -90,6 +90,9 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 ---
 
 ## Histórico recente (últimos 5 dias)
+
+### 2026-06-13
+- **Routine background** — Investigação do problema de branches orphans: causa documentada no PLAYBOOK (nova seção "Rotina sem itens executáveis"). Bookkeeping Fase 7: `docs/FASE-7.md` marcado ✅ ENTREGUE (5/5 features), `BACKLOG.md` Em progresso zerado. 216/216 testes.
 
 ### 2026-06-11
 - **Backlog replanejado: 8 itens em Próximos** (`/planejar`) — diagnóstico: 216/216 ✅, 0 TODOs reais, sem evento próximo, 42 routine branches acumuladas de novo, 14 deps com bumps disponíveis (low-risk patches/minors), backup PR #4 começou a rodar sem rotação de retenção. Aprovados pelo João: confirmar cardápio em prod [P1], triagem PR+branches [P2], investigar routine background [P3], bumps patches [P3, PR], rotação backups dev.db [P3, PR], botão WhatsApp sinaliza link incluído [P3], stepper massa (manter), smoke test prod (manter).
