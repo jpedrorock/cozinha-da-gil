@@ -55,10 +55,8 @@ _(vazio)_
   - **Contexto:** Triagem 05/06 limpou 17 PRs + 19 branches. Voltou a inflar: 42 routine branches hoje.
   - **Autonomia:** Confirmar antes (op destrutiva em branches).
 
-- [ ] **[P3] #chore** Investigar routine background criando branches sem trabalho
-  - **Pronto quando:** identificado o gating do `routine-pastel-*` que faz abrir branch/PR mesmo quando "sem itens executáveis". Documentado no PLAYBOOK. Idealmente: rotina que não acha trabalho real NÃO cria branch — só atualiza STATUS direto em main.
-  - **Contexto:** Em 4 dias gerou 11+ branches só log-only. Sem isso, triagem vira eterna.
-  - **Autonomia:** OK fazer direto.
+- [x] **[P3] #chore** Investigar routine background criando branches sem trabalho [claude-pastel 2026-06-13 background]
+  - **Concluído:** causa identificada (branch criada antes do gating de itens). Solução documentada em PLAYBOOK → seção "Rotina background — gating de branch". Regra: branch só criada se houver ≥1 item qualificado; caso contrário commit em main + encerra.
 
 ### Hardening / deps
 
@@ -134,6 +132,7 @@ _Itens com critério vago OU bloqueados por dependência externa._
 
 ### 2026-06-13
 - [claude-pastel 2026-06-13 background] **[P3] Bookkeeping pós-merge Fase 7** — `docs/FASE-7.md` marcado ✅ ENTREGUE; itens 3/4/5 marcados com entrega; `BACKLOG.md` "Em progresso" zerado. PRs #4 (backup), #30 (PIX), #31 (WhatsApp), #23 (Next 15) todos mergeados conforme histórico do STATUS.
+- [claude-pastel 2026-06-13 background] **[P3] Investigar routine background criando branches sem trabalho** — causa identificada (branch criada antes do gating). Solução documentada em `PLAYBOOK.md` → "Rotina background — gating de branch": branch só criada se ≥1 item qualificado; senão commit em main + encerra.
 
 ### 2026-06-09
 - [claude-pastel 2026-06-09] **[P1] #chore Backup automático do `dev.db` no volume Coolify** — PR #4 mergeada (squash `2fcd1b6`). Rotação 14d não implementada ainda (item separado no backlog).
