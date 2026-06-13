@@ -1,4 +1,4 @@
-import { copyFile, mkdir } from "node:fs/promises";
+import { copyFile, mkdir, readdir, stat, unlink } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { randomBytes } from "node:crypto";
 
@@ -28,6 +28,45 @@ export async function backupDatabase(reason: string): Promise<string> {
   const backupPath = join(backupDir, `${safeReason}-${stamp}.db`);
   await copyFile(dbPath, backupPath);
   return backupPath;
+}
+
+/**
+ * Remove backups com nome `dev-YYYY-MM-DD.db` e wipes `wipe-*.db` mais
+ * antigos que `keepDays` dias do diretório `dir`.
+ *
+ * Retorna a quantidade de arquivos removidos.
+ *
+ * Ignora arquivos com nome fora do padrão (ex: backup.log).
+ * Ignora erros individuais de unlink pra não abortar a rotação toda.
+ */
+export async function pruneOldBackups(dir: string, keepDays = 14): Promise<number> {
+  const cutoffMs = Date.now() - keepDays * 24 * 60 * 60 * 1000;
+  let pruned = 0;
+  let entries: string[];
+  try {
+    entries = await readdir(dir);
+  } catch {
+    return 0; // diretório não existe ainda — nada a limpar
+  }
+  for (const name of entries) {
+    // Padrão diário (backup-scheduler): dev-YYYY-MM-DD.db
+    // Padrão on-demand (Zona de Perigo): wipe-<timestamp>-<hex>.db
+    const isDailyBackup = /^dev-\d{4}-\d{2}-\d{2}\.db$/.test(name);
+    const isWipeBackup = /^wipe-.+\.db$/.test(name);
+    if (!isDailyBackup && !isWipeBackup) continue;
+
+    const filePath = join(dir, name);
+    try {
+      const s = await stat(filePath);
+      if (s.mtimeMs < cutoffMs) {
+        await unlink(filePath);
+        pruned++;
+      }
+    } catch {
+      // arquivo sumiu entre readdir e stat/unlink — ignora
+    }
+  }
+  return pruned;
 }
 
 /**

@@ -64,10 +64,8 @@ _(vazio)_
   - **Pronto quando:** PR consolidado sobe: react 19.2.6→19.2.7, next + eslint-config-next 15.5.18→15.5.19, @types/react 19.2.15→19.2.17, @vitest/coverage-v8 4.1.7→4.1.8, sharp 0.34.5→0.35.0, tsx 4.22.3→4.22.4. **NÃO incluir:** @prisma 6→7 (major), tailwindcss 3→4 (major), eslint 8→10 (major). tsc + lint + 216/216 + build verdes.
   - **Autonomia:** Abrir PR.
 
-- [ ] **[P3] #chore #infra** Rotação automática de backups dev.db (retenção 14d)
-  - **Pronto quando:** o instrumentation hook do PR #4 (ou script auxiliar) deleta backups com mais de 14 dias de `/app/data/backups/`. Loga quantos removeu por dia. Teste unit cobre a função de cleanup (fake-time + arquivos com mtime variável).
-  - **Contexto:** PR #4 documentou 14d mas não implementou cleanup. Sem isso, volume Coolify enche.
-  - **Autonomia:** Abrir PR.
+- [x] **[P3] #chore #infra** Rotação automática de backups dev.db (retenção 14d) [claude-pastel 2026-06-13 background]
+  - **Concluído:** rotação já existia em `scripts/backup-db.ts` (linhas ~56-65, `KEEP_DAYS=14`). Adicionado `pruneOldBackups(dir, keepDays)` em `lib/db-backup.ts` (função pura, sem Prisma) + 8 testes em `tests/db-backup.test.ts` com fake-time e `utimesSync`. 224/224 testes, lint ok.
 
 ### UX (follow-up das mudanças de hoje)
 
@@ -131,6 +129,7 @@ _Itens com critério vago OU bloqueados por dependência externa._
 
 ### 2026-06-13
 - [claude-pastel 2026-06-13 background] **[P3] Bookkeeping pós-merge Fase 7** — `docs/FASE-7.md` marcado ✅ ENTREGUE; itens 3/4/5 marcados com entrega; `BACKLOG.md` "Em progresso" zerado. PRs #4 (backup), #30 (PIX), #31 (WhatsApp), #23 (Next 15) todos mergeados conforme histórico do STATUS.
+- [claude-pastel 2026-06-13 background] **[P3] Rotação automática de backups dev.db** — `pruneOldBackups(dir, keepDays)` adicionado a `lib/db-backup.ts` (pura, testável) + 8 testes com fake-time/utimesSync. Rotação inline em `scripts/backup-db.ts` já existia (KEEP_DAYS=14). 224/224 testes.
 - [claude-pastel 2026-06-13 background] **[P3] Botão "Enviar WhatsApp" sinaliza link incluído** — micro-texto `LinkIcon + "Mensagem inclui link de acompanhamento"` abaixo do botão no `ComprovanteClient`, condicional a `trackUrl`. 216/216 testes, lint ok.
 - [claude-pastel 2026-06-13 background] **[P3] Investigar routine background criando branches sem trabalho** — causa identificada (branch criada antes do gating). Solução documentada em `PLAYBOOK.md` → "Rotina background — gating de branch": branch só criada se ≥1 item qualificado; senão commit em main + encerra.
 
