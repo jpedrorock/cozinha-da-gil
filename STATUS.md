@@ -15,9 +15,12 @@ Fases 6 e 7 entregues. Pós-fase: hardening + observabilidade.
 
 - **[P3] Bookkeeping pós-merge Fase 7** — `docs/FASE-7.md` marcado ✅ ENTREGUE; itens 3/4/5 marcados; BACKLOG "Em progresso" zerado.
 - **[P3] Bumps patches/minors** — next 15.5.19, react+react-dom 19.2.7, lucide-react 1.18.0, @types/react 19.2.17, vitest+coverage-v8 4.1.8, tsx 4.22.4, sharp 0.35.x, eslint-config-next 15.5.19.
-- **[P3] Botão WhatsApp sinaliza link incluído** — micro-texto com `LinkIcon` abaixo do botão "Enviar no WhatsApp" no ComprovanteClient.
-- **[P3] Investigar routine background** — documentado no PLAYBOOK: gating pra não criar branch quando sem itens executáveis.
-- 216/216 testes, lint limpo.
+- **[P3] Bookkeeping pós-merge Fase 7** — FASE-7.md ✅ ENTREGUE, BACKLOG Em progresso zerado.
+- **[P3] Investigar routine background** — causa das branches log-only documentada no PLAYBOOK (gating antes de criar branch).
+- **[P3] Bumps patches/minors** — next 15.5.19, react 19.2.7, lucide 1.18, vitest 4.1.8, sharp 0.35.1, tsx 4.22.4, etc.
+- **[P3] Botão WhatsApp sinaliza link incluído** — micro-texto com `LinkIcon` no `ComprovanteClient`.
+- **[P3] Rotação backups** — `pruneOldBackups()` extraída para `lib/db-backup.ts` + 8 testes unit (fake-time).
+- 224/224 testes, lint limpo.
 - Branch: `routine-pastel-20260613-0900`. PR aberta.
 
 ## O que rolou desde a última sessão
@@ -80,7 +83,7 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 
 ## Métricas vivas
 
-- Tests passando: **216/216** ✅
+- Tests passando: **224/224** ✅
 - Type-check: **ok** ✅
 - ESLint: **0 erros** ✅ (check ativo no build)
 - DB schema: **sincronizado** ✅ (imageUrl adicionado)
