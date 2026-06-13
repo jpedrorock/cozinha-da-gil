@@ -79,9 +79,8 @@ _(vazio)_
 
 ### Polish
 
-- [ ] **[P3] #atendente #ux** Botão "Enviar WhatsApp" do comprovante sinaliza que link já tá incluído
-  - **Pronto quando:** abaixo (ou ao lado de) "Enviar no WhatsApp" no `ComprovanteClient`, aparece micro-texto com icon `LinkIcon` pequeno: "Mensagem inclui link de acompanhamento". Atendente vê que o link já vai junto e não tenta copiar/mandar de novo.
-  - **Autonomia:** OK fazer direto.
+- [x] **[P3] #atendente #ux** Botão "Enviar WhatsApp" do comprovante sinaliza que link já tá incluído [claude-pastel 2026-06-13 background]
+  - **Concluído:** micro-texto `<LinkIcon size=12> Mensagem inclui link de acompanhamento` abaixo do botão WhatsApp, visível somente quando `trackUrl` existe (pedido tem publicToken + baseUrl). 216/216 testes, lint ok.
 
 - [x] **[P3] #cliente #ux** Indicador "ao vivo · atualizado às X" em `/p/<token>` [claude-pastel 2026-06-05 background]
 
@@ -132,6 +131,7 @@ _Itens com critério vago OU bloqueados por dependência externa._
 
 ### 2026-06-13
 - [claude-pastel 2026-06-13 background] **[P3] Bookkeeping pós-merge Fase 7** — `docs/FASE-7.md` marcado ✅ ENTREGUE; itens 3/4/5 marcados com entrega; `BACKLOG.md` "Em progresso" zerado. PRs #4 (backup), #30 (PIX), #31 (WhatsApp), #23 (Next 15) todos mergeados conforme histórico do STATUS.
+- [claude-pastel 2026-06-13 background] **[P3] Botão "Enviar WhatsApp" sinaliza link incluído** — micro-texto `LinkIcon + "Mensagem inclui link de acompanhamento"` abaixo do botão no `ComprovanteClient`, condicional a `trackUrl`. 216/216 testes, lint ok.
 - [claude-pastel 2026-06-13 background] **[P3] Investigar routine background criando branches sem trabalho** — causa identificada (branch criada antes do gating). Solução documentada em `PLAYBOOK.md` → "Rotina background — gating de branch": branch só criada se ≥1 item qualificado; senão commit em main + encerra.
 
 ### 2026-06-09

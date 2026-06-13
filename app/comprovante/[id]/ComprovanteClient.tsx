@@ -288,6 +288,12 @@ export function ComprovanteClient({ order }: { order: OrderView }) {
           <MessageCircle size={18} strokeWidth={2.5} />
           Enviar no WhatsApp
         </a>
+        {trackUrl && (
+          <p className="flex items-center gap-1.5 text-xs text-ink/60 -mt-1 px-1">
+            <LinkIcon size={12} strokeWidth={2} />
+            Mensagem inclui link de acompanhamento
+          </p>
+        )}
         {/* Link pro cliente acompanhar — fica disabled enquanto baseUrl
             ainda não montou (primeiro paint do SSR) ou se pedido legado
             sem token. Botão muda pra estado "Copiado!" por 2s pra dar
