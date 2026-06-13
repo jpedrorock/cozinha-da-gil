@@ -2,7 +2,7 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-11
+**Última atualização:** 2026-06-13
 **Atualizado por:** `claude-pastel`
 
 ---
@@ -10,6 +10,16 @@
 ## Fase atual
 
 Fase 6 entregue. Pós-fase: hardening + observabilidade.
+
+## O que rolou nesta sessão (routine 2026-06-13)
+
+- **[P3] Gating routine background documentado no PLAYBOOK** — seção "Gating da routine agendada" adicionada: routine NÃO deve criar branch quando não há itens executáveis, só atualiza STATUS em main. Documenta sintoma e solução.
+- **[P3] Bumps patches/minors** — react/react-dom 19.2.6→19.2.7, next/eslint-config-next 15.5.18→15.5.19, lucide-react 1.17.0→1.18.0, vitest/@vitest/coverage-v8 4.1.7→4.1.8, tsx 4.22.3→4.22.4, @types/react 19.2.15→19.2.17, @types/node 20.19.41→20.19.43, sharp 0.34.5→0.35.1. Majors (prisma 6→7, eslint 8→10, tailwind 3→4) não incluídos.
+- **[P3] Rotação automática de backups dev.db** — `cleanupOldBackups(dir, retentionDays)` extraída pra `lib/db-backup.ts` (testável). `scripts/backup-db.ts` usa a função em vez de lógica inline. 6 novos testes com `vi.setSystemTime` (fake-time): old/recent, limite exato 14d, arquivos fora do padrão ignorados, diretório inexistente, múltiplos removes.
+- **[P3] Botão WhatsApp sinaliza link incluído** — micro-texto "Mensagem inclui link de acompanhamento" (com `LinkIcon 12px`) aparece abaixo do botão no `ComprovanteClient` quando pedido tem `trackUrl`. `print:hidden` pra não aparecer na impressão.
+- 222/222 testes, lint limpo.
+- Branch: `routine-pastel-20260613-1106`. PR a abrir.
+- Itens pulados: [P1] cardápio em prod / confirmar (requer acesso UI prod), triagem PR+branches (#Confirmar antes), smoke test prod (requer HTTP prod), bookkeeping pós-merge (PRs ainda não mergeados).
 
 ## O que rolou nesta sessão (routine 2026-06-05)
 

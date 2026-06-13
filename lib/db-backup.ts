@@ -1,4 +1,4 @@
-import { copyFile, mkdir } from "node:fs/promises";
+import { copyFile, mkdir, readdir, unlink } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { randomBytes } from "node:crypto";
 
@@ -28,6 +28,41 @@ export async function backupDatabase(reason: string): Promise<string> {
   const backupPath = join(backupDir, `${safeReason}-${stamp}.db`);
   await copyFile(dbPath, backupPath);
   return backupPath;
+}
+
+/**
+ * Remove backups diários com mais de `retentionDays` dias do diretório.
+ *
+ * Identifica arquivos pelo padrão `dev-YYYY-MM-DD.db` no nome — não usa
+ * mtime do filesystem pra ser resiliente a cópias / rsync que resetam mtime.
+ *
+ * Retorna quantos arquivos foram removidos.
+ */
+export async function cleanupOldBackups(
+  backupDir: string,
+  retentionDays = 14,
+): Promise<number> {
+  let entries: string[];
+  try {
+    entries = await readdir(backupDir);
+  } catch {
+    return 0; // diretório ainda não existe
+  }
+
+  const cutoff = Date.now() - retentionDays * 24 * 60 * 60 * 1000;
+  let pruned = 0;
+
+  for (const name of entries) {
+    const m = /^dev-(\d{4}-\d{2}-\d{2})\.db$/.exec(name);
+    if (!m) continue;
+    const fileDate = new Date(m[1]).getTime();
+    if (Number.isFinite(fileDate) && fileDate < cutoff) {
+      await unlink(join(backupDir, name));
+      pruned++;
+    }
+  }
+
+  return pruned;
 }
 
 /**

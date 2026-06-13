@@ -1,8 +1,8 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { mkdtempSync, rmSync, writeFileSync, existsSync, readdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { backupDatabase } from "../lib/db-backup";
+import { backupDatabase, cleanupOldBackups } from "../lib/db-backup";
 
 describe("backupDatabase", () => {
   let tmpDir: string;
@@ -60,5 +60,92 @@ describe("backupDatabase", () => {
   it("falha se DATABASE_URL ausente", async () => {
     delete process.env.DATABASE_URL;
     await expect(backupDatabase("wipe")).rejects.toThrow();
+  });
+});
+
+describe("cleanupOldBackups", () => {
+  let backupDir: string;
+
+  beforeEach(() => {
+    backupDir = mkdtempSync(join(tmpdir(), "pdg-cleanup-test-"));
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    rmSync(backupDir, { recursive: true, force: true });
+  });
+
+  function seedFile(name: string) {
+    writeFileSync(join(backupDir, name), "FAKE");
+  }
+
+  it("remove arquivos mais velhos que retentionDays", async () => {
+    // "agora" = 2026-06-13
+    vi.setSystemTime(new Date("2026-06-13T12:00:00Z"));
+    // old: 30 dias atrás — deve deletar
+    seedFile("dev-2026-05-14.db");
+    // recent: 1 dia atrás — deve manter
+    seedFile("dev-2026-06-12.db");
+
+    const pruned = await cleanupOldBackups(backupDir, 14);
+
+    expect(pruned).toBe(1);
+    expect(existsSync(join(backupDir, "dev-2026-05-14.db"))).toBe(false);
+    expect(existsSync(join(backupDir, "dev-2026-06-12.db"))).toBe(true);
+  });
+
+  it("mantém arquivos exatamente no limite (14d)", async () => {
+    vi.setSystemTime(new Date("2026-06-13T00:00:00Z"));
+    // exatamente 14 dias atrás = 2026-05-30 — cutoff é estritamente menor, então mantém
+    seedFile("dev-2026-05-30.db");
+    seedFile("dev-2026-05-29.db"); // 15d — remove
+
+    const pruned = await cleanupOldBackups(backupDir, 14);
+
+    expect(pruned).toBe(1);
+    expect(existsSync(join(backupDir, "dev-2026-05-30.db"))).toBe(true);
+    expect(existsSync(join(backupDir, "dev-2026-05-29.db"))).toBe(false);
+  });
+
+  it("ignora arquivos fora do padrão dev-YYYY-MM-DD.db", async () => {
+    vi.setSystemTime(new Date("2026-06-13T12:00:00Z"));
+    seedFile("wipe-2026-01-01-abc.db"); // backup manual (wipe) — ignorar
+    seedFile("backup.log");             // log — ignorar
+    seedFile("dev-2026-05-01.db");      // old — remove
+
+    const pruned = await cleanupOldBackups(backupDir, 14);
+
+    expect(pruned).toBe(1);
+    expect(existsSync(join(backupDir, "wipe-2026-01-01-abc.db"))).toBe(true);
+    expect(existsSync(join(backupDir, "backup.log"))).toBe(true);
+  });
+
+  it("retorna 0 se todos os arquivos são recentes", async () => {
+    vi.setSystemTime(new Date("2026-06-13T12:00:00Z"));
+    seedFile("dev-2026-06-10.db"); // 3 dias
+    seedFile("dev-2026-06-11.db"); // 2 dias
+
+    const pruned = await cleanupOldBackups(backupDir, 14);
+    expect(pruned).toBe(0);
+    expect(readdirSync(backupDir).length).toBe(2);
+  });
+
+  it("retorna 0 se o diretório não existe", async () => {
+    const noDir = join(tmpdir(), "pdg-nonexistent-9999");
+    const pruned = await cleanupOldBackups(noDir, 14);
+    expect(pruned).toBe(0);
+  });
+
+  it("remove múltiplos arquivos antigos", async () => {
+    vi.setSystemTime(new Date("2026-06-13T12:00:00Z"));
+    seedFile("dev-2026-05-01.db"); // 43d
+    seedFile("dev-2026-04-01.db"); // 73d
+    seedFile("dev-2026-03-01.db"); // 104d
+    seedFile("dev-2026-06-12.db"); // 1d — manter
+
+    const pruned = await cleanupOldBackups(backupDir, 14);
+    expect(pruned).toBe(3);
+    expect(readdirSync(backupDir).length).toBe(1);
   });
 });
