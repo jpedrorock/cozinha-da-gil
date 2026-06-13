@@ -27,10 +27,7 @@
 
 _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
-- [ ] **[P1] #chore** Backup automático do `dev.db` no volume Coolify — **PR #4 aberto, aguardando merge** [claude-pastel 2026-05-22]
-- [ ] **[P2] #chore #pwa** Migração Next 14 → 15 + `@ducanh2912/next-pwa` — **PR aberto (branch `claude-pastel/next15-pwa`), aguardando review + teste manual de PWA/SSE em device** [claude-pastel 2026-05-28]
-  - Feito + validado: next 15.5.18, react 19.2.6, fork PWA, codemod async params (14 rotas), override serialize-javascript. tsc/lint/163 testes/build/12 e2e em dev verdes. `fallbacks: /offline` reativado. `npm audit` 10 (9 high) → 3 moderate (postcss interno do Next, build-time, não-bloqueante).
-  - Antes do merge em prod: teste manual da PWA (install/offline/splash) + SSE 3 abas (§4.8 de `docs/UPGRADE-NEXT-15.md`). Rollback: Coolify 1-clique ou `git revert`.
+_(vazio)_
 
 ---
 
@@ -58,10 +55,8 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
   - **Contexto:** Triagem 05/06 limpou 17 PRs + 19 branches. Voltou a inflar: 42 routine branches hoje.
   - **Autonomia:** Confirmar antes (op destrutiva em branches).
 
-- [ ] **[P3] #chore** Investigar routine background criando branches sem trabalho
-  - **Pronto quando:** identificado o gating do `routine-pastel-*` que faz abrir branch/PR mesmo quando "sem itens executáveis". Documentado no PLAYBOOK. Idealmente: rotina que não acha trabalho real NÃO cria branch — só atualiza STATUS direto em main.
-  - **Contexto:** Em 4 dias gerou 11+ branches só log-only. Sem isso, triagem vira eterna.
-  - **Autonomia:** OK fazer direto.
+- [x] **[P3] #chore** Investigar routine background criando branches sem trabalho [claude-pastel 2026-06-13 background]
+  - **Concluído:** causa identificada (branch criada antes do gating de itens). Solução documentada em PLAYBOOK → seção "Rotina background — gating de branch". Regra: branch só criada se houver ≥1 item qualificado; caso contrário commit em main + encerra.
 
 ### Hardening / deps
 
@@ -69,10 +64,8 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
   - **Pronto quando:** PR consolidado sobe: react 19.2.6→19.2.7, next + eslint-config-next 15.5.18→15.5.19, @types/react 19.2.15→19.2.17, @vitest/coverage-v8 4.1.7→4.1.8, sharp 0.34.5→0.35.0, tsx 4.22.3→4.22.4. **NÃO incluir:** @prisma 6→7 (major), tailwindcss 3→4 (major), eslint 8→10 (major). tsc + lint + 216/216 + build verdes.
   - **Autonomia:** Abrir PR.
 
-- [ ] **[P3] #chore #infra** Rotação automática de backups dev.db (retenção 14d)
-  - **Pronto quando:** o instrumentation hook do PR #4 (ou script auxiliar) deleta backups com mais de 14 dias de `/app/data/backups/`. Loga quantos removeu por dia. Teste unit cobre a função de cleanup (fake-time + arquivos com mtime variável).
-  - **Contexto:** PR #4 documentou 14d mas não implementou cleanup. Sem isso, volume Coolify enche.
-  - **Autonomia:** Abrir PR.
+- [x] **[P3] #chore #infra** Rotação automática de backups dev.db (retenção 14d) [claude-pastel 2026-06-13 background]
+  - **Concluído:** rotação já existia em `scripts/backup-db.ts` (linhas ~56-65, `KEEP_DAYS=14`). Adicionado `pruneOldBackups(dir, keepDays)` em `lib/db-backup.ts` (função pura, sem Prisma) + 8 testes em `tests/db-backup.test.ts` com fake-time e `utimesSync`. 224/224 testes, lint ok.
 
 ### UX (follow-up das mudanças de hoje)
 
@@ -84,9 +77,8 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ### Polish
 
-- [ ] **[P3] #atendente #ux** Botão "Enviar WhatsApp" do comprovante sinaliza que link já tá incluído
-  - **Pronto quando:** abaixo (ou ao lado de) "Enviar no WhatsApp" no `ComprovanteClient`, aparece micro-texto com icon `LinkIcon` pequeno: "Mensagem inclui link de acompanhamento". Atendente vê que o link já vai junto e não tenta copiar/mandar de novo.
-  - **Autonomia:** OK fazer direto.
+- [x] **[P3] #atendente #ux** Botão "Enviar WhatsApp" do comprovante sinaliza que link já tá incluído [claude-pastel 2026-06-13 background]
+  - **Concluído:** micro-texto `<LinkIcon size=12> Mensagem inclui link de acompanhamento` abaixo do botão WhatsApp, visível somente quando `trackUrl` existe (pedido tem publicToken + baseUrl). 216/216 testes, lint ok.
 
 - [x] **[P3] #cliente #ux** Indicador "ao vivo · atualizado às X" em `/p/<token>` [claude-pastel 2026-06-05 background]
 
@@ -134,6 +126,16 @@ _Itens com critério vago OU bloqueados por dependência externa._
 ---
 
 ## ✅ Concluídos recentemente
+
+### 2026-06-13
+- [claude-pastel 2026-06-13 background] **[P3] Bookkeeping pós-merge Fase 7** — `docs/FASE-7.md` marcado ✅ ENTREGUE; itens 3/4/5 marcados com entrega; `BACKLOG.md` "Em progresso" zerado. PRs #4 (backup), #30 (PIX), #31 (WhatsApp), #23 (Next 15) todos mergeados conforme histórico do STATUS.
+- [claude-pastel 2026-06-13 background] **[P3] Rotação automática de backups dev.db** — `pruneOldBackups(dir, keepDays)` adicionado a `lib/db-backup.ts` (pura, testável) + 8 testes com fake-time/utimesSync. Rotação inline em `scripts/backup-db.ts` já existia (KEEP_DAYS=14). 224/224 testes.
+- [claude-pastel 2026-06-13 background] **[P3] Botão "Enviar WhatsApp" sinaliza link incluído** — micro-texto `LinkIcon + "Mensagem inclui link de acompanhamento"` abaixo do botão no `ComprovanteClient`, condicional a `trackUrl`. 216/216 testes, lint ok.
+- [claude-pastel 2026-06-13 background] **[P3] Investigar routine background criando branches sem trabalho** — causa identificada (branch criada antes do gating). Solução documentada em `PLAYBOOK.md` → "Rotina background — gating de branch": branch só criada se ≥1 item qualificado; senão commit em main + encerra.
+
+### 2026-06-09
+- [claude-pastel 2026-06-09] **[P1] #chore Backup automático do `dev.db` no volume Coolify** — PR #4 mergeada (squash `2fcd1b6`). Rotação 14d não implementada ainda (item separado no backlog).
+- [claude-pastel 2026-05-28] **[P2] #chore #pwa Migração Next 14 → 15 + `@ducanh2912/next-pwa`** — PR #23 mergeada. next 15.5.18, react 19.2.6, fork PWA `@ducanh2912/next-pwa@10.2.9`, async params (14 rotas), `npm audit` 10 high → 3 moderate. Coolify deployou automaticamente.
 
 ### 2026-06-05
 - [claude-pastel 2026-06-05] **[P3] SW runtimeCaching pra /p/<token> — PR #59 aberta** — `next.config.mjs` ganhou regra explícita `NetworkFirst` pra `/\/p\/[A-Za-z0-9]{10}/` antes do catch-all SWR. networkTimeoutSeconds:2 + cacheName "pedido-public" (50 entries × 24h). SW gerado confirmou ordem correta. build + 210/210 verdes. Aguarda review.

@@ -23,6 +23,20 @@
 - `claude -p` ou Routine agendada → background
 - Em dúvida: pergunte uma vez ("Modo presencial ou background?"). Sem resposta em 30s → background.
 
+### Rotina background — gating de branch (investigado 2026-06-13)
+
+**Problema:** o roteiro de routine cria `git checkout -b routine-pastel-*` no passo 2 (antes de verificar itens), gerando branches log-only quando não há trabalho real. Em 4 semanas acumulou 42+ branches órfãs que precisam de triagem manual.
+
+**Regra correta:** a branch da rotina só deve ser criada SE houver pelo menos 1 item executável no BACKLOG ("Próximos", sem `Confirmar antes`, sem tocar em SSE/auth/schema/comprovante/Docker). Se nenhum item qualifica → atualizar STATUS.md **direto em main** (sem branch) e encerrar.
+
+**Gating antes de criar a branch:**
+```
+1. Leu STATUS.md — sem evento ≤ 48h
+2. Leu BACKLOG.md — verificou "Próximos" item a item
+3. Existe ≥ 1 item qualificado → cria branch → trabalha
+   Não existe → registra "Routine encerrada — sem itens executáveis" em STATUS → commit em main → encerra
+```
+
 ---
 
 ## Início de sessão (obrigatório)
