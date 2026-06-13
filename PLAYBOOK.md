@@ -18,6 +18,20 @@
 - Pare ao chegar em `[P0]` que precisa de confirmação.
 - Se "Eventos próximos" em STATUS tem evento em ≤ 48h: **só toque em P2/P3** baixo risco. Nada que mexa em SSE, auth, schema.
 
+### Gating da routine agendada (CRÍTICO — evita branch/PR fantasma)
+
+Regra: **não criar branch se não há trabalho real a fazer.**
+
+Antes de `git checkout -b routine-pastel-*`, verificar se pelo menos 1 item do BACKLOG → "Próximos" passa nos critérios:
+- Não é P0
+- Não marcado "Confirmar antes"
+- Não toca em SSE / auth / schema / comprovante / Docker
+- Critério de pronto claro
+
+Se zero itens passam → **atualizar STATUS.md diretamente em `main`** com a nota "Routine encerrada — sem itens executáveis." e encerrar. Não criar branch, não abrir PR.
+
+Sintoma de gating quebrado: múltiplas branches `routine-pastel-*` acumulando no origin com commits apenas de STATUS/docs. Resolver: triagem das branches + corrigir lógica de seleção de itens.
+
 ### Como saber em qual modo está
 - `/trabalhar` interativo → presencial
 - `claude -p` ou Routine agendada → background
