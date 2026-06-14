@@ -23,6 +23,18 @@
 - `claude -p` ou Routine agendada → background
 - Em dúvida: pergunte uma vez ("Modo presencial ou background?"). Sem resposta em 30s → background.
 
+### Problema conhecido: rotina criando branches mesmo sem trabalho
+
+**Causa raiz:** o prompt da Routine agendada (Cowork) cria a branch `routine-pastel-*` no Passo 2, **antes** de varrer o BACKLOG por itens executáveis. Resultado: se todos os itens "Próximos" forem "Confirmar antes" / P0 / tocam em SSE/auth/schema, a rotina abre branch + PR vazio (log-only).
+
+**Comportamento correto** (a implementar no prompt da Routine via Cowork):
+1. Ler STATUS + BACKLOG.
+2. Verificar se há ≥ 1 item executável (não-"Confirmar antes", não-P0, não-SSE/auth/schema/comprovante/Docker).
+3. **Se nenhum:** atualizar STATUS.md direto em `main` (registrar "Routine encerrada — sem itens executáveis") e encerrar **sem criar branch**.
+4. **Se há trabalho:** criar branch `routine-pastel-*` e prosseguir normalmente.
+
+**Workaround atual:** João precisa rodar triagem de branches `routine-pastel-*` periodicamente (item no BACKLOG: "Triagem fila PR + branches routine"). Pedir a João pra atualizar o prompt da Routine no Cowork conforme o comportamento correto acima.
+
 ---
 
 ## Início de sessão (obrigatório)
