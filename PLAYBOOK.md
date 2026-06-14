@@ -18,6 +18,24 @@
 - Pare ao chegar em `[P0]` que precisa de confirmação.
 - Se "Eventos próximos" em STATUS tem evento em ≤ 48h: **só toque em P2/P3** baixo risco. Nada que mexa em SSE, auth, schema.
 
+#### Gating de branch em rotinas background (IMPORTANTE)
+
+**Problema diagnosticado (2026-06-14):** rotinas criavam branch `routine-pastel-*` incondicionalmente no passo 2, mesmo quando o loop do passo 3 não encontrava nenhum item elegível. Resultado: PRs "log-only" inflavam a fila.
+
+**Regra correta:** a branch só deve ser criada **depois** de confirmar que existe ao menos 1 item executável no BACKLOG "Próximos". Se nenhum item qualifica:
+1. **NÃO crie branch nova.**
+2. Atualize `STATUS.md` diretamente em `main` (ou branch atual).
+3. Commit `chore: routine — sem itens elegíveis, STATUS atualizado [routine]` direto em main.
+4. `git push origin main`.
+5. **NÃO abra PR.**
+
+**Critérios de elegibilidade (background):**
+- Não é P0
+- Não está marcado "Confirmar antes"
+- Não está marcado "Abrir PR" (esses exigem revisão presencial)
+- Não toca SSE / auth / schema / comprovante / Docker / `next.config.mjs`
+- Tem critério de pronto claro
+
 ### Como saber em qual modo está
 - `/trabalhar` interativo → presencial
 - `claude -p` ou Routine agendada → background
