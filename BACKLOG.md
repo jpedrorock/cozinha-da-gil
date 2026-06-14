@@ -55,21 +55,13 @@ _Vazio — todas as features de Fase 7 mergeadas._
   - **Contexto:** Triagem 05/06 limpou 17 PRs + 19 branches. Voltou a inflar: 42 routine branches hoje.
   - **Autonomia:** Confirmar antes (op destrutiva em branches).
 
-- [ ] **[P3] #chore** Investigar routine background criando branches sem trabalho
-  - **Pronto quando:** identificado o gating do `routine-pastel-*` que faz abrir branch/PR mesmo quando "sem itens executáveis". Documentado no PLAYBOOK. Idealmente: rotina que não acha trabalho real NÃO cria branch — só atualiza STATUS direto em main.
-  - **Contexto:** Em 4 dias gerou 11+ branches só log-only. Sem isso, triagem vira eterna.
-  - **Autonomia:** OK fazer direto.
+- [x] **[P3] #chore** Investigar routine background criando branches sem trabalho [claude-pastel 2026-06-14 background]
 
 ### Hardening / deps
 
-- [ ] **[P3] #chore** Bumps de patches/minors seguros
-  - **Pronto quando:** PR consolidado sobe: react 19.2.6→19.2.7, next + eslint-config-next 15.5.18→15.5.19, @types/react 19.2.15→19.2.17, @vitest/coverage-v8 4.1.7→4.1.8, sharp 0.34.5→0.35.0, tsx 4.22.3→4.22.4. **NÃO incluir:** @prisma 6→7 (major), tailwindcss 3→4 (major), eslint 8→10 (major). tsc + lint + 216/216 + build verdes.
-  - **Autonomia:** Abrir PR.
+- [x] **[P3] #chore** Bumps de patches/minors seguros [claude-pastel 2026-06-14 background]
 
-- [ ] **[P3] #chore #infra** Rotação automática de backups dev.db (retenção 14d)
-  - **Pronto quando:** o instrumentation hook do PR #4 (ou script auxiliar) deleta backups com mais de 14 dias de `/app/data/backups/`. Loga quantos removeu por dia. Teste unit cobre a função de cleanup (fake-time + arquivos com mtime variável).
-  - **Contexto:** PR #4 documentou 14d mas não implementou cleanup. Sem isso, volume Coolify enche.
-  - **Autonomia:** Abrir PR.
+- [x] **[P3] #chore #infra** Rotação automática de backups dev.db (retenção 14d) [claude-pastel 2026-06-14 background]
 
 ### UX (follow-up das mudanças de hoje)
 
@@ -128,6 +120,9 @@ _Itens com critério vago OU bloqueados por dependência externa._
 
 ### 2026-06-14
 - [claude-pastel 2026-06-14 background] **[P3] Bookkeeping pós-merge de Fase 7** — `docs/FASE-7.md` marcada ✅ ENTREGUE (itens #3, #4, #5 marcados ✅ — #1/#2 já estavam). `BACKLOG.md` "Em progresso" zerado (PR #4 backup mergeada 2026-06-09, PR Next 15 mergeada 2026-05-29). Fase 7 completa: 5/5 features em prod.
+- [claude-pastel 2026-06-14 background] **[P3] Investigar routine background** — causa raiz: branch criada no passo 2 antes do loop de itens (passo 3). Fix documentado em PLAYBOOK: verificar itens elegíveis ANTES de criar a branch; se nenhum, commit STATUS direto em main sem branch/PR separada.
+- [claude-pastel 2026-06-14 background] **[P3] Bumps patches/minors** — `npm update` (next 15.5.19, react/react-dom 19.2.7, @types/react 19.2.17, @types/node 20.19.43, eslint-config-next 15.5.19, lucide-react 1.18.0, tsx 4.22.4, vitest+@vitest/coverage-v8 4.1.8) + sharp manual 0.34.5→0.35.1. 223/223 testes verdes. Major deferidos: @prisma 6→7, tailwind 3→4, eslint 8→10, pdfkit 0.18→0.19, typescript 5→6.
+- [claude-pastel 2026-06-14 background] **[P3] Rotação automática de backups dev.db** — `pruneOldBackups(backupsDir, keepDays, now?)` extraído como função pura em `lib/db-backup.ts`. `scripts/backup-db.ts` usa a função importada em vez de código inline. 7 testes novos em `tests/db-backup.test.ts` cobrindo prune seletivo, preservação de arquivos recentes, ignora wipe-*/log, pasta inexistente, integração com `vi.setSystemTime`. 223/223 testes verdes.
 
 ### 2026-06-05
 - [claude-pastel 2026-06-05] **[P3] SW runtimeCaching pra /p/<token> — PR #59 aberta** — `next.config.mjs` ganhou regra explícita `NetworkFirst` pra `/\/p\/[A-Za-z0-9]{10}/` antes do catch-all SWR. networkTimeoutSeconds:2 + cacheName "pedido-public" (50 entries × 24h). SW gerado confirmou ordem correta. build + 210/210 verdes. Aguarda review.
