@@ -1,4 +1,4 @@
-import { copyFile, mkdir } from "node:fs/promises";
+import { copyFile, mkdir, readdir, unlink } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { randomBytes } from "node:crypto";
 
@@ -6,7 +6,7 @@ import { randomBytes } from "node:crypto";
  * Copia o `dev.db` (SQLite) pra um arquivo timestamped em `backups/`.
  *
  * Usado antes de operações destrutivas (Zona de Perigo → apagar dados)
- * pra dar uma rede de seguranção: se Gil clicar errado, o snapshot tá lá
+ * pra dar uma rede de segurança: se Gil clicar errado, o snapshot tá lá
  * pra restaurar manualmente via `cp backups/wipe-... dev.db`.
  *
  * Resolve o caminho do `dev.db` via `DATABASE_URL` (`file:/...`). Local
@@ -31,9 +31,44 @@ export async function backupDatabase(reason: string): Promise<string> {
 }
 
 /**
+ * Remove arquivos `dev-YYYY-MM-DD.db` em `backupsDir` cuja data no nome
+ * é anterior a `now - keepDays` dias. Arquivos fora do padrão (ex:
+ * `wipe-*.db`, `backup.log`) são ignorados.
+ *
+ * Retorna a quantidade de arquivos removidos.
+ */
+export async function pruneOldBackups(
+  backupsDir: string,
+  keepDays: number,
+  now: Date = new Date(),
+): Promise<number> {
+  let entries: string[];
+  try {
+    entries = await readdir(backupsDir);
+  } catch {
+    return 0; // pasta ainda não existe — nada a limpar
+  }
+  const cutoff = now.getTime() - keepDays * 24 * 60 * 60 * 1000;
+  let pruned = 0;
+  for (const name of entries) {
+    const m = /^dev-(\d{4}-\d{2}-\d{2})\.db$/.exec(name);
+    if (!m) continue;
+    const fileDate = new Date(m[1]).getTime();
+    if (Number.isFinite(fileDate) && fileDate < cutoff) {
+      try {
+        await unlink(join(backupsDir, name));
+        pruned++;
+      } catch {
+        // arquivo pode ter sumido entre readdir e unlink — ignorar
+      }
+    }
+  }
+  return pruned;
+}
+
+/**
  * Helper: timestamp ISO sem `:` (filename-safe) + 4 chars random pra
- * garantir unique mesmo se 2 chamadas caírem no mesmo ms (ex: testes
- * rodando em loop tight; o ISO tem granularidade só de ms).
+ * garantir unique mesmo se 2 chamadas caírem no mesmo ms.
  */
 function stampNow(): string {
   // YYYY-MM-DDTHH-MM-SS-mmm-XXXX
@@ -41,3 +76,4 @@ function stampNow(): string {
   const suffix = randomBytes(2).toString("hex"); // 4 chars hex
   return `${iso}-${suffix}`;
 }
+
