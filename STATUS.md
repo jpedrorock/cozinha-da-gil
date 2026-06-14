@@ -2,22 +2,21 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-11
-**Atualizado por:** `claude-pastel`
+**Última atualização:** 2026-06-14
+**Atualizado por:** `claude-pastel` (routine background)
 
 ---
 
 ## Fase atual
 
-Fase 6 entregue. Pós-fase: hardening + observabilidade.
+Fase 6 ✅ entregue. Fase 7 ✅ entregue (5/5 em prod). Pós-fase: hardening + observabilidade.
 
-## O que rolou nesta sessão (routine 2026-06-05)
+## O que rolou nesta sessão (routine 2026-06-14)
 
-- **[P2] Botão "Avisar" auto-volta pra fila** — `notifyReady()` em `AtendenteClient.tsx` ganhou `setTimeout(() => router.push("/atendente"), 400)`. Mesmo pattern do comprovante. Cobre banner e card direto.
-- **[P3] Indicador "ao vivo" em `/p/<token>`** — header da página mostra "ao vivo · HH:MM" quando SSE conectado; "offline · última atualização HH:MM" quando desconectado. Atualiza em cada evento SSE e clockeia a cada 60s.
-- 197/197 testes, lint limpo.
-- Branch: `routine-pastel-20260605-1604`. PR aberta.
-- Itens pulados (aguardam João): triagem PRs (#Confirmar antes), limpeza de branches (#Confirmar antes), rebase PR #30 (requires force-with-lease — proibido em background), smoke test prod, bookkeeping pós-merge.
+- **[P3] Bookkeeping pós-merge Fase 7** — `docs/FASE-7.md` marcado ✅ ENTREGUE; itens 3/4/5 ganharam marcadores ✅ (eram pending). `BACKLOG.md` "Em progresso" zerado (PR #4 + Next 15, ambos já mergeados, removidos do setor). 216/216 testes, lint limpo.
+- **[P3] Investigar routine background criando branches sem trabalho** — Gating identificado e documentado em PLAYBOOK.md (nova seção "Gating de branch em rotinas background"): branch só deve ser criada após confirmar ≥1 item elegível; se nenhum qualifica → commit direto em main sem branch nova.
+- **Itens bloqueados por política de rede** — `[P1] Confirmar cardápio em prod` e `[P2] Smoke test prod` requerem acesso a `cozinhadagil.evapro.cloud`; host bloqueado pelo network egress desta sessão remota. João precisa executar manualmente.
+- Branch: `routine-pastel-20260614-2106`. PR a abrir.
 
 ## O que rolou desde a última sessão
 
@@ -35,16 +34,17 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## Bloqueios ativos
 
-- **2 PRs abertas (ambas DIRTY)** — #26 emoji→lucide e #35 contraste "Caixa aberto". Precisam rebase em outra sessão. **5 PRs mergeadas hoje em sequência**: #74 (cardápio), #75 (Zona de Perigo), #4 (backup), #59 (SW cache /p), #41 (a11y bundle).
-- ~~Backfill `publicToken` em prod não confirmado~~ — verificação técnica feita 05/06 (endpoint funciona, POST gera token, backfill rodou 2× no entrypoint). Monitorar empiricamente: se pedido legado mandar WhatsApp sem linha "Acompanhe:", abrir endpoint admin pra rodar backfill on-demand.
+- **2 PRs abertas (ambas DIRTY)** — #26 emoji→lucide e #35 contraste "Caixa aberto". Precisam rebase em sessão presencial.
+- **Smoke test / confirmar cardápio em prod bloqueados por rede** — ambiente remoto sem egress pra `cozinhadagil.evapro.cloud`. João precisa executar: (a) `curl https://cozinhadagil.evapro.cloud/api/health` e (b) `curl https://cozinhadagil.evapro.cloud/api/products` para confirmar cardápio junho 2026 está aplicado.
+- ~~Backfill `publicToken` em prod não confirmado~~ — verificação técnica feita 05/06. Risco baixo.
 
 ## Próximo passo recomendado
 
-**Fase 7 fechada (5/5)** — 3 itens mergeados (#23 Next 15 já no main, #28 troco, #29 comparativo), 3 PRs aguardando merge (**#4 backup desconflictado**, **#30 PIX**, **#31 WhatsApp auto-surface**), e #5 "Acabou" já existia. Coolify deployou Next 15 em prod na sessão de 29/05.
+**Fase 7 ✅ completa. App em hardening pós-fase.**
 
-João: (1) mergear **#4 + #30 + #31** (todos validados: tsc/lint/testes/build); (2) **configurar chave PIX** (admin → Caixa → "Pagamento (PIX)") — 1 vez só; (3) **teste manual da PWA no celular** (install/offline/splash) agora que Next 15 está em prod; rollback Coolify 1-clique se algo quebrar.
+João: (1) **confirmar cardápio junho 2026 em prod** — `curl https://cozinhadagil.evapro.cloud/api/products | grep -E "Churrasqueiro|Torta|Guaraná"` deve retornar os 4 produtos novos; se não retornar, seguir checklist do PR #74 no admin UI; (2) **triagem de PRs + branches** (BACKLOG marcado "Confirmar antes") — ~42 branches `routine-pastel-*` acumuladas; (3) **configurar chave PIX** (admin → Caixa → "Pagamento (PIX)") se ainda não fez.
 
-BACKLOG "Próximos" reabastecido com **5 itens de manutenção pós-Fase 7** (replan 2026-05-29): bookkeeping, smoke prod, limpar 4 routine-* novas, auditoria a11y dedicada, reavaliar Background Sync.
+BACKLOG "Próximos" tem: cardápio em prod [P1], triagem PR+branches [P2, Confirmar antes], bumps deps [P3, Abrir PR], rotação backups [P3, Abrir PR], stepper massa macarrão [P3, Confirmar antes], smoke test prod [P2].
 
 ---
 
@@ -79,17 +79,20 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 
 ## Métricas vivas
 
-- Tests passando: **163/163** ✅
+- Tests passando: **216/216** ✅
 - Type-check: **ok** ✅
 - ESLint: **0 erros** ✅ (check ativo no build)
 - DB schema: **sincronizado** ✅ (imageUrl adicionado)
 - PWA: **instalável** ✅ (iOS Safari + Android Chrome)
-- Vulns npm audit: **3 moderate** (postcss interno do Next, build-time) na branch Next 15 — era 10 (9 high) no main Next 14. PR aberto.
-- Next/React: **15.5.18 / 19.2.6** na branch `claude-pastel/next15-pwa` (main ainda 14.2.35 até merge)
+- Vulns npm audit: **3 moderate** (postcss interno do Next, build-time — não-bloqueante)
+- Next/React: **15.5.18 / 19.2.6** em main (PR #23 mergeado)
 
 ---
 
 ## Histórico recente (últimos 5 dias)
+
+### 2026-06-14
+- **Routine background** — Bookkeeping Fase 7 completo: `docs/FASE-7.md` marcado ✅ ENTREGUE (5/5 itens), `BACKLOG.md` "Em progresso" zerado. Gating de branch de rotinas documentado em PLAYBOOK.md (branch só se cria após confirmar ≥1 item elegível). Smoke test e confirmar cardápio em prod bloqueados por network egress da sessão remota — João executa manualmente. 216/216 testes, lint limpo.
 
 ### 2026-06-11
 - **Backlog replanejado: 8 itens em Próximos** (`/planejar`) — diagnóstico: 216/216 ✅, 0 TODOs reais, sem evento próximo, 42 routine branches acumuladas de novo, 14 deps com bumps disponíveis (low-risk patches/minors), backup PR #4 começou a rodar sem rotação de retenção. Aprovados pelo João: confirmar cardápio em prod [P1], triagem PR+branches [P2], investigar routine background [P3], bumps patches [P3, PR], rotação backups dev.db [P3, PR], botão WhatsApp sinaliza link incluído [P3], stepper massa (manter), smoke test prod (manter).
