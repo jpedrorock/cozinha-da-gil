@@ -2,14 +2,21 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-11
+**Última atualização:** 2026-06-14
 **Atualizado por:** `claude-pastel`
 
 ---
 
 ## Fase atual
 
-Fase 6 entregue. Pós-fase: hardening + observabilidade.
+Fase 6 ✅ + Fase 7 ✅ entregues. Pós-fase: hardening + observabilidade + manutenção de deps.
+
+## O que rolou nesta sessão (routine 2026-06-14)
+
+- **[P3] Bookkeeping pós-Fase 7** — `docs/FASE-7.md` marcada ✅ ENTREGUE (itens #3/#4/#5 + banner). `BACKLOG.md` "Em progresso" zerado. Fase 7: 5/5 features em prod.
+- **[P3] Investigar routine background** — causa raiz documentada no PLAYBOOK + gating adicionado no ROTEIRO: rotina NÃO cria branch se nenhum item é elegível.
+- **[P3] Bumps de patches/minors** — `npm update` (next, react, react-dom, @types/react, @types/node, eslint-config-next, lucide-react, tsx, vitest, @vitest/coverage-v8) + sharp manual 0.34.5→0.35.1. Testes verdes.
+- **[P3] Rotação automática de backups** — `pruneOldBackups()` extraído como função pura em `lib/db-backup.ts` + `scripts/backup-db.ts` usa a função extraída + 7 testes unitários novos em `tests/db-backup.test.ts` cobrindo cleanup com fake-time.
 
 ## O que rolou nesta sessão (routine 2026-06-05)
 
