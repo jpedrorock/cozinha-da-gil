@@ -127,6 +127,21 @@ Bloqueio bem-escrito tem: o que tentava fazer, o que descobriu que trava, 2+ op�
 
 ---
 
+## Rotina background — evitar branches log-only
+
+**Problema diagnosticado (2026-06-14):** a routine criava branch no passo 2 (antes do loop de trabalho), mesmo quando todos os itens eram "Confirmar antes" / P0 / sem código elegível → branches log-only acumulavam (42 branches em 2026-06-11).
+
+**Causa raiz:** o prompt da routine tem `git checkout -b routine-*` como passo 2 e o loop de triagem como passo 3. Branch nasce antes de saber se há trabalho.
+
+**Gating correto (a aplicar no prompt de invocação):**
+1. Triagem de itens elegíveis ANTES de criar branch.
+2. Se nenhum item qualifica → atualizar `STATUS.md` direto em `main` (sem branch, sem PR).
+3. Só criar branch quando há ≥1 item de código/docs a commitar.
+
+**Enquanto o prompt não é atualizado:** ao terminar routine sem trabalho real (só STATUS update), deletar a branch localmente sem push e commitar a atualização de STATUS direto em main.
+
+---
+
 ## Dicas práticas pra este projeto
 
 - **App roda local em evento.** Não tem CI/CD bonito. Testes ANTES de commitar.

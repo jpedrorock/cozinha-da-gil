@@ -2,14 +2,21 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-11
+**Última atualização:** 2026-06-14
 **Atualizado por:** `claude-pastel`
 
 ---
 
 ## Fase atual
 
-Fase 6 entregue. Pós-fase: hardening + observabilidade.
+Fase 7 entregue (5/5). Pós-fase: hardening + observabilidade.
+
+## O que rolou nesta sessão (routine 2026-06-14)
+
+- **[P3] Investigar routine background** — causa raiz documentada no PLAYBOOK: branch criada antes da triagem de itens elegíveis. Fix recomendado a João: checar BACKLOG antes de `git checkout -b`.
+- **[P3] Botão WhatsApp sinaliza link** — `ComprovanteClient.tsx`: micro-texto "Mensagem inclui link de acompanhamento" abaixo do botão WhatsApp quando `trackUrl` disponível. 216/216 testes, lint limpo.
+- **[P3] Bookkeeping pós-Fase 7** — `docs/FASE-7.md` marcado ✅ ENTREGUE (5/5), features #3/#4/#5 atualizadas; `BACKLOG.md` "Em progresso" zerado (PR #4 + Next 15 já mergeados).
+- **Inconclusivos** — [P1] Confirmar cardápio em prod + [P2] Smoke test prod: host `cozinhadagil.evapro.cloud` não está no allowlist de rede do ambiente cloud. João precisa validar manualmente ou liberar o host nas configurações de egress.
 
 ## O que rolou nesta sessão (routine 2026-06-05)
 
@@ -40,11 +47,9 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## Próximo passo recomendado
 
-**Fase 7 fechada (5/5)** — 3 itens mergeados (#23 Next 15 já no main, #28 troco, #29 comparativo), 3 PRs aguardando merge (**#4 backup desconflictado**, **#30 PIX**, **#31 WhatsApp auto-surface**), e #5 "Acabou" já existia. Coolify deployou Next 15 em prod na sessão de 29/05.
+**Fase 7 entregue (5/5)** — todos os PRs mergeados. Pós-fase: hardening e manutenção.
 
-João: (1) mergear **#4 + #30 + #31** (todos validados: tsc/lint/testes/build); (2) **configurar chave PIX** (admin → Caixa → "Pagamento (PIX)") — 1 vez só; (3) **teste manual da PWA no celular** (install/offline/splash) agora que Next 15 está em prod; rollback Coolify 1-clique se algo quebrar.
-
-BACKLOG "Próximos" reabastecido com **5 itens de manutenção pós-Fase 7** (replan 2026-05-29): bookkeeping, smoke prod, limpar 4 routine-* novas, auditoria a11y dedicada, reavaliar Background Sync.
+João: (1) **Confirmar cardápio em prod** manualmente via Admin → Cardápio (ou `GET /api/products` em prod) — não foi possível em modo cloud por restrição de rede; (2) **Smoke test prod** idem; (3) **Triagem fila PR + branches routine** (~42 branches acumuladas — item no BACKLOG "Confirmar antes"); (4) **Configurar chave PIX** (admin → Caixa → "Pagamento (PIX)") se ainda não feito.
 
 ---
 
