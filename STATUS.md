@@ -2,14 +2,22 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-11
+**Última atualização:** 2026-06-14
 **Atualizado por:** `claude-pastel`
 
 ---
 
 ## Fase atual
 
-Fase 6 entregue. Pós-fase: hardening + observabilidade.
+Fase 6 entregue ✅. Fase 7 entregue ✅. Pós-Fase 7: hardening, manutenção, bumps de deps.
+
+## O que rolou nesta sessão (routine 2026-06-14)
+
+- **[P3] Investigar routine criando branches sem trabalho** — causa raiz documentada em `PLAYBOOK.md`. Fix requer atualizar prompt da Routine no Cowork: verificar itens executáveis ANTES de criar branch.
+- **[P3] Botão WhatsApp sinaliza link incluído** — micro-texto "Mensagem inclui link de acompanhamento" com `LinkIcon` aparece abaixo do botão "Enviar no WhatsApp" no `ComprovanteClient.tsx` quando pedido tem `publicToken`.
+- **[P3] Bookkeeping pós-merge Fase 7** — `docs/FASE-7.md` todos 5 itens ✅; `BACKLOG.md` "Em progresso" zerado (PR #4 + Next 15 já mergeados em 09/06).
+- 216/216 testes, lint limpo.
+- Branch: `routine-pastel-20260614-1607`. PR aberta.
 
 ## O que rolou nesta sessão (routine 2026-06-05)
 
@@ -35,8 +43,9 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## Bloqueios ativos
 
-- **2 PRs abertas (ambas DIRTY)** — #26 emoji→lucide e #35 contraste "Caixa aberto". Precisam rebase em outra sessão. **5 PRs mergeadas hoje em sequência**: #74 (cardápio), #75 (Zona de Perigo), #4 (backup), #59 (SW cache /p), #41 (a11y bundle).
-- ~~Backfill `publicToken` em prod não confirmado~~ — verificação técnica feita 05/06 (endpoint funciona, POST gera token, backfill rodou 2× no entrypoint). Monitorar empiricamente: se pedido legado mandar WhatsApp sem linha "Acompanhe:", abrir endpoint admin pra rodar backfill on-demand.
+- **2 PRs DIRTY aguardando rebase** — #26 emoji→lucide e #35 contraste "Caixa aberto". Requer João presencial (evitar force-with-lease em background).
+- **42 branches `routine-pastel-*` acumuladas** — triagem requer João ("Confirmar antes", op destrutiva). Fix estrutural documentado no PLAYBOOK: prompt da Routine precisa ser atualizado no Cowork.
+- ~~Backfill `publicToken` em prod~~ — monitorar empiricamente. Se pedido legado mandar WhatsApp sem "Acompanhe:", endpoint admin pra rodar backfill on-demand.
 
 ## Próximo passo recomendado
 
