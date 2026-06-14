@@ -18,6 +18,19 @@
 - Pare ao chegar em `[P0]` que precisa de confirmação.
 - Se "Eventos próximos" em STATUS tem evento em ≤ 48h: **só toque em P2/P3** baixo risco. Nada que mexa em SSE, auth, schema.
 
+#### Routine agendada — gating de branch (evitar branches log-only)
+
+**Problema conhecido:** a routine criava a branch `routine-pastel-*` no Passo 2, ANTES de verificar se há itens elegíveis. Quando não havia trabalho, a sessão encerrava com uma branch vazia (só updates de STATUS), inflando o origin desnecessariamente.
+
+**Regra correta:**
+1. Leia os arquivos de estado (CLAUDE.md, STATUS.md, BACKLOG.md, PLAYBOOK.md).
+2. **Antes de criar a branch:** percorra mentalmente o BACKLOG "Próximos" e verifique se há ≥1 item elegível (não P0, não "Confirmar antes", não toca SSE/auth/schema/comprovante/Docker).
+3. **Se há trabalho real → crie a branch** e execute normalmente.
+4. **Se NÃO há trabalho real:**
+   - Atualize STATUS.md com linha "Routine encerrada — sem itens elegíveis em YYYY-MM-DD."
+   - Commit esse STATUS direto em main (sem criar branch separada): `git add STATUS.md && git commit -m "chore: routine encerrada sem itens elegíveis [routine]"` e `git push origin main`.
+   - Encerre sem PR.
+
 ### Como saber em qual modo está
 - `/trabalhar` interativo → presencial
 - `claude -p` ou Routine agendada → background
