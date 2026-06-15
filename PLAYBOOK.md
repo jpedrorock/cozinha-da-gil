@@ -18,6 +18,19 @@
 - Pare ao chegar em `[P0]` que precisa de confirmação.
 - Se "Eventos próximos" em STATUS tem evento em ≤ 48h: **só toque em P2/P3** baixo risco. Nada que mexa em SSE, auth, schema.
 
+#### Gating contra trabalho redundante (anti-inflação de fila)
+Antes de criar branch/PR pra um item do BACKLOG, verifique se ele já foi resolvido implicitamente:
+- **Cheque `git log main --since="14 days ago"`** — algum commit recente já cobriu o critério de "Pronto quando" do item?
+- **Cheque a seção "Concluídos recentemente"** do BACKLOG — entrada com a mesma palavra-chave nos últimos 14 dias?
+- **Cheque PRs mergeadas** com `gh pr list --state merged --search "<palavra-chave-do-item>"`.
+
+Se sim:
+1. **NÃO crie branch nem PR.**
+2. Mova o item do BACKLOG pra "Concluídos recentemente" direto em main (commit `docs:` simples).
+3. Cita o(s) commit/PR que cobriu na entrada de Concluídos.
+
+Por quê: routine que pega o mesmo item toda execução porque ninguém atualizou o status acumula branches/commits redundantes. Aconteceu em junho/2026 com "Bookkeeping pós-Fase 7" — gerou ~10 branches `routine-pastel-*` antes do gating ser explicitado aqui.
+
 ### Como saber em qual modo está
 - `/trabalhar` interativo → presencial
 - `claude -p` ou Routine agendada → background

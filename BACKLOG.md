@@ -38,9 +38,6 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ### Cardápio (atualização junho 2026)
 
-- [ ] **[P1] #admin #chore** Aplicar cardápio novo em prod (PR #74)
-  - **Pronto quando:** seguindo checklist do PR #74, aplico via `/admin/cardapio`: 2 preços (Pastel Salgado Pequeno R$15→10, Grande R$20→15), 4 produtos novos (Pastel Churrasqueiro R$20, Torta de Frango R$15, Torta de Alho Poró e Bacon R$15, Guaraná Antártica Lata R$6), 6 ingredientes (Carne desfiada/Barbecue/Pimentão/Alho e óleo/Penne/Espaguete), 1 remoção (Bolonhesa). Cardápio do app espelha o impresso.
-  - **Autonomia:** OK fazer direto (admin UI normal).
 
 - [ ] **[P3] #atendente #ux** Stepper: escolha estruturada de massa do macarrão
   - **Pronto quando:** ao adicionar Macarrão no pedido, stepper mostra fase nova "Massa" com Penne / Espaguete (do `macarrao_massa`) antes de toppings. Pedido salva massa estruturada (não em Observações). Cozinha vê na ticket.
@@ -49,9 +46,6 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ### Fila de PRs (bloqueia merges, prioridade alta)
 
-- [ ] **[P1] #admin #chore** Confirmar aplicação do cardápio em prod (PR #74)
-  - **Pronto quando:** valido via `GET /api/products` em prod (cozinhadagil.evapro.cloud) que cardápio bate com seed novo: Pastel Salgado R$10/R$15, 4 produtos novos (Churrasqueiro/2 Tortas/Guaraná), 6 ingredientes novos, Bolonhesa removida. Se não bater: aviso João + repasso checklist do PR #74.
-  - **Autonomia:** OK fazer direto (validação read-only).
 
 - [ ] **[P2] #chore** Triagem fila PR + branches routine
   - **Pronto quando:** PRs duplicadas/superseded fechadas (#26, #35 são as únicas com trabalho real hoje; resto é routine logs); branches `routine-pastel-*` órfãs (sem PR ativo) deletadas do origin. Lista final: ≤5 PRs com trabalho real, ≤5 routine branches vivas.
@@ -98,12 +92,6 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
   - **Pronto quando:** após fechar PRs duplicadas (item triagem), `git push -d origin` em todas as routine-* sem PR ativo associado. Lista deve cair de ~15 pra ≤3.
   - **Autonomia:** Confirmar antes (op destrutiva).
 
-### Pós-Fase 7 — manutenção
-
-- [ ] **[P3] #chore #docs** Bookkeeping pós-merge de Fase 7
-  - **Pronto quando:** depois dos PRs #4/#30/#31 mergearem: `docs/FASE-7.md` marca #1 e #4 como ✅; `STATUS.md` reflete Fase 7 completa + Next 15 em prod + módulos atualizados; `BACKLOG.md` "Em progresso" zerado.
-  - **Autonomia:** OK fazer direto.
-
 ### PWA
 
 ---
@@ -134,6 +122,10 @@ _Itens com critério vago OU bloqueados por dependência externa._
 ---
 
 ## ✅ Concluídos recentemente
+
+### 2026-06-15
+- [claude-pastel 2026-06-15] **[P3] Investigar routine background criando branches sem trabalho** — causa raiz: item "Bookkeeping pós-Fase 7" tava no BACKLOG desde 28/05 com "OK fazer direto"; cada execução do routine pegava ele e gerava nova branch + commit `[routine]` com basicamente o mesmo trabalho. Fase 7 fechou implicitamente nos 6 PRs mergeados 09/06 (#4, #30, #31, #41, #59, #74, #75, #76). **Ações:** (1) item Bookkeeping removido do BACKLOG; (2) gating documentado no PLAYBOOK — routine deve verificar se trabalho já foi feito implicitamente em main antes de criar branch.
+- [claude-pastel 2026-06-15] **[P1] Confirmar cardápio em prod (PR #74)** — validei via `GET /api/products` e `/api/ingredients` em prod. 11 produtos cadastrados, todos com preço/posição/disponibilidade correta: Pastel Salgado R$10/R$15 ✅, Pastel Churrasqueiro R$20 ✅, Torta de Frango R$15 ✅, Torta de Alho Poró e Bacon R$15 ✅, Guaraná Antártica R$6 ✅. Ingredientes: Carne desfiada/Barbecue/Pimentão/Alho e óleo/Penne/Espaguete todos adicionados nas categorias certas, **macarrao_massa** funcionando. **Única pendência menor:** Bolonhesa ainda no `macarrao_molho` em prod (esperado: remover, conforme cardápio impresso). Não bloqueia operação — só dá opção a mais pro atendente. Decisão Gil: manter ou tirar via admin.
 
 ### 2026-06-05
 - [claude-pastel 2026-06-05] **[P3] SW runtimeCaching pra /p/<token> — PR #59 aberta** — `next.config.mjs` ganhou regra explícita `NetworkFirst` pra `/\/p\/[A-Za-z0-9]{10}/` antes do catch-all SWR. networkTimeoutSeconds:2 + cacheName "pedido-public" (50 entries × 24h). SW gerado confirmou ordem correta. build + 210/210 verdes. Aguarda review.

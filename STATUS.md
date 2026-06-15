@@ -91,6 +91,9 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 
 ## Histórico recente (últimos 5 dias)
 
+### 2026-06-15
+- **`/trabalhar`: 2 itens P1/P3 fechados** — (1) **Cardápio confirmado em prod**: validei via `/api/products` + `/api/ingredients` que João já aplicou 100% do checklist do PR #74 (preços novos, 4 produtos novos, 6 ingredientes, macarrao_massa funcionando). Única pendência menor: Bolonhesa ainda no `macarrao_molho` (decisão do Gil). (2) **Routine background investigada**: causa raiz era item "Bookkeeping pós-Fase 7" vivo no BACKLOG desde 28/05 com critério genérico — toda execução do routine pegava ele e gerava commit `[routine]` repetido. Fase 7 fechou implicitamente nos PRs mergeados 09/06. Removi o item + adicionei seção "Gating contra trabalho redundante" no PLAYBOOK pra prevenir recorrência.
+
 ### 2026-06-11
 - **Backlog replanejado: 8 itens em Próximos** (`/planejar`) — diagnóstico: 216/216 ✅, 0 TODOs reais, sem evento próximo, 42 routine branches acumuladas de novo, 14 deps com bumps disponíveis (low-risk patches/minors), backup PR #4 começou a rodar sem rotação de retenção. Aprovados pelo João: confirmar cardápio em prod [P1], triagem PR+branches [P2], investigar routine background [P3], bumps patches [P3, PR], rotação backups dev.db [P3, PR], botão WhatsApp sinaliza link incluído [P3], stepper massa (manter), smoke test prod (manter).
 
