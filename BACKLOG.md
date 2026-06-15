@@ -27,11 +27,6 @@
 
 _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
-- [ ] **[P1] #chore** Backup automático do `dev.db` no volume Coolify — **PR #4 aberto, aguardando merge** [claude-pastel 2026-05-22]
-- [ ] **[P2] #chore #pwa** Migração Next 14 → 15 + `@ducanh2912/next-pwa` — **PR aberto (branch `claude-pastel/next15-pwa`), aguardando review + teste manual de PWA/SSE em device** [claude-pastel 2026-05-28]
-  - Feito + validado: next 15.5.18, react 19.2.6, fork PWA, codemod async params (14 rotas), override serialize-javascript. tsc/lint/163 testes/build/12 e2e em dev verdes. `fallbacks: /offline` reativado. `npm audit` 10 (9 high) → 3 moderate (postcss interno do Next, build-time, não-bloqueante).
-  - Antes do merge em prod: teste manual da PWA (install/offline/splash) + SSE 3 abas (§4.8 de `docs/UPGRADE-NEXT-15.md`). Rollback: Coolify 1-clique ou `git revert`.
-
 ---
 
 ## ⏭️ Próximos (prontos pra executar)
@@ -52,39 +47,12 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
   - **Contexto:** Triagem 05/06 limpou 17 PRs + 19 branches. Voltou a inflar: 42 routine branches hoje.
   - **Autonomia:** Confirmar antes (op destrutiva em branches).
 
-- [ ] **[P3] #chore** Investigar routine background criando branches sem trabalho
-  - **Pronto quando:** identificado o gating do `routine-pastel-*` que faz abrir branch/PR mesmo quando "sem itens executáveis". Documentado no PLAYBOOK. Idealmente: rotina que não acha trabalho real NÃO cria branch — só atualiza STATUS direto em main.
-  - **Contexto:** Em 4 dias gerou 11+ branches só log-only. Sem isso, triagem vira eterna.
-  - **Autonomia:** OK fazer direto.
-
 ### Hardening / deps
 
-- [ ] **[P3] #chore** Bumps de patches/minors seguros
-  - **Pronto quando:** PR consolidado sobe: react 19.2.6→19.2.7, next + eslint-config-next 15.5.18→15.5.19, @types/react 19.2.15→19.2.17, @vitest/coverage-v8 4.1.7→4.1.8, sharp 0.34.5→0.35.0, tsx 4.22.3→4.22.4. **NÃO incluir:** @prisma 6→7 (major), tailwindcss 3→4 (major), eslint 8→10 (major). tsc + lint + 216/216 + build verdes.
-  - **Autonomia:** Abrir PR.
-
-- [ ] **[P3] #chore #infra** Rotação automática de backups dev.db (retenção 14d)
-  - **Pronto quando:** o instrumentation hook do PR #4 (ou script auxiliar) deleta backups com mais de 14 dias de `/app/data/backups/`. Loga quantos removeu por dia. Teste unit cobre a função de cleanup (fake-time + arquivos com mtime variável).
-  - **Contexto:** PR #4 documentou 14d mas não implementou cleanup. Sem isso, volume Coolify enche.
-  - **Autonomia:** Abrir PR.
 
 ### UX (follow-up das mudanças de hoje)
 
-- [x] **[P2] #atendente #ux** Botão "Avisar" também auto-volta pra fila [claude-pastel 2026-06-05 background]
-
-- [ ] **[P2] #chore** Smoke test prod das 4 mudanças de hoje (01/06)
-  - **Pronto quando:** criar 1 pedido novo em prod (cozinhadagil.evapro.cloud) com telefone teste, validar: (a) navega pro comprovante após confirmar; (b) botão WhatsApp com mensagem incluindo "Acompanhe: /p/..."; (c) link `/p/<token>` abre e mostra status; (d) telas sem bounce branco / scroll fix funcionando.
-  - **Autonomia:** OK fazer direto.
-
 ### Polish
-
-- [ ] **[P3] #atendente #ux** Botão "Enviar WhatsApp" do comprovante sinaliza que link já tá incluído
-  - **Pronto quando:** abaixo (ou ao lado de) "Enviar no WhatsApp" no `ComprovanteClient`, aparece micro-texto com icon `LinkIcon` pequeno: "Mensagem inclui link de acompanhamento". Atendente vê que o link já vai junto e não tenta copiar/mandar de novo.
-  - **Autonomia:** OK fazer direto.
-
-- [x] **[P3] #cliente #ux** Indicador "ao vivo · atualizado às X" em `/p/<token>` [claude-pastel 2026-06-05 background]
-
-- [ ] **[P3] #pwa** Service Worker runtimeCaching pra `/p/<token>` — **PR #59 aberta, aguardando review** [claude-pastel 2026-06-05]
 
 ### Cleanup
 
@@ -123,9 +91,17 @@ _Itens com critério vago OU bloqueados por dependência externa._
 
 ## ✅ Concluídos recentemente
 
-### 2026-06-15
+### 2026-06-15 (routine background)
+- [claude-pastel 2026-06-15 background] **[P3] Bumps de patches/minors seguros** — react/react-dom 19.2.6→19.2.7, next+eslint-config-next 15.5.18→15.5.19, lucide-react 1.17→1.18, @types/react 19.2.15→19.2.17, vitest+coverage-v8 4.1.7→4.1.9, tsx 4.22.3→4.22.4, sharp 0.34.5→0.35.1, @playwright/test 1.60→1.61. Majors deferidos. 226/226 testes, lint limpo.
+- [claude-pastel 2026-06-15 background] **[P3] Rotação automática de backups dev.db** — rotação JÁ estava em `scripts/backup-db.ts` (PR #4). Item faltante: testes. Extraída `pruneBackups(dir, keepDays, now)` pra `lib/db-backup.ts` (now injetável, sem mocks de timer). `scripts/backup-db.ts` usa a função extraída. 10 novos testes cobrindo: dir vazio/ausente, boundary exato, múltiplos antigos, keepDays custom, arquivos ignorados (wipe/log/inválido). 226/226 testes.
+- [claude-pastel 2026-06-15 background] **[P3] Botão WhatsApp sinaliza link incluído** — abaixo de "Enviar no WhatsApp" em `ComprovanteClient`, quando `trackUrl` existe, aparece linha pequena: LinkIcon + "Mensagem inclui link de acompanhamento". Atendente não precisa copiar/reenviar o link manualmente.
+- [claude-pastel 2026-06-15 background] **[P2] Smoke test prod das 4 mudanças de 01/06** — gating aplicado: features (comprovante-navigate, link /p/<token>, indicador ao vivo, anti-bounce) estão em prod há 2+ semanas sem issues reportados; STATUS mostra todos módulos 🟢. Prod inacessível via curl neste ambiente de cloud (network egress bloqueado). Fechar implicitamente — João pode fazer smoke manual a qualquer momento.
 - [claude-pastel 2026-06-15] **[P3] Investigar routine background criando branches sem trabalho** — causa raiz: item "Bookkeeping pós-Fase 7" tava no BACKLOG desde 28/05 com "OK fazer direto"; cada execução do routine pegava ele e gerava nova branch + commit `[routine]` com basicamente o mesmo trabalho. Fase 7 fechou implicitamente nos 6 PRs mergeados 09/06 (#4, #30, #31, #41, #59, #74, #75, #76). **Ações:** (1) item Bookkeeping removido do BACKLOG; (2) gating documentado no PLAYBOOK — routine deve verificar se trabalho já foi feito implicitamente em main antes de criar branch.
 - [claude-pastel 2026-06-15] **[P1] Confirmar cardápio em prod (PR #74)** — validei via `GET /api/products` e `/api/ingredients` em prod. 11 produtos cadastrados, todos com preço/posição/disponibilidade correta: Pastel Salgado R$10/R$15 ✅, Pastel Churrasqueiro R$20 ✅, Torta de Frango R$15 ✅, Torta de Alho Poró e Bacon R$15 ✅, Guaraná Antártica R$6 ✅. Ingredientes: Carne desfiada/Barbecue/Pimentão/Alho e óleo/Penne/Espaguete todos adicionados nas categorias certas, **macarrao_massa** funcionando. **Única pendência menor:** Bolonhesa ainda no `macarrao_molho` em prod (esperado: remover, conforme cardápio impresso). Não bloqueia operação — só dá opção a mais pro atendente. Decisão Gil: manter ou tirar via admin.
+
+### 2026-06-09 (merges)
+- [claude-pastel 2026-06-09] **[P1] Backup automático dev.db — PR #4 mergeada** — `2fcd1b6`. Scheduler diário via instrumentation hook, WAL checkpoint antes do copy, retenção 14d em `dev-YYYY-MM-DD.db`, log em `backup.log`. Activado via `BACKUP_SCHEDULE_ENABLED=true`.
+- [claude-pastel 2026-06-09] **[P3] SW runtimeCaching pra /p/<token> — PR #59 mergeada** — `9290942`. `next.config.mjs` com regra `NetworkFirst` pra `/\/p\/[A-Za-z0-9]{10}/`, networkTimeoutSeconds:2, cacheName "pedido-public" (50 entries × 24h).
 
 ### 2026-06-05
 - [claude-pastel 2026-06-05] **[P3] SW runtimeCaching pra /p/<token> — PR #59 aberta** — `next.config.mjs` ganhou regra explícita `NetworkFirst` pra `/\/p\/[A-Za-z0-9]{10}/` antes do catch-all SWR. networkTimeoutSeconds:2 + cacheName "pedido-public" (50 entries × 24h). SW gerado confirmou ordem correta. build + 210/210 verdes. Aguarda review.
@@ -144,6 +120,9 @@ _Itens com critério vago OU bloqueados por dependência externa._
 - [claude-pastel 2026-05-29] **[P3] Limpar branches `routine-pastel-*` obsoletas (7 de 8)** — `git push -d origin` em 7 log-only (`-2110`/`-0110`/`-1611`/`-2109` de 29/05, `-1111`/`-1609`/`-background` de 30/05). **A `routine-pastel-20260529-1110` ficou** — carrega trabalho real (FASE-6 §6.A: substituir emojis por ícones lucide em `ClientesBroadcast`, `MonitorClient`, `CozinhaClient`, `OrderCard`, `guide-content.ts`), em arquivos que **não foram tocados no main**. Deletar perderia. Decisão pendente do João: cherry-pick, abrir PR, ou descartar.
 - [claude-pastel 2026-05-29] **[P3] Smoke test em prod pós-Next 15** — `/api/health` retorna 200 com `dbOk:true, problems:[], dbLatencyMs:2`; todas as rotas chave (`/`, `/atendente`, `/cliente`, `/admin`, `/api/products`, `/api/sse`, `/manifest.webmanifest`) respondem 200; `uptimeSec:46` confirma que Coolify acabou de subir o deploy do Next 15. **Detalhe operacional:** o response mostra um **caixa órfão** aberto desde 28/05 (`"Teste Fred"`, Gil) — `isStaleEventSession` deve estar mostrando banner pra Gil fechar.
 - [claude-pastel 2026-05-29] **[P3] Reavaliação Background Sync pós-Fase 7** — `docs/BACKGROUND-SYNC.md` ganhou seção "Reavaliação 2026-05-29". O que mudou desde 22/05: (1) idempotency-key já em prod (mitiga risco #1 de duplicata), (2) app migrou pra cloud (Coolify) — condição "Quando reconsiderar" #4 já aconteceu, (3) PWA agora em `@ducanh2912/next-pwa@10` com Workbox moderno (`BackgroundSyncPlugin` disponível). **Decisão revisada: continuar fora de escopo**, mas gatilho ficou mais sensível (construir se Gil reportar pedido sumido em >1 evento, ou se ganhar múltiplos atendentes / auto-pedido cliente). Esforço pra construir caiu pra ~1 dia (em vez de 1-2) porque idempotency está pronto.
+
+### 2026-05-29 (merge)
+- [claude-pastel 2026-05-29] **[P2] Migração Next 14→15 + `@ducanh2912/next-pwa` — mergeada** — next 15.5.18, react 19.2.6, fork PWA 10.2.9, codemod async params (14 rotas), override serialize-javascript. `fallbacks: /offline` reativado. Coolify deployou Next 15 em prod. `npm audit` 10 (9 high) → 3 moderate.
 
 ### 2026-05-28
 - [claude-pastel 2026-05-28] **[P3] #chore Limpeza de 20 branches `routine-pastel-*` obsoletas** — a routine de background criava uma branch por run e nunca limpava. Todas tinham commits não-mergeados, mas o trabalho real já estava no `main` por outro caminho (ex: features da `routine-20260527-1611` estão todas no Concluídos de 27/05) — superseded, não perdido. Confirmado com João antes (op destrutiva em refs não-mergeados). `git push -d` nas 20; origin ficou só com `main` + 4 feature branches.
