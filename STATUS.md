@@ -2,16 +2,26 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-11
+**Última atualização:** 2026-06-15
 **Atualizado por:** `claude-pastel`
 
 ---
 
 ## Fase atual
 
-Fase 6 entregue. Pós-fase: hardening + observabilidade.
+**Fase 7 entregue (5/5).** Pós-fase: hardening + observabilidade.
+- PIX ✅ (PR #30), Troco ✅ (PR #28), Comparativo ✅ (PR #29), WhatsApp auto-surface ✅ (PR #31), "Acabou" ao vivo ✅ (já existia).
+- Next 15 em prod (PR #23 → Coolify auto-deploy 2026-05-29).
+- Backup automático dev.db ativo (PR #4 → 2026-06-09).
 
-## O que rolou nesta sessão (routine 2026-06-05)
+## O que rolou nesta sessão (routine 2026-06-15)
+
+- **[P3] Investigar routine background** — causa documentada no PLAYBOOK: branch cria antes de avaliar itens → PRs vazias quando fila bloqueada. Documentado.
+- **[P3] Botão WhatsApp sinaliza link incluído** — micro-texto abaixo do botão no `ComprovanteClient.tsx` (condicionado em `trackUrl`).
+- **[P3] Bookkeeping pós-merge Fase 7** — FASE-7.md itens 3/4/5 marcados ✅, BACKLOG "Em progresso" zerado, STATUS atualizado.
+- 216/216 testes, lint limpo.
+
+## O que rolou na sessão anterior (routine 2026-06-05)
 
 - **[P2] Botão "Avisar" auto-volta pra fila** — `notifyReady()` em `AtendenteClient.tsx` ganhou `setTimeout(() => router.push("/atendente"), 400)`. Mesmo pattern do comprovante. Cobre banner e card direto.
 - **[P3] Indicador "ao vivo" em `/p/<token>`** — header da página mostra "ao vivo · HH:MM" quando SSE conectado; "offline · última atualização HH:MM" quando desconectado. Atualiza em cada evento SSE e clockeia a cada 60s.
@@ -79,7 +89,7 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 
 ## Métricas vivas
 
-- Tests passando: **163/163** ✅
+- Tests passando: **216/216** ✅
 - Type-check: **ok** ✅
 - ESLint: **0 erros** ✅ (check ativo no build)
 - DB schema: **sincronizado** ✅ (imageUrl adicionado)

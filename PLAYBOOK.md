@@ -127,6 +127,17 @@ Bloqueio bem-escrito tem: o que tentava fazer, o que descobriu que trava, 2+ op�
 
 ---
 
+## Routine background — branches vazias
+
+**Causa identificada (2026-06-15):** a routine cria a branch (`git checkout -b routine-pastel-*`) no passo 2, **antes** de avaliar se há itens elegíveis em "Próximos". Se todos os itens são "Confirmar antes", "Abrir PR" ou P0, a branch nasce sem trabalho → PR log-only → accumula 40+ branches.
+
+**Regra corretiva:** antes de criar a branch, avaliar mentalmente se há ao menos 1 item "OK fazer direto" ou "Abrir PR" na fila "Próximos". Se a fila estiver 100% bloqueada:
+1. **Não criar branch.**
+2. Atualizar `STATUS.md` diretamente em `main` com: `"Routine encerrada — sem itens elegíveis em Próximos. Fila bloqueada: todos itens são Confirmar antes / P0."`
+3. Registrar em "Bloqueios ativos" se a fila ficar bloqueada por múltiplas rotinas seguidas.
+
+---
+
 ## Dicas práticas pra este projeto
 
 - **App roda local em evento.** Não tem CI/CD bonito. Testes ANTES de commitar.

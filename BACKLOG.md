@@ -27,10 +27,7 @@
 
 _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
-- [ ] **[P1] #chore** Backup automático do `dev.db` no volume Coolify — **PR #4 aberto, aguardando merge** [claude-pastel 2026-05-22]
-- [ ] **[P2] #chore #pwa** Migração Next 14 → 15 + `@ducanh2912/next-pwa` — **PR aberto (branch `claude-pastel/next15-pwa`), aguardando review + teste manual de PWA/SSE em device** [claude-pastel 2026-05-28]
-  - Feito + validado: next 15.5.18, react 19.2.6, fork PWA, codemod async params (14 rotas), override serialize-javascript. tsc/lint/163 testes/build/12 e2e em dev verdes. `fallbacks: /offline` reativado. `npm audit` 10 (9 high) → 3 moderate (postcss interno do Next, build-time, não-bloqueante).
-  - Antes do merge em prod: teste manual da PWA (install/offline/splash) + SSE 3 abas (§4.8 de `docs/UPGRADE-NEXT-15.md`). Rollback: Coolify 1-clique ou `git revert`.
+_Vazio._
 
 ---
 
@@ -58,10 +55,7 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
   - **Contexto:** Triagem 05/06 limpou 17 PRs + 19 branches. Voltou a inflar: 42 routine branches hoje.
   - **Autonomia:** Confirmar antes (op destrutiva em branches).
 
-- [ ] **[P3] #chore** Investigar routine background criando branches sem trabalho
-  - **Pronto quando:** identificado o gating do `routine-pastel-*` que faz abrir branch/PR mesmo quando "sem itens executáveis". Documentado no PLAYBOOK. Idealmente: rotina que não acha trabalho real NÃO cria branch — só atualiza STATUS direto em main.
-  - **Contexto:** Em 4 dias gerou 11+ branches só log-only. Sem isso, triagem vira eterna.
-  - **Autonomia:** OK fazer direto.
+- [ ] **[P3] #chore** Investigar routine background criando branches sem trabalho [claude-pastel 2026-06-15 background]
 
 ### Hardening / deps
 
@@ -84,9 +78,7 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ### Polish
 
-- [ ] **[P3] #atendente #ux** Botão "Enviar WhatsApp" do comprovante sinaliza que link já tá incluído
-  - **Pronto quando:** abaixo (ou ao lado de) "Enviar no WhatsApp" no `ComprovanteClient`, aparece micro-texto com icon `LinkIcon` pequeno: "Mensagem inclui link de acompanhamento". Atendente vê que o link já vai junto e não tenta copiar/mandar de novo.
-  - **Autonomia:** OK fazer direto.
+- [ ] **[P3] #atendente #ux** Botão "Enviar WhatsApp" do comprovante sinaliza que link já tá incluído [claude-pastel 2026-06-15 background]
 
 - [x] **[P3] #cliente #ux** Indicador "ao vivo · atualizado às X" em `/p/<token>` [claude-pastel 2026-06-05 background]
 
@@ -100,9 +92,7 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ### Pós-Fase 7 — manutenção
 
-- [ ] **[P3] #chore #docs** Bookkeeping pós-merge de Fase 7
-  - **Pronto quando:** depois dos PRs #4/#30/#31 mergearem: `docs/FASE-7.md` marca #1 e #4 como ✅; `STATUS.md` reflete Fase 7 completa + Next 15 em prod + módulos atualizados; `BACKLOG.md` "Em progresso" zerado.
-  - **Autonomia:** OK fazer direto.
+- [ ] **[P3] #chore #docs** Bookkeeping pós-merge de Fase 7 [claude-pastel 2026-06-15 background]
 
 ### PWA
 
@@ -134,6 +124,15 @@ _Itens com critério vago OU bloqueados por dependência externa._
 ---
 
 ## ✅ Concluídos recentemente
+
+### 2026-06-15
+- [claude-pastel 2026-06-15 background] **[P3] Investigar routine background criando branches sem trabalho** — causa documentada no PLAYBOOK: toda chamada de routine cria a branch no passo 2 antes de avaliar se há itens elegíveis; se nenhum item qualifica, a branch + PR ficam vazios. Documentado em PLAYBOOK.md: se fila "Próximos" estiver 100% bloqueada (todos "Confirmar antes", "Abrir PR" ou P0), encerrar sem criar branch e registrar em STATUS direto. Lint/216 testes verdes.
+- [claude-pastel 2026-06-15 background] **[P3] Botão "Enviar WhatsApp" sinaliza link incluído** — `ComprovanteClient.tsx`: micro-texto `<p>` com `LinkIcon 11px` + "Mensagem inclui link de acompanhamento" aparece logo abaixo do botão WhatsApp, condicionado em `trackUrl` (= pedido tem `publicToken`). Atendente vê que o link já vai na mensagem e não tenta copiar/mandar separado. Lint/216 testes verdes.
+- [claude-pastel 2026-06-15 background] **[P3] Bookkeeping pós-merge de Fase 7** — PRs #4 (backup), #30 (PIX), #31 (WhatsApp) e Next 15 (`claude-pastel/next15-pwa`) todos mergeados. `docs/FASE-7.md` atualizado: itens 3 (Comparativo), 4 (WhatsApp auto-surface) e 5 ("Acabou") marcados ✅. BACKLOG.md "Em progresso" zerado (PR #4 + Next 15 movidos pra Concluídos abaixo). STATUS.md fase atualizada.
+
+### 2026-06-11 (Em progresso → Concluído)
+- [claude-pastel 2026-05-22] **[P1] Backup automático do `dev.db` — PR #4 mergeada (2026-06-09)** — `instrumentation.ts` agenda backup diário via `lib/backup-scheduler.ts`; `lib/db-backup.ts` faz checkpoint WAL + cópia atômica; `scripts/backup-db.ts` avulso; `tests/db-backup.test.ts` (6 testes). Squash-merged `2fcd1b6` em 2026-06-09.
+- [claude-pastel 2026-05-28] **[P2] Migração Next 14 → 15 + `@ducanh2912/next-pwa` — PR mergeada (2026-05-29)** — next 15.5.18, react 19.2.6, fork PWA, codemod async params (14 rotas), override serialize-javascript, `fallbacks: /offline` reativado, `npm audit` 10 (9 high) → 3 moderate. Squash-merged `#23` em 2026-05-29. Coolify deployou automaticamente.
 
 ### 2026-06-05
 - [claude-pastel 2026-06-05] **[P3] SW runtimeCaching pra /p/<token> — PR #59 aberta** — `next.config.mjs` ganhou regra explícita `NetworkFirst` pra `/\/p\/[A-Za-z0-9]{10}/` antes do catch-all SWR. networkTimeoutSeconds:2 + cacheName "pedido-public" (50 entries × 24h). SW gerado confirmou ordem correta. build + 210/210 verdes. Aguarda review.
