@@ -2,14 +2,22 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-11
-**Atualizado por:** `claude-pastel`
+**Última atualização:** 2026-06-15
+**Atualizado por:** `claude-pastel` (routine background)
 
 ---
 
 ## Fase atual
 
 Fase 6 entregue. Pós-fase: hardening + observabilidade.
+
+## O que rolou nesta sessão (routine 2026-06-15)
+
+- **[P3] Bookkeeping pós-merge de Fase 7** — `docs/FASE-7.md` marcada ✅ ENTREGUE; features #3/#4/#5 marcadas completas; `BACKLOG.md` "Em progresso" zerado (PR #4 + Next15 já mergeados há semanas).
+- **[P3] Investigar routine background** — causa raiz: branch criada ANTES de avaliar items. Regra documentada em PLAYBOOK → "Gating de branch em background": checar items ANTES de `git checkout -b`; se sem trabalho, commit direto em main sem branch/PR.
+- **[P3] Rotação automática de backups dev.db** — lógica já existia em `scripts/backup-db.ts` (inline). Extraído `lib/backup-rotation.ts` com `pruneBackupFiles(dir, keepDays)` (puro, testável). 9 novos testes em `tests/backup-rotation.test.ts` (fake-timer, boundaries, keepDays custom).
+- **[P3] Bumps de patches/minors** — `npm update`: react→19.2.7, next→15.5.19, vitest→4.1.8, tsx→4.22.4, lucide→1.18, @types/react→19.2.17 + outros. 225/225 testes verdes.
+- Branch: `routine-pastel-20260615-0107`. PR aberta.
 
 ## O que rolou nesta sessão (routine 2026-06-05)
 
@@ -79,7 +87,7 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 
 ## Métricas vivas
 
-- Tests passando: **163/163** ✅
+- Tests passando: **225/225** ✅
 - Type-check: **ok** ✅
 - ESLint: **0 erros** ✅ (check ativo no build)
 - DB schema: **sincronizado** ✅ (imageUrl adicionado)

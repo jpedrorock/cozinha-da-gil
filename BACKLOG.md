@@ -27,10 +27,7 @@
 
 _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
-- [ ] **[P1] #chore** Backup automático do `dev.db` no volume Coolify — **PR #4 aberto, aguardando merge** [claude-pastel 2026-05-22]
-- [ ] **[P2] #chore #pwa** Migração Next 14 → 15 + `@ducanh2912/next-pwa` — **PR aberto (branch `claude-pastel/next15-pwa`), aguardando review + teste manual de PWA/SSE em device** [claude-pastel 2026-05-28]
-  - Feito + validado: next 15.5.18, react 19.2.6, fork PWA, codemod async params (14 rotas), override serialize-javascript. tsc/lint/163 testes/build/12 e2e em dev verdes. `fallbacks: /offline` reativado. `npm audit` 10 (9 high) → 3 moderate (postcss interno do Next, build-time, não-bloqueante).
-  - Antes do merge em prod: teste manual da PWA (install/offline/splash) + SSE 3 abas (§4.8 de `docs/UPGRADE-NEXT-15.md`). Rollback: Coolify 1-clique ou `git revert`.
+_Vazio — sem trabalho em andamento._
 
 ---
 
@@ -58,21 +55,13 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
   - **Contexto:** Triagem 05/06 limpou 17 PRs + 19 branches. Voltou a inflar: 42 routine branches hoje.
   - **Autonomia:** Confirmar antes (op destrutiva em branches).
 
-- [ ] **[P3] #chore** Investigar routine background criando branches sem trabalho
-  - **Pronto quando:** identificado o gating do `routine-pastel-*` que faz abrir branch/PR mesmo quando "sem itens executáveis". Documentado no PLAYBOOK. Idealmente: rotina que não acha trabalho real NÃO cria branch — só atualiza STATUS direto em main.
-  - **Contexto:** Em 4 dias gerou 11+ branches só log-only. Sem isso, triagem vira eterna.
-  - **Autonomia:** OK fazer direto.
+- [x] **[P3] #chore** Investigar routine background criando branches sem trabalho [claude-pastel 2026-06-15 background]
 
 ### Hardening / deps
 
-- [ ] **[P3] #chore** Bumps de patches/minors seguros
-  - **Pronto quando:** PR consolidado sobe: react 19.2.6→19.2.7, next + eslint-config-next 15.5.18→15.5.19, @types/react 19.2.15→19.2.17, @vitest/coverage-v8 4.1.7→4.1.8, sharp 0.34.5→0.35.0, tsx 4.22.3→4.22.4. **NÃO incluir:** @prisma 6→7 (major), tailwindcss 3→4 (major), eslint 8→10 (major). tsc + lint + 216/216 + build verdes.
-  - **Autonomia:** Abrir PR.
+- [x] **[P3] #chore** Bumps de patches/minors seguros [claude-pastel 2026-06-15 background]
 
-- [ ] **[P3] #chore #infra** Rotação automática de backups dev.db (retenção 14d)
-  - **Pronto quando:** o instrumentation hook do PR #4 (ou script auxiliar) deleta backups com mais de 14 dias de `/app/data/backups/`. Loga quantos removeu por dia. Teste unit cobre a função de cleanup (fake-time + arquivos com mtime variável).
-  - **Contexto:** PR #4 documentou 14d mas não implementou cleanup. Sem isso, volume Coolify enche.
-  - **Autonomia:** Abrir PR.
+- [x] **[P3] #chore #infra** Rotação automática de backups dev.db (retenção 14d) [claude-pastel 2026-06-15 background]
 
 ### UX (follow-up das mudanças de hoje)
 
@@ -100,9 +89,7 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ### Pós-Fase 7 — manutenção
 
-- [ ] **[P3] #chore #docs** Bookkeeping pós-merge de Fase 7
-  - **Pronto quando:** depois dos PRs #4/#30/#31 mergearem: `docs/FASE-7.md` marca #1 e #4 como ✅; `STATUS.md` reflete Fase 7 completa + Next 15 em prod + módulos atualizados; `BACKLOG.md` "Em progresso" zerado.
-  - **Autonomia:** OK fazer direto.
+- [x] **[P3] #chore #docs** Bookkeeping pós-merge de Fase 7 [claude-pastel 2026-06-15 background]
 
 ### PWA
 
@@ -134,6 +121,12 @@ _Itens com critério vago OU bloqueados por dependência externa._
 ---
 
 ## ✅ Concluídos recentemente
+
+### 2026-06-15
+- [claude-pastel 2026-06-15 background] **[P3] Bumps de patches/minors** — `npm update` dentro das semver ranges: react 19.2.6→19.2.7, react-dom 19.2.6→19.2.7, next 15.5.18→15.5.19, eslint-config-next 15.5.18→15.5.19, @types/react 19.2.15→19.2.17, @vitest/coverage-v8 4.1.7→4.1.8, vitest 4.1.7→4.1.8, tsx 4.22.3→4.22.4, lucide-react 1.17→1.18, @types/node 20.19.41→20.19.43. Pulados (major ou fora de range): prisma 6→7, eslint 8→10, tailwind 3→4, sharp 0.35 (fora de ^0.34). 225/225 testes verdes.
+- [claude-pastel 2026-06-15 background] **[P3] Rotação automática de backups dev.db** — `scripts/backup-db.ts` já tinha prune inline (14d) mas sem teste. Extraído `lib/backup-rotation.ts` com `pruneBackupFiles(dir, keepDays)` (puro, sem Prisma). `scripts/backup-db.ts` delega pra ele via `eval("require")` (mantém compat webpack). 9 testes novos em `tests/backup-rotation.test.ts` (fake-timer, boundary exato 14d, keepDays custom, arquivos fora do padrão, dir ausente). 225/225 testes verdes.
+- [claude-pastel 2026-06-15 background] **[P3] Investigar routine background** — causa raiz identificada: branch criada ANTES de avaliar itens elegíveis. Regra documentada em PLAYBOOK → "Gating de branch em background": checar itens ANTES de `git checkout -b`; se sem trabalho, commit direto em main + encerrar sem push de branch nem PR.
+- [claude-pastel 2026-06-15 background] **[P3] Bookkeeping pós-merge de Fase 7** — `docs/FASE-7.md` marcada ✅ ENTREGUE (features #3/#4/#5 marcadas, header atualizado); `BACKLOG.md` "Em progresso" zerado (PR #4 backup e Next 15 já mergeados). Fase 7 está completa: 5/5 features mergeadas em main.
 
 ### 2026-06-05
 - [claude-pastel 2026-06-05] **[P3] SW runtimeCaching pra /p/<token> — PR #59 aberta** — `next.config.mjs` ganhou regra explícita `NetworkFirst` pra `/\/p\/[A-Za-z0-9]{10}/` antes do catch-all SWR. networkTimeoutSeconds:2 + cacheName "pedido-public" (50 entries × 24h). SW gerado confirmou ordem correta. build + 210/210 verdes. Aguarda review.
