@@ -25,6 +25,7 @@
 // o webpack a tentar bundlear este arquivo, e ele não sabe bundlear
 // módulos Node nativos (fs/path). Em produção rodando como Node real,
 // `require` existe e resolve normalmente.
+import { pruneBackups } from "@/lib/db-backup";
 import { prisma } from "@/lib/prisma";
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -56,19 +57,7 @@ export async function runBackup(): Promise<{
 
   const stat = await fs.stat(destPath);
 
-  // Limpa backups antigos
-  const cutoff = Date.now() - KEEP_DAYS * 24 * 60 * 60 * 1000;
-  const entries = await fs.readdir(BACKUPS_DIR);
-  let prunedCount = 0;
-  for (const name of entries) {
-    const m = /^dev-(\d{4}-\d{2}-\d{2})\.db$/.exec(name);
-    if (!m) continue;
-    const fileDate = new Date(m[1]).getTime();
-    if (Number.isFinite(fileDate) && fileDate < cutoff) {
-      await fs.unlink(path.join(BACKUPS_DIR, name));
-      prunedCount++;
-    }
-  }
+  const prunedCount = await pruneBackups(BACKUPS_DIR, KEEP_DAYS);
 
   const log = `[${new Date().toISOString()}] OK ${destPath} (${stat.size} bytes, pruned=${prunedCount})\n`;
   await fs.appendFile(path.join(BACKUPS_DIR, "backup.log"), log);

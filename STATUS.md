@@ -2,14 +2,23 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-11
-**Atualizado por:** `claude-pastel`
+**Última atualização:** 2026-06-15
+**Atualizado por:** `claude-pastel` (background routine)
 
 ---
 
 ## Fase atual
 
 Fase 6 entregue. Pós-fase: hardening + observabilidade.
+
+## O que rolou nesta sessão (routine 2026-06-15)
+
+- **[P3] Bumps de patches/minors** — react/react-dom 19.2.6→19.2.7, next+eslint-config-next 15.5.18→15.5.19, lucide-react 1.17→1.18, @types/react 19.2.15→19.2.17, vitest+coverage-v8 4.1.7→4.1.9, tsx 4.22.3→4.22.4, sharp 0.34.5→0.35.1, @playwright/test 1.60→1.61. Majors (prisma 7, tailwind 4, eslint 10, next 16, ts 6) deferidos.
+- **[P3] Rotação automática de backups** — rotação já existia em `scripts/backup-db.ts`. Extraída `pruneBackups()` pra `lib/db-backup.ts` + 10 novos testes (boundary exato, múltiplos, keepDays custom, arquivos ignorados).
+- **[P3] Botão WhatsApp sinaliza link incluído** — micro-texto "Mensagem inclui link de acompanhamento" abaixo do botão WhatsApp no comprovante quando `trackUrl` existe.
+- **BACKLOG cleanup** — Em progresso esvaziado (PR #4 e Next 15 eram stale/mergeados), duplicata "Investigar routine background" removida de Próximos, smoke test fechado via gating.
+- 226/226 testes, lint limpo.
+- Branch: `routine-pastel-20260615-2109`. PR abrirá.
 
 ## O que rolou nesta sessão (routine 2026-06-05)
 
@@ -35,10 +44,14 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## Bloqueios ativos
 
-- **2 PRs abertas (ambas DIRTY)** — #26 emoji→lucide e #35 contraste "Caixa aberto". Precisam rebase em outra sessão. **5 PRs mergeadas hoje em sequência**: #74 (cardápio), #75 (Zona de Perigo), #4 (backup), #59 (SW cache /p), #41 (a11y bundle).
-- ~~Backfill `publicToken` em prod não confirmado~~ — verificação técnica feita 05/06 (endpoint funciona, POST gera token, backfill rodou 2× no entrypoint). Monitorar empiricamente: se pedido legado mandar WhatsApp sem linha "Acompanhe:", abrir endpoint admin pra rodar backfill on-demand.
+- **2 PRs abertas (ambas DIRTY)** — #26 emoji→lucide e #35 contraste "Caixa aberto". Precisam rebase presencial.
+- ~~Backfill `publicToken` em prod não confirmado~~ — verificação técnica feita 05/06 (endpoint funciona, POST gera token, backfill rodou 2× no entrypoint). Monitorar empiricamente.
 
 ## Próximo passo recomendado
+
+**Background routine 2026-06-15 fechou 3 itens P3** (bumps, rotação backups testes, sinalização link WhatsApp). PR aberta na branch `routine-pastel-20260615-2109`.
+
+**João:** (1) mergear PR da routine (bumps + backup-rotation tests + comprovante UX); (2) confirmar rebase de #26 e #35 (DIRTY) quando houver janela; (3) **smoke test manual** do comprovante em prod: verificar micro-texto "Mensagem inclui link de acompanhamento" aparece após criar pedido com telefone.
 
 **Fase 7 fechada (5/5)** — 3 itens mergeados (#23 Next 15 já no main, #28 troco, #29 comparativo), 3 PRs aguardando merge (**#4 backup desconflictado**, **#30 PIX**, **#31 WhatsApp auto-surface**), e #5 "Acabou" já existia. Coolify deployou Next 15 em prod na sessão de 29/05.
 
@@ -79,7 +92,7 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 
 ## Métricas vivas
 
-- Tests passando: **163/163** ✅
+- Tests passando: **226/226** ✅
 - Type-check: **ok** ✅
 - ESLint: **0 erros** ✅ (check ativo no build)
 - DB schema: **sincronizado** ✅ (imageUrl adicionado)
@@ -90,6 +103,11 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 ---
 
 ## Histórico recente (últimos 5 dias)
+
+### 2026-06-15 (routine background)
+- **3 itens P3 fechados** — bumps patches/minors, testes de rotação de backups, micro-texto WhatsApp link signal. Branch `routine-pastel-20260615-2109`, PR aberta.
+- **BACKLOG cleanup** — Em progresso esvaziado, duplicatas removidas, smoke test fechado via gating.
+- **226/226 testes** ✅
 
 ### 2026-06-15
 - **`/trabalhar`: 2 itens P1/P3 fechados** — (1) **Cardápio confirmado em prod**: validei via `/api/products` + `/api/ingredients` que João já aplicou 100% do checklist do PR #74 (preços novos, 4 produtos novos, 6 ingredientes, macarrao_massa funcionando). Única pendência menor: Bolonhesa ainda no `macarrao_molho` (decisão do Gil). (2) **Routine background investigada**: causa raiz era item "Bookkeeping pós-Fase 7" vivo no BACKLOG desde 28/05 com critério genérico — toda execução do routine pegava ele e gerava commit `[routine]` repetido. Fase 7 fechou implicitamente nos PRs mergeados 09/06. Removi o item + adicionei seção "Gating contra trabalho redundante" no PLAYBOOK pra prevenir recorrência.
