@@ -18,6 +18,17 @@
 - Pare ao chegar em `[P0]` que precisa de confirmação.
 - Se "Eventos próximos" em STATUS tem evento em ≤ 48h: **só toque em P2/P3** baixo risco. Nada que mexa em SSE, auth, schema.
 
+#### Gating de branch em background (crítico para evitar branches acumuladas)
+
+**Problema conhecido:** a routine cria a branch ANTES de avaliar se há itens executáveis. Isso gera `routine-pastel-*` log-only que acumulam (42+ branches vistas em 2026-06-11).
+
+**Regra:** antes de `git checkout -b routine-pastel-…`, avaliar se há ao menos 1 item elegível no BACKLOG "Próximos" (não marcado "Confirmar antes", não toca SSE/auth/schema/comprovante/Docker). Se **não houver**:
+1. Atualizar `STATUS.md` com "Routine encerrada — sem itens executáveis (YYYY-MM-DD)." diretamente em main (commit trivial, sem branch).
+2. **Não criar branch**. Não abrir PR. Não fazer push de branch nova.
+3. Registrar o motivo em STATUS → "Bloqueios ativos" se houver impedimento específico.
+
+Se **houver trabalho**, criar branch normalmente e seguir o roteiro.
+
 ### Como saber em qual modo está
 - `/trabalhar` interativo → presencial
 - `claude -p` ou Routine agendada → background
