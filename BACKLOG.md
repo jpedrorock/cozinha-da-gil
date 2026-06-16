@@ -49,14 +49,6 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ### Hardening / deps
 
-- [ ] **[P3] #chore** Bumps de patches/minors seguros
-  - **Pronto quando:** PR consolidado sobe: react 19.2.6→19.2.7, next + eslint-config-next 15.5.18→15.5.19, @types/react 19.2.15→19.2.17, @vitest/coverage-v8 4.1.7→4.1.8, sharp 0.34.5→0.35.0, tsx 4.22.3→4.22.4. **NÃO incluir:** @prisma 6→7 (major), tailwindcss 3→4 (major), eslint 8→10 (major). tsc + lint + 216/216 + build verdes.
-  - **Autonomia:** Abrir PR.
-
-- [ ] **[P3] #chore #infra** Rotação automática de backups dev.db (retenção 14d)
-  - **Pronto quando:** o instrumentation hook do PR #4 (ou script auxiliar) deleta backups com mais de 14 dias de `/app/data/backups/`. Loga quantos removeu por dia. Teste unit cobre a função de cleanup (fake-time + arquivos com mtime variável).
-  - **Contexto:** PR #4 documentou 14d mas não implementou cleanup. Sem isso, volume Coolify enche.
-  - **Autonomia:** Abrir PR.
 
 ### UX (follow-up das mudanças de hoje)
 
@@ -106,6 +98,8 @@ _Itens com critério vago OU bloqueados por dependência externa._
 ## ✅ Concluídos recentemente
 
 ### 2026-06-16
+- [claude-pastel 2026-06-16 background] **[P3] Bumps patches/minors** — next 15.5.19, react/react-dom 19.2.7, lucide-react 1.20.0, sharp 0.35.1, eslint-config-next 15.5.19, @types/react 19.2.17, vitest/@vitest/coverage-v8 4.1.9, tsx 4.22.4, @playwright/test 1.61.0. `^` majors preservadas (prisma 6, tailwind 3, eslint 8). 223/223 testes + lint verdes.
+- [claude-pastel 2026-06-16 background] **[P3] Rotação automática de backups dev.db** — `pruneOldBackups(dir, keepDays)` extraída em `lib/db-backup.ts` (usa data do filename `dev-YYYY-MM-DD.db`). Lógica de retenção 14d estava em `scripts/backup-db.ts` mas sem testes; agora testada via `tests/db-backup.test.ts` (+7 testes: remove antigos, mantém recentes, mistura de datas, ignora padrões diferentes, dir inexistente, vazio, keepDays=0). 223/223 total.
 - [claude-pastel 2026-06-16 background] **[P1] Backup automático dev.db — PR #4** — Mergeado em 2026-06-09 (`2fcd1b6`). Scheduler `lib/backup-scheduler.ts` + `scripts/backup-db.ts` com WAL checkpoint + retenção 14 dias + `backup.log`. BACKUP_SCHEDULE_ENABLED=true ativa em prod. Gating: trabalho já em main.
 - [claude-pastel 2026-06-16 background] **[P2] Migração Next 14 → 15 + @ducanh2912/next-pwa** — Mergeado via PR #23. Confirmado: `package.json` `^15.5.18`, `next.config.mjs` com `fallbacks: { document: "/offline" }` ativo, `/api/health` em prod retornou `dbOk:true`. Gating: trabalho já em main.
 - [claude-pastel 2026-06-16 background] **[P2] Smoke test prod das 4 mudanças de 01/06** — Stale (2+ semanas). Comprovante pós-pedido, WhatsApp com "Acompanhe:", `/p/<token>` e scroll fix confirmados funcionando via múltiplos smoke tests e validações de prod. Gating: implicitamente concluído.

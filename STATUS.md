@@ -2,7 +2,7 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-11
+**Última atualização:** 2026-06-16
 **Atualizado por:** `claude-pastel`
 
 ---
@@ -10,6 +10,15 @@
 ## Fase atual
 
 Fase 6 entregue. Pós-fase: hardening + observabilidade.
+
+## O que rolou nesta sessão (routine 2026-06-16)
+
+- **[P3] Bumps patches/minors** — next 15.5.19, react/react-dom 19.2.7, lucide-react 1.20.0, sharp 0.35.1, eslint-config-next 15.5.19, @types/react 19.2.17, vitest 4.1.9, tsx 4.22.4, @playwright/test 1.61.0. Majors preservadas.
+- **[P3] Rotação automática de backups — testes** — `pruneOldBackups(dir, keepDays)` extraída em `lib/db-backup.ts` + 7 testes. Implementação de retenção 14d já estava em `scripts/backup-db.ts` (PR #4), agora testada unitariamente.
+- **Gating cleanup** — 6 itens fechados por gating: PR #4 backup, Next 15 migration, smoke test 01/06, PR #59 SW cache, fallbacks PWA, rotina-bg duplicada no BACKLOG.
+- 223/223 testes, lint limpo.
+- Branch: `routine-pastel-20260616-1619`. PR aberta.
+- Itens pulados (aguardam João): triagem PR+branches (#Confirmar antes), limpeza de branches (#Confirmar antes), stepper massa macarrão (#Confirmar antes), botão WhatsApp sinaliza link (toca comprovante — requer PR).
 
 ## O que rolou nesta sessão (routine 2026-06-05)
 
@@ -79,13 +88,13 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 
 ## Métricas vivas
 
-- Tests passando: **163/163** ✅
+- Tests passando: **223/223** ✅
 - Type-check: **ok** ✅
 - ESLint: **0 erros** ✅ (check ativo no build)
-- DB schema: **sincronizado** ✅ (imageUrl adicionado)
+- DB schema: **sincronizado** ✅
 - PWA: **instalável** ✅ (iOS Safari + Android Chrome)
-- Vulns npm audit: **3 moderate** (postcss interno do Next, build-time) na branch Next 15 — era 10 (9 high) no main Next 14. PR aberto.
-- Next/React: **15.5.18 / 19.2.6** na branch `claude-pastel/next15-pwa` (main ainda 14.2.35 até merge)
+- Vulns npm audit: **6 (4 moderate, 2 high)** — pós-Next 15.5.19. Maioria build-time ou deps internas. Não-bloqueantes.
+- Next/React: **15.5.19 / 19.2.7** (em prod via Coolify)
 
 ---
 
