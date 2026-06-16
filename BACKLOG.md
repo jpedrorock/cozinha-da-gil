@@ -52,21 +52,13 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
   - **Contexto:** Triagem 05/06 limpou 17 PRs + 19 branches. Voltou a inflar: 42 routine branches hoje.
   - **Autonomia:** Confirmar antes (op destrutiva em branches).
 
-- [ ] **[P3] #chore** Investigar routine background criando branches sem trabalho
-  - **Pronto quando:** identificado o gating do `routine-pastel-*` que faz abrir branch/PR mesmo quando "sem itens executáveis". Documentado no PLAYBOOK. Idealmente: rotina que não acha trabalho real NÃO cria branch — só atualiza STATUS direto em main.
-  - **Contexto:** Em 4 dias gerou 11+ branches só log-only. Sem isso, triagem vira eterna.
-  - **Autonomia:** OK fazer direto.
+- [x] **[P3] #chore** Investigar routine background criando branches sem trabalho [claude-pastel 2026-06-15] ← já em Concluídos 2026-06-15
 
 ### Hardening / deps
 
-- [ ] **[P3] #chore** Bumps de patches/minors seguros
-  - **Pronto quando:** PR consolidado sobe: react 19.2.6→19.2.7, next + eslint-config-next 15.5.18→15.5.19, @types/react 19.2.15→19.2.17, @vitest/coverage-v8 4.1.7→4.1.8, sharp 0.34.5→0.35.0, tsx 4.22.3→4.22.4. **NÃO incluir:** @prisma 6→7 (major), tailwindcss 3→4 (major), eslint 8→10 (major). tsc + lint + 216/216 + build verdes.
-  - **Autonomia:** Abrir PR.
+- [x] **[P3] #chore** Bumps de patches/minors seguros [claude-pastel 2026-06-16 background]
 
-- [ ] **[P3] #chore #infra** Rotação automática de backups dev.db (retenção 14d)
-  - **Pronto quando:** o instrumentation hook do PR #4 (ou script auxiliar) deleta backups com mais de 14 dias de `/app/data/backups/`. Loga quantos removeu por dia. Teste unit cobre a função de cleanup (fake-time + arquivos com mtime variável).
-  - **Contexto:** PR #4 documentou 14d mas não implementou cleanup. Sem isso, volume Coolify enche.
-  - **Autonomia:** Abrir PR.
+- [x] **[P3] #chore #infra** Rotação automática de backups dev.db (retenção 14d) [claude-pastel 2026-06-16 background]
 
 ### UX (follow-up das mudanças de hoje)
 
@@ -78,9 +70,7 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ### Polish
 
-- [ ] **[P3] #atendente #ux** Botão "Enviar WhatsApp" do comprovante sinaliza que link já tá incluído
-  - **Pronto quando:** abaixo (ou ao lado de) "Enviar no WhatsApp" no `ComprovanteClient`, aparece micro-texto com icon `LinkIcon` pequeno: "Mensagem inclui link de acompanhamento". Atendente vê que o link já vai junto e não tenta copiar/mandar de novo.
-  - **Autonomia:** OK fazer direto.
+- [x] **[P3] #atendente #ux** Botão "Enviar WhatsApp" do comprovante sinaliza que link já tá incluído [claude-pastel 2026-06-16 background]
 
 - [x] **[P3] #cliente #ux** Indicador "ao vivo · atualizado às X" em `/p/<token>` [claude-pastel 2026-06-05 background]
 
@@ -122,6 +112,11 @@ _Itens com critério vago OU bloqueados por dependência externa._
 ---
 
 ## ✅ Concluídos recentemente
+
+### 2026-06-16
+- [claude-pastel 2026-06-16 background] **[P3] Botão "Enviar WhatsApp" sinaliza link incluído** — `ComprovanteClient.tsx`: micro-texto "Mensagem inclui link de acompanhamento" com `LinkIcon` (12px) aparece abaixo do botão WhatsApp quando `trackUrl` está disponível (pedido tem publicToken + baseUrl montada). Atendente vê que o link de rastreamento já vai na mensagem sem precisar copiar manualmente. lint/222 testes verdes.
+- [claude-pastel 2026-06-16 background] **[P3] Rotação automática de backups dev.db (retenção 14d)** — a lógica de pruning já existia em `scripts/backup-db.ts` (PR #4), mas embutida no `runBackup()`. Extraída como `pruneBackups(backupsDir, keepDays, nowMs?)` em `lib/db-backup.ts` (sem dependência de Prisma, testável sem mocks). `scripts/backup-db.ts` simplificado pra 1 linha. 6 testes novos em `tests/db-backup.test.ts` cobrem: remoção por data de filename, preservação de recentes, ignorar outros arquivos (wipe-*, backup.log), dir inexistente, keepDays customizado. 222/222 testes verdes.
+- [claude-pastel 2026-06-16 background] **[P3] Bumps de patches/minors seguros** — sharp `^0.34.5 → ^0.35.0` (instalado em 0.35.1). Demais pacotes (react 19.2.6, next 15.5.18, @types/react 19.2.15, @vitest/coverage-v8 4.1.7, tsx 4.22.3) já estão na última versão disponível no registry hoje — versões mais novas ainda não foram publicadas. package-lock.json gerado fresh. 222/222 testes verdes.
 
 ### 2026-06-15
 - [claude-pastel 2026-06-15] **[P3] Investigar routine background criando branches sem trabalho** — causa raiz: item "Bookkeeping pós-Fase 7" tava no BACKLOG desde 28/05 com "OK fazer direto"; cada execução do routine pegava ele e gerava nova branch + commit `[routine]` com basicamente o mesmo trabalho. Fase 7 fechou implicitamente nos 6 PRs mergeados 09/06 (#4, #30, #31, #41, #59, #74, #75, #76). **Ações:** (1) item Bookkeeping removido do BACKLOG; (2) gating documentado no PLAYBOOK — routine deve verificar se trabalho já foi feito implicitamente em main antes de criar branch.

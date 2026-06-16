@@ -2,7 +2,7 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-11
+**Última atualização:** 2026-06-16
 **Atualizado por:** `claude-pastel`
 
 ---
@@ -10,6 +10,14 @@
 ## Fase atual
 
 Fase 6 entregue. Pós-fase: hardening + observabilidade.
+
+## O que rolou nesta sessão (routine 2026-06-16)
+
+- **[P3] Botão "Enviar WhatsApp" sinaliza link** — micro-texto com `LinkIcon` abaixo do botão no `ComprovanteClient.tsx`. Só aparece quando `trackUrl` está disponível (pedido tem publicToken).
+- **[P3] Rotação backups extraída pra `lib/db-backup.ts`** — `pruneBackups(backupsDir, keepDays, nowMs?)` exportada e testada (6 testes novos). `scripts/backup-db.ts` simplificado. 222/222 testes verdes.
+- **[P3] Bumps deps** — sharp `^0.34.5 → ^0.35.0` (0.35.1 instalado). Outros pacotes já na versão máxima disponível. package-lock.json gerado fresh.
+- **[docs] BACKLOG cleanup** — "Investigar routine background" desmarcado de Próximos (já estava em Concluídos 2026-06-15). 3 novos itens fechados em Concluídos.
+- Branch: `routine-pastel-20260616-0111`. PR aberta.
 
 ## O que rolou nesta sessão (routine 2026-06-05)
 
@@ -79,7 +87,7 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 
 ## Métricas vivas
 
-- Tests passando: **163/163** ✅
+- Tests passando: **222/222** ✅
 - Type-check: **ok** ✅
 - ESLint: **0 erros** ✅ (check ativo no build)
 - DB schema: **sincronizado** ✅ (imageUrl adicionado)

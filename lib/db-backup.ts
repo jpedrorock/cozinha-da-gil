@@ -1,4 +1,4 @@
-import { copyFile, mkdir } from "node:fs/promises";
+import { copyFile, mkdir, readdir, unlink } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { randomBytes } from "node:crypto";
 
@@ -28,6 +28,41 @@ export async function backupDatabase(reason: string): Promise<string> {
   const backupPath = join(backupDir, `${safeReason}-${stamp}.db`);
   await copyFile(dbPath, backupPath);
   return backupPath;
+}
+
+/**
+ * Remove backups automáticos com data (padrão `dev-YYYY-MM-DD.db`) anteriores
+ * ao cutoff. Ignora outros arquivos no diretório (wipe-*, backup.log, etc.).
+ *
+ * @param backupsDir  Diretório onde os backups ficam.
+ * @param keepDays    Quantos dias manter (default 14).
+ * @param nowMs       "Agora" em ms epoch (default Date.now()). Aceitar por
+ *                    parâmetro torna a função testável sem fake timers.
+ * @returns Número de arquivos removidos.
+ */
+export async function pruneBackups(
+  backupsDir: string,
+  keepDays: number = 14,
+  nowMs: number = Date.now(),
+): Promise<number> {
+  let entries: string[];
+  try {
+    entries = await readdir(backupsDir);
+  } catch {
+    return 0;
+  }
+  const cutoffMs = nowMs - keepDays * 24 * 60 * 60 * 1000;
+  let pruned = 0;
+  for (const name of entries) {
+    const m = /^dev-(\d{4}-\d{2}-\d{2})\.db$/.exec(name);
+    if (!m) continue;
+    const fileDate = new Date(m[1]).getTime();
+    if (Number.isFinite(fileDate) && fileDate < cutoffMs) {
+      await unlink(join(backupsDir, name));
+      pruned++;
+    }
+  }
+  return pruned;
 }
 
 /**
