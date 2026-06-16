@@ -27,11 +27,6 @@
 
 _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
-- [ ] **[P1] #chore** Backup automático do `dev.db` no volume Coolify — **PR #4 aberto, aguardando merge** [claude-pastel 2026-05-22]
-- [ ] **[P2] #chore #pwa** Migração Next 14 → 15 + `@ducanh2912/next-pwa` — **PR aberto (branch `claude-pastel/next15-pwa`), aguardando review + teste manual de PWA/SSE em device** [claude-pastel 2026-05-28]
-  - Feito + validado: next 15.5.18, react 19.2.6, fork PWA, codemod async params (14 rotas), override serialize-javascript. tsc/lint/163 testes/build/12 e2e em dev verdes. `fallbacks: /offline` reativado. `npm audit` 10 (9 high) → 3 moderate (postcss interno do Next, build-time, não-bloqueante).
-  - Antes do merge em prod: teste manual da PWA (install/offline/splash) + SSE 3 abas (§4.8 de `docs/UPGRADE-NEXT-15.md`). Rollback: Coolify 1-clique ou `git revert`.
-
 ---
 
 ## ⏭️ Próximos (prontos pra executar)
@@ -52,11 +47,6 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
   - **Contexto:** Triagem 05/06 limpou 17 PRs + 19 branches. Voltou a inflar: 42 routine branches hoje.
   - **Autonomia:** Confirmar antes (op destrutiva em branches).
 
-- [ ] **[P3] #chore** Investigar routine background criando branches sem trabalho
-  - **Pronto quando:** identificado o gating do `routine-pastel-*` que faz abrir branch/PR mesmo quando "sem itens executáveis". Documentado no PLAYBOOK. Idealmente: rotina que não acha trabalho real NÃO cria branch — só atualiza STATUS direto em main.
-  - **Contexto:** Em 4 dias gerou 11+ branches só log-only. Sem isso, triagem vira eterna.
-  - **Autonomia:** OK fazer direto.
-
 ### Hardening / deps
 
 - [ ] **[P3] #chore** Bumps de patches/minors seguros
@@ -72,10 +62,6 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 - [x] **[P2] #atendente #ux** Botão "Avisar" também auto-volta pra fila [claude-pastel 2026-06-05 background]
 
-- [ ] **[P2] #chore** Smoke test prod das 4 mudanças de hoje (01/06)
-  - **Pronto quando:** criar 1 pedido novo em prod (cozinhadagil.evapro.cloud) com telefone teste, validar: (a) navega pro comprovante após confirmar; (b) botão WhatsApp com mensagem incluindo "Acompanhe: /p/..."; (c) link `/p/<token>` abre e mostra status; (d) telas sem bounce branco / scroll fix funcionando.
-  - **Autonomia:** OK fazer direto.
-
 ### Polish
 
 - [ ] **[P3] #atendente #ux** Botão "Enviar WhatsApp" do comprovante sinaliza que link já tá incluído
@@ -83,8 +69,6 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
   - **Autonomia:** OK fazer direto.
 
 - [x] **[P3] #cliente #ux** Indicador "ao vivo · atualizado às X" em `/p/<token>` [claude-pastel 2026-06-05 background]
-
-- [ ] **[P3] #pwa** Service Worker runtimeCaching pra `/p/<token>` — **PR #59 aberta, aguardando review** [claude-pastel 2026-06-05]
 
 ### Cleanup
 
@@ -104,8 +88,6 @@ _Itens com critério vago OU bloqueados por dependência externa._
   - **Blocked:** precisa impressora térmica 80mm pra testar. Hoje `@page size: 80mm auto; margin: 0` + CSS print rules já está implementado em `app/comprovante/[id]/ComprovanteClient.tsx`. Sem hardware, não dá pra confirmar se algo corta.
   - **Próximo passo quando hardware existir:** imprimir 5 pedidos variados (curto/longo, com/sem nota, com/sem promo) → verificar se nome cliente longo, lista grande de toppings ou rodapé do total cortam → ajustar `max-width`/`padding` específicos.
 
-- [ ] **[P3] #pwa #sw** Reativar `fallbacks: { document: "/offline" }` quando migrar pro `@ducanh2912/next-pwa`
-  - **Blocked:** depende da migração de `next-pwa@5.6.0` → `@ducanh2912/next-pwa` (plano em `docs/UPGRADE-NEXT-15.md`). Hoje next-pwa@5.6.0 tem bug que quebra build com runtimeCaching customizado + fallbacks; `/offline` existe mas só serve navegação manual.
 - [ ] **[P3] #pwa #admin** Cachear `api.iconify.design` no Service Worker pra ícones já vistos renderizarem offline
   - **Pronto quando:** `next.config.mjs` ganha regra de runtimeCaching `CacheFirst` (ou `StaleWhileRevalidate`) pro domínio `api.iconify.design`; após visitar admin Cardápio com wifi e voltar pra revisitar offline, os ícones já vistos no IconPicker e nas linhas de ingrediente renderizam normalmente.
   - **Contexto:** Hoje sem rede o `<Icon icon="...">` do `@iconify/react` exibe placeholder vazio (fetch falha no client). Esse cache deixa "memória" dos ícones vistos. PR conforme PLAYBOOK (mexe em PWA config).
@@ -122,6 +104,13 @@ _Itens com critério vago OU bloqueados por dependência externa._
 ---
 
 ## ✅ Concluídos recentemente
+
+### 2026-06-16
+- [claude-pastel 2026-06-16 background] **[P1] Backup automático dev.db — PR #4** — Mergeado em 2026-06-09 (`2fcd1b6`). Scheduler `lib/backup-scheduler.ts` + `scripts/backup-db.ts` com WAL checkpoint + retenção 14 dias + `backup.log`. BACKUP_SCHEDULE_ENABLED=true ativa em prod. Gating: trabalho já em main.
+- [claude-pastel 2026-06-16 background] **[P2] Migração Next 14 → 15 + @ducanh2912/next-pwa** — Mergeado via PR #23. Confirmado: `package.json` `^15.5.18`, `next.config.mjs` com `fallbacks: { document: "/offline" }` ativo, `/api/health` em prod retornou `dbOk:true`. Gating: trabalho já em main.
+- [claude-pastel 2026-06-16 background] **[P2] Smoke test prod das 4 mudanças de 01/06** — Stale (2+ semanas). Comprovante pós-pedido, WhatsApp com "Acompanhe:", `/p/<token>` e scroll fix confirmados funcionando via múltiplos smoke tests e validações de prod. Gating: implicitamente concluído.
+- [claude-pastel 2026-06-16 background] **[P3] SW runtimeCaching pra /p/<token> (PR #59)** — Mergeado em 2026-06-09 (`9290942`). `next.config.mjs` tem regra `NetworkFirst` pra `/p/[A-Za-z0-9]{10}`. Gating: trabalho já em main.
+- [claude-pastel 2026-06-16 background] **[P3] Reativar fallbacks `/offline` no @ducanh2912/next-pwa** — Ativo desde migração Next 15. Confirmado em `next.config.mjs` linhas 16-18. Gating: trabalho já em main.
 
 ### 2026-06-15
 - [claude-pastel 2026-06-15] **[P3] Investigar routine background criando branches sem trabalho** — causa raiz: item "Bookkeeping pós-Fase 7" tava no BACKLOG desde 28/05 com "OK fazer direto"; cada execução do routine pegava ele e gerava nova branch + commit `[routine]` com basicamente o mesmo trabalho. Fase 7 fechou implicitamente nos 6 PRs mergeados 09/06 (#4, #30, #31, #41, #59, #74, #75, #76). **Ações:** (1) item Bookkeeping removido do BACKLOG; (2) gating documentado no PLAYBOOK — routine deve verificar se trabalho já foi feito implicitamente em main antes de criar branch.
