@@ -2,7 +2,7 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-11
+**Última atualização:** 2026-06-16
 **Atualizado por:** `claude-pastel`
 
 ---
@@ -10,6 +10,18 @@
 ## Fase atual
 
 Fase 6 entregue. Pós-fase: hardening + observabilidade.
+
+## O que rolou nesta sessão (routine 2026-06-16 #2)
+
+- **Routine background encerrada — sem itens elegíveis** — fila "Próximos" revisada; nenhum item passa os filtros de background mode:
+  - Stepper massa macarrão → "Confirmar antes"
+  - Triagem PR + branches → "Confirmar antes" (op destrutiva)
+  - Bumps patches/minors → "Abrir PR" (item dedicado, não bundlável)
+  - Rotação automática backups → "Abrir PR" (item dedicado)
+  - Botão WhatsApp sinaliza link incluído → toca `app/comprovante/` (proibido em background)
+  - Limpar branches routine-* → "Confirmar antes" (op destrutiva)
+
+- **Achado útil:** código de rotação 14d já está implementado em `scripts/backup-db.ts:59-69` — `runBackup()` já deleta arquivos `dev-YYYY-MM-DD.db` mais antigos que KEEP_DAYS e loga `prunedCount`. Falta apenas o teste unitário (critério do item BACKLOG).
 
 ## O que rolou nesta sessão (routine 2026-06-05)
 
@@ -40,11 +52,12 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 ## Próximo passo recomendado
 
-**Fase 7 fechada (5/5)** — 3 itens mergeados (#23 Next 15 já no main, #28 troco, #29 comparativo), 3 PRs aguardando merge (**#4 backup desconflictado**, **#30 PIX**, **#31 WhatsApp auto-surface**), e #5 "Acabou" já existia. Coolify deployou Next 15 em prod na sessão de 29/05.
+**Fila "Próximos" precisa de intervenção presencial do João** — nenhum item passa os filtros da rotina background. Opções:
 
-João: (1) mergear **#4 + #30 + #31** (todos validados: tsc/lint/testes/build); (2) **configurar chave PIX** (admin → Caixa → "Pagamento (PIX)") — 1 vez só; (3) **teste manual da PWA no celular** (install/offline/splash) agora que Next 15 está em prod; rollback Coolify 1-clique se algo quebrar.
-
-BACKLOG "Próximos" reabastecido com **5 itens de manutenção pós-Fase 7** (replan 2026-05-29): bookkeeping, smoke prod, limpar 4 routine-* novas, auditoria a11y dedicada, reavaliar Background Sync.
+1. **Autorizar triagem de PRs + branches** → 42 branches `routine-pastel-*` acumuladas, a maioria órfã. Confirmar com João (op destrutiva). Routine faz a limpeza quando autorizado.
+2. **Iniciar bumps de deps** → João pode autorizar a routine criar o PR dedicado, ou confirmar "Abrir PR" quando presencial.
+3. **Botão WhatsApp sinaliza link incluído** → ~5 linhas em `ComprovanteClient.tsx`. Baixíssimo risco — João pode implementar diretamente ou autorizar PR em sessão presencial.
+4. **Fechar item "Rotação backups"** → código já existe (`scripts/backup-db.ts:59-69`); falta só o teste unitário. João pode aceitar sem teste ou priorizar teste quando presencial.
 
 ---
 
@@ -90,6 +103,9 @@ _Lista de eventos que o app vai rodar — datas e nível de criticidade. Se tem 
 ---
 
 ## Histórico recente (últimos 5 dias)
+
+### 2026-06-16
+- **Routine background — sem itens elegíveis** — todos os itens "Próximos" são "Confirmar antes", "Abrir PR" (dedicado), ou tocam `app/comprovante/` (proibido em background). Achado: rotação 14d de backups já está implementada em `scripts/backup-db.ts:59-69`; item do BACKLOG só precisa de teste unitário.
 
 ### 2026-06-15
 - **`/trabalhar`: 2 itens P1/P3 fechados** — (1) **Cardápio confirmado em prod**: validei via `/api/products` + `/api/ingredients` que João já aplicou 100% do checklist do PR #74 (preços novos, 4 produtos novos, 6 ingredientes, macarrao_massa funcionando). Única pendência menor: Bolonhesa ainda no `macarrao_molho` (decisão do Gil). (2) **Routine background investigada**: causa raiz era item "Bookkeeping pós-Fase 7" vivo no BACKLOG desde 28/05 com critério genérico — toda execução do routine pegava ele e gerava commit `[routine]` repetido. Fase 7 fechou implicitamente nos PRs mergeados 09/06. Removi o item + adicionei seção "Gating contra trabalho redundante" no PLAYBOOK pra prevenir recorrência.
