@@ -288,6 +288,15 @@ export function ComprovanteClient({ order }: { order: OrderView }) {
           <MessageCircle size={18} strokeWidth={2.5} />
           Enviar no WhatsApp
         </a>
+        {/* Micro-texto explicando que a mensagem do WhatsApp já carrega o
+            link de acompanhamento — sem isso atendente abria o botão
+            "Copiar link" abaixo achando que precisava mandar separado. */}
+        {trackUrl && (
+          <p className="-mt-1 t-caption text-ink-3 inline-flex items-center justify-center gap-1.5">
+            <LinkIcon size={12} strokeWidth={2.5} aria-hidden />
+            <span>Mensagem inclui link de acompanhamento</span>
+          </p>
+        )}
         {/* Link pro cliente acompanhar — fica disabled enquanto baseUrl
             ainda não montou (primeiro paint do SSR) ou se pedido legado
             sem token. Botão muda pra estado "Copiado!" por 2s pra dar
