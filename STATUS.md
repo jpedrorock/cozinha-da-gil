@@ -2,7 +2,7 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-16
+**Última atualização:** 2026-06-17
 **Atualizado por:** `claude-pastel`
 
 ---
@@ -10,6 +10,14 @@
 ## Fase atual
 
 Fase 6 entregue. Pós-fase: hardening + observabilidade.
+
+## O que rolou nesta sessão (routine 2026-06-17)
+
+- **Routine background encerrada — sem itens elegíveis (3º dia consecutivo)** — mesma análise de 2026-06-16; nenhum item passa os filtros de background mode.
+
+- **Achado operacional — main local desatualizado no início da sessão:** container iniciou com `main` em `7543609` (2026-06-01) em vez de `6cf0f54` (2026-06-16). Resolvido com `git fetch && git pull origin main`. Recomendação: roteiro de rotina background deve incluir `git fetch origin main && git pull` como **passo zero** antes de ler os arquivos de estado — sem isso, STATUS/BACKLOG lidos podem refletir versão anterior, levando a análises incorretas.
+
+- **Verificação PRs GitHub:** ~23 PRs abertas no GitHub de rotinas anteriores (PR #80–#102), todas sem merge. Confirma que a fila de triagem documentada no BACKLOG ainda está pendente.
 
 ## O que rolou nesta sessão (routine 2026-06-16 #2)
 
