@@ -19,6 +19,8 @@ Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
 - **Verificação PRs GitHub:** ~23 PRs abertas no GitHub de rotinas anteriores (PR #80–#102), todas sem merge. Confirma que a fila de triagem documentada no BACKLOG ainda está pendente.
 
+- **2ª invocação 2026-06-17 — confirmado:** análise refeita, mesma conclusão. 1 item "OK fazer direto" (WhatsApp comprovante sinaliza link) é proibido em background (toca `app/comprovante/`). Fila precisa de intervenção presencial.
+
 ## O que rolou nesta sessão (routine 2026-06-16 #2)
 
 - **Routine background encerrada — sem itens elegíveis** — fila "Próximos" revisada; nenhum item passa os filtros de background mode:
