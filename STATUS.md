@@ -11,6 +11,10 @@
 
 Fase 6 entregue. Pós-fase: hardening + observabilidade.
 
+## O que rolou nesta sessão (routine 2026-06-17 #3)
+
+- **Routine background encerrada — sem itens elegíveis (4ª execução consecutiva sem trabalho)** — Todos os itens "Próximos" continuam bloqueados: "Confirmar antes" (triagem PRs, limpar branches, stepper massa), "Abrir PR" (bumps deps, rotação backups), ou toca `app/comprovante/` (botão WhatsApp). Sem mudanças elegíveis em main desde `c30da90`. **Requer intervenção presencial do João para desbloquear fila.**
+
 ## O que rolou nesta sessão (routine 2026-06-17)
 
 - **Routine background encerrada — sem itens elegíveis (3º dia consecutivo)** — mesma análise de 2026-06-16; nenhum item passa os filtros de background mode.
