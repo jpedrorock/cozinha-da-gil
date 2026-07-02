@@ -1821,7 +1821,19 @@ function BuiltIcon({ type }: { type: string }) {
   return <PastelSalgadoIcon size={22} />;
 }
 
-type MenuCategory = "pastel" | "macarrao" | "bebidas" | "promocoes";
+type MenuCategory = "pastel" | "coxinha" | "torta" | "cuscuz" | "arroz_carreteiro" | "macarrao" | "bebidas" | "promocoes";
+
+// Regras de matching por nome — evita ter que criar `type` novos no banco
+// pra cada categoria (que exige migration + touching muito código legacy).
+// Aplicadas em ordem: primeira que dá match ganha. Pastel é catch-all.
+function categorizeProduct(name: string): MenuCategory | null {
+  const n = name.toLowerCase();
+  if (n.includes("cuscuz")) return "cuscuz";
+  if (n === "baião de dois" || n === "arroz carreteiro") return "arroz_carreteiro";
+  if (n === "coxinha") return "coxinha";
+  if (n.startsWith("tortinha") || n.startsWith("torta")) return "torta";
+  return null;
+}
 
 function StepProduct({
   products,
@@ -1887,6 +1899,12 @@ function StepProduct({
 
   // === NÍVEL 1: categorias ===
   if (category === null) {
+    // Contagens pra cada categoria custom nova (atualização 02/07 pedido Gil)
+    const coxinhaProds = products.filter((p) => p.available && categorizeProduct(p.name) === "coxinha");
+    const tortaProds = products.filter((p) => p.available && categorizeProduct(p.name) === "torta");
+    const cuscuzProds = products.filter((p) => p.available && categorizeProduct(p.name) === "cuscuz");
+    const arrozProds = products.filter((p) => p.available && categorizeProduct(p.name) === "arroz_carreteiro");
+
     const cards: Array<{ id: MenuCategory; label: string; icon: React.ReactNode; desc: string; available: boolean }> = [
       {
         id: "pastel",
@@ -1894,6 +1912,36 @@ function StepProduct({
         icon: <PastelSalgadoIcon size={64} />,
         desc: "Salgado, doce ou pack",
         available: !!(pastelSalgado || pastelDoce),
+      },
+      {
+        id: "coxinha",
+        label: "Coxinha",
+        icon: <PastelSalgadoIcon size={64} />,
+        desc: coxinhaProds.length > 0
+          ? formatBRL(coxinhaProds[0].basePriceCents ?? 0)
+          : "—",
+        available: coxinhaProds.length > 0,
+      },
+      {
+        id: "torta",
+        label: "Torta",
+        icon: <PastelSalgadoIcon size={64} />,
+        desc: `${tortaProds.length} ${tortaProds.length === 1 ? "opção" : "opções"}`,
+        available: tortaProds.length > 0,
+      },
+      {
+        id: "cuscuz",
+        label: "Cuscuz",
+        icon: <PastelSalgadoIcon size={64} />,
+        desc: `${cuscuzProds.length} ${cuscuzProds.length === 1 ? "opção" : "opções"}`,
+        available: cuscuzProds.length > 0,
+      },
+      {
+        id: "arroz_carreteiro",
+        label: "Arroz Carreteiro",
+        icon: <PastelSalgadoIcon size={64} />,
+        desc: `${arrozProds.length} ${arrozProds.length === 1 ? "opção" : "opções"}`,
+        available: arrozProds.length > 0,
       },
       {
         id: "macarrao",
@@ -1920,10 +1968,12 @@ function StepProduct({
       },
     ];
 
-    // Express products = produtos sem config (bebidas hoje).
-    // Carrossel horizontal no topo: 1 toque = adiciona direto ao cart.
+    // Express products = produtos sem config, mas EXCLUINDO os que já viram
+    // card próprio nas categorias custom (Coxinha, Torta, Cuscuz, Arroz).
+    // Sem isso, esses produtos apareceriam duplicados: uma vez no "Adicionar
+    // rápido" e outra vez dentro do card da categoria.
     const expressProducts = products.filter((p) =>
-      isExpressProduct(p) && p.available,
+      isExpressProduct(p) && p.available && categorizeProduct(p.name) === null,
     );
 
     return (
@@ -1980,6 +2030,10 @@ function StepProduct({
       </button>
       <h2 className="t-h1">
         {category === "pastel" ? "Pastel" :
+         category === "coxinha" ? "Coxinha" :
+         category === "torta" ? "Torta" :
+         category === "cuscuz" ? "Cuscuz" :
+         category === "arroz_carreteiro" ? "Arroz Carreteiro" :
          category === "macarrao" ? "Macarrão" :
          category === "bebidas" ? "Bebidas" :
          "Promoções"}
@@ -2038,6 +2092,44 @@ function StepProduct({
               desc={s.desc}
               selected={false}
               onClick={s.onClick}
+            />
+          ))}
+        </div>
+      </>
+    );
+  }
+
+  // Handler genérico pras 4 categorias custom novas (Coxinha, Torta, Cuscuz,
+  // Arroz Carreteiro). Lista os produtos que matcham a categoria em grid
+  // 2 colunas. Click adiciona direto se for express (fixed sem config), ou
+  // abre stepper se tiver escolha de ingrediente (ex: Cuscuz escolhe recheio).
+  if (
+    category === "coxinha" ||
+    category === "torta" ||
+    category === "cuscuz" ||
+    category === "arroz_carreteiro"
+  ) {
+    const catProds = products.filter(
+      (p) => p.available && categorizeProduct(p.name) === category,
+    );
+    const label =
+      category === "coxinha" ? "Escolha sua coxinha." :
+      category === "torta" ? "Qual torta?" :
+      category === "cuscuz" ? "Qual cuscuz ou adicional?" :
+      "Baião ou arroz carreteiro?";
+    return (
+      <>
+        {Header}
+        <p className="t-body-sm mb-5 ml-9">{label}</p>
+        <div className="grid grid-cols-2 gap-3">
+          {catProds.map((p) => (
+            <KindCard
+              key={p.id}
+              icon={<PastelSalgadoIcon size={64} />}
+              label={p.name}
+              desc={formatBRL(p.basePriceCents ?? 0)}
+              selected={current.productId === p.id}
+              onClick={() => pick(p)}
             />
           ))}
         </div>
