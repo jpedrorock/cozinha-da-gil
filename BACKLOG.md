@@ -31,21 +31,32 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ## ⏭️ Próximos (prontos pra executar)
 
+### Evento nordestino (Julho 2026)
+
+- [ ] **[P1] #evento** Registrar data do evento nordestino em STATUS → "Eventos próximos"
+  - **Pronto quando:** Gil confirma a data e eu adiciono em STATUS.md com nível de criticidade (alta/média/baixa). Isso ativa modo congelamento automático (só P2/P3 baixo risco quando faltar ≤48h).
+  - **Autonomia:** Confirmar antes (precisa da data).
+
+- [ ] **[P1] #chore** Smoke test cardápio novo em prod pós-deploy 02/07
+  - **Pronto quando:** valido via `GET /api/products` que os 8 produtos novos (Baião, Cuscuz, 3 Tortinhas, 3 Adicionais) + Coxinha estão em prod com preços corretos; Macarrão ausente; categoria `cuscuz_recheio` com 6 sabores. Testo o fluxo "Cuscuz + 2 adicionais" via UI: soma R$ 19 e vai na cozinha como 3 linhas.
+  - **Autonomia:** OK fazer direto.
+
+- [ ] **[P2] #docs** Guia (`/guia`) atualizado com fluxo do evento nordestino
+  - **Pronto quando:** `guide-content.ts` ganha tópico "Cuscuz e adicionais" na aba Atendente explicando: escolher recheio no stepper, adicionais são produtos separados que se toca 1 vez cada. Aba Cozinha explica que Cuscuz + adicionais aparece como 3 linhas separadas no ticket.
+  - **Autonomia:** OK fazer direto.
+
 ### Cardápio (atualização junho 2026)
-
-
-- [ ] **[P3] #atendente #ux** Stepper: escolha estruturada de massa do macarrão
-  - **Pronto quando:** ao adicionar Macarrão no pedido, stepper mostra fase nova "Massa" com Penne / Espaguete (do `macarrao_massa`) antes de toppings. Pedido salva massa estruturada (não em Observações). Cozinha vê na ticket.
-  - **Contexto:** PR #74 deixou ingredientes prontos via categoria `macarrao_massa`; falta UI no stepper + campo no schema do pedido OU reusar `sauces` com flag. Por enquanto atendente registra via Observações.
-  - **Autonomia:** Confirmar antes (decide caminho schema vs notes).
 
 ### Fila de PRs (bloqueia merges, prioridade alta)
 
-
-- [ ] **[P2] #chore** Triagem fila PR + branches routine
-  - **Pronto quando:** PRs duplicadas/superseded fechadas (#26, #35 são as únicas com trabalho real hoje; resto é routine logs); branches `routine-pastel-*` órfãs (sem PR ativo) deletadas do origin. Lista final: ≤5 PRs com trabalho real, ≤5 routine branches vivas.
-  - **Contexto:** Triagem 05/06 limpou 17 PRs + 19 branches. Voltou a inflar: 42 routine branches hoje.
+- [ ] **[P1] #chore** Triagem massiva das 26 PRs + 61 branches routine
+  - **Pronto quando:** PRs mergeadas/duplicadas fechadas (candidatas: quase todas as routine-* de #79 em diante são bookkeeping duplicado), branches `routine-pastel-*` órfãs deletadas do origin. Meta: ≤5 PRs vivas, ≤10 routine branches.
+  - **Contexto:** Triagens 05/06 e 15/06 limparam antes; fila volta a inflar porque routine background continua criando branches. Item #5 abaixo ataca a raiz.
   - **Autonomia:** Confirmar antes (op destrutiva em branches).
+
+- [ ] **[P2] #chore #infra** Investigar por que Coolify não faz auto-deploy no merge
+  - **Pronto quando:** documentado (README ou `docs/DEPLOY.md`) por que auto-deploy não dispara: webhook GitHub desativado? Coolify token expirado? Auto-deploy off no painel? Ideal restaurar pra próximos merges subirem em ~3min sem intervenção manual — hoje precisa Gil disparar redeploy manualmente pelo painel Coolify (uptime prod estava 15 dias quando descobrimos 02/07).
+  - **Autonomia:** Confirmar antes (mexe em config externa).
 
 ### Hardening / deps
 
@@ -64,9 +75,7 @@ _Idealmente 0–1 item por vez nesse repo (single-Claude)._
 
 ### Polish
 
-- [ ] **[P3] #atendente #ux** Botão "Enviar WhatsApp" do comprovante sinaliza que link já tá incluído
-  - **Pronto quando:** abaixo (ou ao lado de) "Enviar no WhatsApp" no `ComprovanteClient`, aparece micro-texto com icon `LinkIcon` pequeno: "Mensagem inclui link de acompanhamento". Atendente vê que o link já vai junto e não tenta copiar/mandar de novo.
-  - **Autonomia:** OK fazer direto.
+- [x] **[P3] #atendente #ux** Botão "Enviar WhatsApp" do comprovante sinaliza que link já tá incluído [claude-pastel 2026-06-15 PR #103]
 
 - [x] **[P3] #cliente #ux** Indicador "ao vivo · atualizado às X" em `/p/<token>` [claude-pastel 2026-06-05 background]
 

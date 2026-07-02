@@ -2,7 +2,7 @@
 
 > Atualizar este arquivo no fim de toda sessão.
 
-**Última atualização:** 2026-06-17
+**Última atualização:** 2026-07-02
 **Atualizado por:** `claude-pastel`
 
 ---
@@ -10,6 +10,17 @@
 ## Fase atual
 
 Fase 6 entregue. Pós-fase: hardening + observabilidade.
+
+## O que rolou nesta sessão (2026-07-02)
+
+- **Sessão presencial gigante — 4 PRs mergeados em prod:**
+  - `ad12723` **#104** — fix crítico scroll fase MONTAR do stepper (`min-h-0` no wrapper root)
+  - `e7197bc` **#103** — micro-texto "Mensagem inclui link de acompanhamento" no comprovante
+  - `d71e23e` **#105** — cardápio julho: **remove todo o macarrão** (produto + 3 categorias de ingrediente) + adiciona **Coxinha R$ 10**
+  - `0cae107` **#106** — **evento nordestino**: Baião de Dois R$ 20, Cuscuz no Pote R$ 15 (com escolha de 1 recheio dos 6 sabores em categoria nova `cuscuz_recheio`), 3 Tortinhas R$ 15 cada (Charque+Banana da Terra, Vinagrete+Linguiça, Bacon+Alho Poró+Queijo), 3 Adicionais R$ 2 cada como produtos separados (Queijo, Banana da Terra, Vinagrete)
+- **Banco local atualizado direto via script Prisma** — 15 produtos, 26 ingredientes, macarrão apagado (4 OrderItems + 14 ingredientes + 1 produto). Preços Pastel Salgado corrigidos: Pequeno R$ 10, Grande R$ 15.
+- **🚨 Descoberto: Coolify não fazia auto-deploy há 15 dias** — uptime prod estava 21.590min. Gil disparou redeploy manual pelo painel Coolify; prod voltou a subir (`uptimeSec: 719` no fim da sessão).
+- **Backlog replanejado: 7 itens novos** — data do evento em STATUS [P1], smoke test cardápio [P1], guia com fluxo evento [P2], triagem 26 PRs + 61 branches [P1], investigar auto-deploy [P2], bumps deps [P3], rotação backups [P3].
 
 ## O que rolou nesta sessão (routine 2026-06-17 #3)
 
