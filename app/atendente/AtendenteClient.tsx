@@ -1934,10 +1934,11 @@ function StepProduct({
         {expressProducts.length > 0 && (
           <div className="mb-6">
             <div className="t-label mb-2">⚡ Adicionar rápido</div>
-            <div
-              data-stop-swipe
-              className="flex gap-3 overflow-x-auto no-scrollbar pb-2 -mx-4 px-4 md:mx-0 md:px-0"
-            >
+            {/* Grid em vez de carrossel horizontal — atendente reportou
+                02/07 que produtos do evento (Baião, Cuscuz, Tortinhas,
+                Coxinha) sumiam além da 3ª coluna, ela não notava o
+                scroll horizontal. Grid mostra todos na tela de uma vez. */}
+            <div className="grid grid-cols-2 gap-3">
               {expressProducts.map((p) => (
                 <ExpressCard key={p.id} product={p} onAdd={() => onExpressAdd(p)} />
               ))}
@@ -2767,7 +2768,9 @@ function ExpressCard({ product, onAdd }: { product: ProductView; onAdd: () => vo
   return (
     <button
       onClick={onAdd}
-      className="shrink-0 w-32 h-28 rounded-lg border-2 border-line bg-surface-elevated hover:border-brand-yellow hover:bg-[#FFFCE5] active:scale-[0.96] transition flex flex-col items-center justify-center gap-1.5 relative p-2"
+      // w-full pra preencher a célula do grid (antes era w-32 shrink-0 pra
+      // carrossel horizontal — trocado por grid 02/07).
+      className="w-full h-28 rounded-lg border-2 border-line bg-surface-elevated hover:border-brand-yellow hover:bg-[#FFFCE5] active:scale-[0.96] transition flex flex-col items-center justify-center gap-1.5 relative p-2"
     >
       {/* Badge "+" no canto pra sinalizar "adiciona direto" */}
       <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-brand-yellow text-ink flex items-center justify-center font-bold text-xs">
