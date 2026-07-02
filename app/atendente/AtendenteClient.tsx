@@ -1946,14 +1946,18 @@ function StepProduct({
         )}
 
         <div className="grid grid-cols-2 gap-3">
-          {cards.map((c) => (
+          {/* Filtra categorias sem produto ativo — antes deixava o card
+              renderizar com desc "—" e onClick noop, o que confundia a
+              atendente (bug reportado 02/07: Macarrão desativado ainda
+              aparecia como card órfão na tela inicial do stepper). */}
+          {cards.filter((c) => c.available).map((c) => (
             <KindCard
               key={c.id}
               icon={c.icon}
               label={c.label}
               desc={c.desc}
               selected={false}
-              onClick={c.available ? () => setCategory(c.id) : () => {}}
+              onClick={() => setCategory(c.id)}
             />
           ))}
         </div>
