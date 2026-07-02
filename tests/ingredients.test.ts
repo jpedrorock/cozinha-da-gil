@@ -7,15 +7,11 @@ import {
 } from "@/lib/ingredients";
 
 describe("INGREDIENT_CATEGORIES", () => {
-  it("inclui as 7 categorias canônicas", () => {
+  it("inclui as 4 categorias canônicas (pós-remoção do macarrão em julho/2026)", () => {
     expect(INGREDIENT_CATEGORIES).toEqual([
       "topping",
       "doce",
       "molho",
-      "macarrao_topping",
-      "macarrao_molho",
-      // Atualização cardápio 06/06/2026 — Penne/Espaguete.
-      "macarrao_massa",
       "bebida_extra",
     ]);
   });
