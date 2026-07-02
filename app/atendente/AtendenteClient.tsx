@@ -518,31 +518,8 @@ export function AtendenteClient({
     setPhase("product");
   }
 
-  /** Express add — adiciona produto sem passar por configure. Pra bebidas
-   *  (Coca, Suco, Água) que não têm tamanho/ingrediente/molho. 1 toque
-   *  = 1 item no cart. */
-  function addExpressToCart(product: ProductView) {
-    const unitPriceCents = product.basePriceCents ?? 0;
-    setBuilt((prev) => [
-      ...prev,
-      {
-        productId: product.id,
-        productSizeId: null,
-        productType: product.type,
-        productName: product.name,
-        sizeName: null,
-        ingredients: [],
-        sauces: [],
-        notes: null,
-        quantity: 1,
-        unitPriceCents,
-        kind: null,
-        size: null,
-      },
-    ]);
-    setCurrent(emptyBuilding());
-    setPhase("cart");
-  }
+  // addExpressToCart removida 02/07 — bloco "Adicionar rápido" saiu da tela.
+  // Bebidas viraram fluxo normal via categoria "Bebidas" → escolhe → pick().
 
   function setBuiltQuantity(idx: number, delta: number) {
     setBuilt((prev) =>
@@ -1026,7 +1003,6 @@ export function AtendenteClient({
           onStart={startBuilding}
           onFinishPastel={finishCurrentPastel}
           onAddAnother={addAnotherPastel}
-          onExpressAdd={addExpressToCart}
           onSubmit={submitOrder}
           onDiscard={resetOrder}
           onRemoveBuilt={(idx) => {
@@ -1189,7 +1165,6 @@ function NovoPedido({
   onStart,
   onFinishPastel,
   onAddAnother,
-  onExpressAdd,
   onSubmit,
   onDiscard,
   onRemoveBuilt,
@@ -1229,7 +1204,6 @@ function NovoPedido({
   onStart: () => void;
   onFinishPastel: () => void;
   onAddAnother: () => void;
-  onExpressAdd: (product: ProductView) => void;
   onSubmit: () => void;
   onDiscard: () => void;
   onRemoveBuilt: (idx: number) => void;
@@ -1688,7 +1662,7 @@ function NovoPedido({
         >
           <div key={phase} className="animate-step-in">
             {phase === "product" && (
-              <StepProduct products={products} current={current} setCurrent={setCurrent} setPhase={setPhase} onExpressAdd={onExpressAdd} />
+              <StepProduct products={products} current={current} setCurrent={setCurrent} setPhase={setPhase} />
             )}
             {phase === "configure" && currentProduct && (
               <StepConfigure
@@ -1821,15 +1795,26 @@ function BuiltIcon({ type }: { type: string }) {
   return <PastelSalgadoIcon size={22} />;
 }
 
-type MenuCategory = "pastel" | "coxinha" | "torta" | "cuscuz" | "arroz_carreteiro" | "macarrao" | "bebidas" | "promocoes";
+type MenuCategory = "pastel" | "salgado" | "cuscuz" | "refeicoes" | "macarrao" | "bebidas" | "promocoes";
 
-// Regras de matching por nome — evita ter que criar `type` novos no banco
-// pra cada categoria (que exige migration + touching muito código legacy).
-// Aplicadas em ordem: primeira que dá match ganha. Pastel é catch-all.
+// Regras de matching por nome. Categoria "salgado" agrupa Torta + Coxinha
+// (Gil pediu 02/07 pra agrupar tudo que é salgadinho); "refeicoes" agrupa
+// pratos maiores (Baião + Arroz Carreteiro). Categoria dedicada só pra
+// Cuscuz porque ele tem escolha de recheio (fluxo próprio no stepper).
 function categorizeProduct(name: string): MenuCategory | null {
   const n = name.toLowerCase();
   if (n.includes("cuscuz")) return "cuscuz";
-  if (n === "baião de dois" || n === "arroz carreteiro") return "arroz_carreteiro";
+  if (n === "baião de dois" || n === "arroz carreteiro") return "refeicoes";
+  if (n === "coxinha") return "salgado";
+  if (n.startsWith("tortinha") || n.startsWith("torta")) return "salgado";
+  return null;
+}
+
+// Sub-categoria dentro de "salgado" pra dividir Torta vs Coxinha. Torta
+// tem "sabores" (5 tortas diferentes), Coxinha é 1 produto só.
+type SalgadoSub = "torta" | "coxinha";
+function salgadoSubcategory(name: string): SalgadoSub | null {
+  const n = name.toLowerCase();
   if (n === "coxinha") return "coxinha";
   if (n.startsWith("tortinha") || n.startsWith("torta")) return "torta";
   return null;
@@ -1840,19 +1825,22 @@ function StepProduct({
   current,
   setCurrent,
   setPhase,
-  onExpressAdd,
 }: {
   products: ProductView[];
   current: Building;
   setCurrent: (c: Building) => void;
   setPhase: (p: Phase) => void;
-  /** Express add — adiciona produto direto no cart sem passar por configure.
-   *  Usado pelos cards do carrossel "Adicionar rápido". */
-  onExpressAdd: (p: ProductView) => void;
 }) {
   // Menu em 2 níveis: categoria → opção.
   // Mantém categoria selecionada em state local; volta = limpa.
   const [category, setCategory] = useState<MenuCategory | null>(null);
+  // Sub-nível dentro de "salgado" (Torta ou Coxinha). null = mostra os 2
+  // cards; "torta" = mostra os 5 sabores de torta.
+  const [salgadoSub, setSalgadoSub] = useState<SalgadoSub | null>(null);
+  // Zera o sub-nível quando sai da categoria "salgado"
+  useEffect(() => {
+    if (category !== "salgado") setSalgadoSub(null);
+  }, [category]);
 
   // Agrupa produtos por nossas categorias visuais
   // Produtos no atendente: SÓ os disponíveis (Gil pode desligar qualquer
@@ -1899,11 +1887,11 @@ function StepProduct({
 
   // === NÍVEL 1: categorias ===
   if (category === null) {
-    // Contagens pra cada categoria custom nova (atualização 02/07 pedido Gil)
-    const coxinhaProds = products.filter((p) => p.available && categorizeProduct(p.name) === "coxinha");
-    const tortaProds = products.filter((p) => p.available && categorizeProduct(p.name) === "torta");
+    // Contagens pra cada categoria custom (atualização 02/07 pedido Gil).
+    // "salgado" agrupa Torta + Coxinha; "refeicoes" agrupa Baião + Arroz.
+    const salgadoProds = products.filter((p) => p.available && categorizeProduct(p.name) === "salgado");
     const cuscuzProds = products.filter((p) => p.available && categorizeProduct(p.name) === "cuscuz");
-    const arrozProds = products.filter((p) => p.available && categorizeProduct(p.name) === "arroz_carreteiro");
+    const refeicoesProds = products.filter((p) => p.available && categorizeProduct(p.name) === "refeicoes");
 
     const cards: Array<{ id: MenuCategory; label: string; icon: React.ReactNode; desc: string; available: boolean }> = [
       {
@@ -1914,34 +1902,25 @@ function StepProduct({
         available: !!(pastelSalgado || pastelDoce),
       },
       {
-        id: "coxinha",
-        label: "Coxinha",
+        id: "salgado",
+        label: "Salgado",
         icon: <PastelSalgadoIcon size={64} />,
-        desc: coxinhaProds.length > 0
-          ? formatBRL(coxinhaProds[0].basePriceCents ?? 0)
-          : "—",
-        available: coxinhaProds.length > 0,
-      },
-      {
-        id: "torta",
-        label: "Torta",
-        icon: <PastelSalgadoIcon size={64} />,
-        desc: `${tortaProds.length} ${tortaProds.length === 1 ? "opção" : "opções"}`,
-        available: tortaProds.length > 0,
+        desc: `${salgadoProds.length} ${salgadoProds.length === 1 ? "opção" : "opções"}`,
+        available: salgadoProds.length > 0,
       },
       {
         id: "cuscuz",
         label: "Cuscuz",
         icon: <PastelSalgadoIcon size={64} />,
-        desc: `${cuscuzProds.length} ${cuscuzProds.length === 1 ? "opção" : "opções"}`,
+        desc: `${cuscuzProds.length} ${cuscuzProds.length === 1 ? "sabor" : "sabores"}`,
         available: cuscuzProds.length > 0,
       },
       {
-        id: "arroz_carreteiro",
-        label: "Arroz Carreteiro",
+        id: "refeicoes",
+        label: "Refeições",
         icon: <PastelSalgadoIcon size={64} />,
-        desc: `${arrozProds.length} ${arrozProds.length === 1 ? "opção" : "opções"}`,
-        available: arrozProds.length > 0,
+        desc: `${refeicoesProds.length} ${refeicoesProds.length === 1 ? "opção" : "opções"}`,
+        available: refeicoesProds.length > 0,
       },
       {
         id: "macarrao",
@@ -1968,33 +1947,13 @@ function StepProduct({
       },
     ];
 
-    // Express products = produtos sem config, mas EXCLUINDO os que já viram
-    // card próprio nas categorias custom (Coxinha, Torta, Cuscuz, Arroz).
-    // Sem isso, esses produtos apareceriam duplicados: uma vez no "Adicionar
-    // rápido" e outra vez dentro do card da categoria.
-    const expressProducts = products.filter((p) =>
-      isExpressProduct(p) && p.available && categorizeProduct(p.name) === null,
-    );
-
     return (
       <>
         <h2 className="t-h1 mb-1">O que vai pedir?</h2>
         <p className="t-body-sm mb-5">Escolha a categoria.</p>
-
-        {expressProducts.length > 0 && (
-          <div className="mb-6">
-            <div className="t-label mb-2">⚡ Adicionar rápido</div>
-            {/* Grid em vez de carrossel horizontal — atendente reportou
-                02/07 que produtos do evento (Baião, Cuscuz, Tortinhas,
-                Coxinha) sumiam além da 3ª coluna, ela não notava o
-                scroll horizontal. Grid mostra todos na tela de uma vez. */}
-            <div className="grid grid-cols-2 gap-3">
-              {expressProducts.map((p) => (
-                <ExpressCard key={p.id} product={p} onAdd={() => onExpressAdd(p)} />
-              ))}
-            </div>
-          </div>
-        )}
+        {/* Bloco "⚡ Adicionar rápido" removido 02/07 (pedido Gil) — deixava
+            a tela sobrecarregada com produtos duplicados que já apareciam
+            dentro das categorias. Agora só cards de categoria. */}
 
         <div className="grid grid-cols-2 gap-3">
           {/* Filtra categorias sem produto ativo — antes deixava o card
@@ -2030,10 +1989,9 @@ function StepProduct({
       </button>
       <h2 className="t-h1">
         {category === "pastel" ? "Pastel" :
-         category === "coxinha" ? "Coxinha" :
-         category === "torta" ? "Torta" :
+         category === "salgado" ? "Salgado" :
          category === "cuscuz" ? "Cuscuz" :
-         category === "arroz_carreteiro" ? "Arroz Carreteiro" :
+         category === "refeicoes" ? "Refeições" :
          category === "macarrao" ? "Macarrão" :
          category === "bebidas" ? "Bebidas" :
          "Promoções"}
@@ -2099,23 +2057,85 @@ function StepProduct({
     );
   }
 
-  // Handler genérico pras 4 categorias custom novas (Coxinha, Torta, Cuscuz,
-  // Arroz Carreteiro). Lista os produtos que matcham a categoria em grid
-  // 2 colunas. Click adiciona direto se for express (fixed sem config), ou
-  // abre stepper se tiver escolha de ingrediente (ex: Cuscuz escolhe recheio).
-  if (
-    category === "coxinha" ||
-    category === "torta" ||
-    category === "cuscuz" ||
-    category === "arroz_carreteiro"
-  ) {
+  // === Salgado (Torta + Coxinha) — sub-navegação em 2 níveis ===
+  // Nível 2a: mostra 2 cards (Torta, Coxinha). Nível 2b: se clicar Torta,
+  // mostra os 5 sabores em grid. Coxinha adiciona direto (1 produto só).
+  if (category === "salgado") {
+    const tortaProds = products.filter(
+      (p) => p.available && salgadoSubcategory(p.name) === "torta",
+    );
+    const coxinhaProds = products.filter(
+      (p) => p.available && salgadoSubcategory(p.name) === "coxinha",
+    );
+
+    // Sub-nível: viu Torta → mostra sabores
+    if (salgadoSub === "torta") {
+      return (
+        <>
+          <div className="flex items-center gap-2 mb-1">
+            <button
+              onClick={() => setSalgadoSub(null)}
+              className="h-8 px-2 -ml-2 rounded-md text-ink-3 hover:text-ink text-sm font-semibold"
+              aria-label="Voltar pra Salgado"
+            >
+              ←
+            </button>
+            <h2 className="t-h1">Torta</h2>
+          </div>
+          <p className="t-body-sm mb-5 ml-9">Qual sabor?</p>
+          <div className="grid grid-cols-2 gap-3">
+            {tortaProds.map((p) => (
+              <KindCard
+                key={p.id}
+                icon={<PastelSalgadoIcon size={64} />}
+                label={p.name}
+                desc={formatBRL(p.basePriceCents ?? 0)}
+                selected={current.productId === p.id}
+                onClick={() => pick(p)}
+              />
+            ))}
+          </div>
+        </>
+      );
+    }
+
+    return (
+      <>
+        {Header}
+        <p className="t-body-sm mb-5 ml-9">Torta ou coxinha?</p>
+        <div className="grid grid-cols-2 gap-3">
+          {tortaProds.length > 0 && (
+            <KindCard
+              icon={<PastelSalgadoIcon size={64} />}
+              label="Torta"
+              desc={`${tortaProds.length} ${tortaProds.length === 1 ? "sabor" : "sabores"}`}
+              selected={false}
+              onClick={() => setSalgadoSub("torta")}
+            />
+          )}
+          {coxinhaProds.map((p) => (
+            <KindCard
+              key={p.id}
+              icon={<PastelSalgadoIcon size={64} />}
+              label={p.name}
+              desc={formatBRL(p.basePriceCents ?? 0)}
+              selected={current.productId === p.id}
+              onClick={() => pick(p)}
+            />
+          ))}
+        </div>
+      </>
+    );
+  }
+
+  // === Cuscuz / Refeições — grid direto (Cuscuz precisa escolher recheio
+  // via stepper existente; Refeições são produtos fixos que adicionam direto) ===
+  if (category === "cuscuz" || category === "refeicoes") {
     const catProds = products.filter(
       (p) => p.available && categorizeProduct(p.name) === category,
     );
     const label =
-      category === "coxinha" ? "Escolha sua coxinha." :
-      category === "torta" ? "Qual torta?" :
-      category === "cuscuz" ? "Qual cuscuz ou adicional?" :
+      category === "cuscuz" ? "Qual sabor ou adicional?" :
       "Baião ou arroz carreteiro?";
     return (
       <>
@@ -2853,42 +2873,7 @@ function KindCard({
   );
 }
 
-/** Card horizontal compacto pra carrossel "Adicionar rápido".
- *  1 toque = adiciona produto no cart. Visual menor que KindCard
- *  pra distinguir afordância (não é "abrir menu" e sim "+1"). */
-function ExpressCard({ product, onAdd }: { product: ProductView; onAdd: () => void }) {
-  return (
-    <button
-      onClick={onAdd}
-      // w-full pra preencher a célula do grid (antes era w-32 shrink-0 pra
-      // carrossel horizontal — trocado por grid 02/07).
-      className="w-full h-28 rounded-lg border-2 border-line bg-surface-elevated hover:border-brand-yellow hover:bg-[#FFFCE5] active:scale-[0.96] transition flex flex-col items-center justify-center gap-1.5 relative p-2"
-    >
-      {/* Badge "+" no canto pra sinalizar "adiciona direto" */}
-      <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-brand-yellow text-ink flex items-center justify-center font-bold text-xs">
-        +
-      </div>
-      {(product.imageUrl ?? product.imageDataUrl) ? (
-        /* eslint-disable-next-line @next/next/no-img-element */
-        <img
-          src={product.imageUrl ?? product.imageDataUrl ?? ""}
-          alt=""
-          width={40}
-          height={40}
-          loading="lazy"
-          decoding="async"
-          draggable={false}
-          className="w-10 h-10 object-contain select-none"
-          style={{ WebkitTouchCallout: "none" }}
-        />
-      ) : (
-        <BebidaIcon size={36} />
-      )}
-      <span className="text-[13px] font-bold text-ink leading-tight text-center line-clamp-2">{product.name}</span>
-      <span className="t-caption t-num">{formatBRL(product.basePriceCents ?? 0)}</span>
-    </button>
-  );
-}
+// ExpressCard removido 02/07 — bloco "Adicionar rápido" saiu da tela.
 
 function StepSauces({
   current,
