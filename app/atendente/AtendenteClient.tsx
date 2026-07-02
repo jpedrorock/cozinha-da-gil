@@ -1663,7 +1663,12 @@ function NovoPedido({
   }
 
   return (
-    <div className="flex-1 flex flex-col md:flex-row">
+    // min-h-0: sem isso, o flex-1 do wrapper expande pelo conteúdo (lista
+    // de ingredientes) em vez de respeitar a altura do pai (h-dvh do root
+    // do AtendenteClient). Efeito prático em mobile: fase "MONTAR" não
+    // scrollava — ingredientes e Quantidade ficavam cortados abaixo do
+    // viewport, botão "Adicionar ao pedido" invisível. Reportado 15/06.
+    <div className="flex-1 flex flex-col md:flex-row min-h-0">
       <div className="flex-1 flex flex-col min-h-0">
         <div className="px-4 md:px-8 pt-4 pb-3 bg-surface-elevated border-b border-line">
           <Stepper
