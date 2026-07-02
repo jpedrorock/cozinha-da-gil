@@ -7,11 +7,12 @@ import {
 } from "@/lib/ingredients";
 
 describe("INGREDIENT_CATEGORIES", () => {
-  it("inclui as 4 categorias canônicas (pós-remoção do macarrão em julho/2026)", () => {
+  it("inclui as 5 categorias canônicas (pós-macarrão + cuscuz evento julho/2026)", () => {
     expect(INGREDIENT_CATEGORIES).toEqual([
       "topping",
       "doce",
       "molho",
+      "cuscuz_recheio",
       "bebida_extra",
     ]);
   });

@@ -55,6 +55,18 @@ const INGREDIENTS: Record<string, Seed[]> = {
   // Categorias macarrao_topping, macarrao_molho e macarrao_massa removidas.
   // Pedidos históricos com esses ingredientes ficam íntegros (snapshot no
   // OrderItem sobrevive), só somem do Cardápio ativo.
+  //
+  // Evento extra julho/2026: recheios do Cuscuz no pote. Cliente escolhe 1
+  // dos 6 sabores. Adicionais (Queijo, Banana da terra, Vinagrete) são
+  // produtos separados de R$ 2 — não vão aqui.
+  cuscuz_recheio: [
+    { name: "Frango" },
+    { name: "Carne desfiada" },
+    { name: "Charque" },
+    { name: "Charque com banana" },
+    { name: "Queijo" },
+    { name: "Linguiça" },
+  ],
 };
 
 // === Produtos Fase 6 ===
@@ -150,6 +162,93 @@ const PRODUCTS: ProductSeed[] = [
     allowsIngredients: false,
     allowsSauces: false,
     position: 6,
+  },
+  // === Evento extra julho/2026 — cardápio nordestino ===
+  // Baião, Cuscuz e Tortinhas pra evento específico. Podem ser desligados
+  // via toggle "Disponível" quando o evento acabar, ou removidos via admin.
+  {
+    name: "Baião de Dois",
+    type: "salgado",
+    pricingMode: "fixed",
+    basePriceCents: 2000,
+    allowsIngredients: false,
+    allowsSauces: false,
+    position: 7,
+  },
+  // Cuscuz no pote: cliente escolhe 1 dos 6 sabores via categoria
+  // `cuscuz_recheio`. Adicionais (Queijo, Banana da terra, Vinagrete)
+  // são produtos separados de R$ 2 que aparecem na lista pro atendente
+  // tocar quantas vezes precisar — permite preço próprio (R$ 2, diferente
+  // dos R$ 1,50 dos molhos hard-coded em SAUCE_PRICE_CENTS).
+  {
+    name: "Cuscuz no Pote",
+    type: "salgado",
+    pricingMode: "fixed",
+    basePriceCents: 1500,
+    allowsIngredients: true,
+    ingredientCategory: "cuscuz_recheio",
+    minIngredients: 1,
+    maxIngredients: 1,
+    allowsSauces: false,
+    position: 8,
+  },
+  // 3 Tortinhas nordestinas — mesmo modelo das outras tortas
+  {
+    name: "Tortinha de Charque com Banana da Terra",
+    type: "salgado",
+    pricingMode: "fixed",
+    basePriceCents: 1500,
+    allowsIngredients: false,
+    allowsSauces: false,
+    position: 9,
+  },
+  {
+    name: "Tortinha de Vinagrete com Linguiça",
+    type: "salgado",
+    pricingMode: "fixed",
+    basePriceCents: 1500,
+    allowsIngredients: false,
+    allowsSauces: false,
+    position: 10,
+  },
+  {
+    name: "Tortinha de Bacon com Alho Poró e Queijo",
+    type: "salgado",
+    pricingMode: "fixed",
+    basePriceCents: 1500,
+    allowsIngredients: false,
+    allowsSauces: false,
+    position: 11,
+  },
+  // Adicionais do Cuscuz — produtos fixos R$ 2 cada. Atendente toca
+  // quantas vezes o cliente pedir (cada tap = 1 linha no pedido).
+  // Position 30+ pra ficar bem depois dos produtos principais.
+  {
+    name: "Adicional Cuscuz — Queijo",
+    type: "salgado",
+    pricingMode: "fixed",
+    basePriceCents: 200,
+    allowsIngredients: false,
+    allowsSauces: false,
+    position: 30,
+  },
+  {
+    name: "Adicional Cuscuz — Banana da Terra",
+    type: "salgado",
+    pricingMode: "fixed",
+    basePriceCents: 200,
+    allowsIngredients: false,
+    allowsSauces: false,
+    position: 31,
+  },
+  {
+    name: "Adicional Cuscuz — Vinagrete",
+    type: "salgado",
+    pricingMode: "fixed",
+    basePriceCents: 200,
+    allowsIngredients: false,
+    allowsSauces: false,
+    position: 32,
   },
   // --- Bebidas: cada uma é um Product, preço fixo, sem ingredientes ---
   {

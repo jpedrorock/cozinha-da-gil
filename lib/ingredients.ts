@@ -24,6 +24,14 @@ export const INGREDIENT_CATEGORIES = [
   // continuam íntegros — o kind e os ingredientes salvos como snapshot
   // no OrderItem sobrevivem a essa mudança. Só desapareceram do
   // Cardápio ativo do admin.
+  //
+  // Evento extra julho/2026 — Baião, Cuscuz e Tortinhas nordestinas:
+  // categoria `cuscuz_recheio` pros 6 sabores do Cuscuz no pote
+  // (cliente escolhe 1 sabor). Adicionais são produtos separados de
+  // R$ 2 (Queijo, Banana da terra, Vinagrete) que o atendente adiciona
+  // como linhas no pedido — não usam ingredient/sauce mechanism pra
+  // permitir preço próprio (R$ 2, diferente dos R$ 1,50 dos molhos).
+  "cuscuz_recheio",
   "bebida_extra",
 ] as const;
 
