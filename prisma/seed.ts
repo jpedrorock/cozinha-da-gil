@@ -51,36 +51,10 @@ const INGREDIENTS: Record<string, Seed[]> = {
     // disponível como molho extra também.
     { name: "Barbecue" },
   ],
-  // Fase 6 — macarrão tem ingredientes separados
-  macarrao_topping: [
-    { name: "Carne" },
-    { name: "Calabresa" },
-    { name: "Frango" },
-    { name: "Bacon" },
-    { name: "Queijo" },
-    { name: "Presunto" },
-    { name: "Milho" },
-    { name: "Cebola" },
-    { name: "Azeitona" },
-    { name: "Batata palha" },
-    { name: "Cebola caramelizada" },
-    // Atualização cardápio 06/06.
-    { name: "Pimentão" },
-  ],
-  macarrao_molho: [
-    // Atualização cardápio 06/06: Bolonhesa removida (não tá no cardápio
-    // impresso); Alho e óleo adicionado.
-    { name: "Branco" },
-    { name: "Tomate" },
-    { name: "Alho e óleo" },
-  ],
-  // Atualização cardápio 06/06: escolha de massa do macarrão (categoria
-  // nova `macarrao_massa`). Por enquanto atendente registra via Observações
-  // do pedido; stepper de escolha estruturada vira backlog futuro.
-  macarrao_massa: [
-    { name: "Penne" },
-    { name: "Espaguete" },
-  ],
+  // Atualização cardápio julho/2026: Gil parou de vender macarrão.
+  // Categorias macarrao_topping, macarrao_molho e macarrao_massa removidas.
+  // Pedidos históricos com esses ingredientes ficam íntegros (snapshot no
+  // OrderItem sobrevive), só somem do Cardápio ativo.
 };
 
 // === Produtos Fase 6 ===
@@ -133,18 +107,7 @@ const PRODUCTS: ProductSeed[] = [
       { name: "Mini Pack", description: "10 unidades", priceCents: 3000 },
     ],
   },
-  // --- Macarrão: preço fixo, ingredientes + molhos próprios ---
-  {
-    name: "Macarrão",
-    type: "macarrao",
-    pricingMode: "fixed",
-    basePriceCents: 2000,
-    allowsIngredients: true,
-    ingredientCategory: "macarrao_topping",
-    allowsSauces: true,
-    sauceCategory: "macarrao_molho",
-    position: 2,
-  },
+  // Macarrão removido (julho/2026) — Gil parou de vender.
   // --- Pastel Churrasqueiro: combo pré-montado, sem escolha (06/06/2026) ---
   // Carne desfiada + Queijo + Molho barbecue já vem assumidos; atendente
   // não monta. Modelado como type "salgado" fixed pra render igual aos
@@ -176,6 +139,17 @@ const PRODUCTS: ProductSeed[] = [
     allowsIngredients: false,
     allowsSauces: false,
     position: 5,
+  },
+  // --- Coxinha: produto fixo, sem tamanho, sem recheio (julho/2026) ---
+  // Gil vende só um tipo, tudo já pronto. Atendente toca 1 vez e pronto.
+  {
+    name: "Coxinha",
+    type: "salgado",
+    pricingMode: "fixed",
+    basePriceCents: 1000,
+    allowsIngredients: false,
+    allowsSauces: false,
+    position: 6,
   },
   // --- Bebidas: cada uma é um Product, preço fixo, sem ingredientes ---
   {

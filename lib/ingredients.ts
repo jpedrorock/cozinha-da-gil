@@ -18,14 +18,12 @@ export const INGREDIENT_CATEGORIES = [
   "topping",
   "doce",
   "molho",
-  "macarrao_topping",
-  "macarrao_molho",
-  // Categoria nova pra Penne/Espaguete (atualização cardápio 06/06/2026).
-  // Stepper estruturado pra escolha de massa fica em backlog (item P3) —
-  // por enquanto admin pode adicionar ingredientes aqui pra Cardápio
-  // refletir o que existe, e atendente usa Observações do pedido pra
-  // marcar qual massa o cliente quer.
-  "macarrao_massa",
+  // Categorias `macarrao_topping`, `macarrao_molho`, `macarrao_massa`
+  // removidas na atualização de cardápio julho/2026 (Gil parou de
+  // vender macarrão). Pedidos históricos com esses ingredientes
+  // continuam íntegros — o kind e os ingredientes salvos como snapshot
+  // no OrderItem sobrevivem a essa mudança. Só desapareceram do
+  // Cardápio ativo do admin.
   "bebida_extra",
 ] as const;
 
