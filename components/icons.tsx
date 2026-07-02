@@ -216,6 +216,174 @@ export function PromocaoIcon({ size = 24, ...props }: IconProps) {
   );
 }
 
+/**
+ * Coxinha: formato de gota/lágrima invertida, empanada dourada com
+ * textura de farinha de rosca (pontinhos escuros). Base laranja
+ * indicando a parte mais frita.
+ */
+export function CoxinhaIcon({ size = 24, ...props }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden {...props}>
+      {/* vapor */}
+      <path d="M 40 10 Q 44 4 40 -1" stroke="#1F1410" strokeWidth="3" strokeLinecap="round" fill="none" />
+      <path d="M 52 12 Q 56 6 52 1" stroke="#1F1410" strokeWidth="3" strokeLinecap="round" fill="none" />
+      {/* base do prato (sombra) */}
+      <ellipse cx="48" cy="86" rx="26" ry="4" fill="#F0C800" stroke="#1F1410" strokeWidth="2.5" />
+      {/* corpo da coxinha (gota invertida) */}
+      <path
+        d="M 48 16 Q 52 20 58 32 Q 68 50 68 66 Q 68 82 48 82 Q 28 82 28 66 Q 28 50 38 32 Q 44 20 48 16 Z"
+        fill="#FFD600"
+        stroke="#1F1410"
+        strokeWidth="3"
+        strokeLinejoin="round"
+      />
+      {/* sombra inferior (mais frito) */}
+      <path
+        d="M 30 62 Q 30 82 48 82 Q 66 82 66 62 Q 60 76 48 76 Q 36 76 30 62 Z"
+        fill="#FF8A00"
+        stroke="#1F1410"
+        strokeWidth="2.5"
+        strokeLinejoin="round"
+      />
+      {/* textura da farinha */}
+      <circle cx="42" cy="40" r="1.6" fill="#1F1410" />
+      <circle cx="52" cy="46" r="1.6" fill="#1F1410" />
+      <circle cx="46" cy="54" r="1.6" fill="#1F1410" />
+      <circle cx="56" cy="58" r="1.6" fill="#1F1410" />
+      <circle cx="40" cy="62" r="1.6" fill="#1F1410" />
+      <circle cx="50" cy="70" r="1.6" fill="#1F1410" />
+    </svg>
+  );
+}
+
+/**
+ * Torta salgada: fatia triangular vista de cima, com crosta dourada
+ * na borda e recheio laranja no centro. Cortada em cunha.
+ */
+export function TortaIcon({ size = 24, ...props }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden {...props}>
+      {/* vapor */}
+      <path d="M 42 14 Q 46 8 42 2" stroke="#1F1410" strokeWidth="3" strokeLinecap="round" fill="none" />
+      <path d="M 56 14 Q 60 8 56 2" stroke="#1F1410" strokeWidth="3" strokeLinecap="round" fill="none" />
+      {/* base (sombra da tábua) */}
+      <path d="M 12 74 L 84 74 L 78 84 L 18 84 Z" fill="#F0C800" stroke="#1F1410" strokeWidth="3" strokeLinejoin="round" />
+      {/* fatia triangular — vista de perfil */}
+      <path
+        d="M 20 74 L 76 74 L 48 26 Z"
+        fill="#FFD600"
+        stroke="#1F1410"
+        strokeWidth="3"
+        strokeLinejoin="round"
+      />
+      {/* recheio laranja (visível na fatia) */}
+      <path
+        d="M 30 68 L 66 68 L 48 40 Z"
+        fill="#FF8A00"
+        stroke="#1F1410"
+        strokeWidth="2.5"
+        strokeLinejoin="round"
+      />
+      {/* massinha da borda superior (crosta lateral) */}
+      <line x1="26" y1="68" x2="70" y2="68" stroke="#1F1410" strokeWidth="2.5" strokeLinecap="round" />
+      {/* riscos de forno na crosta */}
+      <line x1="36" y1="60" x2="42" y2="52" stroke="#1F1410" strokeWidth="2" strokeLinecap="round" />
+      <line x1="54" y1="52" x2="60" y2="60" stroke="#1F1410" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+/**
+ * Cuscuz no pote: pote cilíndrico transparente com camada de cuscuz
+ * granulado no topo, recheio abaixo. Tampa dourada.
+ */
+export function CuscuzIcon({ size = 24, ...props }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden {...props}>
+      {/* vapor */}
+      <path d="M 40 8 Q 44 2 40 -3" stroke="#1F1410" strokeWidth="3" strokeLinecap="round" fill="none" />
+      <path d="M 54 8 Q 58 2 54 -3" stroke="#1F1410" strokeWidth="3" strokeLinecap="round" fill="none" />
+      {/* colher espetada */}
+      <rect x="66" y="10" width="4" height="42" rx="1.5" fill="#FFFCF5" stroke="#1F1410" strokeWidth="2.5" />
+      <ellipse cx="68" cy="16" rx="6" ry="4" fill="#FFFCF5" stroke="#1F1410" strokeWidth="2.5" />
+      {/* corpo do pote (cilindro) */}
+      <path
+        d="M 18 24 L 74 24 L 74 84 Q 74 88 70 88 L 22 88 Q 18 88 18 84 Z"
+        fill="#FFFCF5"
+        stroke="#1F1410"
+        strokeWidth="3"
+        strokeLinejoin="round"
+      />
+      {/* camada de recheio (frango/charque) laranja */}
+      <path d="M 20 60 L 72 60 L 72 84 Q 72 86 70 86 L 22 86 Q 20 86 20 84 Z" fill="#FF8A00" />
+      {/* pedacinhos do recheio */}
+      <circle cx="30" cy="72" r="2" fill="#1F1410" />
+      <circle cx="42" cy="78" r="2" fill="#1F1410" />
+      <circle cx="56" cy="72" r="2" fill="#1F1410" />
+      <circle cx="62" cy="80" r="2" fill="#1F1410" />
+      {/* camada de cuscuz amarelinho */}
+      <path d="M 20 32 L 72 32 L 72 60 L 20 60 Z" fill="#FFD600" />
+      {/* granulado do cuscuz */}
+      <circle cx="26" cy="40" r="1.4" fill="#1F1410" />
+      <circle cx="34" cy="46" r="1.4" fill="#1F1410" />
+      <circle cx="42" cy="38" r="1.4" fill="#1F1410" />
+      <circle cx="50" cy="44" r="1.4" fill="#1F1410" />
+      <circle cx="58" cy="38" r="1.4" fill="#1F1410" />
+      <circle cx="66" cy="46" r="1.4" fill="#1F1410" />
+      <circle cx="30" cy="52" r="1.4" fill="#1F1410" />
+      <circle cx="46" cy="54" r="1.4" fill="#1F1410" />
+      <circle cx="62" cy="52" r="1.4" fill="#1F1410" />
+      {/* linhas divisórias das camadas */}
+      <line x1="20" y1="60" x2="72" y2="60" stroke="#1F1410" strokeWidth="2.5" />
+      {/* tampa (opcional — sugere pote fechável) */}
+      <path d="M 14 22 L 78 22 L 76 32 L 16 32 Z" fill="#F0C800" stroke="#1F1410" strokeWidth="3" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+/**
+ * Refeição: prato branco redondo visto de cima, com montinho de
+ * arroz amarelo/branco e feijão marrom no lado, garfo apoiado.
+ */
+export function RefeicaoIcon({ size = 24, ...props }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden {...props}>
+      {/* vapor */}
+      <path d="M 38 14 Q 42 8 38 2" stroke="#1F1410" strokeWidth="3" strokeLinecap="round" fill="none" />
+      <path d="M 54 14 Q 58 8 54 2" stroke="#1F1410" strokeWidth="3" strokeLinecap="round" fill="none" />
+      {/* borda externa do prato (perspectiva de cima) */}
+      <ellipse cx="48" cy="58" rx="40" ry="24" fill="#FFFCF5" stroke="#1F1410" strokeWidth="3" />
+      {/* borda interna do prato */}
+      <ellipse cx="48" cy="58" rx="32" ry="18" fill="#FFFCF5" stroke="#1F1410" strokeWidth="2.5" />
+      {/* arroz — montinho amarelo à esquerda */}
+      <path
+        d="M 22 58 Q 26 46 40 46 Q 50 48 48 62 Q 40 68 24 66 Q 20 62 22 58 Z"
+        fill="#FFD600"
+        stroke="#1F1410"
+        strokeWidth="2.5"
+        strokeLinejoin="round"
+      />
+      {/* granulação do arroz */}
+      <circle cx="30" cy="54" r="1.4" fill="#1F1410" />
+      <circle cx="36" cy="58" r="1.4" fill="#1F1410" />
+      <circle cx="42" cy="54" r="1.4" fill="#1F1410" />
+      <circle cx="32" cy="62" r="1.4" fill="#1F1410" />
+      {/* feijão — mancha marrom/laranja à direita */}
+      <path
+        d="M 50 52 Q 60 46 70 52 Q 74 60 66 66 Q 56 68 50 62 Q 46 56 50 52 Z"
+        fill="#FF8A00"
+        stroke="#1F1410"
+        strokeWidth="2.5"
+        strokeLinejoin="round"
+      />
+      {/* grãos do feijão */}
+      <ellipse cx="58" cy="56" rx="2.4" ry="1.6" fill="#1F1410" />
+      <ellipse cx="64" cy="60" rx="2.4" ry="1.6" fill="#1F1410" />
+      <ellipse cx="56" cy="62" rx="2.4" ry="1.6" fill="#1F1410" />
+    </svg>
+  );
+}
+
 // === Aliases de compat ===
 // Código antigo importa PastelIcon e DoceIcon. Mantém apontando pros novos.
 export const PastelIcon = PastelSalgadoIcon;
