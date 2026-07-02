@@ -15,11 +15,15 @@ import { buildWaUrl, templateOrderReady } from "@/lib/whatsapp-templates";
 import { useBodyScrollLock } from "@/lib/use-body-scroll-lock";
 import {
   BebidaIcon,
+  CoxinhaIcon,
+  CuscuzIcon,
   MacarraoIcon,
   PackMiniIcon,
   PastelDoceIcon,
   PastelSalgadoIcon,
   PromocaoIcon,
+  RefeicaoIcon,
+  TortaIcon,
 } from "@/components/icons";
 import { useIdleLogout } from "@/lib/use-idle-logout";
 import { useSSE } from "@/lib/use-sse";
@@ -1474,7 +1478,7 @@ function NovoPedido({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-baseline justify-between gap-2">
                       <div className="font-bold text-base flex items-baseline gap-1.5">
-                        <BuiltIcon type={item.productType} />
+                        <BuiltIcon type={item.productType} name={item.productName} />
                         <span>
                           {item.productName}
                           {item.sizeName ? ` · ${item.sizeName}` : ""}
@@ -1720,7 +1724,7 @@ function NovoPedido({
                       {idx + 1}
                     </span>
                     <div className="shrink-0 mt-0.5">
-                      <BuiltIcon type={it.productType} />
+                      <BuiltIcon type={it.productType} name={it.productName} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="t-body-sm font-semibold text-ink truncate">
@@ -1787,11 +1791,23 @@ function NovoPedido({
   );
 }
 
-function BuiltIcon({ type }: { type: string }) {
+function BuiltIcon({ type, name }: { type: string; name?: string }) {
   if (type === "doce") return <PastelDoceIcon size={22} />;
   if (type === "bebida") return <BebidaIcon size={22} />;
   if (type === "macarrao") return <MacarraoIcon size={22} />;
   if (type === "combo") return <PromocaoIcon size={22} />;
+  // type === "salgado" agrupa Pastel + Torta + Coxinha + Cuscuz + Refeições.
+  // Distingue pelo nome (mesmo critério do menu do stepper).
+  if (name) {
+    const cat = categorizeProduct(name);
+    if (cat === "cuscuz") return <CuscuzIcon size={22} />;
+    if (cat === "refeicoes") return <RefeicaoIcon size={22} />;
+    if (cat === "salgado") {
+      const sub = salgadoSubcategory(name);
+      if (sub === "torta") return <TortaIcon size={22} />;
+      if (sub === "coxinha") return <CoxinhaIcon size={22} />;
+    }
+  }
   return <PastelSalgadoIcon size={22} />;
 }
 
@@ -1904,21 +1920,21 @@ function StepProduct({
       {
         id: "salgado",
         label: "Salgado",
-        icon: <PastelSalgadoIcon size={64} />,
+        icon: <CoxinhaIcon size={64} />,
         desc: `${salgadoProds.length} ${salgadoProds.length === 1 ? "opção" : "opções"}`,
         available: salgadoProds.length > 0,
       },
       {
         id: "cuscuz",
         label: "Cuscuz",
-        icon: <PastelSalgadoIcon size={64} />,
+        icon: <CuscuzIcon size={64} />,
         desc: `${cuscuzProds.length} ${cuscuzProds.length === 1 ? "sabor" : "sabores"}`,
         available: cuscuzProds.length > 0,
       },
       {
         id: "refeicoes",
         label: "Refeições",
-        icon: <PastelSalgadoIcon size={64} />,
+        icon: <RefeicaoIcon size={64} />,
         desc: `${refeicoesProds.length} ${refeicoesProds.length === 1 ? "opção" : "opções"}`,
         available: refeicoesProds.length > 0,
       },
@@ -2087,7 +2103,7 @@ function StepProduct({
             {tortaProds.map((p) => (
               <KindCard
                 key={p.id}
-                icon={<PastelSalgadoIcon size={64} />}
+                icon={<TortaIcon size={64} />}
                 label={p.name}
                 desc={formatBRL(p.basePriceCents ?? 0)}
                 selected={current.productId === p.id}
@@ -2106,7 +2122,7 @@ function StepProduct({
         <div className="grid grid-cols-2 gap-3">
           {tortaProds.length > 0 && (
             <KindCard
-              icon={<PastelSalgadoIcon size={64} />}
+              icon={<TortaIcon size={64} />}
               label="Torta"
               desc={`${tortaProds.length} ${tortaProds.length === 1 ? "sabor" : "sabores"}`}
               selected={false}
@@ -2116,7 +2132,7 @@ function StepProduct({
           {coxinhaProds.map((p) => (
             <KindCard
               key={p.id}
-              icon={<PastelSalgadoIcon size={64} />}
+              icon={<CoxinhaIcon size={64} />}
               label={p.name}
               desc={formatBRL(p.basePriceCents ?? 0)}
               selected={current.productId === p.id}
@@ -2137,6 +2153,7 @@ function StepProduct({
     const label =
       category === "cuscuz" ? "Qual sabor ou adicional?" :
       "Baião ou arroz carreteiro?";
+    const CatIcon = category === "cuscuz" ? CuscuzIcon : RefeicaoIcon;
     return (
       <>
         {Header}
@@ -2145,7 +2162,7 @@ function StepProduct({
           {catProds.map((p) => (
             <KindCard
               key={p.id}
-              icon={<PastelSalgadoIcon size={64} />}
+              icon={<CatIcon size={64} />}
               label={p.name}
               desc={formatBRL(p.basePriceCents ?? 0)}
               selected={current.productId === p.id}
